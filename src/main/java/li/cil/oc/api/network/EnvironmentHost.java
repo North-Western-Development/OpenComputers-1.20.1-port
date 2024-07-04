@@ -1,6 +1,6 @@
 package li.cil.oc.api.network;
 
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 /**
  * To be implemented by 'hosts' of components.
@@ -18,7 +18,7 @@ public interface EnvironmentHost {
     /**
      * The world the container lives in.
      */
-    World world();
+    Level world();
 
     /**
      * The container's X position in the world.

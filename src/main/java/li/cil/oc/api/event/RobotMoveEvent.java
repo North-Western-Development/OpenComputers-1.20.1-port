@@ -1,7 +1,7 @@
 package li.cil.oc.api.event;
 
 import li.cil.oc.api.internal.Agent;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 import net.minecraftforge.eventbus.api.Cancelable;
 
 public abstract class RobotMoveEvent extends RobotEvent {

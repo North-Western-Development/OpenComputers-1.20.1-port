@@ -1,9 +1,9 @@
 package li.cil.oc.api.event;
 
 import li.cil.oc.api.network.Node;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
@@ -23,7 +23,7 @@ import net.minecraftforge.eventbus.api.Event;
 public class FileSystemAccessEvent extends Event {
     protected String sound;
 
-    protected World world;
+    protected Level world;
 
     protected double x;
 
@@ -31,9 +31,9 @@ public class FileSystemAccessEvent extends Event {
 
     protected double z;
 
-    protected TileEntity tileEntity;
+    protected BlockEntity tileEntity;
 
-    protected CompoundNBT data;
+    protected CompoundTag data;
 
     /**
      * Constructor for tile entity hosted file systems.
@@ -42,7 +42,7 @@ public class FileSystemAccessEvent extends Event {
      * @param tileEntity the tile entity hosting the file system.
      * @param data       the additional data.
      */
-    protected FileSystemAccessEvent(String sound, TileEntity tileEntity, CompoundNBT data) {
+    protected FileSystemAccessEvent(String sound, BlockEntity tileEntity, CompoundTag data) {
         this.sound = sound;
         this.world = tileEntity.getLevel();
         this.x = tileEntity.getBlockPos().getX() + 0.5;
@@ -62,7 +62,7 @@ public class FileSystemAccessEvent extends Event {
      * @param z     the z coordinate of the file system's container.
      * @param data  the additional data.
      */
-    protected FileSystemAccessEvent(String sound, World world, double x, double y, double z, CompoundNBT data) {
+    protected FileSystemAccessEvent(String sound, Level world, double x, double y, double z, CompoundTag data) {
         this.sound = sound;
         this.world = world;
         this.x = x;
@@ -82,7 +82,7 @@ public class FileSystemAccessEvent extends Event {
     /**
      * The world the file system lives in.
      */
-    public World getWorld() {
+    public Level getWorld() {
         return world;
     }
 
@@ -113,7 +113,7 @@ public class FileSystemAccessEvent extends Event {
      * <em>Important</em>: this can be <tt>null</tt>, which is usually the
      * case when the container is an entity or item.
      */
-    public TileEntity getBlockEntity() {
+    public BlockEntity getBlockEntity() {
         return tileEntity;
     }
 
@@ -121,20 +121,20 @@ public class FileSystemAccessEvent extends Event {
      * Addition custom data, this is used to transmit the number of the server
      * in a server rack the file system lives in, for example.
      */
-    public CompoundNBT getData() {
+    public CompoundTag getData() {
         return data;
     }
 
     public static final class Server extends FileSystemAccessEvent {
         private Node node;
 
-        public Server(String sound, TileEntity tileEntity, Node node) {
-            super(sound, tileEntity, new CompoundNBT());
+        public Server(String sound, BlockEntity tileEntity, Node node) {
+            super(sound, tileEntity, new CompoundTag());
             this.node = node;
         }
 
-        public Server(String sound, World world, double x, double y, double z, Node node) {
-            super(sound, world, x, y, z, new CompoundNBT());
+        public Server(String sound, Level world, double x, double y, double z, Node node) {
+            super(sound, world, x, y, z, new CompoundTag());
             this.node = node;
         }
 
@@ -154,7 +154,7 @@ public class FileSystemAccessEvent extends Event {
          * @param tileEntity the tile entity hosting the file system.
          * @param data       the additional data.
          */
-        public Client(String sound, TileEntity tileEntity, CompoundNBT data) {
+        public Client(String sound, BlockEntity tileEntity, CompoundTag data) {
             super(sound, tileEntity, data);
         }
 
@@ -168,7 +168,7 @@ public class FileSystemAccessEvent extends Event {
          * @param z     the z coordinate of the file system's container.
          * @param data  the additional data.
          */
-        public Client(String sound, World world, double x, double y, double z, CompoundNBT data) {
+        public Client(String sound, Level world, double x, double y, double z, CompoundTag data) {
             super(sound, world, x, y, z, data);
         }
     }

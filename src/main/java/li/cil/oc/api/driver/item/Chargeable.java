@@ -1,6 +1,6 @@
 package li.cil.oc.api.driver.item;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * This interface can be implemented on items that go into a charger.

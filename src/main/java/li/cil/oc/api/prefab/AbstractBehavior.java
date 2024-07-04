@@ -2,7 +2,7 @@ package li.cil.oc.api.prefab;
 
 import li.cil.oc.api.nanomachines.Behavior;
 import li.cil.oc.api.nanomachines.DisableReason;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 
 /**
  * Base class for behaviors, mostly useful to have less cluttered classes when
@@ -14,7 +14,7 @@ public abstract class AbstractBehavior implements Behavior {
     /**
      * The player this behavior was created for.
      */
-    public final PlayerEntity player;
+    public final Player player;
 
     /**
      * Pass along the player the behavior was created for here to have it stored
@@ -22,7 +22,7 @@ public abstract class AbstractBehavior implements Behavior {
      *
      * @param player the player the behavior was created for.
      */
-    protected AbstractBehavior(PlayerEntity player) {
+    protected AbstractBehavior(Player player) {
         this.player = player;
     }
 

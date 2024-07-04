@@ -1,20 +1,12 @@
 plugins {
+    id "idea"
     id 'scala'
-    id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '5.1.64'
-    id 'wtf.gofancy.fancygradle' version '1.1.+'
-    id "com.matthewprenger.cursegradle" version "1.4.0"
-    id 'com.modrinth.minotaur' version '2.8.7'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
 }
 
-fancyGradle {
-    patches {
-        resources
-    }
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
-
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
 
 file "build.properties" withReader {
     def prop = new Properties()
@@ -31,7 +23,10 @@ if (version.endsWith("-snapshot")) {
 }
 
 group = config.mod.group
-archivesBaseName = config.mod.name
+
+base {
+    archivesName = config.mod.name
+}
 
 def getGitRef() {
     try {
@@ -52,43 +47,43 @@ ext.simpleVersion = version
 version = "MC${config.minecraft.version}-${project.version}"
 
 minecraft {
-    mappings channel: "${config.minecraft.mappings_channel}", version: "${config.minecraft.mappings_version}"
+    mappings channel: "official", version: config.minecraft.mappings_version
+
+    accessTransformer = file("src/main/resources/META-INF/accesstransformer.cfg")
 
     runs {
-        client {
-            workingDirectory project.file("run")
-
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'info'
-
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+        all {
+            property "forge.logging.markers", "REGISTRIES"
+            property "forge.logging.console.level", "debug"
 
             mods {
-                opencomputers {
+                oc2r {
                     source sourceSets.main
                 }
             }
+        }
+
+        client {
+            workingDirectory project.file("runclient")
+            property "forge.enabledGameTestNamespaces", "oc"
         }
 
         server {
             workingDirectory project.file("run")
+            property "forge.enabledGameTestNamespaces", "oc"
+            arg "--nogui"
+        }
 
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'info'
+        gameTestServer {
+            workingDirectory project.file('run')
+            property "forge.enabledGameTestNamespaces", "oc"
+        }
 
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-
-            mods {
-                opencomputers {
-                    source sourceSets.main
-                }
-            }
+        data {
+            workingDirectory project.file("run")
+            args "--mod", "oc", "--all", "--output", file("src/generated/resources/"), "--existing", file("src/main/resources")
         }
     }
-
-    accessTransformer = file("src/main/resources/META-INF/accesstransformer.cfg")
 }
 
 task replaceSourceTokensScala(type: Sync) {
@@ -100,19 +95,6 @@ task replaceSourceTokensScala(type: Sync) {
     into "$buildDir/srcReplaced/scala"
 }
 
-/* Do not pull this in on IDEA, as it changes the compiler's source path, making navigating to errors harder */
-if (!System.getProperty('idea.active')) {
-    compileScala {
-        source = replaceSourceTokensScala.outputs
-    }
-}
-
-compileScala {
-    configure(scalaCompileOptions.forkOptions) {
-        memoryMaximumSize = '1g'
-    }
-}
-
 repositories {
     maven {
         name "MightyPirates"
@@ -121,6 +103,11 @@ repositories {
             mavenPom()
             artifact()
         }
+    }
+    maven {
+        // location of the maven that hosts JEI files since January 2023
+        name = "Jared's maven"
+        url = "https://maven.blamejared.com/"
     }
     maven {
         name "SquidDev" /* CC: Tweaked */
@@ -170,6 +157,18 @@ repositories {
             includeModule "net.minecraftforge", "Scorge"
         }
     }
+
+    maven {
+        name = "Azure-SLP"
+        url = uri("https://pkgs.dev.azure.com/Kotori316/minecraft/_packaging/mods/maven/v1")
+        content {
+            it.includeModule("com.kotori316", "ScalableCatsForce".toLowerCase())
+            it.includeModule("org.typelevel", "cats-core_3")
+            it.includeModule("org.typelevel", "cats-kernel_3")
+            it.includeModule("org.typelevel", "cats-free_3")
+        }
+    }
+
     mavenCentral()
 }
 
@@ -181,23 +180,25 @@ configurations {
 }
 
 dependencies {
-    def jeiSlug = "jei-${config.minecraft.version}"
     minecraft "net.minecraftforge:forge:${config.minecraft.version}-${config.forge.version}"
 
     // required for tests but cannot use implementation as that would clash with scorge at runtime
     compileOnly "org.scala-lang:scala-library:2.13.4"
-    implementation "net.minecraftforge:Scorge:${config.scorge.version}"
+    //implementation "net.minecraftforge:Scorge:${config.scorge.version}"
+    runtimeOnly(group: "com.kotori316", name: "ScalableCatsForce".toLowerCase(), version: "3.3.0-build-2", classifier: "with-library") {
+        transitive(false)
+    }
     embedded "com.typesafe:config:1.2.1"
 
-    compileOnly fg.deobf("li.cil.tis3d:tis3d-1.16.5-forge:${config.tis3d.version}")
-    compileOnly fg.deobf("curse.maven:hwyla-${config.hwyla.projectId}:${config.hwyla.fileId}")
-    compileOnly fg.deobf("org.squiddev:cc-tweaked-${config.minecraft.version}:${config.cct.version}")
-    compileOnly fg.deobf("curse.maven:cofh-core-69162:4022663") /* CoFHCore */
-    compileOnly fg.deobf("curse.maven:thermal-foundation-222880:4022666") /* Thermal Foundation */
+    compileOnly fg.deobf("curse.maven:cofh-core-69162:5374122")
+    compileOnly fg.deobf("curse.maven:tis-3d-238603:5266276")
+    //compileOnly fg.deobf("curse.maven:hwyla-${config.hwyla.projectId}:${config.hwyla.fileId}")
+    compileOnly fg.deobf("curse.maven:cc-tweaked-282001:5379173")
+    compileOnly fg.deobf("curse.maven:thermal-foundation-222880:5443583") /* Thermal Foundation */
 
-    runtimeOnly fg.deobf("curse.maven:modernfix-790626:4714445")
+    //runtimeOnly fg.deobf("curse.maven:modernfix-790626:5425647")
 
-    provided fg.deobf("appeng:appliedenergistics2:${config.ae2.version}:api") {
+    provided fg.deobf("appeng:appliedenergistics2-forge:${config.ae2.version}:api") {
         transitive = false
     }
 
@@ -205,28 +206,15 @@ dependencies {
         transitive = false
     }
 
-    provided fg.deobf("codechicken:CBMultipart:${config.cbmultipart.version}:universal") {
-        exclude module: jeiSlug
-        exclude module: "CodeChickenLib"
-    }
+    provided fg.deobf("curse.maven:cb-multipart-258426:5311521")
 
     provided fg.deobf("codechicken:ChickenASM:${config.casm.version}")
 
-    provided fg.deobf("mezz.jei:${jeiSlug}:${config.jei.version}")
-    provided fg.deobf("codechicken:CodeChickenLib:${config.ccl.version}:universal")
+    compileOnly(fg.deobf("mezz.jei:jei-${config.minecraft.version}-common-api:${config.jei.version}"))
+    compileOnly(fg.deobf("mezz.jei:jei-${config.minecraft.version}-forge-api:${config.jei.version}"))
+    provided fg.deobf("curse.maven:codechicken-lib-1-8-242818:5420418")
 
-    provided fg.deobf("mrtjp:ProjectRed:${config.projred.version}:core") {
-        exclude module: "CodeChickenLib"
-        exclude module: jeiSlug
-        exclude module: "CBMultipart"
-    }
-
-    provided fg.deobf("mrtjp:ProjectRed:${config.projred.version}:integration") {
-        exclude module: "NotEnoughItems"
-        exclude module: "CodeChickenLib"
-        exclude module: "jei_1.12"
-        exclude module: "ForgeMultipart"
-    }
+    runtimeOnly(fg.deobf("mezz.jei:jei-${config.minecraft.version}-forge:${config.jei.version}"))
 
     embedded name: 'OC-LuaJ', version: '20220907.1', ext: 'jar'
     embedded name: 'OC-JNLua', version: '20230530.0', ext: 'jar'
@@ -240,7 +228,7 @@ dependencies {
     testImplementation "org.scalatestplus:junit-4-13_2.13:3.2.6.+"
     testImplementation "org.scalatestplus:mockito-3-4_2.13:3.2.6.+"
 
-    provided fg.deobf("codechicken:EnderStorage:${config.enderstorage.version}:universal")
+    provided fg.deobf("curse.maven:ender-storage-1-8-245174:5292573")
 }
 
 processResources {
@@ -261,11 +249,6 @@ processResources {
 }
 
 jar {
-    configurations.embedded.each { dep ->
-        from(project.zipTree(dep)) {
-            exclude '*', 'META-INF', 'META-INF/**'
-        }
-    }
     manifest {
         attributes([
             "Specification-Title": "opencomputers",
@@ -286,64 +269,16 @@ javadoc {
 task apiJar(type: Jar) {
     from sourceSets.main.allSource
     from sourceSets.main.output
-    classifier = 'api'
+    archiveClassifier = 'api'
     include 'li/cil/oc/api/**'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
-    classifier 'javadoc'
+    archiveClassifier = 'javadoc'
 }
 
 artifacts {
     archives apiJar
     archives javadocJar
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            groupId = project.group
-            artifactId = project.name
-            version = mod_version
-            artifact jar
-            artifact apiJar
-            artifact javadocJar
-        }
-    }
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = System.getenv("GITHUB_MAVEN_URL") ?: ""
-            credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
-            }
-        }
-    }
-}
-
-curseforge {
-    apiKey = System.getenv('CURSEFORGE_API_KEY') ?: ""
-    project {
-        id = config.curse.project.id
-        releaseType = System.getenv('CURSEFORGE_RELEASE_TYPE') ?: "alpha"
-        changelogType = "markdown"
-        changelog = System.getenv("CHANGELOG") ?: "Changelog not available."
-        addGameVersion config.minecraft.version
-        addGameVersion "Java 8"
-        addGameVersion "Forge"
-    }
-}
-
-modrinth {
-    token = System.getenv("MODRINTH_API_KEY") ?: ""
-    projectId = config.modrinth.project.id
-    changelog = System.getenv("CHANGELOG") ?: "Changelog not available."
-    versionNumber = mod_version
-    versionName = "${rootProject.name}-${version}"
-    versionType = System.getenv('MODRINTH_RELEASE_TYPE') ?: "alpha"
-    uploadFile = jar
-    gameVersions = [config.minecraft.version]
-    loaders = ["forge"]
 }

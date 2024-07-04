@@ -1,12 +1,8 @@
 package li.cil.oc.api.driver.item;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import li.cil.oc.api.event.RobotRenderEvent;
 import li.cil.oc.api.internal.Robot;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.Set;
 

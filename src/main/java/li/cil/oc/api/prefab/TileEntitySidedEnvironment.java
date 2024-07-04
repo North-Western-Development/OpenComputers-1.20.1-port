@@ -3,12 +3,14 @@ package li.cil.oc.api.prefab;
 import li.cil.oc.api.Network;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.SidedEnvironment;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.TickingBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+
 
 /**
  * TileEntities can implement the {@link li.cil.oc.api.network.SidedEnvironment}
@@ -21,7 +23,7 @@ import net.minecraft.util.Direction;
  * network as an index structure to find other nodes connected to them.
  */
 @SuppressWarnings("UnusedDeclaration")
-public abstract class TileEntitySidedEnvironment extends TileEntity implements SidedEnvironment, ITickableTileEntity {
+public abstract class TileEntitySidedEnvironment extends BlockEntity implements SidedEnvironment, TickingBlockEntity {
     // See constructor.
     protected Node[] nodes = new Node[6];
 
@@ -62,7 +64,7 @@ public abstract class TileEntitySidedEnvironment extends TileEntity implements S
      *       .create(), ...);
      * </pre>
      */
-    protected TileEntitySidedEnvironment(TileEntityType<?> type, final Node... nodes) {
+    protected TileEntitySidedEnvironment(BlockEntityType<?> type, final Node... nodes) {
         super(type);
         System.arraycopy(nodes, 0, this.nodes, 0, Math.min(nodes.length, this.nodes.length));
     }
@@ -97,6 +99,11 @@ public abstract class TileEntitySidedEnvironment extends TileEntity implements S
     }
 
     @Override
+    public BlockPos getPos() {
+        return worldPosition;
+    }
+
+    @Override
     public void onChunkUnloaded() {
         super.onChunkUnloaded();
         // Make sure to remove the node from its network when its environment,
@@ -119,8 +126,8 @@ public abstract class TileEntitySidedEnvironment extends TileEntity implements S
     // ----------------------------------------------------------------------- //
 
     @Override
-    public void load(final BlockState state, final CompoundNBT nbt) {
-        super.load(state, nbt);
+    public void load(final CompoundTag nbt) {
+        super.load(nbt);
         int index = 0;
         for (Node node : nodes) {
             // The host check may be superfluous for you. It's just there to allow
@@ -139,18 +146,17 @@ public abstract class TileEntitySidedEnvironment extends TileEntity implements S
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT nbt) {
-        super.save(nbt);
+    public void saveAdditional(CompoundTag nbt) {
+        super.saveAdditional(nbt);
         int index = 0;
         for (Node node : nodes) {
             // See load() regarding host check.
             if (node != null && node.host() == this) {
-                final CompoundNBT nodeNbt = new CompoundNBT();
+                final CompoundTag nodeNbt = new CompoundTag();
                 node.saveData(nodeNbt);
                 nbt.put("oc:node" + index, nodeNbt);
             }
             ++index;
         }
-        return nbt;
     }
 }

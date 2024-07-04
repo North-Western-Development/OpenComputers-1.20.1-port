@@ -1,6 +1,6 @@
 package li.cil.oc.api.internal;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * This interface is implemented by the database component.

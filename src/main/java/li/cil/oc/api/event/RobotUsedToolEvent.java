@@ -1,7 +1,7 @@
 package li.cil.oc.api.event;
 
 import li.cil.oc.api.internal.Agent;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 public class RobotUsedToolEvent extends RobotEvent {
     /**

@@ -1,9 +1,9 @@
 package li.cil.oc.api.detail;
 
 import li.cil.oc.api.FileSystem;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.Callable;
@@ -62,7 +62,7 @@ public interface ItemAPI {
      * adding a recipe for your loot disk, for example.
      */
     ItemStack registerFloppy(String name, ResourceLocation loc, DyeColor color,
-        Callable<li.cil.oc.api.fs.FileSystem> factory, boolean doRecipeCycling);
+                             Callable<li.cil.oc.api.fs.FileSystem> factory, boolean doRecipeCycling);
 
     /**
      * Register a single custom EEPROM.

@@ -1,6 +1,6 @@
 package li.cil.oc.api.driver;
 
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 
 /**
  * This interface can be implemented by environments to enforce a method
@@ -17,7 +17,7 @@ import net.minecraft.util.math.BlockPos;
  * suppress inventory functionality if your TileEntity implements IInventory.
  * <br>
  * To do so, implement this interface in the <em>environment</em> that you
- * return from your driver's {@link DriverBlock#createEnvironment(net.minecraft.world.World, BlockPos, net.minecraft.util.Direction)}
+ * return from your driver's {@link DriverBlock#createEnvironment(net.minecraft.world.level.Level, BlockPos, net.minecraft.core.BlockPos)}
  * method, and provide the names of the allowed methods from {@link #whitelistedMethods()}.
  * <br>
  * <em>Important</em>: if multiple drivers apply to a single block that each

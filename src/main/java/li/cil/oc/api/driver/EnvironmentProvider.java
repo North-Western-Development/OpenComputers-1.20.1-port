@@ -1,6 +1,6 @@
 package li.cil.oc.api.driver;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Environment providers allow OpenComputers to resolve item stacks to the

@@ -1,9 +1,9 @@
 package li.cil.oc.api;
 
 import li.cil.oc.api.detail.ItemInfo;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.concurrent.Callable;
 
@@ -75,7 +75,7 @@ public final class Items {
      * adding a recipe for your loot disk, for example.
      */
     public static ItemStack registerFloppy(String name, ResourceLocation loc, DyeColor color,
-        Callable<li.cil.oc.api.fs.FileSystem> factory, boolean doRecipeCycling) {
+                                           Callable<li.cil.oc.api.fs.FileSystem> factory, boolean doRecipeCycling) {
 
         if (API.items != null)
             return API.items.registerFloppy(name, loc, color, factory, doRecipeCycling);

@@ -3,11 +3,10 @@ package li.cil.oc.api.event;
 import li.cil.oc.api.driver.item.UpgradeRenderer;
 import li.cil.oc.api.internal.Agent;
 import li.cil.oc.api.internal.Robot;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.eventbus.api.Cancelable;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector4f;
+import org.joml.Math;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.Set;
 
@@ -56,9 +55,9 @@ public class RobotRenderEvent extends RobotEvent {
      * to between 0 and 1 and pack them into an RGB integer.
      */
     public void setLightColor(float r, float g, float b) {
-        int ir = MathHelper.floor(0.5f + 255 * MathHelper.clamp(r, 0.0f, 1.0f));
-        int ig = MathHelper.floor(0.5f + 255 * MathHelper.clamp(g, 0.0f, 1.0f));
-        int ib = MathHelper.floor(0.5f + 255 * MathHelper.clamp(b, 0.0f, 1.0f));
+        int ir = (int)Math.floor(0.5f + 255 * Math.clamp(r, 0.0f, 1.0f));
+        int ig = (int)Math.floor(0.5f + 255 * Math.clamp(g, 0.0f, 1.0f));
+        int ib = (int)Math.floor(0.5f + 255 * Math.clamp(b, 0.0f, 1.0f));
         lightColor = (ir << 16) | (ig << 8) | ib;
     }
 
@@ -74,9 +73,9 @@ public class RobotRenderEvent extends RobotEvent {
      * your own color into it.
      */
     public void multiplyColors(float r, float g, float b) {
-        mulR *= MathHelper.clamp(r, 0.0f, 1.0f);
-        mulG *= MathHelper.clamp(g, 0.0f, 1.0f);
-        mulB *= MathHelper.clamp(b, 0.0f, 1.0f);
+        mulR *= Math.clamp(r, 0.0f, 1.0f);
+        mulG *= Math.clamp(g, 0.0f, 1.0f);
+        mulB *= Math.clamp(b, 0.0f, 1.0f);
     }
 
     public int getColorMultiplier() {
@@ -84,9 +83,9 @@ public class RobotRenderEvent extends RobotEvent {
     }
 
     public int getColorValue(float rm, float gm, float bm) {
-        int r = MathHelper.floor(0.5f + 255 * MathHelper.clamp(rm * mulR, 0.0f, 1.0f));
-        int g = MathHelper.floor(0.5f + 255 * MathHelper.clamp(gm * mulG, 0.0f, 1.0f));
-        int b = MathHelper.floor(0.5f + 255 * MathHelper.clamp(bm * mulB, 0.0f, 1.0f));
+        int r = (int)Math.floor(0.5f + 255 * Math.clamp(rm * mulR, 0.0f, 1.0f));
+        int g = (int)Math.floor(0.5f + 255 * Math.clamp(gm * mulG, 0.0f, 1.0f));
+        int b = (int)Math.floor(0.5f + 255 * Math.clamp(bm * mulB, 0.0f, 1.0f));
         return (r << 16) | (g << 8) | b;
     }
 
@@ -117,7 +116,7 @@ public class RobotRenderEvent extends RobotEvent {
         /**
          * The mount point's reference name.
          * <br>
-         * This is what's used in {@link UpgradeRenderer#computePreferredMountPoint(ItemStack, Robot, Set)}.
+         * This is what's used in {@link UpgradeRenderer#computePreferredMountPoint(net.minecraft.world.item.ItemStack, Robot, Set)}.
          */
         public final String name;
 

@@ -1,14 +1,10 @@
 package li.cil.oc.api.event;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import li.cil.oc.api.component.RackMountable;
 import li.cil.oc.api.internal.Rack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
@@ -36,9 +32,9 @@ public abstract class RackMountableRenderEvent extends Event {
      *
      * @see RackMountable#getData()
      */
-    public final CompoundNBT data;
+    public final CompoundTag data;
 
-    public RackMountableRenderEvent(Rack rack, int mountable, CompoundNBT data) {
+    public RackMountableRenderEvent(Rack rack, int mountable, CompoundTag data) {
         this.rack = rack;
         this.mountable = mountable;
         this.data = data;
@@ -66,7 +62,7 @@ public abstract class RackMountableRenderEvent extends Event {
          */
         private TextureAtlasSprite frontTextureOverride;
 
-        public Block(final Rack rack, final int mountable, final CompoundNBT data, final Direction side) {
+        public Block(final Rack rack, final int mountable, final CompoundTag data, final Direction side) {
             super(rack, mountable, data);
             this.side = side;
         }
@@ -120,7 +116,7 @@ public abstract class RackMountableRenderEvent extends Event {
          */
         public final float v0, v1;
 
-        public TileEntity(final Rack rack, final int mountable, final CompoundNBT data, final MatrixStack stack, final IRenderTypeBuffer typeBuffer, final int light, final int overlay, final float v0, final float v1) {
+        public TileEntity(final Rack rack, final int mountable, final CompoundTag data, final MatrixStack stack, final IRenderTypeBuffer typeBuffer, final int light, final int overlay, final float v0, final float v1) {
             super(rack, mountable, data);
             this.stack = stack;
             this.typeBuffer = typeBuffer;

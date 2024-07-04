@@ -6,12 +6,12 @@ import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.Packet;
 import li.cil.oc.api.network.Visibility;
 import li.cil.oc.api.network.WirelessEndpoint;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
  * This class provides factories for networks and nodes.
@@ -33,7 +33,7 @@ import net.minecraft.world.World;
  */
 public final class Network {
     /**
-     * Convenience overload for {@link #joinOrCreateNetwork(IBlockReader, BlockPos)}.
+     * Convenience overload for {@link #joinOrCreateNetwork(net.minecraft.world.level.BlockGetter, BlockPos)}.
      * <br>
      * If the tile entity implements {@link Environment} its one node will be
      * connected to any existing adjacent tile entity nodes. If none exist a
@@ -46,7 +46,7 @@ public final class Network {
      *
      * @param tileEntity the tile entity to initialize.
      */
-    public static void joinOrCreateNetwork(final TileEntity tileEntity) {
+    public static void joinOrCreateNetwork(final BlockEntity tileEntity) {
         if (API.network != null)
             API.network.joinOrCreateNetwork(tileEntity);
     }
@@ -58,7 +58,7 @@ public final class Network {
      * @param world the world containing the location to connect.
      * @param pos   the position at which to update the network.
      */
-    public static void joinOrCreateNetwork(final IBlockReader world, final BlockPos pos) {
+    public static void joinOrCreateNetwork(final BlockGetter world, final BlockPos pos) {
         if (API.network != null)
             API.network.joinOrCreateNetwork(world, pos);
     }
@@ -140,7 +140,7 @@ public final class Network {
      * @param endpoint  the endpoint to remove from the wireless network.
      * @param dimension the dimension with the wireless network to remove the endpoint from.
      */
-    public static void leaveWirelessNetwork(final WirelessEndpoint endpoint, final RegistryKey<World> dimension) {
+    public static void leaveWirelessNetwork(final WirelessEndpoint endpoint, final ResourceKey<Level> dimension) {
         if (API.network != null)
             API.network.leaveWirelessNetwork(endpoint, dimension);
     }
@@ -235,7 +235,7 @@ public final class Network {
      * @param nbt the tag to load the packet from.
      * @return the loaded packet.
      */
-    public static Packet newPacket(final CompoundNBT nbt) {
+    public static Packet newPacket(final CompoundTag nbt) {
         if (API.network != null)
             return API.network.newPacket(nbt);
         return null;

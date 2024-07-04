@@ -1,7 +1,7 @@
 package li.cil.oc.api.driver.item;
 
 import li.cil.oc.api.driver.DriverItem;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * This interface marks drivers for robot upgrades that provide inventory

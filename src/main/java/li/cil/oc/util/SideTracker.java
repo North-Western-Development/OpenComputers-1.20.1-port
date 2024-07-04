@@ -1,7 +1,7 @@
 package li.cil.oc.util;
 
+import net.minecraftforge.fml.util.thread.EffectiveSide;
 import net.minecraftforge.forgespi.Environment;
-import net.minecraftforge.fml.common.thread.EffectiveSide;
 
 import java.util.Collections;
 import java.util.Set;
