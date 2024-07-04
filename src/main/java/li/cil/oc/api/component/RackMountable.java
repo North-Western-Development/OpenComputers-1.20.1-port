@@ -5,6 +5,7 @@ import li.cil.oc.api.network.ComponentHost;
 import li.cil.oc.api.network.ManagedEnvironment;
 import li.cil.oc.api.util.StateAware;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -68,5 +69,5 @@ public interface RackMountable extends ManagedEnvironment, StateAware {
      * @param hitY     the relative y coordinate of the activation on the mountable.
      * @return whether the activation was handled (e.g. GUI opened).
      */
-    boolean onActivate(Player player, Hand hand, ItemStack heldItem, float hitX, float hitY);
+    boolean onActivate(Player player, InteractionHand hand, ItemStack heldItem, float hitX, float hitY);
 }
