@@ -1,6 +1,6 @@
 package li.cil.oc.integration.cofh.tileentity;
 
-import cofh.lib.util.control.ISecurable;
+import cofh.lib.api.control.ISecurable;
 import li.cil.oc.api.machine.Arguments;
 import li.cil.oc.api.machine.Callback;
 import li.cil.oc.api.machine.Context;
@@ -12,7 +12,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import org.apache.commons.lang3.text.WordUtils;
 
 public final class DriverSecureTile extends DriverSidedBlockEntity {

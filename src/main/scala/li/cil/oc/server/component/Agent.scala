@@ -26,7 +26,7 @@ import net.minecraft.world.Container
 import net.minecraft.core.Direction
 import net.minecraft.util.Hand
 import net.minecraft.core.BlockPos
-import net.minecraft.util.math.BlockRayTraceResult
+import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.util.math.EntityRayTraceResult
 import net.minecraft.util.math.RayTraceContext
 import net.minecraft.util.math.RayTraceResult
@@ -138,7 +138,7 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
           case RayTraceResult.Type.ENTITY =>
             attack(player, hit.asInstanceOf[EntityRayTraceResult].getEntity)
           case RayTraceResult.Type.BLOCK =>
-            val blockHit = hit.asInstanceOf[BlockRayTraceResult]
+            val blockHit = hit.asInstanceOf[BlockHitResult]
             click(player, blockHit.getBlockPos, blockHit.getDirection)
           case _ =>
             // Retry with full block bounds, disregarding swing range.
@@ -224,7 +224,7 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
           triggerDelay()
           (true, "item_interacted")
         case Some(hit) if hit.getType == RayTraceResult.Type.BLOCK =>
-          val blockHit = hit.asInstanceOf[BlockRayTraceResult]
+          val blockHit = hit.asInstanceOf[BlockHitResult]
           val (blockPos, hx, hy, hz) = clickParamsFromHit(blockHit)
           activationResult(player.activateBlockOrUseItem(blockPos, blockHit.getDirection, hx, hy, hz, duration))
         case _ =>
@@ -278,7 +278,7 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
       player.setPose(if (sneaky) Pose.CROUCHING else Pose.STANDING)
       val success = Option(pick(player, Settings.get.useAndPlaceRange)) match {
         case Some(hit) if hit.getType == RayTraceResult.Type.BLOCK =>
-          val blockHit = hit.asInstanceOf[BlockRayTraceResult]
+          val blockHit = hit.asInstanceOf[BlockHitResult]
           val (blockPos, hx, hy, hz) = clickParamsFromHit(blockHit)
           player.placeBlock(agent.selectedSlot, blockPos, blockHit.getDirection, hx, hy, hz)
         case None if canPlaceInAir && player.closestEntity(classOf[Entity]).isEmpty =>
@@ -357,7 +357,7 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
     }
   }
 
-  protected def clickParamsFromHit(hit: BlockRayTraceResult): (BlockPos, Float, Float, Float) = {
+  protected def clickParamsFromHit(hit: BlockHitResult): (BlockPos, Float, Float, Float) = {
     (hit.getBlockPos,
       (hit.getLocation.x - hit.getBlockPos.getX).toFloat,
       (hit.getLocation.y - hit.getBlockPos.getY).toFloat,

@@ -204,7 +204,7 @@ dependencies {
     //compileOnly fg.deobf("curse.maven:hwyla-${config.hwyla.projectId}:${config.hwyla.fileId}")
     compileOnly fg.deobf("curse.maven:cc-tweaked-282001:4630521")
     compileOnly fg.deobf("curse.maven:cofh-core-69162:4801048")
-    compileOnly fg.deobf("curse.maven:thermal-foundation-222880:5443583")
+    compileOnly fg.deobf("curse.maven:thermal-foundation-222880:4788649")
 
     runtimeOnly fg.deobf("curse.maven:modernfix-790626:5399365")
 

@@ -1,6 +1,6 @@
 package li.cil.oc.integration.cofh.tileentity;
 
-import cofh.lib.util.control.IRedstoneControllable;
+import cofh.lib.api.control.IRedstoneControllable;
 import li.cil.oc.api.machine.Arguments;
 import li.cil.oc.api.machine.Callback;
 import li.cil.oc.api.machine.Context;

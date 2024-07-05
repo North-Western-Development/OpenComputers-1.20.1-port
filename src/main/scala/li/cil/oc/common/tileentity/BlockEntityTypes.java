@@ -46,6 +46,7 @@ public final class BlockEntityTypes {
     public static void registerTileEntities(RegistryEvent.Register<BlockEntityType<?>> e) {
         register(e.getRegistry(), "adapter", BlockEntityType.Builder.of(() -> new Adapter(ADAPTER),
             Items.get(Constants.BlockName$.MODULE$.Adapter()).block()));
+        BlockEntityType<Adapter>.BlockEntityType.Builder.of(ADAPTER, Items.get(Constants.BlockName$.MODULE$.Adapter()).block());
         register(e.getRegistry(), "assembler", BlockEntityType.Builder.of(() -> new Assembler(ASSEMBLER),
             Items.get(Constants.BlockName$.MODULE$.Assembler()).block()));
         register(e.getRegistry(), "cable", BlockEntityType.Builder.of(() -> new Cable(CABLE),

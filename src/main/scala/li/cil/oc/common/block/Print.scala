@@ -21,7 +21,7 @@ import net.minecraft.util.ActionResultType
 import net.minecraft.core.Direction
 import net.minecraft.util.Hand
 import net.minecraft.core.BlockPos
-import net.minecraft.util.math.BlockRayTraceResult
+import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.util.math.RayTraceResult
 import net.minecraft.util.math.shapes.ISelectionContext
 import net.minecraft.util.math.shapes.VoxelShape
@@ -118,7 +118,7 @@ class Print(props: Properties) extends RedstoneAware(props) with IForgeBlock {
 
   // ----------------------------------------------------------------------- //
 
-  override def use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: Hand, trace: BlockRayTraceResult): ActionResultType = {
+  override def use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: Hand, trace: BlockHitResult): ActionResultType = {
     world.getBlockEntity(pos) match {
       case print: tileentity.Print => if (print.activate()) ActionResultType.sidedSuccess(world.isClientSide) else ActionResultType.PASS
       case _ => super.use(state, world, pos, player, hand, trace)

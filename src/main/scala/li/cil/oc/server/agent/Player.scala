@@ -42,7 +42,7 @@ import net.minecraft.util.DamageSource
 import net.minecraft.core.Direction
 import net.minecraft.util.Hand
 import net.minecraft.core.BlockPos
-import net.minecraft.util.math.BlockRayTraceResult
+import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.Vec3
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.StringTextComponent
@@ -273,7 +273,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
       val item = if (!stack.isEmpty) stack.getItem else null
       val state = level.getBlockState(pos)
       val traceEndPos = new Vec3(pos.getX + hitX, pos.getY + hitY, pos.getZ + hitZ)
-      val traceCtx = if (state.getBlock.isAir(state, level, pos)) BlockRayTraceResult.miss(traceEndPos, side, pos) else new BlockRayTraceResult(traceEndPos, side, pos, false)
+      val traceCtx = if (state.getBlock.isAir(state, level, pos)) BlockHitResult.miss(traceEndPos, side, pos) else new BlockHitResult(traceEndPos, side, pos, false)
       if (item != null && item.onItemUseFirst(stack, new ItemUseContext(level, this, Hand.OFF_HAND, stack, traceCtx)).consumesAction) {
         return ActivationType.ItemUsed
       }
@@ -281,7 +281,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
       val canActivate = !state.getBlock.isAir(state, level, pos) && Settings.get.allowActivateBlocks
       val shouldActivate = canActivate && (!isCrouching || (item == null || item.doesSneakBypassUse(stack, level, pos, this)))
       val result =
-        if (shouldActivate && state.use(level, this, Hand.OFF_HAND, new BlockRayTraceResult(new Vec3(hitX, hitY, hitZ), side, pos, false)).consumesAction)
+        if (shouldActivate && state.use(level, this, Hand.OFF_HAND, new BlockHitResult(new Vec3(hitX, hitY, hitZ), side, pos, false)).consumesAction)
           ActivationType.BlockActivated
         else if (duration <= Double.MinPositiveValue && isItemUseAllowed(stack) && tryPlaceBlockWhileHandlingFunnySpecialCases(stack, pos, side, hitX, hitY, hitZ))
           ActivationType.ItemPlaced
@@ -323,7 +323,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
 
   def fireRightClickBlock(pos: BlockPos, side: Direction): PlayerInteractEvent.RightClickBlock = {
     val hitVec = new Vec3(0.5 + side.getStepX * 0.5, 0.5 + side.getStepY * 0.5, 0.5 + side.getStepZ * 0.5)
-    val event = new PlayerInteractEvent.RightClickBlock(this, Hand.OFF_HAND, pos, new BlockRayTraceResult(hitVec, side, pos, false))
+    val event = new PlayerInteractEvent.RightClickBlock(this, Hand.OFF_HAND, pos, new BlockHitResult(hitVec, side, pos, false))
     MinecraftForge.EVENT_BUS.post(event)
     event
   }
@@ -544,7 +544,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
         Player.setPlayerInventoryItems(this)
         val state = level.getBlockState(pos)
         val traceEndPos = new Vec3(pos.getX + hitX, pos.getY + hitY, pos.getZ + hitZ)
-        val traceCtx = if (state.getBlock.isAir(state, level, pos)) BlockRayTraceResult.miss(traceEndPos, side, pos) else new BlockRayTraceResult(traceEndPos, side, pos, false)
+        val traceCtx = if (state.getBlock.isAir(state, level, pos)) BlockHitResult.miss(traceEndPos, side, pos) else new BlockHitResult(traceEndPos, side, pos, false)
         val didPlace = stack.useOn(new ItemUseContext(level, this, Hand.OFF_HAND, stack, traceCtx))
         Player.detectPlayerInventoryChanges(this)
         setPos(getX, getY + fakeEyeHeight, getZ)

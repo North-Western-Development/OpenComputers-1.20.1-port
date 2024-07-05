@@ -24,11 +24,11 @@ public class ItemStackTabIconRenderer implements TabIconRenderer {
     @Override
     public void render(PoseStack matrix) {
         // Translate manually because ItemRenderer generally can't take a PoseStack.
-        RenderSystem.pushMatrix();
+        /*RenderSystem.pushMatrix();
         RenderSystem.multMatrix(matrix.last().pose());
         RenderSystem.enableRescaleNormal();
         RenderSystem.glMultiTexCoord2f(GL13.GL_TEXTURE1, 240, 240);
         Minecraft.getInstance().getItemRenderer().renderAndDecorateItem(stack, 0, 0);
-        RenderSystem.popMatrix();
+        RenderSystem.popMatrix();*/
     }
 }

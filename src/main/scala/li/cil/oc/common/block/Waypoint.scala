@@ -15,7 +15,7 @@ import net.minecraft.util.ActionResultType
 import net.minecraft.core.Direction
 import net.minecraft.util.Hand
 import net.minecraft.core.BlockPos
-import net.minecraft.util.math.BlockRayTraceResult
+import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.{BlockGetter, Level}
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
@@ -29,7 +29,7 @@ class Waypoint(props: Properties) extends RedstoneAware(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: Hand, trace: BlockRayTraceResult): ActionResultType = {
+  override def use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: Hand, trace: BlockHitResult): ActionResultType = {
     if (!player.isCrouching) {
       if (world.isClientSide) world.getBlockEntity(pos) match {
         case t: tileentity.Waypoint => showGui(t)

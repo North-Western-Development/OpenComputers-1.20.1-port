@@ -16,7 +16,7 @@ import net.minecraft.util.ActionResultType
 import net.minecraft.core.Direction
 import net.minecraft.util.Hand
 import net.minecraft.core.BlockPos
-import net.minecraft.util.math.BlockRayTraceResult
+import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.util.math.RayTraceResult
 import net.minecraft.util.math.shapes.ISelectionContext
 import net.minecraft.util.math.shapes.VoxelShape
@@ -66,7 +66,7 @@ class RobotAfterimage(props: Properties) extends SimpleBlock(props) {
   }
 
   @Deprecated
-  override def use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: Hand, trace: BlockRayTraceResult): ActionResultType = {
+  override def use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: Hand, trace: BlockHitResult): ActionResultType = {
     findMovingRobot(world, pos) match {
       case Some(robot) => api.Items.get(Constants.BlockName.Robot).block.use(world.getBlockState(robot.getBlockPos), world, robot.getBlockPos, player, hand, trace)
       case _ => if (world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState)) ActionResultType.sidedSuccess(world.isClientSide) else ActionResultType.PASS

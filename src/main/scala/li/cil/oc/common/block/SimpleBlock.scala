@@ -30,7 +30,7 @@ import net.minecraft.util.ActionResultType
 import net.minecraft.core.Direction
 import net.minecraft.util.Hand
 import net.minecraft.core.BlockPos
-import net.minecraft.util.math.BlockRayTraceResult
+import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.StringTextComponent
 import net.minecraft.world.level.BlockGetter
@@ -157,7 +157,7 @@ abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: Hand, trace: BlockRayTraceResult): ActionResultType = {
+  override def use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: Hand, trace: BlockHitResult): ActionResultType = {
     val heldItem = player.getItemInHand(hand)
     world.getBlockEntity(pos) match {
       case colored: Colored if Color.isDye(heldItem) =>

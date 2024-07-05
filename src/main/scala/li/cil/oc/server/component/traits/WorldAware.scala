@@ -12,7 +12,7 @@ import net.minecraft.entity.item.minecart.MinecartEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.util.{ActionResult, Direction, Hand}
 import net.minecraft.util.math.AxisAlignedBB
-import net.minecraft.util.math.BlockRayTraceResult
+import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.util.math.shapes.ISelectionContext
 import net.minecraft.world.server.ServerLevel
 import net.minecraftforge.common.MinecraftForge
@@ -39,7 +39,7 @@ trait LevelAware {
 
   private def mayInteract(blockPos: BlockPosition, face: Direction): Boolean = {
     try {
-      val trace = new BlockRayTraceResult(fakePlayer.position, face, blockPos.toBlockPos, false)
+      val trace = new BlockHitResult(fakePlayer.position, face, blockPos.toBlockPos, false)
       val event = new PlayerInteractEvent.RightClickBlock(fakePlayer, Hand.MAIN_HAND, blockPos.toBlockPos, trace)
       MinecraftForge.EVENT_BUS.post(event)
       !event.isCanceled && event.getUseBlock != Result.DENY
