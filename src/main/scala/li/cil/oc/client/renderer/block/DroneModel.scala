@@ -4,15 +4,15 @@ import java.util
 import java.util.Collections
 
 import li.cil.oc.client.Textures
-import net.minecraft.block.BlockState
+net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.renderer.model.BakedQuad
 import net.minecraft.client.renderer.model.IBakedModel
 import net.minecraft.client.renderer.model.ItemOverrideList
-import net.minecraft.client.world.ClientWorld
+import net.minecraft.client.world.ClientLevel
 import net.minecraft.entity.LivingEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
-import net.minecraft.util.math.vector.Vector3d
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
+import net.minecraft.world.phys.Vec3
 
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
@@ -31,15 +31,15 @@ object DroneModel extends SmartBlockModelBase {
   protected def droneTexture = Textures.getSprite(Textures.Item.DroneItem)
 
   protected def Boxes = Array(
-    makeBox(new Vector3d(1f / 16f, 7f / 16f, 1f / 16f), new Vector3d(7f / 16f, 8f / 16f, 7f / 16f)),
-    makeBox(new Vector3d(1f / 16f, 7f / 16f, 9f / 16f), new Vector3d(7f / 16f, 8f / 16f, 15f / 16f)),
-    makeBox(new Vector3d(9f / 16f, 7f / 16f, 1f / 16f), new Vector3d(15f / 16f, 8f / 16f, 7f / 16f)),
-    makeBox(new Vector3d(9f / 16f, 7f / 16f, 9f / 16f), new Vector3d(15f / 16f, 8f / 16f, 15f / 16f)),
-    rotateBox(makeBox(new Vector3d(6f / 16f, 6f / 16f, 6f / 16f), new Vector3d(10f / 16f, 9f / 16f, 10f / 16f)), 45)
+    makeBox(new Vec3(1f / 16f, 7f / 16f, 1f / 16f), new Vec3(7f / 16f, 8f / 16f, 7f / 16f)),
+    makeBox(new Vec3(1f / 16f, 7f / 16f, 9f / 16f), new Vec3(7f / 16f, 8f / 16f, 15f / 16f)),
+    makeBox(new Vec3(9f / 16f, 7f / 16f, 1f / 16f), new Vec3(15f / 16f, 8f / 16f, 7f / 16f)),
+    makeBox(new Vec3(9f / 16f, 7f / 16f, 9f / 16f), new Vec3(15f / 16f, 8f / 16f, 15f / 16f)),
+    rotateBox(makeBox(new Vec3(6f / 16f, 6f / 16f, 6f / 16f), new Vec3(10f / 16f, 9f / 16f, 10f / 16f)), 45)
   )
 
   object ItemOverride extends ItemOverrideList {
-    override def resolve(originalModel: IBakedModel, stack: ItemStack, world: ClientWorld, entity: LivingEntity): IBakedModel = DroneModel
+    override def resolve(originalModel: IBakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity): IBakedModel = DroneModel
   }
 
 }

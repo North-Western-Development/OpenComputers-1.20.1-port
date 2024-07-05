@@ -9,8 +9,8 @@ import li.cil.oc.common.IMC
 import li.cil.oc.common.item.data.PrintData.Shape
 import li.cil.oc.util.ExtendedAABB._
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraftforge.common.util.Constants.NBT
 
@@ -73,7 +73,7 @@ class PrintData extends ItemData(Constants.BlockName.Print) {
   private final val NoclipOffTag = "noclipOff"
   private final val NoclipOnTag = "noclipOn"
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     if (nbt.contains(LabelTag)) label = Option(nbt.getString(LabelTag)) else label = None
     if (nbt.contains(TooltipTag)) tooltip = Option(nbt.getString(TooltipTag)) else tooltip = None
     isButtonMode = nbt.getBoolean(IsButtonModeTag)
@@ -92,7 +92,7 @@ class PrintData extends ItemData(Constants.BlockName.Print) {
     opacityDirty = true
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     label.foreach(nbt.putString("label", _))
     tooltip.foreach(nbt.putString("tooltip", _))
     nbt.putBoolean("isButtonMode", isButtonMode)
@@ -110,7 +110,7 @@ class PrintData extends ItemData(Constants.BlockName.Print) {
   // Because NBT list comparison considers order of tags in a list, and prints may have arbitrarily ordered list of shapes,
   // the comparison fails and minecraft considers two identical prints different.
   // One possible solution is to sort the shapes before serializing them to NBT
-  private def setNewShapeSet(nbt: CompoundNBT, name: String, values: Iterable[Shape]) = {
+  private def setNewShapeSet(nbt: CompoundTag, name: String, values: Iterable[Shape]) = {
     val seq = values.toSeq.sortWith(compareShape);
     nbt.setNewTagList(name, seq.map(PrintData.shapeToNBT))
   }
@@ -202,7 +202,7 @@ object PrintData {
     0
   }
 
-  def nbtToShape(nbt: CompoundNBT): Shape = {
+  def nbtToShape(nbt: CompoundTag): Shape = {
     val aabb =
       if (nbt.contains("minX")) {
         // Compatibility with shapes created with earlier dev-builds.
@@ -229,8 +229,8 @@ object PrintData {
     new Shape(aabb, texture, tint)
   }
 
-  def shapeToNBT(shape: Shape): CompoundNBT = {
-    val nbt = new CompoundNBT()
+  def shapeToNBT(shape: Shape): CompoundTag = {
+    val nbt = new CompoundTag()
     nbt.putByteArray("bounds", Array(
       (shape.bounds.minX * 16).round.toByte,
       (shape.bounds.minY * 16).round.toByte,

@@ -10,14 +10,14 @@ import li.cil.oc.api
 import li.cil.oc.api.driver.DeviceInfo
 import li.cil.oc.api.network.Node
 import li.cil.oc.api.network.Visibility
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.core.Direction
+import net.minecraft.core.BlockPos
 
 import scala.collection.convert.ImplicitConversionsToJava._
 
-class Capacitor(selfType: TileEntityType[_ <: Capacitor]) extends TileEntity(selfType) with traits.Environment with DeviceInfo {
+class Capacitor(selfType: BlockEntityType[_ <: Capacitor]) extends BlockEntity(selfType) with traits.Environment with DeviceInfo {
   // Start with maximum theoretical capacity, gets reduced after validation.
   // This is done so that we don't lose energy while loading.
   val node = api.Network.newNode(this, Visibility.Network).

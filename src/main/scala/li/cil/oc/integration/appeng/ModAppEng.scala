@@ -13,7 +13,7 @@ object ModAppEng extends ModProxy {
     api.IMC.registerWrenchTool("li.cil.oc.integration.appeng.EventHandlerAE2.useWrench")
     api.IMC.registerWrenchToolCheck("li.cil.oc.integration.appeng.EventHandlerAE2.isWrench")
 
-    AEUtil.aeApi.get.registries.movable.whiteListTileEntity(classOf[Print])
+    AEUtil.aeApi.get.registries.movable.whiteListBlockEntity(classOf[Print])
 
     Driver.add(DriverController)
     Driver.add(DriverExportBus)

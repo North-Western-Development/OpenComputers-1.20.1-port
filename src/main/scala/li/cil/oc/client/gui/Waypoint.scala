@@ -1,6 +1,6 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.PacketSender
 import li.cil.oc.client.Textures
@@ -67,7 +67,7 @@ class Waypoint(val waypoint: tileentity.Waypoint) extends screen.Screen(StringTe
     super.removed()
   }
 
-  override def render(stack: MatrixStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
+  override def render(stack: PoseStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
     super.render(stack, mouseX, mouseY, dt)
     RenderSystem.color3f(1, 1, 1) // Required under Linux.
     minecraft.getTextureManager.bind(Textures.GUI.Waypoint)

@@ -8,8 +8,8 @@ import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
 import li.cil.oc.common.item.data.TabletData
 import li.cil.oc.util.ItemUtils
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
+import net.minecraft.world.Container
+import net.minecraft.world.item.ItemStack
 
 import scala.collection.JavaConverters.asJavaIterable
 import scala.collection.convert.ImplicitConversionsToJava._
@@ -18,7 +18,7 @@ object TabletTemplate extends Template {
   override protected val suggestedComponents = Array(
     "BIOS" -> hasComponent(Constants.ItemName.EEPROM) _,
     "Keyboard" -> hasComponent(Constants.BlockName.Keyboard) _,
-    "GraphicsCard" -> ((inventory: IInventory) => Array(
+    "GraphicsCard" -> ((inventory: Container) => Array(
       Constants.ItemName.APUCreative,
       Constants.ItemName.APUTier1,
       Constants.ItemName.APUTier2,
@@ -36,9 +36,9 @@ object TabletTemplate extends Template {
 
   def selectCreative(stack: ItemStack) = api.Items.get(stack) == api.Items.get(Constants.ItemName.TabletCaseCreative)
 
-  def validate(inventory: IInventory): Array[AnyRef] = validateComputer(inventory)
+  def validate(inventory: Container): Array[AnyRef] = validateComputer(inventory)
 
-  def assemble(inventory: IInventory): Array[AnyRef] = {
+  def assemble(inventory: Container): Array[AnyRef] = {
     val items = (1 until inventory.getContainerSize).map(slot => inventory.getItem(slot))
     val data = new TabletData()
     data.tier = ItemUtils.caseTier(inventory.getItem(0))
@@ -151,7 +151,7 @@ object TabletTemplate extends Template {
       "li.cil.oc.common.template.TabletTemplate.disassemble")
   }
 
-  override protected def maxComplexity(inventory: IInventory) = super.maxComplexity(inventory) / 2 + 5
+  override protected def maxComplexity(inventory: Container) = super.maxComplexity(inventory) / 2 + 5
 
-  override protected def caseTier(inventory: IInventory) = ItemUtils.caseTier(inventory.getItem(0))
+  override protected def caseTier(inventory: Container) = ItemUtils.caseTier(inventory.getItem(0))
 }

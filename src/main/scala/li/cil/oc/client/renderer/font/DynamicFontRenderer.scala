@@ -13,8 +13,8 @@ import net.minecraft.client.renderer.texture.TextureUtil
 import net.minecraft.resources.IReloadableResourceManager
 import net.minecraft.resources.IResourceManager
 import net.minecraft.resources.IResourceManagerReloadListener
-import net.minecraft.util.math.vector.Matrix4f
-import net.minecraft.util.math.vector.Vector4f
+import com.mojang.math.Matrix4f
+import com.mojang.math.Vector4f
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl._
 

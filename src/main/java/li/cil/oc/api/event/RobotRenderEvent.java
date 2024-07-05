@@ -3,11 +3,11 @@ package li.cil.oc.api.event;
 import li.cil.oc.api.driver.item.UpgradeRenderer;
 import li.cil.oc.api.internal.Agent;
 import li.cil.oc.api.internal.Robot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.Cancelable;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector4f;
+import net.minecraft.util.Mth;
+import com.mojang.math.Vector3f;
+import com.mojang.math.Vector4f;
 
 import java.util.Set;
 
@@ -56,9 +56,9 @@ public class RobotRenderEvent extends RobotEvent {
      * to between 0 and 1 and pack them into an RGB integer.
      */
     public void setLightColor(float r, float g, float b) {
-        int ir = MathHelper.floor(0.5f + 255 * MathHelper.clamp(r, 0.0f, 1.0f));
-        int ig = MathHelper.floor(0.5f + 255 * MathHelper.clamp(g, 0.0f, 1.0f));
-        int ib = MathHelper.floor(0.5f + 255 * MathHelper.clamp(b, 0.0f, 1.0f));
+        int ir = Mth.floor(0.5f + 255 * Mth.clamp(r, 0.0f, 1.0f));
+        int ig = Mth.floor(0.5f + 255 * Mth.clamp(g, 0.0f, 1.0f));
+        int ib = Mth.floor(0.5f + 255 * Mth.clamp(b, 0.0f, 1.0f));
         lightColor = (ir << 16) | (ig << 8) | ib;
     }
 
@@ -74,9 +74,9 @@ public class RobotRenderEvent extends RobotEvent {
      * your own color into it.
      */
     public void multiplyColors(float r, float g, float b) {
-        mulR *= MathHelper.clamp(r, 0.0f, 1.0f);
-        mulG *= MathHelper.clamp(g, 0.0f, 1.0f);
-        mulB *= MathHelper.clamp(b, 0.0f, 1.0f);
+        mulR *= Mth.clamp(r, 0.0f, 1.0f);
+        mulG *= Mth.clamp(g, 0.0f, 1.0f);
+        mulB *= Mth.clamp(b, 0.0f, 1.0f);
     }
 
     public int getColorMultiplier() {
@@ -84,9 +84,9 @@ public class RobotRenderEvent extends RobotEvent {
     }
 
     public int getColorValue(float rm, float gm, float bm) {
-        int r = MathHelper.floor(0.5f + 255 * MathHelper.clamp(rm * mulR, 0.0f, 1.0f));
-        int g = MathHelper.floor(0.5f + 255 * MathHelper.clamp(gm * mulG, 0.0f, 1.0f));
-        int b = MathHelper.floor(0.5f + 255 * MathHelper.clamp(bm * mulB, 0.0f, 1.0f));
+        int r = Mth.floor(0.5f + 255 * Mth.clamp(rm * mulR, 0.0f, 1.0f));
+        int g = Mth.floor(0.5f + 255 * Mth.clamp(gm * mulG, 0.0f, 1.0f));
+        int b = Mth.floor(0.5f + 255 * Mth.clamp(bm * mulB, 0.0f, 1.0f));
         return (r << 16) | (g << 8) | b;
     }
 

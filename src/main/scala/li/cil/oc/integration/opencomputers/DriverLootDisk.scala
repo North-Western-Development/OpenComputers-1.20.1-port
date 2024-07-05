@@ -8,8 +8,8 @@ import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.common.Slot
-import net.minecraft.item.ItemStack
-import net.minecraft.util.ResourceLocation
+import net.minecraft.world.item.ItemStack
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.storage.FolderName
 import net.minecraftforge.fml.server.ServerLifecycleHooks
 
@@ -24,7 +24,7 @@ object DriverLootDisk extends Item {
   override def createEnvironment(stack: ItemStack, host: EnvironmentHost) =
     if (!host.world.isClientSide && stack.hasTag && ServerLifecycleHooks.getCurrentServer != null) {
       val lootPath = Settings.savePath + "loot/" + stack.getTag.getString(Settings.namespace + "lootPath")
-      val savePath = ServerLifecycleHooks.getCurrentServer.getWorldPath(new FolderName(lootPath)).toFile
+      val savePath = ServerLifecycleHooks.getCurrentServer.getLevelPath(new FolderName(lootPath)).toFile
       val fs =
         if (savePath.exists && savePath.isDirectory) {
           api.FileSystem.fromSaveDirectory(lootPath, 0, false)

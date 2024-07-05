@@ -2,26 +2,26 @@ package li.cil.oc.client.renderer.tileentity
 
 import java.util.function.Function
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.Textures
 import li.cil.oc.common.tileentity.Printer
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.IRenderTypeBuffer
+import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.client.renderer.model.ItemCameraTransforms
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
-import net.minecraft.util.math.vector.Vector3f
+import net.minecraft.client.renderer.tileentity.BlockEntityRenderer
+import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
+import com.mojang.math.Vector3f
 import org.lwjgl.opengl.GL13
 
-object PrinterRenderer extends Function[TileEntityRendererDispatcher, PrinterRenderer] {
-  override def apply(dispatch: TileEntityRendererDispatcher) = new PrinterRenderer(dispatch)
+object PrinterRenderer extends Function[BlockEntityRendererDispatcher, PrinterRenderer] {
+  override def apply(dispatch: BlockEntityRendererDispatcher) = new PrinterRenderer(dispatch)
 }
 
-class PrinterRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Printer](dispatch) {
-  override def render(printer: Printer, dt: Float, matrix: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+class PrinterRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntityRenderer[Printer](dispatch) {
+  override def render(printer: Printer, dt: Float, matrix: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     if (printer.data.stateOff.nonEmpty) {

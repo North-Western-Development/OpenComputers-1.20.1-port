@@ -9,10 +9,10 @@ import li.cil.oc.api.manual.ImageRenderer
 import li.cil.oc.api.manual.PathProvider
 import li.cil.oc.api.manual.TabIconRenderer
 import net.minecraft.client.Minecraft
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.Level
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters.asJavaIterable
@@ -72,7 +72,7 @@ object Manual extends ManualAPI {
     null
   }
 
-  override def pathFor(world: World, pos: BlockPos): String = {
+  override def pathFor(world: Level, pos: BlockPos): String = {
     for (provider <- pathProviders) {
       val path = try provider.pathFor(world, pos) catch {
         case t: Throwable =>
@@ -106,7 +106,7 @@ object Manual extends ManualAPI {
     null
   }
 
-  override def openFor(player: PlayerEntity): Unit = {
+  override def openFor(player: Player): Unit = {
     if (player.level.isClientSide) {
       val mc = Minecraft.getInstance
       if (player == mc.player) mc.pushGuiLayer(new gui.Manual())

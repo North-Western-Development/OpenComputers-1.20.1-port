@@ -149,7 +149,7 @@
     "item.oc.UpgradeTrading": "Handels-Upgrade",
     "item.oc.WirelessNetworkCard0": "Drahtlosnetzwerkkarte (Stufe 1)",
     "item.oc.WirelessNetworkCard1": "Drahtlosnetzwerkkarte (Stufe 2)",
-    "item.oc.WorldSensorCard": "Weltsensorkarte",
+    "item.oc.LevelSensorCard": "Weltsensorkarte",
     "item.oc.wrench": "Schraubenziehschlüssel",
     "itemGroup.OpenComputers": "OpenComputers",
     "entity.oc.Drone": "Drohne",

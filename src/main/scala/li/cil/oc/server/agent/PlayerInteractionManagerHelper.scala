@@ -1,8 +1,8 @@
 package li.cil.oc.server.agent
 
 import net.minecraft.network.play.client.CPlayerDiggingPacket
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.Direction
+import net.minecraft.core.BlockPos
 import li.cil.oc.OpenComputers
 import li.cil.oc.api.network.Node
 import net.minecraft.server.management.PlayerInteractionManager

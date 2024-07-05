@@ -3,8 +3,8 @@ package li.cil.oc.common.template
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api
-import net.minecraft.item.ItemStack
-import net.minecraft.util.ResourceLocation
+import net.minecraft.world.item.ItemStack
+import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.registries.ForgeRegistries
 
 import scala.collection.convert.ImplicitConversionsToScala._

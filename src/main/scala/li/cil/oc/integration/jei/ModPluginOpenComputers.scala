@@ -16,16 +16,16 @@ import mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter
 import mezz.jei.api.ingredients.subtypes.UidContext
 import mezz.jei.api.registration.IAdvancedRegistration
 import mezz.jei.api.registration.IGuiHandlerRegistration
-import mezz.jei.api.registration.IRecipeCategoryRegistration
-import mezz.jei.api.registration.IRecipeRegistration
+import mezz.jei.api.registration.RecipeCategoryRegistration
+import mezz.jei.api.registration.RecipeRegistration
 import mezz.jei.api.registration.ISubtypeRegistration
 import mezz.jei.api.runtime.IIngredientManager
 import mezz.jei.api.runtime.IJeiRuntime
 import net.minecraft.client.gui.screen.inventory.ContainerScreen
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.ResourceLocation
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.resources.ResourceLocation
 
 import scala.collection.JavaConverters._
 
@@ -33,12 +33,12 @@ import scala.collection.JavaConverters._
 class ModPluginOpenComputers extends IModPlugin {
   override def getPluginUid = new ResourceLocation(OpenComputers.ID, "jei_plugin")
 
-  override def registerCategories(registry: IRecipeCategoryRegistration): Unit = {
+  override def registerCategories(registry: RecipeCategoryRegistration): Unit = {
     registry.addRecipeCategories(ManualUsageHandler.ManualUsageRecipeCategory)
     registry.addRecipeCategories(CallbackDocHandler.CallbackDocRecipeCategory)
   }
 
-  override def registerRecipes(registration: IRecipeRegistration) {
+  override def registerRecipes(registration: RecipeRegistration) {
     registration.addRecipes(ManualUsageHandler.getRecipes(registration), ManualUsageHandler.ManualUsageRecipeCategory.getUid)
     registration.addRecipes(CallbackDocHandler.getRecipes(registration), CallbackDocHandler.CallbackDocRecipeCategory.getUid)
   }

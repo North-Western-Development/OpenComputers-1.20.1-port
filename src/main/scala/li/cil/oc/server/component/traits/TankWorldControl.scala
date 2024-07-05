@@ -9,7 +9,7 @@ import li.cil.oc.util.ResultWrapper.result
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction
 
-trait TankWorldControl extends TankAware with WorldAware with SideRestricted {
+trait TankLevelControl extends TankAware with LevelAware with SideRestricted {
   @Callback(doc = "function(side:number [, tank:number]):boolean -- Compare the fluid in the selected tank with the fluid in the specified tank on the specified side. Returns true if equal.")
   def compareFluid(context: Context, args: Arguments): Array[AnyRef] = {
     val side = checkSideForAction(args, 0)

@@ -18,11 +18,11 @@ import li.cil.tis3d.api.serial.SerialInterface
 import li.cil.tis3d.api.serial.SerialInterfaceProvider
 import li.cil.tis3d.api.serial.SerialProtocolDocumentationReference
 import li.cil.tis3d.common.provider.SerialInterfaceProviders
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.core.Direction
+import net.minecraft.core.BlockPos
 import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.World
+import net.minecraft.world.level.Level
 import net.minecraftforge.registries.ForgeRegistryEntry
 
 import scala.collection.mutable
@@ -32,11 +32,11 @@ object SerialInterfaceProviderAdapter extends ForgeRegistryEntry[SerialInterface
 
   override def getDocumentationReference = Optional.of(new SerialProtocolDocumentationReference(new StringTextComponent("OpenComputers Adapter"), "protocols/opencomputersadapter.md"))
 
-  override def matches(world: World, pos: BlockPos, side: Direction): Boolean = world.getBlockEntity(pos).isInstanceOf[Adapter]
+  override def matches(world: Level, pos: BlockPos, side: Direction): Boolean = world.getBlockEntity(pos).isInstanceOf[Adapter]
 
-  override def getInterface(world: World, pos: BlockPos, side: Direction): Optional[SerialInterface] = Optional.of(new SerialInterfaceAdapter(world.getBlockEntity(pos).asInstanceOf[Adapter]))
+  override def getInterface(world: Level, pos: BlockPos, side: Direction): Optional[SerialInterface] = Optional.of(new SerialInterfaceAdapter(world.getBlockEntity(pos).asInstanceOf[Adapter]))
 
-  override def stillValid(world: World, pos: BlockPos, side: Direction, serialInterface: SerialInterface): Boolean = serialInterface match {
+  override def stillValid(world: Level, pos: BlockPos, side: Direction, serialInterface: SerialInterface): Boolean = serialInterface match {
     case adapter: SerialInterfaceAdapter => adapter.tileEntity == world.getBlockEntity(pos)
     case _ => false
   }
@@ -107,7 +107,7 @@ object SerialInterfaceProviderAdapter extends ForgeRegistryEntry[SerialInterface
       })
     }
 
-    override def readFromNBT(nbt: CompoundNBT): Unit = {
+    override def readFromNBT(nbt: CompoundTag): Unit = {
       node.loadData(nbt)
 
       writeBuffer.clear()
@@ -117,7 +117,7 @@ object SerialInterfaceProviderAdapter extends ForgeRegistryEntry[SerialInterface
       isReading = nbt.getBoolean("isReading")
     }
 
-    override def writeToNBT(nbt: CompoundNBT): Unit = {
+    override def writeToNBT(nbt: CompoundTag): Unit = {
       node.saveData(nbt)
 
       nbt.putIntArray("writeBuffer", writeBuffer.toArray.map(_.toInt))

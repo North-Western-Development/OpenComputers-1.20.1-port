@@ -1,14 +1,14 @@
 package li.cil.oc.client.renderer
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.client.Textures
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.{Constants, Settings, api}
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer._
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.util.Direction
+import com.mojang.blaze3d.vertex.DefaultVertexFormat
+import net.minecraft.core.Direction
 import net.minecraft.util.Hand
 import net.minecraft.util.math.shapes.ISelectionContext
 import net.minecraftforge.client.event.DrawHighlightEvent
@@ -21,7 +21,7 @@ object HighlightRenderer {
 
   lazy val tablet = api.Items.get(Constants.ItemName.Tablet)
 
-  val TexHologram = RenderTypes.createTexturedQuad("hologram_effect", Textures.Model.HologramEffect, DefaultVertexFormats.POSITION_TEX_COLOR, true)
+  val TexHologram = RenderTypes.createTexturedQuad("hologram_effect", Textures.Model.HologramEffect, DefaultVertexFormat.POSITION_TEX_COLOR, true)
 
   @SubscribeEvent
   def onDrawBlockHighlight(e: DrawHighlightEvent.HighlightBlock): Unit = if (e.getTarget != null && e.getTarget.getBlockPos != null) {

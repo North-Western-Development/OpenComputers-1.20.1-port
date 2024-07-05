@@ -1,13 +1,13 @@
 package li.cil.oc.api.internal;
 
 import li.cil.oc.api.driver.DriverItem;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 /**
  * This interface is implemented by the computer case and robot tile entities
  * to allow item components to query the orientation of their host, i.e. to
  * allow getting the facing of the tile entity passed to their drivers'
- * {@link DriverItem#createEnvironment(net.minecraft.item.ItemStack, li.cil.oc.api.network.EnvironmentHost)}
+ * {@link DriverItem#createEnvironment(net.minecraft.world.item.ItemStack, li.cil.oc.api.network.EnvironmentHost)}
  * method.
  * <br>
  * This interface is <em>not meant to be implemented</em>, just used.
@@ -21,7 +21,7 @@ public interface Rotatable {
      * <pre>
      * class SomeDriver implements li.cil.oc.api.driver.Item {
      *     // ...
-     *     ManagedEnvironment createEnvironment(ItemStack stack, TileEntity tileentity) {
+     *     ManagedEnvironment createEnvironment(ItemStack stack, BlockEntity tileentity) {
      *         if (tileentity instanceof Rotatable) {
      *             ForgeDirection facing = ((Rotatable)tileentity).facing();
      *             // Do something with facing.

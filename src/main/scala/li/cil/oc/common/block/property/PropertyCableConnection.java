@@ -5,7 +5,7 @@ import java.util.EnumMap;
 import java.util.Map;
 
 import net.minecraft.state.EnumProperty;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 import net.minecraft.util.IStringSerializable;
 
 public final class PropertyCableConnection {

@@ -4,13 +4,13 @@ import java.util
 import java.util.Collections
 
 import li.cil.oc.client.Textures
-import net.minecraft.block.BlockState
+net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.model._
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
-import net.minecraft.util.Direction
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.util.math.vector.Vector3f
+import net.minecraft.core.Direction
+import net.minecraft.world.phys.Vec3
+import com.mojang.math.Vector3f
 
 trait SmartBlockModelBase extends IBakedModel {
   override def getOverrides: ItemOverrideList = ItemOverrideList.EMPTY
@@ -66,24 +66,24 @@ trait SmartBlockModelBase extends IBakedModel {
 
   // Standard faces for a unit cube.
   protected final val UnitCube = Array(
-    Array(new Vector3d(0, 0, 1), new Vector3d(0, 0, 0), new Vector3d(1, 0, 0), new Vector3d(1, 0, 1)),
-    Array(new Vector3d(0, 1, 0), new Vector3d(0, 1, 1), new Vector3d(1, 1, 1), new Vector3d(1, 1, 0)),
-    Array(new Vector3d(1, 1, 0), new Vector3d(1, 0, 0), new Vector3d(0, 0, 0), new Vector3d(0, 1, 0)),
-    Array(new Vector3d(0, 1, 1), new Vector3d(0, 0, 1), new Vector3d(1, 0, 1), new Vector3d(1, 1, 1)),
-    Array(new Vector3d(0, 1, 0), new Vector3d(0, 0, 0), new Vector3d(0, 0, 1), new Vector3d(0, 1, 1)),
-    Array(new Vector3d(1, 1, 1), new Vector3d(1, 0, 1), new Vector3d(1, 0, 0), new Vector3d(1, 1, 0))
+    Array(new Vec3(0, 0, 1), new Vec3(0, 0, 0), new Vec3(1, 0, 0), new Vec3(1, 0, 1)),
+    Array(new Vec3(0, 1, 0), new Vec3(0, 1, 1), new Vec3(1, 1, 1), new Vec3(1, 1, 0)),
+    Array(new Vec3(1, 1, 0), new Vec3(1, 0, 0), new Vec3(0, 0, 0), new Vec3(0, 1, 0)),
+    Array(new Vec3(0, 1, 1), new Vec3(0, 0, 1), new Vec3(1, 0, 1), new Vec3(1, 1, 1)),
+    Array(new Vec3(0, 1, 0), new Vec3(0, 0, 0), new Vec3(0, 0, 1), new Vec3(0, 1, 1)),
+    Array(new Vec3(1, 1, 1), new Vec3(1, 0, 1), new Vec3(1, 0, 0), new Vec3(1, 1, 0))
   )
 
   // Planes perpendicular to facings. Negative values mean we mirror along that,
   // axis which is done to mirror back faces and the y axis (because up is
   // positive but for our texture coordinates down is positive).
   protected final val Planes = Array(
-    (new Vector3d(1, 0, 0), new Vector3d(0, 0, -1)),
-    (new Vector3d(1, 0, 0), new Vector3d(0, 0, 1)),
-    (new Vector3d(-1, 0, 0), new Vector3d(0, -1, 0)),
-    (new Vector3d(1, 0, 0), new Vector3d(0, -1, 0)),
-    (new Vector3d(0, 0, 1), new Vector3d(0, -1, 0)),
-    (new Vector3d(0, 0, -1), new Vector3d(0, -1, 0))
+    (new Vec3(1, 0, 0), new Vec3(0, 0, -1)),
+    (new Vec3(1, 0, 0), new Vec3(0, 0, 1)),
+    (new Vec3(-1, 0, 0), new Vec3(0, -1, 0)),
+    (new Vec3(1, 0, 0), new Vec3(0, -1, 0)),
+    (new Vec3(0, 0, 1), new Vec3(0, -1, 0)),
+    (new Vec3(0, 0, -1), new Vec3(0, -1, 0))
   )
 
   protected final val White = 0xFFFFFF
@@ -92,22 +92,22 @@ trait SmartBlockModelBase extends IBakedModel {
     * Generates a list of arrays, each containing the four vertices making up a
     * face of the box with the specified size.
     */
-  protected def makeBox(from: Vector3d, to: Vector3d) = {
+  protected def makeBox(from: Vec3, to: Vec3) = {
     val minX = math.min(from.x, to.x)
     val minY = math.min(from.y, to.y)
     val minZ = math.min(from.z, to.z)
     val maxX = math.max(from.x, to.x)
     val maxY = math.max(from.y, to.y)
     val maxZ = math.max(from.z, to.z)
-    UnitCube.map(face => face.map(vertex => new Vector3d(
+    UnitCube.map(face => face.map(vertex => new Vec3(
       math.max(minX, math.min(maxX, vertex.x)),
       math.max(minY, math.min(maxY, vertex.y)),
       math.max(minZ, math.min(maxZ, vertex.z)))))
   }
 
-  protected def rotateVector(v: Vector3d, angle: Double, axis: Vector3d) = {
+  protected def rotateVector(v: Vec3, angle: Double, axis: Vec3) = {
     // vrot = v * cos(angle) + (axis x v) * sin(angle) + axis * (axis dot v)(1 - cos(angle))
-    def scale(v: Vector3d, s: Double) = v.scale(s)
+    def scale(v: Vec3, s: Double) = v.scale(s)
     val cosAngle = math.cos(angle)
     val sinAngle = math.sin(angle)
     scale(v, cosAngle).
@@ -115,11 +115,11 @@ trait SmartBlockModelBase extends IBakedModel {
       add(scale(axis, axis.dot(v) * (1 - cosAngle)))
   }
 
-  protected def rotateFace(face: Array[Vector3d], angle: Double, axis: Vector3d, around: Vector3d = new Vector3d(0.5, 0.5, 0.5)) = {
+  protected def rotateFace(face: Array[Vec3], angle: Double, axis: Vec3, around: Vec3 = new Vec3(0.5, 0.5, 0.5)) = {
     face.map(v => rotateVector(v.subtract(around), angle, axis).add(around))
   }
 
-  protected def rotateBox(box: Array[Array[Vector3d]], angle: Double, axis: Vector3d = new Vector3d(0, 1, 0), around: Vector3d = new Vector3d(0.5, 0.5, 0.5)) = {
+  protected def rotateBox(box: Array[Array[Vec3]], angle: Double, axis: Vec3 = new Vec3(0, 1, 0), around: Vec3 = new Vec3(0.5, 0.5, 0.5)) = {
     box.map(face => rotateFace(face, angle, axis, around))
   }
 
@@ -128,7 +128,7 @@ trait SmartBlockModelBase extends IBakedModel {
     * <br>
     * Usually used to generate the quads for a cube previously generated using makeBox().
     */
-  protected def bakeQuads(box: Array[Array[Vector3d]], texture: Array[TextureAtlasSprite], color: Option[Int]): Array[BakedQuad] = {
+  protected def bakeQuads(box: Array[Array[Vec3]], texture: Array[TextureAtlasSprite], color: Option[Int]): Array[BakedQuad] = {
     val colorRGB = color.getOrElse(White)
     bakeQuads(box, texture, colorRGB)
   }
@@ -138,7 +138,7 @@ trait SmartBlockModelBase extends IBakedModel {
     * <br>
     * Usually used to generate the quads for a cube previously generated using makeBox().
     */
-  protected def bakeQuads(box: Array[Array[Vector3d]], texture: Array[TextureAtlasSprite], colorRGB: Int): Array[BakedQuad] = {
+  protected def bakeQuads(box: Array[Array[Vec3]], texture: Array[TextureAtlasSprite], colorRGB: Int): Array[BakedQuad] = {
     Direction.values.map(side => {
       val vertices = box(side.get3DDataValue)
       val data = quadData(vertices, side, texture(side.get3DDataValue), colorRGB, 0)
@@ -159,7 +159,7 @@ trait SmartBlockModelBase extends IBakedModel {
   // Generate raw data used for a BakedQuad based on the specified facing, vertices, texture and rotation.
   // The UV coordinates are generated from the positions of the vertices, i.e. they are simply cube-
   // mapped. This is good enough for us.
-  protected def quadData(vertices: Array[Vector3d], facing: Direction, texture: TextureAtlasSprite, colorRGB: Int, rotation: Int): Array[Int] = {
+  protected def quadData(vertices: Array[Vec3], facing: Direction, texture: TextureAtlasSprite, colorRGB: Int, rotation: Int): Array[Int] = {
     val (uAxis, vAxis) = Planes(facing.get3DDataValue)
     val rot = (rotation + 4) % 4
     vertices.flatMap(vertex => {

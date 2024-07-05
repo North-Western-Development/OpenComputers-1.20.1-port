@@ -6,17 +6,17 @@ import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.RotationHelper
 import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
+import net.minecraft.world.level.block.Block
+net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.Minecraft
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.entity.player.Player
 import net.minecraft.state.StateContainer
 import net.minecraft.util.ActionResultType
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
 import net.minecraft.util.math.BlockRayTraceResult
-import net.minecraft.world.{IBlockReader, World}
+import net.minecraft.world.{BlockGetter, Level}
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
 class Waypoint(props: Properties) extends RedstoneAware(props) {
@@ -25,11 +25,11 @@ class Waypoint(props: Properties) extends RedstoneAware(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(world: IBlockReader) = new tileentity.Waypoint(tileentity.TileEntityTypes.WAYPOINT)
+  override def newBlockEntity(world: BlockGetter) = new tileentity.Waypoint(tileentity.BlockEntityTypes.WAYPOINT)
 
   // ----------------------------------------------------------------------- //
 
-  override def use(state: BlockState, world: World, pos: BlockPos, player: PlayerEntity, hand: Hand, trace: BlockRayTraceResult): ActionResultType = {
+  override def use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: Hand, trace: BlockRayTraceResult): ActionResultType = {
     if (!player.isCrouching) {
       if (world.isClientSide) world.getBlockEntity(pos) match {
         case t: tileentity.Waypoint => showGui(t)
@@ -45,7 +45,7 @@ class Waypoint(props: Properties) extends RedstoneAware(props) {
     Minecraft.getInstance.pushGuiLayer(new gui.Waypoint(t))
   }
 
-  override def getValidRotations(world: World, pos: BlockPos): Array[Direction] =
+  override def getValidRotations(world: Level, pos: BlockPos): Array[Direction] =
     world.getBlockEntity(pos) match {
       case waypoint: tileentity.Waypoint =>
         Direction.values.filter {

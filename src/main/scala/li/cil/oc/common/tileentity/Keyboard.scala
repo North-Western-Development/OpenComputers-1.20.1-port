@@ -6,15 +6,15 @@ import li.cil.oc.api
 import li.cil.oc.api.network.Analyzable
 import li.cil.oc.api.network.SidedEnvironment
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
+import net.minecraft.world.entity.player.Player
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.core.Direction
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-class Keyboard(selfType: TileEntityType[_ <: Keyboard]) extends TileEntity(selfType) with traits.Environment with traits.Rotatable with traits.ImmibisMicroblock with SidedEnvironment with Analyzable {
+class Keyboard(selfType: BlockEntityType[_ <: Keyboard]) extends BlockEntity(selfType) with traits.Environment with traits.Rotatable with traits.ImmibisMicroblock with SidedEnvironment with Analyzable {
   override def validFacings = Direction.values
 
   val keyboard = {
@@ -35,7 +35,7 @@ class Keyboard(selfType: TileEntityType[_ <: Keyboard]) extends TileEntity(selfT
   override def sidedNode(side: Direction) = if (hasNodeOnSide(side)) node else null
 
   // Override automatic analyzer implementation for sided environments.
-  override def onAnalyze(player: PlayerEntity, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = Array(node)
+  override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = Array(node)
 
   // ----------------------------------------------------------------------- //
 
@@ -43,14 +43,14 @@ class Keyboard(selfType: TileEntityType[_ <: Keyboard]) extends TileEntity(selfT
 
   private final val KeyboardTag = Settings.namespace + "keyboard"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundTag) {
     super.loadForServer(nbt)
     if (isServer) {
       keyboard.loadData(nbt.getCompound(KeyboardTag))
     }
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundTag) {
     super.saveForServer(nbt)
     if (isServer) {
       nbt.setNewCompoundTag(KeyboardTag, keyboard.saveData)

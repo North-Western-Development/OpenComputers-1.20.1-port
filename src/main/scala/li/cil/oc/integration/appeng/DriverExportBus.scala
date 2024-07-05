@@ -15,27 +15,27 @@ import li.cil.oc.api.driver.NamedBlock
 import li.cil.oc.api.machine.Arguments
 import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
-import li.cil.oc.integration.ManagedTileEntityEnvironment
+import li.cil.oc.integration.ManagedBlockEntityEnvironment
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.ResultWrapper._
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
-import net.minecraft.world.World
-import net.minecraft.util.math.BlockPos
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
+import net.minecraft.world.level.Level
+import net.minecraft.core.BlockPos
 import net.minecraftforge.items.IItemHandler
 
 object DriverExportBus extends driver.DriverBlock {
-  override def worksWith(world: World, pos: BlockPos, side: Direction) =
+  override def worksWith(world: Level, pos: BlockPos, side: Direction) =
     world.getBlockEntity(pos) match {
       case container: IPartHost => Direction.values.map(container.getPart).filter(p => p != null).map(_.getItemStack(PartItemStack.PICK)).exists(AEUtil.isExportBus)
       case _ => false
     }
 
-  override def createEnvironment(world: World, pos: BlockPos, side: Direction) = new Environment(world.getBlockEntity(pos).asInstanceOf[IPartHost])
+  override def createEnvironment(world: Level, pos: BlockPos, side: Direction) = new Environment(world.getBlockEntity(pos).asInstanceOf[IPartHost])
 
-  final class Environment(val host: IPartHost) extends ManagedTileEntityEnvironment[IPartHost](host, "me_exportbus") with NamedBlock with PartEnvironmentBase {
+  final class Environment(val host: IPartHost) extends ManagedBlockEntityEnvironment[IPartHost](host, "me_exportbus") with NamedBlock with PartEnvironmentBase {
     override def preferredName = "me_exportbus"
 
     override def priority = 2
@@ -80,7 +80,7 @@ object DriverExportBus extends driver.DriverBlock {
       val exportBus = part.asInstanceOf[ISegmentedInventory with IConfigurableObject with IUpgradeableHost with IActionHost with IGridHost]
       val location = host.getLocation
 
-      val inventory: IItemHandler = InventoryUtils.inventoryAt(new BlockPosition(location.x, location.y, location.z, Some(location.getWorld)).offset(side), side.getOpposite) match {
+      val inventory: IItemHandler = InventoryUtils.inventoryAt(new BlockPosition(location.x, location.y, location.z, Some(location.getLevel)).offset(side), side.getOpposite) match {
         case Some(inv) => inv
         case _ => return result((), "no inventory")
       }

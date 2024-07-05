@@ -1,6 +1,6 @@
 package li.cil.oc.api.manual;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
 /**
  * This allows implementing custom image renderers.
@@ -17,7 +17,7 @@ public interface ImageRenderer {
      * The width of the area this renderer uses.
      * <br>
      * This is used to offset the OpenGL state properly before calling
-     * {@link #render(MatrixStack, int, int)}, to correctly align the image horizontally.
+     * {@link #render(PoseStack, int, int)}, to correctly align the image horizontally.
      *
      * @return the width of the rendered image.
      */
@@ -27,7 +27,7 @@ public interface ImageRenderer {
      * The height of the area this renderer uses.
      * <br>
      * This is used to offset the OpenGL state properly before calling
-     * {@link #render(MatrixStack, int, int)}, as well as to know where to resume rendering
+     * {@link #render(PoseStack, int, int)}, as well as to know where to resume rendering
      * other content below the image.
      *
      * @return the height of the rendered image.
@@ -46,5 +46,5 @@ public interface ImageRenderer {
      * @param mouseX the X position of the mouse relative to the element.
      * @param mouseY the Y position of the mouse relative to the element.
      */
-    void render(MatrixStack stack, int mouseX, int mouseY);
+    void render(PoseStack stack, int mouseX, int mouseY);
 }

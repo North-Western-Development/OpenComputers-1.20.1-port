@@ -28,35 +28,35 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.ExtendedBlock._
 import li.cil.oc.util.ExtendedNBT._
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.InventoryUtils
-import net.minecraft.block.Block
+import net.minecraft.world.level.block.Block
 import net.minecraft.block.FlowingFluidBlock
 import net.minecraft.command.CommandSource
 import net.minecraft.command.ICommandSource
 import net.minecraft.entity.item.minecart.MinecartEntity
 import net.minecraft.entity.{Entity, LivingEntity}
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt._
 import net.minecraft.scoreboard.{ScoreCriteria, Scoreboard}
 import net.minecraft.server.MinecraftServer
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.RegistryKey
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.ResourceKey
 import net.minecraft.util.SoundCategory
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
 import net.minecraft.util.math.shapes.ISelectionContext
-import net.minecraft.util.math.vector.Vector2f
-import net.minecraft.util.math.vector.Vector3d
+import net.minecraft.world.phys.Vec2
+import net.minecraft.world.phys.Vec3
 import net.minecraft.util.registry.Registry
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.{GameType, World, WorldSettings}
-import net.minecraft.world.server.ServerWorld
-import net.minecraft.world.storage.IServerWorldInfo
+import net.minecraft.world.{GameType, Level, LevelSettings}
+import net.minecraft.world.server.ServerLevel
+import net.minecraft.world.storage.IServerLevelInfo
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.FakePlayer
 import net.minecraftforge.common.util.FakePlayerFactory
@@ -105,7 +105,7 @@ class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with D
 
       override def shouldInformAdmins = true
     }
-    val world = host.world.asInstanceOf[ServerWorld]
+    val world = host.world.asInstanceOf[ServerLevel]
     val server = world.getServer
     def defaultFakePlayer = FakePlayerFactory.get(world, Settings.get.fakePlayerProfile)
     val sourcePlayer = player match {
@@ -113,7 +113,7 @@ class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with D
       case _ => defaultFakePlayer
     }
     val permLevel = server.getProfilePermissions(sourcePlayer.getGameProfile)
-    new CommandSource(sender, new Vector3d(host.xPosition, host.yPosition, host.zPosition), Vector2f.ZERO, world,
+    new CommandSource(sender, new Vec3(host.xPosition, host.yPosition, host.zPosition), Vec2.ZERO, world,
       permLevel, sourcePlayer.getName.getString, sourcePlayer.getDisplayName, server, sourcePlayer)
   }
 
@@ -147,24 +147,24 @@ class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with D
 
   @Deprecated
   @Callback(doc = """function([id:number]):userdata -- Get the world object for the specified dimension ID, or the container's.""")
-  def getWorld(context: Context, args: Arguments): Array[AnyRef] = {
+  def getLevel(context: Context, args: Arguments): Array[AnyRef] = {
     checkAccess()
     if (args.count() > 0) {
       val server = ServerLifecycleHooks.getCurrentServer
       val world = args.checkInteger(0) match {
         case 0 => server.overworld
-        case -1 => server.getLevel(World.NETHER)
-        case 1 => server.getLevel(World.END)
+        case -1 => server.getLevel(Level.NETHER)
+        case 1 => server.getLevel(Level.END)
         case _ => null
       }
-      result(new DebugCard.WorldValue(world))
+      result(new DebugCard.LevelValue(world))
     }
-    else result(new DebugCard.WorldValue(host.world))
+    else result(new DebugCard.LevelValue(host.world))
   }
 
   @Deprecated
   @Callback(doc = """function():table -- Get a list of all world IDs, loaded and unloaded.""")
-  def getWorlds(context: Context, args: Arguments): Array[AnyRef] = {
+  def getLevels(context: Context, args: Arguments): Array[AnyRef] = {
     checkAccess()
     result(Array[Int](0, -1, 1))
   }
@@ -198,13 +198,13 @@ class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with D
     val server = ServerLifecycleHooks.getCurrentServer
     val world = if (args.count() > 3) args.checkInteger(3) match {
       case 0 => server.overworld
-      case -1 => server.getLevel(World.NETHER)
-      case 1 => server.getLevel(World.END)
+      case -1 => server.getLevel(Level.NETHER)
+      case 1 => server.getLevel(Level.END)
       case _ => null
     } else host.world
 
     val position: BlockPosition = new BlockPosition(x, y, z, Option(world))
-    val fakePlayer = FakePlayerFactory.get(world.asInstanceOf[ServerWorld], Settings.get.fakePlayerProfile)
+    val fakePlayer = FakePlayerFactory.get(world.asInstanceOf[ServerLevel], Settings.get.fakePlayerProfile)
     fakePlayer.setPos(position.x + 0.5, position.y + 0.5, position.z + 0.5)
 
     val candidates = world.getEntitiesOfClass(classOf[Entity], position.bounds, null)
@@ -363,7 +363,7 @@ class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with D
 
   // ----------------------------------------------------------------------- //
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     super.loadData(nbt)
     access = AccessContext.loadData(nbt)
     if (nbt.contains(Settings.namespace + "remoteX")) {
@@ -374,7 +374,7 @@ class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with D
     }
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     super.saveData(nbt)
     access.foreach(_.saveData(nbt))
     remoteNodePosition.foreach {
@@ -392,12 +392,12 @@ object DebugCard {
       throw new Exception(msg)
 
   object AccessContext {
-    def remove(nbt: CompoundNBT): Unit = {
+    def remove(nbt: CompoundTag): Unit = {
       nbt.remove(Settings.namespace + "player")
       nbt.remove(Settings.namespace + "accessNonce")
     }
 
-    def loadData(nbt: CompoundNBT): Option[AccessContext] = {
+    def loadData(nbt: CompoundTag): Option[AccessContext] = {
       if (nbt.contains(Settings.namespace + "player"))
         Some(AccessContext(
           nbt.getString(Settings.namespace + "player"),
@@ -409,7 +409,7 @@ object DebugCard {
   }
 
   case class AccessContext(player: String, nonce: String) {
-    def saveData(nbt: CompoundNBT): Unit = {
+    def saveData(nbt: CompoundTag): Unit = {
       nbt.putString(Settings.namespace + "player", player)
       nbt.putString(Settings.namespace + "accessNonce", nonce)
     }
@@ -420,17 +420,17 @@ object DebugCard {
 
     // ----------------------------------------------------------------------- //
 
-    def withPlayer(f: (ServerPlayerEntity) => Array[AnyRef]): Array[AnyRef] = {
+    def withPlayer(f: (ServerPlayer) => Array[AnyRef]): Array[AnyRef] = {
       checkAccess()
       ServerLifecycleHooks.getCurrentServer.getPlayerList.getPlayerByName(name) match {
-        case player: ServerPlayerEntity => f(player)
+        case player: ServerPlayer => f(player)
         case _ => result((), "player is offline")
       }
     }
 
     @Callback(doc = """function():userdata -- Get the player's world object.""")
-    def getWorld(context: Context, args: Arguments): Array[AnyRef] = {
-      withPlayer(player => result(new DebugCard.WorldValue(player.level)))
+    def getLevel(context: Context, args: Arguments): Array[AnyRef] = {
+      withPlayer(player => result(new DebugCard.LevelValue(player.level)))
     }
 
     @Callback(doc = """function():string -- Get the player's game type.""")
@@ -521,22 +521,22 @@ object DebugCard {
 
     private final val NameTag = "name"
 
-    override def loadData(nbt: CompoundNBT) {
+    override def loadData(nbt: CompoundTag) {
       super.loadData(nbt)
       ctx = AccessContext.loadData(nbt)
       name = nbt.getString(NameTag)
     }
 
-    override def saveData(nbt: CompoundNBT) {
+    override def saveData(nbt: CompoundTag) {
       super.saveData(nbt)
       ctx.foreach(_.saveData(nbt))
       nbt.putString(NameTag, name)
     }
   }
 
-  class ScoreboardValue(world: Option[World])(implicit var ctx: Option[AccessContext]) extends prefab.AbstractValue {
+  class ScoreboardValue(world: Option[Level])(implicit var ctx: Option[AccessContext]) extends prefab.AbstractValue {
     var scoreboard: Scoreboard = world.fold(null: Scoreboard)(_.getScoreboard)
-    var dimension: ResourceLocation = world.fold(World.OVERWORLD)(_.dimension).location
+    var dimension: ResourceLocation = world.fold(Level.OVERWORLD)(_.dimension).location
 
     def this() = this(None)(None) // For loading.
 
@@ -652,15 +652,15 @@ object DebugCard {
 
     private final val DimensionTag = "dimension"
 
-    override def loadData(nbt: CompoundNBT) {
+    override def loadData(nbt: CompoundTag) {
       super.loadData(nbt)
       ctx = AccessContext.loadData(nbt)
       dimension = new ResourceLocation(nbt.getString(DimensionTag))
-      val dimKey = RegistryKey.create(Registry.DIMENSION_REGISTRY, dimension)
+      val dimKey = ResourceKey.create(Registry.DIMENSION_REGISTRY, dimension)
       scoreboard = ServerLifecycleHooks.getCurrentServer.getLevel(dimKey).getScoreboard
     }
 
-    override def saveData(nbt: CompoundNBT): Unit = {
+    override def saveData(nbt: CompoundTag): Unit = {
       super.saveData(nbt)
       ctx.foreach(_.saveData(nbt))
       nbt.putString(DimensionTag, dimension.toString)
@@ -668,7 +668,7 @@ object DebugCard {
   }
 
 
-  class WorldValue(var world: World)(implicit var ctx: Option[AccessContext]) extends prefab.AbstractValue {
+  class LevelValue(var world: Level)(implicit var ctx: Option[AccessContext]) extends prefab.AbstractValue {
     def this() = this(null)(None) // For loading.
 
     // ----------------------------------------------------------------------- //
@@ -678,9 +678,9 @@ object DebugCard {
     def getDimensionId(context: Context, args: Arguments): Array[AnyRef] = {
       checkAccess()
       world.dimension match {
-        case World.OVERWORLD => result(Int.box(0))
-        case World.NETHER => result(Int.box(-1))
-        case World.END => result(Int.box(1))
+        case Level.OVERWORLD => result(Int.box(0))
+        case Level.NETHER => result(Int.box(-1))
+        case Level.END => result(Int.box(1))
         case _ => throw new Error("deprecated")
       }
     }
@@ -701,7 +701,7 @@ object DebugCard {
     @Callback(doc = """function():number -- Gets the seed of the world.""")
     def getSeed(context: Context, args: Arguments): Array[AnyRef] = {
       checkAccess()
-      result(world.asInstanceOf[ServerWorld].getSeed)
+      result(world.asInstanceOf[ServerLevel].getSeed)
     }
 
     @Callback(doc = """function():boolean -- Returns whether it is currently raining.""")
@@ -726,7 +726,7 @@ object DebugCard {
     @Callback(doc = """function(value:boolean) -- Sets whether it is currently thundering.""")
     def setThundering(context: Context, args: Arguments): Array[AnyRef] = {
       checkAccess()
-      world.getLevelData.asInstanceOf[IServerWorldInfo].setThundering(args.checkBoolean(0))
+      world.getLevelData.asInstanceOf[IServerLevelInfo].setThundering(args.checkBoolean(0))
       null
     }
 
@@ -739,7 +739,7 @@ object DebugCard {
     @Callback(doc = """function(value:number) -- Set the current world time.""")
     def setTime(context: Context, args: Arguments): Array[AnyRef] = {
       checkAccess()
-      world.asInstanceOf[ServerWorld].setDayTime(args.checkDouble(0).toLong)
+      world.asInstanceOf[ServerLevel].setDayTime(args.checkDouble(0).toLong)
       null
     }
 
@@ -755,7 +755,7 @@ object DebugCard {
       val x = args.checkInteger(0)
       val y = args.checkInteger(1)
       val z = args.checkInteger(2)
-      val info = world.getLevelData.asInstanceOf[IServerWorldInfo]
+      val info = world.getLevelData.asInstanceOf[IServerLevelInfo]
       info.setXSpawn(x)
       info.setYSpawn(y)
       info.setZSpawn(z)
@@ -809,11 +809,11 @@ object DebugCard {
     }
 
     @Callback(doc = """function(x:number, y:number, z:number):number -- Check whether the block at the specified coordinates has a tile entity.""")
-    def hasTileEntity(context: Context, args: Arguments): Array[AnyRef] = {
+    def hasBlockEntity(context: Context, args: Arguments): Array[AnyRef] = {
       checkAccess()
       val blockPos = new BlockPos(args.checkInteger(0), args.checkInteger(1), args.checkInteger(2))
       val state = world.getBlockState(blockPos)
-      result(state.hasTileEntity)
+      result(state.hasBlockEntity)
     }
 
     @Callback(doc = """function(x:number, y:number, z:number):table -- Get the NBT of the block at the specified coordinates.""")
@@ -821,7 +821,7 @@ object DebugCard {
       checkAccess()
       val blockPos = new BlockPos(args.checkInteger(0), args.checkInteger(1), args.checkInteger(2))
       world.getBlockEntity(blockPos) match {
-        case tileEntity: TileEntity => result(toNbt((nbt) => tileEntity.save(nbt)).toTypedMap)
+        case tileEntity: BlockEntity => result(toNbt((nbt) => tileEntity.save(nbt)).toTypedMap)
         case _ => null
       }
     }
@@ -832,9 +832,9 @@ object DebugCard {
       val blockPos = new BlockPos(args.checkInteger(0), args.checkInteger(1), args.checkInteger(2))
       val state = world.getBlockState(blockPos)
       world.getBlockEntity(blockPos) match {
-        case tileEntity: TileEntity =>
+        case tileEntity: BlockEntity =>
           typedMapToNbt(mapAsScalaMap(args.checkTable(3)).toMap) match {
-            case nbt: CompoundNBT =>
+            case nbt: CompoundTag =>
               tileEntity.load(state, nbt)
               tileEntity.setChanged()
               world.notifyBlockUpdate(blockPos)
@@ -974,15 +974,15 @@ object DebugCard {
 
     private final val DimensionTag = "dimension"
 
-    override def loadData(nbt: CompoundNBT) {
+    override def loadData(nbt: CompoundTag) {
       super.loadData(nbt)
       ctx = AccessContext.loadData(nbt)
       val dimension = new ResourceLocation(nbt.getString(DimensionTag))
-      val dimKey = RegistryKey.create(Registry.DIMENSION_REGISTRY, dimension)
+      val dimKey = ResourceKey.create(Registry.DIMENSION_REGISTRY, dimension)
       world = ServerLifecycleHooks.getCurrentServer.getLevel(dimKey)
     }
 
-    override def saveData(nbt: CompoundNBT) {
+    override def saveData(nbt: CompoundTag) {
       super.saveData(nbt)
       ctx.foreach(_.saveData(nbt))
       nbt.putString(DimensionTag, world.dimension.location.toString)
@@ -1014,12 +1014,12 @@ object DebugCard {
 
     private final val ValueTag = "value"
 
-    override def loadData(nbt: CompoundNBT): Unit = {
+    override def loadData(nbt: CompoundTag): Unit = {
       super.loadData(nbt)
       value = nbt.getString(ValueTag)
     }
 
-    override def saveData(nbt: CompoundNBT): Unit = {
+    override def saveData(nbt: CompoundTag): Unit = {
       super.saveData(nbt)
       nbt.putString(ValueTag, value)
     }

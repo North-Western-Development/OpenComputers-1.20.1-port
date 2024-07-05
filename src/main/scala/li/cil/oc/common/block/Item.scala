@@ -12,15 +12,15 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.util.Color
 import li.cil.oc.util.ItemColorizer
 import li.cil.oc.util.Rarity
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
+import net.minecraft.world.level.block.Block
+net.minecraft.world.level.block.state.BlockState
 import net.minecraft.item // Rarity
 import net.minecraft.item.BlockItem
 import net.minecraft.item.BlockItemUseContext
-import net.minecraft.item.DyeColor
-import net.minecraft.item.Item.Properties
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
+import net.minecraft.world.item.DyeColor
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
 import net.minecraft.util.math.BlockRayTraceResult
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.StringTextComponent

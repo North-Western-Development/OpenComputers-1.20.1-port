@@ -1,8 +1,8 @@
 package li.cil.oc.api.driver;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Inventory providers are used to access contents of item inventories.
@@ -13,7 +13,7 @@ import net.minecraft.item.ItemStack;
  * the inventory controller upgrade, for example.
  * <br>
  * Implementations returned by {@link #getInventory} should save changes
- * back to the item stack when {@link IInventory#setChanged()} is called.
+ * back to the item stack when {@link Container#setChanged()} is called.
  * Return <tt>null</tt> if the specified stack is not supported.
  */
 public interface InventoryProvider {
@@ -24,7 +24,7 @@ public interface InventoryProvider {
      * @param player the player holding the item, may be <tt>null</tt>.
      * @return <tt>true</tt> if the stack is supported, <tt>false</tt> otherwise.
      */
-    boolean worksWith(ItemStack stack, PlayerEntity player);
+    boolean worksWith(ItemStack stack, Player player);
 
     /**
      * Get an inventory implementation that allows interfacing with the
@@ -38,5 +38,5 @@ public interface InventoryProvider {
      * @param player the player holding the item, may be <tt>null</tt>.
      * @return the inventory representing the contents, or <tt>null</tt>.
      */
-    IInventory getInventory(ItemStack stack, PlayerEntity player);
+    Container getInventory(ItemStack stack, Player player);
 }

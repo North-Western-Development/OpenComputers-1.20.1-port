@@ -7,12 +7,12 @@ import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
 import li.cil.oc.common.tileentity
 import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.inventory.IInventory
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.Container
 import net.minecraft.inventory.container.ContainerType
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 
-class Relay(selfType: ContainerType[_ <: Relay], id: Int, playerInventory: PlayerInventory, relay: IInventory)
+class Relay(selfType: ContainerType[_ <: Relay], id: Int, playerInventory: PlayerInventory, relay: Container)
   extends Player(selfType, id, playerInventory, relay) {
 
   lazy final val WirelessNetworkCardTier1: ItemInfo = api.Items.get(Constants.ItemName.WirelessNetworkCardTier1)
@@ -43,7 +43,7 @@ class Relay(selfType: ContainerType[_ <: Relay], id: Int, playerInventory: Playe
 
   def queueSize = synchronizedData.getInt("queueSize")
 
-  override protected def detectCustomDataChanges(nbt: CompoundNBT): Unit = {
+  override protected def detectCustomDataChanges(nbt: CompoundTag): Unit = {
     relay match {
       case te: tileentity.Relay => {
         synchronizedData.putInt("relayDelay", te.relayDelay)

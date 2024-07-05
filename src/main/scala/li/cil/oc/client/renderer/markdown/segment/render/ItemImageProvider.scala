@@ -3,9 +3,9 @@ package li.cil.oc.client.renderer.markdown.segment.render
 import li.cil.oc.api.manual.ImageProvider
 import li.cil.oc.api.manual.ImageRenderer
 import li.cil.oc.api.manual.InteractiveImageRenderer
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.util.ResourceLocation
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.registries.ForgeRegistries
 
 object ItemImageProvider extends ImageProvider {

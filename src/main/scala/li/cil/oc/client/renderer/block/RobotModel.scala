@@ -4,14 +4,14 @@ import java.util
 import java.util.Collections
 
 import li.cil.oc.client.Textures
-import net.minecraft.block.BlockState
-import net.minecraft.client.world.ClientWorld
+net.minecraft.world.level.block.state.BlockState
+import net.minecraft.client.world.ClientLevel
 import net.minecraft.client.renderer.model.BakedQuad
 import net.minecraft.client.renderer.model.IBakedModel
 import net.minecraft.client.renderer.model.ItemOverrideList
 import net.minecraft.entity.LivingEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
 
 import scala.collection.JavaConverters.bufferAsJavaList
 import scala.collection.mutable
@@ -78,7 +78,7 @@ object RobotModel extends SmartBlockModelBase {
   }
 
   object ItemOverride extends ItemOverrideList {
-    override def resolve(originalModel: IBakedModel, stack: ItemStack, world: ClientWorld, entity: LivingEntity): IBakedModel = ItemModel
+    override def resolve(originalModel: IBakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity): IBakedModel = ItemModel
   }
 
 }

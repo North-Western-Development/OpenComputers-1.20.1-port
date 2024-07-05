@@ -6,25 +6,25 @@ import appeng.api.util.AEPartLocation
 import li.cil.oc.api.driver.EnvironmentProvider
 import li.cil.oc.api.driver.NamedBlock
 import li.cil.oc.api.network.ManagedEnvironment
-import li.cil.oc.api.prefab.DriverSidedTileEntity
-import li.cil.oc.integration.ManagedTileEntityEnvironment
-import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import li.cil.oc.api.prefab.DriverSidedBlockEntity
+import li.cil.oc.integration.ManagedBlockEntityEnvironment
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.Direction
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.Level
 
 import scala.language.existentials
 
-object DriverController extends DriverSidedTileEntity {
-  private type TileController = TileEntity with IActionHost with IGridHost
+object DriverController extends DriverSidedBlockEntity {
+  private type TileController = BlockEntity with IActionHost with IGridHost
 
-  def getTileEntityClass = AEUtil.controllerClass
+  def getBlockEntityClass = AEUtil.controllerClass
 
-  def createEnvironment(world: World, pos: BlockPos, side: Direction): ManagedEnvironment =
+  def createEnvironment(world: Level, pos: BlockPos, side: Direction): ManagedEnvironment =
     new Environment(world.getBlockEntity(pos).asInstanceOf[TileController])
 
-  final class Environment(val tile: TileController) extends ManagedTileEntityEnvironment[TileController](tile, "me_controller") with NamedBlock with NetworkControl[TileController] {
+  final class Environment(val tile: TileController) extends ManagedBlockEntityEnvironment[TileController](tile, "me_controller") with NamedBlock with NetworkControl[TileController] {
     override def preferredName = "me_controller"
 
     override def pos: AEPartLocation = AEPartLocation.INTERNAL

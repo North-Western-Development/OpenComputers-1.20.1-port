@@ -2,7 +2,7 @@ package li.cil.oc.api;
 
 import li.cil.oc.api.nanomachines.BehaviorProvider;
 import li.cil.oc.api.nanomachines.Controller;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.Collections;
 
@@ -44,7 +44,7 @@ public class Nanomachines {
      * @param player the player to check for.
      * @return <tt>true</tt> if the player has a controller, <tt>false</tt> otherwise.
      */
-    public static boolean hasController(PlayerEntity player) {
+    public static boolean hasController(Player player) {
         if (API.nanomachines != null)
             return API.nanomachines.hasController(player);
         return false;
@@ -60,7 +60,7 @@ public class Nanomachines {
      * @param player the player to get the controller for.
      * @return the controller for the specified player.
      */
-    public static Controller getController(PlayerEntity player) {
+    public static Controller getController(Player player) {
         if (API.nanomachines != null)
             return API.nanomachines.getController(player);
         return null;
@@ -75,7 +75,7 @@ public class Nanomachines {
      *
      * @param player the player to install a nanomachine controller for.
      */
-    public static Controller installController(PlayerEntity player) {
+    public static Controller installController(Player player) {
         if (API.nanomachines != null)
             return API.nanomachines.installController(player);
         return null;
@@ -88,7 +88,7 @@ public class Nanomachines {
      *
      * @param player the player to uninstall a nanomachine controller from.
      */
-    public static void uninstallController(PlayerEntity player) {
+    public static void uninstallController(Player player) {
         if (API.nanomachines != null)
             API.nanomachines.uninstallController(player);
     }

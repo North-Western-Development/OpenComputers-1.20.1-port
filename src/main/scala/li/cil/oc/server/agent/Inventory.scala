@@ -7,20 +7,20 @@ import li.cil.oc.util.ExtendedInventory._
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.entity.player.Player
 import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.ListNBT
+import net.minecraft.world.Container
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.ListTag
 import net.minecraft.util.DamageSource
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.StringTextComponent
-import net.minecraft.block.BlockState
+net.minecraft.world.level.block.state.BlockState
 
 import scala.collection.immutable
 
-class Inventory(playerEntity: PlayerEntity, val agent: internal.Agent) extends PlayerInventory(playerEntity) {
+class Inventory(playerEntity: Player, val agent: internal.Agent) extends PlayerInventory(playerEntity) {
 
   private def selectedItemStack: ItemStack = agent.mainInventory.getItem(agent.selectedSlot)
 
@@ -35,7 +35,7 @@ class Inventory(playerEntity: PlayerEntity, val agent: internal.Agent) extends P
 
   override def pickSlot(direction: Int) {}
 
-  override def clearOrCountMatchingItems(f: Predicate[ItemStack], count: Int, inv: IInventory): Int = 0
+  override def clearOrCountMatchingItems(f: Predicate[ItemStack], count: Int, inv: Container): Int = 0
 
   override def tick() {
     for (slot <- 0 until getContainerSize) {
@@ -55,9 +55,9 @@ class Inventory(playerEntity: PlayerEntity, val agent: internal.Agent) extends P
 
   override def getDestroySpeed(state: BlockState): Float = if (getSelected.isEmpty) 1f else getSelected.getDestroySpeed(state)
 
-  override def save(nbt: ListNBT): ListNBT = nbt
+  override def save(nbt: ListTag): ListTag = nbt
 
-  override def load(nbt: ListNBT) {}
+  override def load(nbt: ListTag) {}
 
   override def getArmor(slot: Int): ItemStack = ItemStack.EMPTY
 
@@ -69,7 +69,7 @@ class Inventory(playerEntity: PlayerEntity, val agent: internal.Agent) extends P
 
   override def replaceWith(from: PlayerInventory) {}
 
-  // IInventory
+  // Container
 
   override def getContainerSize: Int = agent.mainInventory.getContainerSize
 
@@ -98,7 +98,7 @@ class Inventory(playerEntity: PlayerEntity, val agent: internal.Agent) extends P
 
   override def setChanged(): Unit = agent.mainInventory.setChanged()
 
-  override def stillValid(player: PlayerEntity): Boolean = agent.mainInventory.stillValid(player)
+  override def stillValid(player: Player): Boolean = agent.mainInventory.stillValid(player)
 
   override def canPlaceItem(slot: Int, stack: ItemStack): Boolean =
     if (slot < 0) agent.equipmentInventory.canPlaceItem(~slot, stack)

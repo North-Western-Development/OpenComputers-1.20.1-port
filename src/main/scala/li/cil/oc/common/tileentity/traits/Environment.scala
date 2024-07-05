@@ -6,12 +6,12 @@ import li.cil.oc.api.network.Connector
 import li.cil.oc.api.network.SidedEnvironment
 import li.cil.oc.common.EventHandler
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.Direction
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.core.Direction
 import net.minecraftforge.client.model.data.IModelData
 import net.minecraftforge.client.model.data.ModelProperty
 
-trait Environment extends TileEntity with network.Environment with network.EnvironmentHost with IModelData {
+trait Environment extends BlockEntity with network.Environment with network.EnvironmentHost with IModelData {
   protected var isChangeScheduled = false
 
   override def world = getLevel
@@ -60,14 +60,14 @@ trait Environment extends TileEntity with network.Environment with network.Envir
 
   private final val NodeTag = Settings.namespace + "node"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundTag) {
     super.loadForServer(nbt)
     if (node != null && node.host == this) {
       node.loadData(nbt.getCompound(NodeTag))
     }
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundTag) {
     super.saveForServer(nbt)
     if (node != null && node.host == this) {
       nbt.setNewCompoundTag(NodeTag, node.saveData)

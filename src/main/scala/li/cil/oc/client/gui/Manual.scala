@@ -1,6 +1,6 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Localization
 import li.cil.oc.api
@@ -105,7 +105,7 @@ class Manual extends screen.Screen(StringTextComponent.EMPTY) with traits.Window
     refreshPage()
   }
 
-  override def render(stack: MatrixStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
+  override def render(stack: PoseStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
     super.render(stack, mouseX, mouseY, dt)
 
     scrollButton.active = canScroll

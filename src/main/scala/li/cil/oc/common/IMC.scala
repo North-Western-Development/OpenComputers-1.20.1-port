@@ -14,11 +14,11 @@ import li.cil.oc.integration.util.Wrench
 import li.cil.oc.server.driver.Registry
 import li.cil.oc.server.machine.ProgramLocations
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.StringNBT
-import net.minecraft.util.math.BlockPos
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.StringTag
+import net.minecraft.core.BlockPos
 import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.fml.InterModComms.IMCMessage
 
@@ -27,7 +27,7 @@ import scala.collection.convert.ImplicitConversionsToScala._
 object IMC {
   def handleMessage(message: IMCMessage): Unit = {
     message.getMessageSupplier.get.asInstanceOf[AnyRef] match {
-      case template: CompoundNBT if message.getMethod == api.IMC.REGISTER_ASSEMBLER_TEMPLATE => {
+      case template: CompoundTag if message.getMethod == api.IMC.REGISTER_ASSEMBLER_TEMPLATE => {
         if (template.contains("name", NBT.TAG_STRING))
           OpenComputers.log.debug(s"Registering new assembler template '${template.getString("name")}' from mod ${message.getSenderModId}.")
         else
@@ -36,7 +36,7 @@ object IMC {
           case t: Throwable => OpenComputers.log.warn("Failed registering assembler template.", t)
         }
       }
-      case template: CompoundNBT if message.getMethod == api.IMC.REGISTER_DISASSEMBLER_TEMPLATE => {
+      case template: CompoundTag if message.getMethod == api.IMC.REGISTER_DISASSEMBLER_TEMPLATE => {
         if (template.contains("name", NBT.TAG_STRING))
           OpenComputers.log.debug(s"Registering new disassembler template '${template.getString("name")}' from mod ${message.getSenderModId}.")
         else
@@ -53,7 +53,7 @@ object IMC {
       }
       case name: String if message.getMethod == api.IMC.REGISTER_WRENCH_TOOL => {
         OpenComputers.log.debug(s"Registering new wrench usage '${name}' from mod ${message.getSenderModId}.")
-        try Wrench.addUsage(getStaticMethod(name, classOf[PlayerEntity], classOf[BlockPos], classOf[Boolean])) catch {
+        try Wrench.addUsage(getStaticMethod(name, classOf[Player], classOf[BlockPos], classOf[Boolean])) catch {
           case t: Throwable => OpenComputers.log.warn("Failed registering wrench usage.", t)
         }
       }
@@ -63,7 +63,7 @@ object IMC {
           case t: Throwable => OpenComputers.log.warn("Failed registering wrench check.", t)
         }
       }
-      case implInfo: CompoundNBT if message.getMethod == api.IMC.REGISTER_ITEM_CHARGE => {
+      case implInfo: CompoundTag if message.getMethod == api.IMC.REGISTER_ITEM_CHARGE => {
         OpenComputers.log.debug(s"Registering new item charge implementation '${implInfo.getString("name")}' from mod ${message.getSenderModId}.")
         try ItemCharge.add(
           getStaticMethod(implInfo.getString("canCharge"), classOf[ItemStack]),
@@ -78,7 +78,7 @@ object IMC {
           Settings.get.peripheralBlacklist.add(name)
         }
       }
-      case compInfo: CompoundNBT if message.getMethod == api.IMC.BLACKLIST_HOST => {
+      case compInfo: CompoundTag if message.getMethod == api.IMC.BLACKLIST_HOST => {
         OpenComputers.log.debug(s"Blacklisting component '${compInfo.getString("name")}' for host '${compInfo.getString("host")}' as requested by mod ${message.getSenderModId}.")
         try Registry.blacklistHost(ItemStack.of(compInfo.getCompound("item")), Class.forName(compInfo.getString("host"))) catch {
           case t: Throwable => OpenComputers.log.warn("Failed blacklisting component.", t)
@@ -96,9 +96,9 @@ object IMC {
           case t: Throwable => OpenComputers.log.warn("Failed registering ink provider.", t)
         }
       }
-      case diskInfo: CompoundNBT if message.getMethod == api.IMC.REGISTER_PROGRAM_DISK_LABEL => {
+      case diskInfo: CompoundTag if message.getMethod == api.IMC.REGISTER_PROGRAM_DISK_LABEL => {
         OpenComputers.log.debug(s"Registering new program location mapping for program '${diskInfo.getString("program")}' being on disk '${diskInfo.getString("label")}' from mod ${message.getSenderModId}.")
-        ProgramLocations.addMapping(diskInfo.getString("program"), diskInfo.getString("label"), diskInfo.getList("architectures", NBT.TAG_STRING).map((tag: StringNBT) => tag.getAsString()).toArray: _*)
+        ProgramLocations.addMapping(diskInfo.getString("program"), diskInfo.getString("label"), diskInfo.getList("architectures", NBT.TAG_STRING).map((tag: StringTag) => tag.getAsString()).toArray: _*)
       }
       case _ => OpenComputers.log.warn(s"Got an unrecognized or invalid IMC message '${message.getMethod}' from mod ${message.getSenderModId}.")
     }

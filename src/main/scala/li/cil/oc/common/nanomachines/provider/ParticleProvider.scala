@@ -5,8 +5,8 @@ import li.cil.oc.api
 import li.cil.oc.api.nanomachines.Behavior
 import li.cil.oc.api.prefab.AbstractBehavior
 import li.cil.oc.util.PlayerUtils
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.entity.player.Player
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.particles.BasicParticleType
 import net.minecraft.particles.ParticleType
 import net.minecraft.particles.ParticleTypes
@@ -28,9 +28,9 @@ object ParticleProvider extends ScalaProvider("b48c4bbd-51bb-4915-9367-16cff3220
     ParticleTypes.HAPPY_VILLAGER
   )
 
-  override def createScalaBehaviors(player: PlayerEntity): Iterable[Behavior] = ParticleTypeList.map(new ParticleBehavior(_, player))
+  override def createScalaBehaviors(player: Player): Iterable[Behavior] = ParticleTypeList.map(new ParticleBehavior(_, player))
 
-  override def writeBehaviorToNBT(behavior: Behavior, nbt: CompoundNBT): Unit = {
+  override def writeBehaviorToNBT(behavior: Behavior, nbt: CompoundTag): Unit = {
     behavior match {
       case particles: ParticleBehavior =>
         nbt.putInt("effectName", ForgeRegistries.PARTICLE_TYPES.asInstanceOf[ForgeRegistry[ParticleType[_]]].getID(particles.effectType))
@@ -38,12 +38,12 @@ object ParticleProvider extends ScalaProvider("b48c4bbd-51bb-4915-9367-16cff3220
     }
   }
 
-  override def readBehaviorFromNBT(player: PlayerEntity, nbt: CompoundNBT): Behavior = {
+  override def readBehaviorFromNBT(player: Player, nbt: CompoundTag): Behavior = {
     val effectType = ForgeRegistries.PARTICLE_TYPES.asInstanceOf[ForgeRegistry[ParticleType[_]]].getValue(nbt.getInt("effectName"))
     new ParticleBehavior(effectType.asInstanceOf[BasicParticleType], player)
   }
 
-  class ParticleBehavior(var effectType: BasicParticleType, player: PlayerEntity) extends AbstractBehavior(player) {
+  class ParticleBehavior(var effectType: BasicParticleType, player: Player) extends AbstractBehavior(player) {
     override def getNameHint = "particles." + effectType.getRegistryName.getPath
 
     override def update(): Unit = {

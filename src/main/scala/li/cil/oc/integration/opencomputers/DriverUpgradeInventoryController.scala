@@ -11,7 +11,7 @@ import li.cil.oc.common.Tier
 import li.cil.oc.common.entity.Drone
 import li.cil.oc.common.tileentity.Robot
 import li.cil.oc.server.component
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 object DriverUpgradeInventoryController extends Item with HostAware {
   override def worksWith(stack: ItemStack) = isOneOf(stack,

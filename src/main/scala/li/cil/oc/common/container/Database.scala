@@ -1,15 +1,15 @@
 package li.cil.oc.common.container
 
 import li.cil.oc.common.inventory.DatabaseInventory
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.entity.player.Player
 import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.IInventory
+import net.minecraft.world.Container
 import net.minecraft.inventory.container.ClickType
 import net.minecraft.inventory.container.ContainerType
 import net.minecraft.inventory.container.Slot
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
-class Database(selfType: ContainerType[_ <: Database], id: Int, playerInventory: PlayerInventory, val container: ItemStack, databaseInventory: IInventory, val tier: Int)
+class Database(selfType: ContainerType[_ <: Database], id: Int, playerInventory: PlayerInventory, val container: ItemStack, databaseInventory: Container, val tier: Int)
   extends Player(selfType, id, playerInventory, databaseInventory) {
 
   override protected def getHostClass = null
@@ -24,9 +24,9 @@ class Database(selfType: ContainerType[_ <: Database], id: Int, playerInventory:
   // Show the player's inventory.
   addPlayerInventorySlots(8, 174)
 
-  override def stillValid(player: PlayerEntity) = player == playerInventory.player
+  override def stillValid(player: Player) = player == playerInventory.player
 
-  override def clicked(slot: Int, dragType: Int, clickType: ClickType, player: PlayerEntity): ItemStack = {
+  override def clicked(slot: Int, dragType: Int, clickType: ClickType, player: Player): ItemStack = {
     if (slot >= databaseInventory.getContainerSize() || slot < 0) {
       // if the slot interaction is with the user inventory use
       // default behavior

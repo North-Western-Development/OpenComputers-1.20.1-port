@@ -9,12 +9,12 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.RenderType
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import net.minecraft.util.Hand
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.vector.Vector4f
-import net.minecraft.util.math.vector.Matrix4f
-import net.minecraftforge.client.event.RenderWorldLastEvent
+import net.minecraft.resources.ResourceLocation
+import com.mojang.math.Vector4f
+import com.mojang.math.Matrix4f
+import net.minecraftforge.client.event.RenderLevelLastEvent
 import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
@@ -24,7 +24,7 @@ object MFUTargetRenderer {
   private lazy val mfu = api.Items.get(Constants.ItemName.MFU)
 
   @SubscribeEvent
-  def onRenderWorldLastEvent(e: RenderWorldLastEvent) {
+  def onRenderLevelLastEvent(e: RenderLevelLastEvent) {
     val mc = Minecraft.getInstance
     val player = mc.player
     if (player == null) return
@@ -39,9 +39,9 @@ object MFUTargetRenderer {
 
           val bounds = BlockPosition(x, y, z).bounds.inflate(0.1, 0.1, 0.1)
 
-          RenderState.checkError(getClass.getName + ".onRenderWorldLastEvent: entering (aka: wasntme)")
+          RenderState.checkError(getClass.getName + ".onRenderLevelLastEvent: entering (aka: wasntme)")
 
-          val matrix = e.getMatrixStack
+          val matrix = e.getPoseStack
           matrix.pushPose()
           val camPos = Minecraft.getInstance.gameRenderer.getMainCamera.getPosition
           matrix.translate(-camPos.x, -camPos.y, -camPos.z)
@@ -56,7 +56,7 @@ object MFUTargetRenderer {
 
           matrix.popPose()
 
-          RenderState.checkError(getClass.getName + ".onRenderWorldLastEvent: leaving")
+          RenderState.checkError(getClass.getName + ".onRenderLevelLastEvent: leaving")
         }
       case _ => // Nothing
     }

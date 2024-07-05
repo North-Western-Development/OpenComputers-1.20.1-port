@@ -8,10 +8,10 @@ import li.cil.oc.common.init.Blocks
 import li.cil.oc.common.init.Items
 import li.cil.oc.integration.Mods
 import li.cil.oc.util.ThreadPoolFactory
-import net.minecraft.block.Block
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.world.World
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.Item
+import net.minecraft.world.level.Level
 import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.common.MinecraftForge

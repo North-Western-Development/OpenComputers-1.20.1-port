@@ -16,11 +16,11 @@ import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab
 import li.cil.oc.util.SideTracker
 import net.minecraft.entity.LivingEntity
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.potion.Effect
 import net.minecraft.potion.Effects
 import net.minecraft.util.math.{AxisAlignedBB, BlockPos, RayTraceContext, RayTraceResult}
-import net.minecraft.util.math.vector.Vector3d
+import net.minecraft.world.phys.Vec3
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -98,8 +98,8 @@ class MotionSensor(val host: EnvironmentHost) extends prefab.AbstractManagedEnvi
 
   private def isInRange(entity: LivingEntity) = entity.distanceToSqr(x + 0.5, y + 0.5, z + 0.5) <= radius * radius
 
-  private def isClearPath(target: Vector3d): Boolean = {
-    val origin = new Vector3d(x, y, z)
+  private def isClearPath(target: Vec3): Boolean = {
+    val origin = new Vec3(x, y, z)
     val path = target.subtract(origin).normalize()
     val eye = origin.add(path)
     val trace = world.clip(new RayTraceContext(eye, target, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.ANY, null))
@@ -141,12 +141,12 @@ class MotionSensor(val host: EnvironmentHost) extends prefab.AbstractManagedEnvi
 
   private final val SensitivityTag = Settings.namespace + "sensitivity"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundTag) {
     super.loadData(nbt)
     sensitivity = nbt.getDouble(SensitivityTag)
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundTag) {
     super.saveData(nbt)
     nbt.putDouble(SensitivityTag, sensitivity)
   }

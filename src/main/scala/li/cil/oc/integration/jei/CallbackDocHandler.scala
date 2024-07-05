@@ -3,23 +3,23 @@ package li.cil.oc.integration.jei
 import java.util
 
 import com.google.common.base.Strings
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.server.machine.Callbacks
 import mezz.jei.api.constants.VanillaTypes
-import mezz.jei.api.gui.IRecipeLayout
+import mezz.jei.api.gui.RecipeLayout
 import mezz.jei.api.gui.drawable.IDrawable
 import mezz.jei.api.gui.drawable.IDrawableAnimated.StartDirection
 import mezz.jei.api.helpers.IGuiHelper
 import mezz.jei.api.ingredients.IIngredients
-import mezz.jei.api.recipe.category.IRecipeCategory
-import mezz.jei.api.registration.IRecipeRegistration
+import mezz.jei.api.recipe.category.RecipeCategory
+import mezz.jei.api.registration.RecipeRegistration
 import net.minecraft.client.Minecraft
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import net.minecraft.util.ICharacterConsumer
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.text.CharacterManager.ISliceAcceptor
 import net.minecraft.util.text.Style
 import net.minecraft.util.text.TextFormatting
@@ -34,7 +34,7 @@ object CallbackDocHandler {
 
   private val VexPattern = """(?s)^function(\(.*?\).*?); (.*)$""".r
 
-  def getRecipes(registration: IRecipeRegistration): util.List[CallbackDocRecipe] = registration.getIngredientManager.getAllIngredients(VanillaTypes.ITEM).collect {
+  def getRecipes(registration: RecipeRegistration): util.List[CallbackDocRecipe] = registration.getIngredientManager.getAllIngredients(VanillaTypes.ITEM).collect {
     case stack: ItemStack =>
       val callbacks = api.Driver.environmentsFor(stack).flatMap(getCallbacks).toBuffer
 
@@ -88,7 +88,7 @@ object CallbackDocHandler {
 
   class CallbackDocRecipe(val stack: ItemStack, val page: String)
 
-  object CallbackDocRecipeCategory extends IRecipeCategory[CallbackDocRecipe] {
+  object CallbackDocRecipeCategory extends RecipeCategory[CallbackDocRecipe] {
     val recipeWidth: Int = 160
     val recipeHeight: Int = 125
     private var background: IDrawable = _
@@ -110,10 +110,10 @@ object CallbackDocHandler {
       ingredients.setInput(VanillaTypes.ITEM, recipeWrapper.stack)
     }
 
-    override def setRecipe(recipeLayout: IRecipeLayout, recipeWrapper: CallbackDocRecipe, ingredients: IIngredients) {
+    override def setRecipe(recipeLayout: RecipeLayout, recipeWrapper: CallbackDocRecipe, ingredients: IIngredients) {
     }
 
-    override def draw(recipeWrapper: CallbackDocRecipe, stack: MatrixStack, mouseX: Double, mouseY: Double): Unit = {
+    override def draw(recipeWrapper: CallbackDocRecipe, stack: PoseStack, mouseX: Double, mouseY: Double): Unit = {
       val minecraft = Minecraft.getInstance
       for ((text, line) <- recipeWrapper.page.linesIterator.zipWithIndex) {
         minecraft.font.draw(stack, text, 4, 4 + line * (minecraft.font.lineHeight + 1), 0x333333)

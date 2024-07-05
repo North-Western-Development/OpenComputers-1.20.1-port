@@ -16,23 +16,23 @@ import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.StackOption._
 import li.cil.oc.util.Tooltip
 import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
+import net.minecraft.world.level.block.Block
+net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 import net.minecraft.loot.LootContext
 import net.minecraft.loot.LootParameters
 import net.minecraft.state.StateContainer
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
 import net.minecraft.util.math.RayTraceResult
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.World
+import net.minecraft.world.level.BlockGetter
+import net.minecraft.world.level.Level
 import net.minecraftforge.common.extensions.IForgeBlock
 
 import scala.reflect.ClassTag
@@ -45,7 +45,7 @@ class Microcontroller(props: Properties)
 
   // ----------------------------------------------------------------------- //
 
-  override def getPickBlock(state: BlockState, target: RayTraceResult, world: IBlockReader, pos: BlockPos, player: PlayerEntity): ItemStack =
+  override def getPickBlock(state: BlockState, target: RayTraceResult, world: BlockGetter, pos: BlockPos, player: Player): ItemStack =
     world.getBlockEntity(pos) match {
       case mcu: tileentity.Microcontroller => mcu.info.copyItemStack()
       case _ => ItemStack.EMPTY
@@ -53,7 +53,7 @@ class Microcontroller(props: Properties)
 
   // ----------------------------------------------------------------------- //
 
-  override protected def tooltipTail(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) {
+  override protected def tooltipTail(stack: ItemStack, world: BlockGetter, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) {
     super.tooltipTail(stack, world, tooltip, advanced)
     if (KeyBindings.showExtendedTooltips) {
       val info = new MicrocontrollerData(stack)
@@ -67,11 +67,11 @@ class Microcontroller(props: Properties)
 
   override def energyThroughput: Double = Settings.get.caseRate(Tier.One)
 
-  override def newBlockEntity(world: IBlockReader) = new tileentity.Microcontroller(tileentity.TileEntityTypes.MICROCONTROLLER)
+  override def newBlockEntity(world: BlockGetter) = new tileentity.Microcontroller(tileentity.BlockEntityTypes.MICROCONTROLLER)
 
   // ----------------------------------------------------------------------- //
 
-  override def localOnBlockActivated(world: World, pos: BlockPos, player: PlayerEntity, hand: Hand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Boolean = {
+  override def localOnBlockActivated(world: Level, pos: BlockPos, player: Player, hand: Hand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Boolean = {
     if (!Wrench.holdsApplicableWrench(player, pos)) {
       if (!player.isCrouching) {
         if (!world.isClientSide) {
@@ -102,7 +102,7 @@ class Microcontroller(props: Properties)
     else false
   }
 
-  override def setPlacedBy(world: World, pos: BlockPos, state: BlockState, placer: LivingEntity, stack: ItemStack): Unit = {
+  override def setPlacedBy(world: Level, pos: BlockPos, state: BlockState, placer: LivingEntity, stack: ItemStack): Unit = {
     super.setPlacedBy(world, pos, state, placer, stack)
     world.getBlockEntity(pos) match {
       case tileEntity: tileentity.Microcontroller if !world.isClientSide => {
@@ -127,7 +127,7 @@ class Microcontroller(props: Properties)
     super.getDrops(state, newCtx)
   }
 
-  override def playerWillDestroy(world: World, pos: BlockPos, state: BlockState, player: PlayerEntity) {
+  override def playerWillDestroy(world: Level, pos: BlockPos, state: BlockState, player: Player) {
     if (!world.isClientSide && player.isCreative) {
       world.getBlockEntity(pos) match {
         case tileEntity: tileentity.Microcontroller =>

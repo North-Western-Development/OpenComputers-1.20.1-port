@@ -21,16 +21,16 @@ import li.cil.oc.common.item.data.RobotData
 import li.cil.oc.common.item.data.TabletData
 import li.cil.oc.common.item.traits.SimpleItem
 import li.cil.oc.server.machine.luac.LuaStateFactory
-import net.minecraft.block.Block
+import net.minecraft.world.level.block.Block
 import net.minecraft.item.BlockItem
-import net.minecraft.item.DyeColor
-import net.minecraft.item.Item
-import net.minecraft.item.Item.Properties
-import net.minecraft.item.ItemGroup
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.DyeColor
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.ItemGroup
+import net.minecraft.world.item.ItemStack
 import net.minecraft.item.Rarity
 import net.minecraft.util.NonNullList
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.common.ToolType
 import net.minecraftforge.registries.GameData
 

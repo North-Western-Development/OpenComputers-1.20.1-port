@@ -8,15 +8,15 @@ import li.cil.oc.api.event.RackMountableRenderEvent
 import li.cil.oc.client.Textures
 import li.cil.oc.common.block
 import li.cil.oc.common.tileentity
-import net.minecraft.block.BlockState
-import net.minecraft.client.world.ClientWorld
+net.minecraft.world.level.block.state.BlockState
+import net.minecraft.client.world.ClientLevel
 import net.minecraft.client.renderer.model.BakedQuad
 import net.minecraft.client.renderer.model.IBakedModel
 import net.minecraft.client.renderer.model.ItemOverrideList
 import net.minecraft.entity.LivingEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
-import net.minecraft.util.math.vector.Vector3d
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
+import net.minecraft.world.phys.Vec3
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.client.model.data.IModelData
 
@@ -76,23 +76,23 @@ class ServerRackModel(val parent: IBakedModel) extends SmartBlockModelBase {
   )
 
   protected final val Case = Array(
-    makeBox(new Vector3d(0 / 16f, 0 / 16f, 0 / 16f), new Vector3d(16 / 16f, 2 / 16f, 16 / 16f)),
-    makeBox(new Vector3d(0 / 16f, 14 / 16f, 0 / 16f), new Vector3d(16 / 16f, 16 / 16f, 16 / 16f)),
-    makeBox(new Vector3d(0 / 16f, 2 / 16f, 0 / 16f), new Vector3d(16 / 16f, 14 / 16f, 0.99f / 16f)),
-    makeBox(new Vector3d(0 / 16f, 2 / 16f, 15.01f / 16f), new Vector3d(16 / 16f, 14 / 16f, 16 / 16f)),
-    makeBox(new Vector3d(0 / 16f, 2 / 16f, 0 / 16f), new Vector3d(0.99f / 16f, 14 / 16f, 16 / 16f)),
-    makeBox(new Vector3d(15.01f / 16f, 2 / 16f, 0 / 16f), new Vector3d(16 / 16f, 14f / 16f, 16 / 16f))
+    makeBox(new Vec3(0 / 16f, 0 / 16f, 0 / 16f), new Vec3(16 / 16f, 2 / 16f, 16 / 16f)),
+    makeBox(new Vec3(0 / 16f, 14 / 16f, 0 / 16f), new Vec3(16 / 16f, 16 / 16f, 16 / 16f)),
+    makeBox(new Vec3(0 / 16f, 2 / 16f, 0 / 16f), new Vec3(16 / 16f, 14 / 16f, 0.99f / 16f)),
+    makeBox(new Vec3(0 / 16f, 2 / 16f, 15.01f / 16f), new Vec3(16 / 16f, 14 / 16f, 16 / 16f)),
+    makeBox(new Vec3(0 / 16f, 2 / 16f, 0 / 16f), new Vec3(0.99f / 16f, 14 / 16f, 16 / 16f)),
+    makeBox(new Vec3(15.01f / 16f, 2 / 16f, 0 / 16f), new Vec3(16 / 16f, 14f / 16f, 16 / 16f))
   )
 
   protected final val Servers = Array(
-    makeBox(new Vector3d(0.5f / 16f, 11 / 16f, 0.5f / 16f), new Vector3d(15.5f / 16f, 14 / 16f, 15.5f / 16f)),
-    makeBox(new Vector3d(0.5f / 16f, 8 / 16f, 0.5f / 16f), new Vector3d(15.5f / 16f, 11 / 16f, 15.5f / 16f)),
-    makeBox(new Vector3d(0.5f / 16f, 5 / 16f, 0.5f / 16f), new Vector3d(15.5f / 16f, 8 / 16f, 15.5f / 16f)),
-    makeBox(new Vector3d(0.5f / 16f, 2 / 16f, 0.5f / 16f), new Vector3d(15.5f / 16f, 5 / 16f, 15.5f / 16f))
+    makeBox(new Vec3(0.5f / 16f, 11 / 16f, 0.5f / 16f), new Vec3(15.5f / 16f, 14 / 16f, 15.5f / 16f)),
+    makeBox(new Vec3(0.5f / 16f, 8 / 16f, 0.5f / 16f), new Vec3(15.5f / 16f, 11 / 16f, 15.5f / 16f)),
+    makeBox(new Vec3(0.5f / 16f, 5 / 16f, 0.5f / 16f), new Vec3(15.5f / 16f, 8 / 16f, 15.5f / 16f)),
+    makeBox(new Vec3(0.5f / 16f, 2 / 16f, 0.5f / 16f), new Vec3(15.5f / 16f, 5 / 16f, 15.5f / 16f))
   )
 
   object ItemOverride extends ItemOverrideList {
-    override def resolve(originalModel: IBakedModel, stack: ItemStack, world: ClientWorld, entity: LivingEntity): IBakedModel = parent
+    override def resolve(originalModel: IBakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity): IBakedModel = parent
   }
 
 }

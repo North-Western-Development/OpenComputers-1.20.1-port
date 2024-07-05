@@ -5,43 +5,43 @@ import li.cil.oc.api.machine.Arguments;
 import li.cil.oc.api.machine.Callback;
 import li.cil.oc.api.machine.Context;
 import li.cil.oc.api.network.ManagedEnvironment;
-import li.cil.oc.api.prefab.DriverSidedTileEntity;
-import li.cil.oc.integration.ManagedTileEntityEnvironment;
+import li.cil.oc.api.prefab.DriverSidedBlockEntity;
+import li.cil.oc.integration.ManagedBlockEntityEnvironment;
 import li.cil.oc.util.BlockPosition;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.INameable;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.server.ServerLevel;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.Event;
 
-public final class DriverInventory extends DriverSidedTileEntity {
+public final class DriverInventory extends DriverSidedBlockEntity {
     @Override
-    public Class<?> getTileEntityClass() {
-        return IInventory.class;
+    public Class<?> getBlockEntityClass() {
+        return Container.class;
     }
 
     @Override
-    public ManagedEnvironment createEnvironment(final World world, final BlockPos pos, final Direction side) {
+    public ManagedEnvironment createEnvironment(final Level world, final BlockPos pos, final Direction side) {
         return new Environment(world.getBlockEntity(pos), world);
     }
 
-    public static final class Environment extends ManagedTileEntityEnvironment<IInventory> {
-        private final PlayerEntity fakePlayer;
+    public static final class Environment extends ManagedBlockEntityEnvironment<Container> {
+        private final Player fakePlayer;
         private final BlockPosition position;
 
-        public Environment(final TileEntity tileEntity, final World world) {
-            super((IInventory) tileEntity, "inventory");
-            fakePlayer = FakePlayerFactory.get((ServerWorld) world, Settings.get().fakePlayerProfile());
+        public Environment(final BlockEntity tileEntity, final Level world) {
+            super((Container) tileEntity, "inventory");
+            fakePlayer = FakePlayerFactory.get((ServerLevel) world, Settings.get().fakePlayerProfile());
             position = BlockPosition.apply(tileEntity.getBlockPos(), world);
         }
 

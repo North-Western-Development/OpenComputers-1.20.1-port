@@ -8,19 +8,19 @@ import li.cil.oc.client.Textures
 import li.cil.oc.common.block
 import li.cil.oc.common.item.data.PrintData
 import li.cil.oc.common.tileentity
-import net.minecraft.block.BlockState
-import net.minecraft.client.world.ClientWorld
+net.minecraft.world.level.block.state.BlockState
+import net.minecraft.client.world.ClientLevel
 import net.minecraft.client.renderer.model.BakedQuad
 import net.minecraft.client.renderer.model.IBakedModel
 import net.minecraft.client.renderer.model.ItemOverrideList
 import net.minecraft.client.renderer.texture.AtlasTexture
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.entity.LivingEntity
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import net.minecraft.inventory.container.PlayerContainer
-import net.minecraft.util.Direction
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.vector.Vector3d
+import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.phys.Vec3
 import net.minecraftforge.client.event.TextureStitchEvent
 import net.minecraftforge.client.model.data.IModelData
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -61,20 +61,20 @@ object NetSplitterModel extends SmartBlockModelBase {
     val faces = mutable.ArrayBuffer.empty[BakedQuad]
 
     // Bottom.
-    faces ++= bakeQuads(makeBox(new Vector3d(0 / 16f, 0 / 16f, 5 / 16f), new Vector3d(5 / 16f, 5 / 16f, 11 / 16f)), splitterTexture(Some(atlas)), None)
-    faces ++= bakeQuads(makeBox(new Vector3d(11 / 16f, 0 / 16f, 5 / 16f), new Vector3d(16 / 16f, 5 / 16f, 11 / 16f)), splitterTexture(Some(atlas)), None)
-    faces ++= bakeQuads(makeBox(new Vector3d(5 / 16f, 0 / 16f, 0 / 16f), new Vector3d(11 / 16f, 5 / 16f, 5 / 16f)), splitterTexture(Some(atlas)), None)
-    faces ++= bakeQuads(makeBox(new Vector3d(5 / 16f, 0 / 16f, 11 / 16f), new Vector3d(11 / 16f, 5 / 16f, 16 / 16f)), splitterTexture(Some(atlas)), None)
+    faces ++= bakeQuads(makeBox(new Vec3(0 / 16f, 0 / 16f, 5 / 16f), new Vec3(5 / 16f, 5 / 16f, 11 / 16f)), splitterTexture(Some(atlas)), None)
+    faces ++= bakeQuads(makeBox(new Vec3(11 / 16f, 0 / 16f, 5 / 16f), new Vec3(16 / 16f, 5 / 16f, 11 / 16f)), splitterTexture(Some(atlas)), None)
+    faces ++= bakeQuads(makeBox(new Vec3(5 / 16f, 0 / 16f, 0 / 16f), new Vec3(11 / 16f, 5 / 16f, 5 / 16f)), splitterTexture(Some(atlas)), None)
+    faces ++= bakeQuads(makeBox(new Vec3(5 / 16f, 0 / 16f, 11 / 16f), new Vec3(11 / 16f, 5 / 16f, 16 / 16f)), splitterTexture(Some(atlas)), None)
     // Corners.
-    faces ++= bakeQuads(makeBox(new Vector3d(0 / 16f, 0 / 16f, 0 / 16f), new Vector3d(5 / 16f, 16 / 16f, 5 / 16f)), splitterTexture(Some(atlas)), None)
-    faces ++= bakeQuads(makeBox(new Vector3d(11 / 16f, 0 / 16f, 0 / 16f), new Vector3d(16 / 16f, 16 / 16f, 5 / 16f)), splitterTexture(Some(atlas)), None)
-    faces ++= bakeQuads(makeBox(new Vector3d(0 / 16f, 0 / 16f, 11 / 16f), new Vector3d(5 / 16f, 16 / 16f, 16 / 16f)), splitterTexture(Some(atlas)), None)
-    faces ++= bakeQuads(makeBox(new Vector3d(11 / 16f, 0 / 16f, 11 / 16f), new Vector3d(16 / 16f, 16 / 16f, 16 / 16f)), splitterTexture(Some(atlas)), None)
+    faces ++= bakeQuads(makeBox(new Vec3(0 / 16f, 0 / 16f, 0 / 16f), new Vec3(5 / 16f, 16 / 16f, 5 / 16f)), splitterTexture(Some(atlas)), None)
+    faces ++= bakeQuads(makeBox(new Vec3(11 / 16f, 0 / 16f, 0 / 16f), new Vec3(16 / 16f, 16 / 16f, 5 / 16f)), splitterTexture(Some(atlas)), None)
+    faces ++= bakeQuads(makeBox(new Vec3(0 / 16f, 0 / 16f, 11 / 16f), new Vec3(5 / 16f, 16 / 16f, 16 / 16f)), splitterTexture(Some(atlas)), None)
+    faces ++= bakeQuads(makeBox(new Vec3(11 / 16f, 0 / 16f, 11 / 16f), new Vec3(16 / 16f, 16 / 16f, 16 / 16f)), splitterTexture(Some(atlas)), None)
     // Top.
-    faces ++= bakeQuads(makeBox(new Vector3d(0 / 16f, 11 / 16f, 5 / 16f), new Vector3d(5 / 16f, 16 / 16f, 11 / 16f)), splitterTexture(Some(atlas)), None)
-    faces ++= bakeQuads(makeBox(new Vector3d(11 / 16f, 11 / 16f, 5 / 16f), new Vector3d(16 / 16f, 16 / 16f, 11 / 16f)), splitterTexture(Some(atlas)), None)
-    faces ++= bakeQuads(makeBox(new Vector3d(5 / 16f, 11 / 16f, 0 / 16f), new Vector3d(11 / 16f, 16 / 16f, 5 / 16f)), splitterTexture(Some(atlas)), None)
-    faces ++= bakeQuads(makeBox(new Vector3d(5 / 16f, 11 / 16f, 11 / 16f), new Vector3d(11 / 16f, 16 / 16f, 16 / 16f)), splitterTexture(Some(atlas)), None)
+    faces ++= bakeQuads(makeBox(new Vec3(0 / 16f, 11 / 16f, 5 / 16f), new Vec3(5 / 16f, 16 / 16f, 11 / 16f)), splitterTexture(Some(atlas)), None)
+    faces ++= bakeQuads(makeBox(new Vec3(11 / 16f, 11 / 16f, 5 / 16f), new Vec3(16 / 16f, 16 / 16f, 11 / 16f)), splitterTexture(Some(atlas)), None)
+    faces ++= bakeQuads(makeBox(new Vec3(5 / 16f, 11 / 16f, 0 / 16f), new Vec3(11 / 16f, 16 / 16f, 5 / 16f)), splitterTexture(Some(atlas)), None)
+    faces ++= bakeQuads(makeBox(new Vec3(5 / 16f, 11 / 16f, 11 / 16f), new Vec3(11 / 16f, 16 / 16f, 16 / 16f)), splitterTexture(Some(atlas)), None)
 
     faces.toArray
   }
@@ -88,22 +88,22 @@ object NetSplitterModel extends SmartBlockModelBase {
 
   protected def addSideQuads(faces: mutable.ArrayBuffer[BakedQuad], openSides: Array[Boolean]): Unit = {
     val down = openSides(Direction.DOWN.ordinal())
-    faces ++= bakeQuads(makeBox(new Vector3d(5 / 16f, if (down) 0 / 16f else 2 / 16f, 5 / 16f), new Vector3d(11 / 16f, 5 / 16f, 11 / 16f)), splitterTexture(None), None)
+    faces ++= bakeQuads(makeBox(new Vec3(5 / 16f, if (down) 0 / 16f else 2 / 16f, 5 / 16f), new Vec3(11 / 16f, 5 / 16f, 11 / 16f)), splitterTexture(None), None)
 
     val up = openSides(Direction.UP.ordinal())
-    faces ++= bakeQuads(makeBox(new Vector3d(5 / 16f, 11 / 16f, 5 / 16f), new Vector3d(11 / 16f, if (up) 16 / 16f else 14f / 16f, 11 / 16f)), splitterTexture(None), None)
+    faces ++= bakeQuads(makeBox(new Vec3(5 / 16f, 11 / 16f, 5 / 16f), new Vec3(11 / 16f, if (up) 16 / 16f else 14f / 16f, 11 / 16f)), splitterTexture(None), None)
 
     val north = openSides(Direction.NORTH.ordinal())
-    faces ++= bakeQuads(makeBox(new Vector3d(5 / 16f, 5 / 16f, if (north) 0 / 16f else 2 / 16f), new Vector3d(11 / 16f, 11 / 16f, 5 / 16f)), splitterTexture(None), None)
+    faces ++= bakeQuads(makeBox(new Vec3(5 / 16f, 5 / 16f, if (north) 0 / 16f else 2 / 16f), new Vec3(11 / 16f, 11 / 16f, 5 / 16f)), splitterTexture(None), None)
 
     val south = openSides(Direction.SOUTH.ordinal())
-    faces ++= bakeQuads(makeBox(new Vector3d(5 / 16f, 5 / 16f, 11 / 16f), new Vector3d(11 / 16f, 11 / 16f, if (south) 16 / 16f else 14 / 16f)), splitterTexture(None), None)
+    faces ++= bakeQuads(makeBox(new Vec3(5 / 16f, 5 / 16f, 11 / 16f), new Vec3(11 / 16f, 11 / 16f, if (south) 16 / 16f else 14 / 16f)), splitterTexture(None), None)
 
     val west = openSides(Direction.WEST.ordinal())
-    faces ++= bakeQuads(makeBox(new Vector3d(if (west) 0 / 16f else 2 / 16f, 5 / 16f, 5 / 16f), new Vector3d(5 / 16f, 11 / 16f, 11 / 16f)), splitterTexture(None), None)
+    faces ++= bakeQuads(makeBox(new Vec3(if (west) 0 / 16f else 2 / 16f, 5 / 16f, 5 / 16f), new Vec3(5 / 16f, 11 / 16f, 11 / 16f)), splitterTexture(None), None)
 
     val east = openSides(Direction.EAST.ordinal())
-    faces ++= bakeQuads(makeBox(new Vector3d(11 / 16f, 5 / 16f, 5 / 16f), new Vector3d(if (east) 16 / 16f else 14 / 16f, 11 / 16f, 11 / 16f)), splitterTexture(None), None)
+    faces ++= bakeQuads(makeBox(new Vec3(11 / 16f, 5 / 16f, 5 / 16f), new Vec3(if (east) 16 / 16f else 14 / 16f, 11 / 16f, 11 / 16f)), splitterTexture(None), None)
   }
 
   object ItemModel extends SmartBlockModelBase {
@@ -118,7 +118,7 @@ object NetSplitterModel extends SmartBlockModelBase {
   }
 
   object ItemOverride extends ItemOverrideList {
-    override def resolve(originalModel: IBakedModel, stack: ItemStack, world: ClientWorld, entity: LivingEntity): IBakedModel = ItemModel
+    override def resolve(originalModel: IBakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity): IBakedModel = ItemModel
   }
 
 }

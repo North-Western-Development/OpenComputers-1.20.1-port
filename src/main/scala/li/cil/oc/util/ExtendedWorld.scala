@@ -1,35 +1,35 @@
 package li.cil.oc.util
 
 import li.cil.oc.api.network.EnvironmentHost
-import net.minecraft.block.Block
-import net.minecraft.block.Blocks
-import net.minecraft.block.BlockState
-import net.minecraft.block.material.Material
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.World
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.Blocks
+net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.material.Material
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.Direction
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.BlockGetter
+import net.minecraft.world.level.Level
 
 import scala.language.implicitConversions
 
-object ExtendedWorld {
+object ExtendedLevel {
 
-  implicit def extendedBlockAccess(world: IBlockReader): ExtendedBlockAccess = new ExtendedBlockAccess(world)
+  implicit def extendedBlockAccess(world: BlockGetter): ExtendedBlockAccess = new ExtendedBlockAccess(world)
 
-  implicit def extendedWorld(world: World): ExtendedWorld = new ExtendedWorld(world)
+  implicit def extendedLevel(world: Level): ExtendedLevel = new ExtendedLevel(world)
 
-  class ExtendedBlockAccess(val world: IBlockReader) {
+  class ExtendedBlockAccess(val world: BlockGetter) {
     def getBlock(position: BlockPosition) = world.getBlockState(position.toBlockPos).getBlock
 
     def getBlockMapColor(position: BlockPosition) = getBlockMetadata(position).getMapColor(world, position.toBlockPos)
 
     def getBlockMetadata(position: BlockPosition) = world.getBlockState(position.toBlockPos)
 
-    def getBlockEntity(position: BlockPosition): TileEntity = world.getBlockEntity(position.toBlockPos)
+    def getBlockEntity(position: BlockPosition): BlockEntity = world.getBlockEntity(position.toBlockPos)
 
-    def getBlockEntity(host: EnvironmentHost): TileEntity = getBlockEntity(BlockPosition(host))
+    def getBlockEntity(host: EnvironmentHost): BlockEntity = getBlockEntity(BlockPosition(host))
 
     def isAirBlock(position: BlockPosition) = {
       val state = world.getBlockState(position.toBlockPos)
@@ -37,14 +37,14 @@ object ExtendedWorld {
     }
   }
 
-  class ExtendedWorld(override val world: World) extends ExtendedBlockAccess(world) {
+  class ExtendedLevel(override val world: Level) extends ExtendedBlockAccess(world) {
     def blockExists(position: BlockPosition) = world.isLoaded(position.toBlockPos)
 
     def breakBlock(position: BlockPosition, drops: Boolean = true) = world.destroyBlock(position.toBlockPos, drops)
 
-    def destroyBlockInWorldPartially(entityId: Int, position: BlockPosition, progress: Int) = world.destroyBlockProgress(entityId, position.toBlockPos, progress)
+    def destroyBlockInLevelPartially(entityId: Int, position: BlockPosition, progress: Int) = world.destroyBlockProgress(entityId, position.toBlockPos, progress)
 
-    def extinguishFire(player: PlayerEntity, position: BlockPosition, side: Direction) = {
+    def extinguishFire(player: Player, position: BlockPosition, side: Direction) = {
       val pos = position.toBlockPos
       val state = world.getBlockState(pos)
       if (state.getMaterial == Material.FIRE) {

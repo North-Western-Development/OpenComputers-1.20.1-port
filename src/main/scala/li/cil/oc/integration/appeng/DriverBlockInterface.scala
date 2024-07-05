@@ -12,23 +12,23 @@ import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
 import li.cil.oc.api.network.Component
 import li.cil.oc.api.network.ManagedEnvironment
-import li.cil.oc.api.prefab.DriverSidedTileEntity
-import li.cil.oc.integration.ManagedTileEntityEnvironment
+import li.cil.oc.api.prefab.DriverSidedBlockEntity
+import li.cil.oc.integration.ManagedBlockEntityEnvironment
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.ResultWrapper._
-import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.Direction
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.Level
 
-object DriverBlockInterface extends DriverSidedTileEntity {
-  def getTileEntityClass: Class[_] = AEUtil.interfaceClass
+object DriverBlockInterface extends DriverSidedBlockEntity {
+  def getBlockEntityClass: Class[_] = AEUtil.interfaceClass
 
-  def createEnvironment(world: World, pos: BlockPos, side: Direction): ManagedEnvironment =
-    new Environment(world.getBlockEntity(pos).asInstanceOf[TileEntity with ISegmentedInventory with IActionHost with IGridHost])
+  def createEnvironment(world: Level, pos: BlockPos, side: Direction): ManagedEnvironment =
+    new Environment(world.getBlockEntity(pos).asInstanceOf[BlockEntity with ISegmentedInventory with IActionHost with IGridHost])
 
-  final class Environment(val tile: TileEntity with ISegmentedInventory with IActionHost with IGridHost) extends ManagedTileEntityEnvironment[TileEntity with ISegmentedInventory with IActionHost](tile, "me_interface") with NamedBlock with NetworkControl[TileEntity with ISegmentedInventory with IActionHost with IGridHost] {
+  final class Environment(val tile: BlockEntity with ISegmentedInventory with IActionHost with IGridHost) extends ManagedBlockEntityEnvironment[BlockEntity with ISegmentedInventory with IActionHost](tile, "me_interface") with NamedBlock with NetworkControl[BlockEntity with ISegmentedInventory with IActionHost with IGridHost] {
     override def preferredName = "me_interface"
     override def pos: AEPartLocation = AEPartLocation.INTERNAL
 

@@ -8,14 +8,14 @@ import li.cil.oc.api.driver.DeviceInfo.DeviceClass
 import li.cil.oc.Settings
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.passive.{OcelotEntity, SheepEntity}
-import net.minecraft.tileentity.TileEntityType
+import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.util.DamageSource
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 
-class CarpetedCapacitor(selfType: TileEntityType[_ <: CarpetedCapacitor]) extends Capacitor(selfType) with traits.Tickable {
+class CarpetedCapacitor(selfType: BlockEntityType[_ <: CarpetedCapacitor]) extends Capacitor(selfType) with traits.Tickable {
   private final lazy val deviceInfo = Map(
     DeviceAttribute.Class -> DeviceClass.Power,
     DeviceAttribute.Description -> "Battery",
@@ -26,7 +26,7 @@ class CarpetedCapacitor(selfType: TileEntityType[_ <: CarpetedCapacitor]) extend
 
   override def getDeviceInfo: util.Map[String, String] = deviceInfo
 
-  private def _world: net.minecraft.world.World = getLevel
+  private def _world: net.minecraft.world.level.Level = getLevel
   private val rng = scala.util.Random
   private val chance: Double = Settings.get.carpetDamageChance
   private var nextChanceTime: Long = 0

@@ -1,26 +1,25 @@
 package li.cil.oc.client.renderer.tileentity
 
 import java.util.function.Function
-
-import com.mojang.blaze3d.matrix.MatrixStack
-import com.mojang.blaze3d.vertex.IVertexBuilder
+import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.{IVertexBuilder, PoseStack}
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity.Case
 import li.cil.oc.util.RenderState
-import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
-import net.minecraft.util.Direction
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.vector.Vector3f
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.tileentity.BlockEntityRenderer
+import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
+import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceLocation
+import com.mojang.math.Vector3f
 
-object CaseRenderer extends Function[TileEntityRendererDispatcher, CaseRenderer] {
-  override def apply(dispatch: TileEntityRendererDispatcher) = new CaseRenderer(dispatch)
+object CaseRenderer extends Function[BlockEntityRendererDispatcher, CaseRenderer] {
+  override def apply(dispatch: BlockEntityRendererDispatcher) = new CaseRenderer(dispatch)
 }
 
-class CaseRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Case](dispatch) {
-  override def render(computer: Case, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+class CaseRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntityRenderer[Case](dispatch) {
+  override def render(computer: Case, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     stack.pushPose()
@@ -52,7 +51,7 @@ class CaseRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRen
     RenderState.checkError(getClass.getName + ".render: leaving")
   }
 
-  private def renderFrontOverlay(stack: MatrixStack, texture: ResourceLocation, r: IVertexBuilder): Unit = {
+  private def renderFrontOverlay(stack: PoseStack, texture: ResourceLocation, r: IVertexBuilder): Unit = {
     val icon = Textures.getSprite(texture)
     r.vertex(stack.last.pose, 0, 1, 0).uv(icon.getU0, icon.getV1).endVertex()
     r.vertex(stack.last.pose, 1, 1, 0).uv(icon.getU1, icon.getV1).endVertex()

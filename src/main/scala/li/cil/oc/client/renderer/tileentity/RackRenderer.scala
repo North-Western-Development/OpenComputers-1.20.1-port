@@ -2,28 +2,28 @@ package li.cil.oc.client.renderer.tileentity
 
 import java.util.function.Function
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.api.event.RackMountableRenderEvent
 import li.cil.oc.common.tileentity.Rack
 import li.cil.oc.util.RenderState
-import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
-import net.minecraft.util.Direction
-import net.minecraft.util.math.vector.Vector3f
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.tileentity.BlockEntityRenderer
+import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
+import net.minecraft.core.Direction
+import com.mojang.math.Vector3f
 import net.minecraftforge.common.MinecraftForge
 import org.lwjgl.opengl.GL11
 
-object RackRenderer extends Function[TileEntityRendererDispatcher, RackRenderer] {
-  override def apply(dispatch: TileEntityRendererDispatcher) = new RackRenderer(dispatch)
+object RackRenderer extends Function[BlockEntityRendererDispatcher, RackRenderer] {
+  override def apply(dispatch: BlockEntityRendererDispatcher) = new RackRenderer(dispatch)
 }
 
-class RackRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Rack](dispatch) {
+class RackRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntityRenderer[Rack](dispatch) {
   private final val vOffset = 2 / 16f
   private final val vSize = 3 / 16f
 
-  override def render(rack: Rack, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+  override def render(rack: Rack, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     RenderSystem.color4f(1, 1, 1, 1)
@@ -47,7 +47,7 @@ class RackRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRen
       if (!rack.getItem(i).isEmpty) {
         val v0 = vOffset + i * vSize
         val v1 = vOffset + (i + 1) * vSize
-        val event = new RackMountableRenderEvent.TileEntity(rack, i, rack.lastData(i), stack, buffer, light, overlay, v0, v1)
+        val event = new RackMountableRenderEvent.BlockEntity(rack, i, rack.lastData(i), stack, buffer, light, overlay, v0, v1)
         MinecraftForge.EVENT_BUS.post(event)
       }
     }

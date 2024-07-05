@@ -13,9 +13,9 @@ import li.cil.oc.common.item.HardDiskDrive
 import li.cil.oc.common.item.data.DriveData
 import li.cil.oc.server.component.Drive
 import li.cil.oc.server.fs.FileSystem.{ItemLabel, ReadOnlyLabel}
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.ResourceLocation
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.fml.server.ServerLifecycleHooks
 
 object DriverFileSystem extends Item {
@@ -91,7 +91,7 @@ object DriverFileSystem extends Item {
   }
   else null
 
-  private def addressFromTag(tag: CompoundNBT) =
+  private def addressFromTag(tag: CompoundTag) =
     if (tag.contains("node") && tag.getCompound("node").contains("address")) {
       tag.getCompound("node").getString("address") match {
         case UUIDVerifier(address) => address
@@ -115,13 +115,13 @@ object DriverFileSystem extends Item {
 
     private final val LabelTag = Settings.namespace + "fs.label"
 
-    override def loadData(nbt: CompoundNBT) {
+    override def loadData(nbt: CompoundTag) {
       if (nbt.contains(LabelTag)) {
         label = Option(nbt.getString(LabelTag))
       }
     }
 
-    override def saveData(nbt: CompoundNBT) {
+    override def saveData(nbt: CompoundTag) {
       label match {
         case Some(value) => nbt.putString(LabelTag, value)
         case _ =>

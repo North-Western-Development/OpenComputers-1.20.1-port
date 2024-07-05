@@ -20,22 +20,22 @@ import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.entity.player.Player
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.ISidedInventory
 import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.core.Direction
 import net.minecraft.util.math.AxisAlignedBB
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.convert.ImplicitConversionsToJava._
 
-class Printer(selfType: TileEntityType[_ <: Printer]) extends TileEntity(selfType) with traits.Environment with traits.Inventory with traits.Rotatable
+class Printer(selfType: BlockEntityType[_ <: Printer]) extends BlockEntity(selfType) with traits.Environment with traits.Inventory with traits.Rotatable
   with SidedEnvironment with traits.StateAware with traits.Tickable with ISidedInventory with DeviceInfo with INamedContainerProvider {
 
   val node: ComponentConnector = api.Network.newNode(this, Visibility.Network).
@@ -322,7 +322,7 @@ class Printer(selfType: TileEntityType[_ <: Printer]) extends TileEntity(selfTyp
   private final val TotalTag = Settings.namespace + "total"
   private final val RemainingTag = Settings.namespace + "remaining"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundTag) {
     super.loadForServer(nbt)
     amountMaterial = nbt.getInt(AmountMaterialTag)
     amountInk = nbt.getInt(AmountInkTag)
@@ -339,7 +339,7 @@ class Printer(selfType: TileEntityType[_ <: Printer]) extends TileEntity(selfTyp
     requiredEnergy = nbt.getDouble(RemainingTag)
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundTag) {
     super.saveForServer(nbt)
     nbt.putInt(AmountMaterialTag, amountMaterial)
     nbt.putInt(AmountInkTag, amountInk)
@@ -352,13 +352,13 @@ class Printer(selfType: TileEntityType[_ <: Printer]) extends TileEntity(selfTyp
   }
 
   @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundNBT) {
+  def loadForClient(nbt: CompoundTag) {
     super.loadForClient(nbt)
     data.loadData(nbt.getCompound(DataTag))
     requiredEnergy = nbt.getDouble(RemainingTag)
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundTag) {
     super.saveForClient(nbt)
     nbt.setNewCompoundTag(DataTag, data.saveData)
     nbt.putDouble(RemainingTag, requiredEnergy)
@@ -377,7 +377,7 @@ class Printer(selfType: TileEntityType[_ <: Printer]) extends TileEntity(selfTyp
 
   // ----------------------------------------------------------------------- //
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
+  override def createMenu(id: Int, playerInventory: PlayerInventory, player: Player) =
     new container.Printer(ContainerTypes.PRINTER, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //

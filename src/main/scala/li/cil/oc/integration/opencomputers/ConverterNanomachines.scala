@@ -7,7 +7,7 @@ import li.cil.oc.Constants
 import li.cil.oc.api
 import li.cil.oc.api.driver.Converter
 import li.cil.oc.common.item.data.NanomachineData
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 import scala.collection.convert.ImplicitConversionsToScala._
 

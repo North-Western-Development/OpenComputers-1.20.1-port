@@ -5,26 +5,26 @@ import li.cil.oc.client.renderer.item.HoverBootRenderer
 import li.cil.oc.common.init.Items
 import li.cil.oc.common.item.data.HoverBootsData
 import li.cil.oc.util.ItemColorizer
-import net.minecraft.block.Blocks
+import net.minecraft.world.level.block.Blocks
 import net.minecraft.block.CauldronBlock
 import net.minecraft.client.renderer.entity.model.BipedModel
 import net.minecraft.inventory.EquipmentSlotType
 import net.minecraft.item.ArmorItem
 import net.minecraft.item.ArmorMaterial
-import net.minecraft.item.Item
-import net.minecraft.item.Item.Properties
-import net.minecraft.item.ItemGroup
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.ItemGroup
+import net.minecraft.world.item.ItemStack
 import net.minecraft.item.Rarity
-import net.minecraft.entity.Entity
+import net.minecraft.world.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.item.ItemEntity
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.entity.player.Player
 import net.minecraft.potion.Effect
 import net.minecraft.potion.Effects
 import net.minecraft.potion.EffectInstance
 import net.minecraft.util.NonNullList
-import net.minecraft.world.World
+import net.minecraft.world.level.Level
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.extensions.IForgeItem
@@ -70,7 +70,7 @@ class HoverBoots(props: Properties) extends ArmorItem(ArmorMaterial.DIAMOND, Equ
     else null
   }
 
-  override def onArmorTick(stack: ItemStack, world: World, player: PlayerEntity): Unit = {
+  override def onArmorTick(stack: ItemStack, world: Level, player: Player): Unit = {
     super.onArmorTick(stack, world, player)
     if (!Settings.get.ignorePower && player.getEffect(Effects.MOVEMENT_SLOWDOWN) == null && getCharge(stack) == 0) {
       player.addEffect(new EffectInstance(Effects.MOVEMENT_SLOWDOWN, 20, 1))

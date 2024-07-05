@@ -10,9 +10,9 @@ import li.cil.oc.common.IMC
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.Container
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.util.text.ITextComponent
 import net.minecraftforge.common.util.Constants.NBT
 
@@ -26,14 +26,14 @@ object AssemblerTemplates {
 
   private val templateFilters = mutable.ArrayBuffer.empty[Method]
 
-  def add(template: CompoundNBT): Unit = {
+  def add(template: CompoundTag): Unit = {
     val selector = IMC.getStaticMethod(template.getString("select"), classOf[ItemStack])
-    val validator = IMC.getStaticMethod(template.getString("validate"), classOf[IInventory])
-    val assembler = IMC.getStaticMethod(template.getString("assemble"), classOf[IInventory])
+    val validator = IMC.getStaticMethod(template.getString("validate"), classOf[Container])
+    val assembler = IMC.getStaticMethod(template.getString("assemble"), classOf[Container])
     val hostClass = tryGetHostClass(template.getString("hostClass"))
-    val containerSlots = template.getList("containerSlots", NBT.TAG_COMPOUND).map((tag: CompoundNBT) => parseSlot(tag, Some(Slot.Container), hostClass)).take(3).padTo(3, NoSlot).toArray
-    val upgradeSlots = template.getList("upgradeSlots", NBT.TAG_COMPOUND).map((tag: CompoundNBT) => parseSlot(tag, Some(Slot.Upgrade), hostClass)).take(9).padTo(9, NoSlot).toArray
-    val componentSlots = template.getList("componentSlots", NBT.TAG_COMPOUND).map((tag: CompoundNBT) => parseSlot(tag, None, hostClass)).take(9).padTo(9, NoSlot).toArray
+    val containerSlots = template.getList("containerSlots", NBT.TAG_COMPOUND).map((tag: CompoundTag) => parseSlot(tag, Some(Slot.Container), hostClass)).take(3).padTo(3, NoSlot).toArray
+    val upgradeSlots = template.getList("upgradeSlots", NBT.TAG_COMPOUND).map((tag: CompoundTag) => parseSlot(tag, Some(Slot.Upgrade), hostClass)).take(9).padTo(9, NoSlot).toArray
+    val componentSlots = template.getList("componentSlots", NBT.TAG_COMPOUND).map((tag: CompoundTag) => parseSlot(tag, None, hostClass)).take(9).padTo(9, NoSlot).toArray
 
     templates += new Template(selector, validator, assembler, containerSlots, upgradeSlots, componentSlots)
   }
@@ -57,14 +57,14 @@ object AssemblerTemplates {
                  val componentSlots: Array[Slot]) {
     def select(stack: ItemStack) = IMC.tryInvokeStatic(selector, stack)(false)
 
-    def validate(inventory: IInventory) = IMC.tryInvokeStatic(validator, inventory)(null: Array[AnyRef]) match {
+    def validate(inventory: Container) = IMC.tryInvokeStatic(validator, inventory)(null: Array[AnyRef]) match {
       case Array(valid: java.lang.Boolean, progress: ITextComponent, warnings: Array[ITextComponent]) => (valid: Boolean, progress, warnings)
       case Array(valid: java.lang.Boolean, progress: ITextComponent) => (valid: Boolean, progress, Array.empty[ITextComponent])
       case Array(valid: java.lang.Boolean) => (valid: Boolean, null, Array.empty[ITextComponent])
       case _ => (false, null, Array.empty[ITextComponent])
     }
 
-    def assemble(inventory: IInventory) = IMC.tryInvokeStatic(assembler, inventory)(null: Array[AnyRef]) match {
+    def assemble(inventory: Container) = IMC.tryInvokeStatic(assembler, inventory)(null: Array[AnyRef]) match {
       case Array(stack: ItemStack, energy: java.lang.Number) => (stack, energy.doubleValue(): Double)
       case Array(stack: ItemStack) => (stack, 0.0)
       case _ => (ItemStack.EMPTY, 0.0)
@@ -72,7 +72,7 @@ object AssemblerTemplates {
   }
 
   class Slot(val kind: String, val tier: Int, val validator: Option[Method], val hostClass: Option[Class[_ <: EnvironmentHost]]) {
-    def validate(inventory: IInventory, slot: Int, stack: ItemStack) = validator match {
+    def validate(inventory: Container, slot: Int, stack: ItemStack) = validator match {
       case Some(method) => IMC.tryInvokeStatic(method, inventory, Integer.valueOf(slot), Integer.valueOf(tier), stack)(false)
       case _ => Option(hostClass.fold(api.Driver.driverFor(stack))(api.Driver.driverFor(stack, _))) match {
         case Some(driver) => try driver.slot(stack) == kind && driver.tier(stack) <= tier catch {
@@ -85,10 +85,10 @@ object AssemblerTemplates {
     }
   }
 
-  private def parseSlot(nbt: CompoundNBT, kindOverride: Option[String], hostClass: Option[Class[_ <: EnvironmentHost]]) = {
+  private def parseSlot(nbt: CompoundTag, kindOverride: Option[String], hostClass: Option[Class[_ <: EnvironmentHost]]) = {
     val kind = kindOverride.getOrElse(if (nbt.contains("type")) nbt.getString("type") else Slot.None)
     val tier = if (nbt.contains("tier")) nbt.getInt("tier") else Tier.Any
-    val validator = if (nbt.contains("validate")) Option(IMC.getStaticMethod(nbt.getString("validate"), classOf[IInventory], classOf[Int], classOf[Int], classOf[ItemStack])) else None
+    val validator = if (nbt.contains("validate")) Option(IMC.getStaticMethod(nbt.getString("validate"), classOf[Container], classOf[Int], classOf[Int], classOf[ItemStack])) else None
     new Slot(kind, tier, validator, hostClass)
   }
 

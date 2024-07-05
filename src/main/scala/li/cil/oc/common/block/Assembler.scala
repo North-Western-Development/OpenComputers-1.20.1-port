@@ -4,15 +4,15 @@ import li.cil.oc.Settings
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.tileentity
 import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.util.math.BlockPos
+import net.minecraft.world.level.block.Block
+net.minecraft.world.level.block.state.BlockState
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.core.BlockPos
 import net.minecraft.util.math.shapes.ISelectionContext
 import net.minecraft.util.math.shapes.VoxelShape
 import net.minecraft.util.math.shapes.VoxelShapes
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.World
+import net.minecraft.world.level.BlockGetter
+import net.minecraft.world.level.Level
 
 class Assembler(props: Properties) extends SimpleBlock(props) with traits.PowerAcceptor with traits.StateAware with traits.GUI {
   override def energyThroughput = Settings.get.assemblerRate
@@ -24,12 +24,12 @@ class Assembler(props: Properties) extends SimpleBlock(props) with traits.PowerA
     VoxelShapes.or(top, bottom, mid)
   }
 
-  override def getShape(state: BlockState, world: IBlockReader, pos: BlockPos, ctx: ISelectionContext): VoxelShape = blockShape
+  override def getShape(state: BlockState, world: BlockGetter, pos: BlockPos, ctx: ISelectionContext): VoxelShape = blockShape
 
-  override def openGui(player: ServerPlayerEntity, world: World, pos: BlockPos): Unit = world.getBlockEntity(pos) match {
+  override def openGui(player: ServerPlayer, world: Level, pos: BlockPos): Unit = world.getBlockEntity(pos) match {
     case te: tileentity.Assembler => ContainerTypes.openAssemblerGui(player, te)
     case _ =>
   }
 
-  override def newBlockEntity(world: IBlockReader) = new tileentity.Assembler(tileentity.TileEntityTypes.ASSEMBLER)
+  override def newBlockEntity(world: BlockGetter) = new tileentity.Assembler(tileentity.BlockEntityTypes.ASSEMBLER)
 }

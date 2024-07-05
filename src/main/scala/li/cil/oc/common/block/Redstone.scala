@@ -7,17 +7,17 @@ import li.cil.oc.integration.Mods
 import li.cil.oc.util.Tooltip
 import net.minecraft.block.AbstractBlock.Properties
 import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.World
+import net.minecraft.world.level.BlockGetter
+import net.minecraft.world.level.Level
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
 class Redstone(props: Properties) extends RedstoneAware(props) {
-  override protected def tooltipTail(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) {
+  override protected def tooltipTail(stack: ItemStack, world: BlockGetter, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) {
     super.tooltipTail(stack, world, tooltip, advanced)
     // todo more generic way for redstone mods to provide lines
     if (Mods.ProjectRedTransmission.isModAvailable) {
@@ -27,5 +27,5 @@ class Redstone(props: Properties) extends RedstoneAware(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(world: IBlockReader) = new tileentity.Redstone(tileentity.TileEntityTypes.REDSTONE_IO)
+  override def newBlockEntity(world: BlockGetter) = new tileentity.Redstone(tileentity.BlockEntityTypes.REDSTONE_IO)
 }

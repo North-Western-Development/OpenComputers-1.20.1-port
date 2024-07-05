@@ -2,12 +2,12 @@ package li.cil.oc.common.tileentity.traits.power
 
 import li.cil.oc.Settings
 import li.cil.oc.api.network.Connector
-import li.cil.oc.common.tileentity.traits.TileEntity
-import net.minecraft.util.Direction
+import li.cil.oc.common.tileentity.traits.BlockEntity
+import net.minecraft.core.Direction
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-trait Common extends TileEntity {
+trait Common extends BlockEntity {
   @OnlyIn(Dist.CLIENT)
   protected def hasConnector(side: Direction) = false
 

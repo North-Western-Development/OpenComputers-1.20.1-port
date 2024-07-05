@@ -4,7 +4,7 @@ import li.cil.oc.OpenComputers;
 import net.minecraft.loot.ILootSerializer;
 import net.minecraft.loot.LootFunctionType;
 import net.minecraft.loot.functions.ILootFunction;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 
 public final class LootFunctions {

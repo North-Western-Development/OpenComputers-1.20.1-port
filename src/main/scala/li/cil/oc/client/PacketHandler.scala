@@ -24,25 +24,25 @@ import li.cil.oc.common.{PacketHandler => CommonPacketHandler}
 import li.cil.oc.integration.Mods
 import li.cil.oc.integration.jei.ModJEI
 import li.cil.oc.util.Audio
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import net.minecraft.client.Minecraft
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompressedStreamTools
 import net.minecraft.particles.IParticleData
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 import net.minecraft.util.Util
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SoundCategory
 import net.minecraft.util.SoundEvent
-import net.minecraft.util.math.vector.Vector3d
+import net.minecraft.world.phys.Vec3
 import net.minecraft.util.text.ChatType
-import net.minecraft.world.World
+import net.minecraft.world.level.Level
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.registries.ForgeRegistries
 
 object PacketHandler extends CommonPacketHandler {
-  protected override def world(player: PlayerEntity, dimension: ResourceLocation): Option[World] = {
+  protected override def world(player: Player, dimension: ResourceLocation): Option[Level] = {
     val world = player.level
     if (world.dimension.location.equals(dimension)) Some(world)
     else None
@@ -203,7 +203,7 @@ object PacketHandler extends CommonPacketHandler {
   def onFileSystemActivity(p: PacketParser): AnyVal = {
     val sound = p.readUTF()
     val data = CompressedStreamTools.read(p)
-    if (p.readBoolean()) p.readBlockEntity[net.minecraft.tileentity.TileEntity]() match {
+    if (p.readBoolean()) p.readBlockEntity[net.minecraft.world.level.block.entity.BlockEntity]() match {
       case Some(t) =>
         MinecraftForge.EVENT_BUS.post(new FileSystemAccessEvent.Client(sound, t, data))
       case _ => // Invalid packet.
@@ -220,7 +220,7 @@ object PacketHandler extends CommonPacketHandler {
 
   def onNetworkActivity(p: PacketParser): AnyVal = {
     val data = CompressedStreamTools.read(p)
-    if (p.readBoolean()) p.readBlockEntity[net.minecraft.tileentity.TileEntity]() match {
+    if (p.readBoolean()) p.readBlockEntity[net.minecraft.world.level.block.entity.BlockEntity]() match {
       case Some(t) =>
         MinecraftForge.EVENT_BUS.post(new NetworkActivityEvent.Client(t, data))
       case _ => // Invalid packet.
@@ -310,7 +310,7 @@ object PacketHandler extends CommonPacketHandler {
         val x = p.readDouble()
         val y = p.readDouble()
         val z = p.readDouble()
-        t.translation = new Vector3d(x, y, z)
+        t.translation = new Vec3(x, y, z)
       case _ => // Invalid packet.
     }
 
@@ -352,7 +352,7 @@ object PacketHandler extends CommonPacketHandler {
   }
 
   def onNanomachinesConfiguration(p: PacketParser): Unit = {
-    p.readEntity[PlayerEntity]() match {
+    p.readEntity[Player]() match {
       case Some(player) =>
         val hasController = p.readBoolean()
         if (hasController) {
@@ -369,7 +369,7 @@ object PacketHandler extends CommonPacketHandler {
   }
 
   def onNanomachinesInputs(p: PacketParser): Unit = {
-    p.readEntity[PlayerEntity]() match {
+    p.readEntity[Player]() match {
       case Some(player) => api.Nanomachines.getController(player) match {
         case controller: ControllerImpl =>
           val inputs = new Array[Byte](p.readInt())
@@ -387,7 +387,7 @@ object PacketHandler extends CommonPacketHandler {
   }
 
   def onNanomachinesPower(p: PacketParser): Unit = {
-    p.readEntity[PlayerEntity]() match {
+    p.readEntity[Player]() match {
       case Some(player) => api.Nanomachines.getController(player) match {
         case controller: ControllerImpl => controller.storedEnergy = p.readDouble()
         case _ => // Wat.
@@ -868,5 +868,5 @@ object PacketHandler extends CommonPacketHandler {
       case _ => // Invalid packet.
     }
 
-  protected override def createParser(stream: InputStream, player: PlayerEntity) = new PacketParser(stream, Minecraft.getInstance.player)
+  protected override def createParser(stream: InputStream, player: Player) = new PacketParser(stream, Minecraft.getInstance.player)
 }

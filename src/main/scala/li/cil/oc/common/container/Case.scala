@@ -3,14 +3,14 @@ package li.cil.oc.common.container
 import li.cil.oc.common.InventorySlots
 import li.cil.oc.common.Tier
 import li.cil.oc.common.tileentity
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.entity.player.Player
 import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.IInventory
+import net.minecraft.world.Container
 import net.minecraft.inventory.container.ContainerType
 import net.minecraft.util.IntReferenceHolder
 import net.minecraft.util.text.ITextComponent
 
-class Case(selfType: ContainerType[_ <: Case], id: Int, playerInventory: PlayerInventory, computer: IInventory, tier: Int)
+class Case(selfType: ContainerType[_ <: Case], id: Int, playerInventory: PlayerInventory, computer: Container, tier: Int)
   extends Player(selfType, id, playerInventory, computer) {
 
   override protected def getHostClass = classOf[tileentity.Case]
@@ -65,7 +65,7 @@ class Case(selfType: ContainerType[_ <: Case], id: Int, playerInventory: PlayerI
   }
   def isRunning = runningData.get != 0
 
-  override def stillValid(player: PlayerEntity) =
+  override def stillValid(player: Player) =
     super.stillValid(player) && (computer match {
       case te: tileentity.Case => te.canInteract(player.getName.getString)
       case _ => true

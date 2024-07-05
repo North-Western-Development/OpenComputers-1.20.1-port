@@ -1,7 +1,7 @@
 plugins {
     id 'scala'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '5.1.64'
+    id 'net.minecraftforge.gradle' version '5.1.+'
     id 'wtf.gofancy.fancygradle' version '1.1.+'
     id "com.matthewprenger.cursegradle" version "1.4.0"
     id 'com.modrinth.minotaur' version '2.8.7'
@@ -13,8 +13,7 @@ fancyGradle {
     }
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_17
 
 file "build.properties" withReader {
     def prop = new Properties()
@@ -170,6 +169,15 @@ repositories {
             includeModule "net.minecraftforge", "Scorge"
         }
     }
+    maven {
+        name = "Azure-SLP"
+        url = uri("https://pkgs.dev.azure.com/Kotori316/minecraft/_packaging/mods/maven/v1")
+        content {
+            it.includeModule("com.kotori316", "ScalableCatsForce".toLowerCase())
+            it.includeModule("org.typelevel", "cats-core_2.13")
+            it.includeModule("org.typelevel", "cats-kernel_2.13")
+        }
+    }
     mavenCentral()
 }
 
@@ -186,18 +194,21 @@ dependencies {
 
     // required for tests but cannot use implementation as that would clash with scorge at runtime
     compileOnly "org.scala-lang:scala-library:2.13.4"
-    implementation "net.minecraftforge:Scorge:${config.scorge.version}"
+    //implementation "net.minecraftforge:Scorge:${config.scorge.version}"
+    compileOnly(group: 'org.scala-lang', name: 'scala-library', version: '2.13.8')
+    compileOnly(group: 'org.typelevel', name: "cats-core_2.13", version: '2.8.1-kotori')
+
     embedded "com.typesafe:config:1.2.1"
 
-    compileOnly fg.deobf("li.cil.tis3d:tis3d-1.16.5-forge:${config.tis3d.version}")
-    compileOnly fg.deobf("curse.maven:hwyla-${config.hwyla.projectId}:${config.hwyla.fileId}")
-    compileOnly fg.deobf("org.squiddev:cc-tweaked-${config.minecraft.version}:${config.cct.version}")
-    compileOnly fg.deobf("curse.maven:cofh-core-69162:4022663") /* CoFHCore */
-    compileOnly fg.deobf("curse.maven:thermal-foundation-222880:4022666") /* Thermal Foundation */
+    compileOnly fg.deobf("curse.maven:tis-3d-238603:3738437")
+    //compileOnly fg.deobf("curse.maven:hwyla-${config.hwyla.projectId}:${config.hwyla.fileId}")
+    compileOnly fg.deobf("curse.maven:cc-tweaked-282001:4630521")
+    compileOnly fg.deobf("curse.maven:cofh-core-69162:4801048")
+    compileOnly fg.deobf("curse.maven:thermal-foundation-222880:5443583")
 
-    runtimeOnly fg.deobf("curse.maven:modernfix-790626:4714445")
+    runtimeOnly fg.deobf("curse.maven:modernfix-790626:5399365")
 
-    provided fg.deobf("appeng:appliedenergistics2:${config.ae2.version}:api") {
+    provided fg.deobf("appeng:appliedenergistics2-forge:${config.ae2.version}:api") {
         transitive = false
     }
 
@@ -206,27 +217,19 @@ dependencies {
     }
 
     provided fg.deobf("codechicken:CBMultipart:${config.cbmultipart.version}:universal") {
-        exclude module: jeiSlug
         exclude module: "CodeChickenLib"
     }
 
     provided fg.deobf("codechicken:ChickenASM:${config.casm.version}")
 
-    provided fg.deobf("mezz.jei:${jeiSlug}:${config.jei.version}")
+    compileOnly(fg.deobf("mezz.jei:jei-${config.minecraft.version}-common-api:${config.jei.version}"))
+    compileOnly(fg.deobf("mezz.jei:jei-${config.minecraft.version}-forge-api:${config.jei.version}"))
+
     provided fg.deobf("codechicken:CodeChickenLib:${config.ccl.version}:universal")
 
-    provided fg.deobf("mrtjp:ProjectRed:${config.projred.version}:core") {
-        exclude module: "CodeChickenLib"
-        exclude module: jeiSlug
-        exclude module: "CBMultipart"
-    }
+    provided fg.deobf("curse.maven:project-red-core-228702:4956039")
 
-    provided fg.deobf("mrtjp:ProjectRed:${config.projred.version}:integration") {
-        exclude module: "NotEnoughItems"
-        exclude module: "CodeChickenLib"
-        exclude module: "jei_1.12"
-        exclude module: "ForgeMultipart"
-    }
+    provided fg.deobf("curse.maven:project-red-integration-229045:5452529")
 
     embedded name: 'OC-LuaJ', version: '20220907.1', ext: 'jar'
     embedded name: 'OC-JNLua', version: '20230530.0', ext: 'jar'
@@ -240,15 +243,18 @@ dependencies {
     testImplementation "org.scalatestplus:junit-4-13_2.13:3.2.6.+"
     testImplementation "org.scalatestplus:mockito-3-4_2.13:3.2.6.+"
 
+    runtimeOnly(fg.deobf("mezz.jei:jei-${config.minecraft.version}-forge:${config.jei.version}"))
+
+    runtimeOnly(group: "com.kotori316", name: "ScalableCatsForce".toLowerCase(), version: "2.13.8-build-4", classifier: "with-library") {
+        transitive(false)
+    }
+
     provided fg.deobf("codechicken:EnderStorage:${config.enderstorage.version}:universal")
 }
 
 processResources {
-    def reducedScorgeVer = config.scorge.version.replaceAll(/(\d+\.\d+)(\.\d+)/, "\$1")
-
     inputs.property "version", "${mod_version}"
     inputs.property "mcversion", config.minecraft.version
-    inputs.property "sversion", reducedScorgeVer
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     filesMatching(['META-INF/mods.toml']) {
         expand 'version':"${mod_version}", 'mcversion':config.minecraft.version, 'sversion':reducedScorgeVer
@@ -261,11 +267,6 @@ processResources {
 }
 
 jar {
-    configurations.embedded.each { dep ->
-        from(project.zipTree(dep)) {
-            exclude '*', 'META-INF', 'META-INF/**'
-        }
-    }
     manifest {
         attributes([
             "Specification-Title": "opencomputers",
@@ -286,64 +287,16 @@ javadoc {
 task apiJar(type: Jar) {
     from sourceSets.main.allSource
     from sourceSets.main.output
-    classifier = 'api'
+    archiveClassifier = 'api'
     include 'li/cil/oc/api/**'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
-    classifier 'javadoc'
+    archiveClassifier = 'javadoc'
 }
 
 artifacts {
     archives apiJar
     archives javadocJar
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            groupId = project.group
-            artifactId = project.name
-            version = mod_version
-            artifact jar
-            artifact apiJar
-            artifact javadocJar
-        }
-    }
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = System.getenv("GITHUB_MAVEN_URL") ?: ""
-            credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
-            }
-        }
-    }
-}
-
-curseforge {
-    apiKey = System.getenv('CURSEFORGE_API_KEY') ?: ""
-    project {
-        id = config.curse.project.id
-        releaseType = System.getenv('CURSEFORGE_RELEASE_TYPE') ?: "alpha"
-        changelogType = "markdown"
-        changelog = System.getenv("CHANGELOG") ?: "Changelog not available."
-        addGameVersion config.minecraft.version
-        addGameVersion "Java 8"
-        addGameVersion "Forge"
-    }
-}
-
-modrinth {
-    token = System.getenv("MODRINTH_API_KEY") ?: ""
-    projectId = config.modrinth.project.id
-    changelog = System.getenv("CHANGELOG") ?: "Changelog not available."
-    versionNumber = mod_version
-    versionName = "${rootProject.name}-${version}"
-    versionType = System.getenv('MODRINTH_RELEASE_TYPE') ?: "alpha"
-    uploadFile = jar
-    gameVersions = [config.minecraft.version]
-    loaders = ["forge"]
 }

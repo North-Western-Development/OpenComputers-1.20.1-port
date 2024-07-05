@@ -1,9 +1,9 @@
 package li.cil.oc.api;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.StringNBT;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraftforge.fml.InterModComms;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -62,8 +62,8 @@ public final class IMC {
      * Signature of callbacks must be:
      * <pre>
      * boolean select(ItemStack stack)
-     * Object[] validate(IInventory inventory)
-     * Object[] assemble(IInventory inventory)
+     * Object[] validate(Container inventory)
+     * Object[] assemble(Container inventory)
      * </pre>
      * Values in the array returned by <tt>validate</tt> must be one of the following:
      * <pre>
@@ -114,7 +114,7 @@ public final class IMC {
      *                       for the third component slot. Up to nine.
      */
     public static void registerAssemblerTemplate(final String name, final String select, final String validate, final String assemble, final Class host, final int[] containerTiers, final int[] upgradeTiers, final Iterable<Pair<String, Integer>> componentSlots) {
-        final CompoundNBT nbt = new CompoundNBT();
+        final CompoundTag nbt = new CompoundTag();
         if (name != null) {
             nbt.putString("name", name);
         }
@@ -125,10 +125,10 @@ public final class IMC {
             nbt.putString("hostClass", host.getName());
         }
 
-        final ListNBT containersNbt = new ListNBT();
+        final ListTag containersNbt = new ListTag();
         if (containerTiers != null) {
             for (int tier : containerTiers) {
-                final CompoundNBT slotNbt = new CompoundNBT();
+                final CompoundTag slotNbt = new CompoundTag();
                 slotNbt.putInt("tier", tier);
                 containersNbt.add(slotNbt);
             }
@@ -137,10 +137,10 @@ public final class IMC {
             nbt.put("containerSlots", containersNbt);
         }
 
-        final ListNBT upgradesNbt = new ListNBT();
+        final ListTag upgradesNbt = new ListTag();
         if (upgradeTiers != null) {
             for (int tier : upgradeTiers) {
-                final CompoundNBT slotNbt = new CompoundNBT();
+                final CompoundTag slotNbt = new CompoundTag();
                 slotNbt.putInt("tier", tier);
                 upgradesNbt.add(slotNbt);
             }
@@ -149,13 +149,13 @@ public final class IMC {
             nbt.put("upgradeSlots", upgradesNbt);
         }
 
-        final ListNBT componentsNbt = new ListNBT();
+        final ListTag componentsNbt = new ListTag();
         if (componentSlots != null) {
             for (Pair<String, Integer> slot : componentSlots) {
                 if (slot == null) {
-                    componentsNbt.add(new CompoundNBT());
+                    componentsNbt.add(new CompoundTag());
                 } else {
-                    final CompoundNBT slotNbt = new CompoundNBT();
+                    final CompoundTag slotNbt = new CompoundTag();
                     slotNbt.putString("type", slot.getLeft());
                     slotNbt.putInt("tier", slot.getRight());
                     componentsNbt.add(slotNbt);
@@ -203,7 +203,7 @@ public final class IMC {
      *                    ingredients from an item.
      */
     public static void registerDisassemblerTemplate(final String name, final String select, final String disassemble) {
-        final CompoundNBT nbt = new CompoundNBT();
+        final CompoundTag nbt = new CompoundTag();
         if (name != null) {
             nbt.putString("name", name);
         }
@@ -249,7 +249,7 @@ public final class IMC {
      * <br>
      * Signature of callbacks must be:
      * <pre>
-     * boolean callback(PlayerEntity player, BlockPos pos, boolean changeDurability)
+     * boolean callback(Player player, BlockPos pos, boolean changeDurability)
      * </pre>
      * <br>
      * Callbacks must be declared as <tt>packagePath.className.methodName</tt>.
@@ -307,7 +307,7 @@ public final class IMC {
      * @param charge    the callback to register for charging items.
      */
     public static void registerItemCharge(final String name, final String canCharge, final String charge) {
-        final CompoundNBT nbt = new CompoundNBT();
+        final CompoundTag nbt = new CompoundTag();
         nbt.putString("name", name);
         nbt.putString("canCharge", canCharge);
         nbt.putString("charge", charge);
@@ -367,10 +367,10 @@ public final class IMC {
      * @param stack the item stack representing the blacklisted component.
      */
     public static void blacklistHost(final String name, final Class host, final ItemStack stack) {
-        final CompoundNBT nbt = new CompoundNBT();
+        final CompoundTag nbt = new CompoundTag();
         nbt.putString("name", name);
         nbt.putString("host", host.getName());
-        final CompoundNBT stackNbt = new CompoundNBT();
+        final CompoundTag stackNbt = new CompoundTag();
         stack.save(stackNbt);
         nbt.put("item", stackNbt);
         InterModComms.sendTo(MOD_ID, BLACKLIST_HOST, () -> nbt);
@@ -401,13 +401,13 @@ public final class IMC {
      * @param architectures the names of the architectures this entry applies to.
      */
     public static void registerProgramDiskLabel(final String programName, final String diskLabel, final String... architectures) {
-        final CompoundNBT nbt = new CompoundNBT();
+        final CompoundTag nbt = new CompoundTag();
         nbt.putString("program", programName);
         nbt.putString("label", diskLabel);
         if (architectures != null && architectures.length > 0) {
-            final ListNBT architecturesNbt = new ListNBT();
+            final ListTag architecturesNbt = new ListTag();
             for (final String architecture : architectures) {
-                architecturesNbt.add(StringNBT.valueOf(architecture));
+                architecturesNbt.add(StringTag.valueOf(architecture));
             }
             nbt.put("architectures", architecturesNbt);
         }

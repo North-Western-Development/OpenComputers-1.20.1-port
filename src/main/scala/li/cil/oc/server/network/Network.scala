@@ -15,14 +15,14 @@ import li.cil.oc.server.network.{Node => MutableNode}
 import li.cil.oc.util.Color
 import li.cil.oc.util.ResultWrapper
 import li.cil.oc.util.SideTracker
-import net.minecraft.item.DyeColor
+import net.minecraft.world.item.DyeColor
 import net.minecraft.nbt._
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.RegistryKey
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.World
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceKey
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.BlockGetter
+import net.minecraft.world.level.Level
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -272,7 +272,7 @@ private class Network private(private val data: mutable.Map[String, Network.Vert
       // may break things slightly here and there (e.g. if this is the node of
       // a running machine the computer will most likely crash), but it should
       // never happen in normal operation anyway. It *can* happen when NBT
-      // editing stuff or using mods to clone blocks (e.g. WorldEdit).
+      // editing stuff or using mods to clone blocks (e.g. LevelEdit).
       val duplicates = otherNetwork.data.filter(entry => data.contains(entry._1)).values.toArray
       val otherNetworkAfterReaddress = if (duplicates.isEmpty) {
         otherNetwork
@@ -448,21 +448,21 @@ private class Network private(private val data: mutable.Map[String, Network.Vert
 }
 
 object Network extends api.detail.NetworkAPI {
-  override def joinOrCreateNetwork(world: IBlockReader, pos: BlockPos): Unit = {
+  override def joinOrCreateNetwork(world: BlockGetter, pos: BlockPos): Unit = {
     val tileEntity = world.getBlockEntity(pos)
     if (tileEntity != null && !tileEntity.isRemoved && tileEntity.getLevel != null && !tileEntity.getLevel.isClientSide) {
       for (side <- Direction.values) {
         val npos = tileEntity.getBlockPos.relative(side)
         if (tileEntity.getLevel.isLoaded(npos)) {
           val localNode = getNetworkNode(tileEntity, side)
-          val neighborTileEntity = tileEntity.getLevel.getBlockEntity(npos)
-          val neighborNode = getNetworkNode(neighborTileEntity, side.getOpposite)
+          val neighborBlockEntity = tileEntity.getLevel.getBlockEntity(npos)
+          val neighborNode = getNetworkNode(neighborBlockEntity, side.getOpposite)
           localNode match {
             case Some(node: MutableNode) =>
               neighborNode match {
                 case Some(neighbor: MutableNode) if neighbor != node && neighbor.network != null =>
-                  val canConnectColor = canConnectBasedOnColor(tileEntity, neighborTileEntity)
-                  val canConnectIM = canConnectFromSideIM(tileEntity, side) && canConnectFromSideIM(neighborTileEntity, side.getOpposite)
+                  val canConnectColor = canConnectBasedOnColor(tileEntity, neighborBlockEntity)
+                  val canConnectIM = canConnectFromSideIM(tileEntity, side) && canConnectFromSideIM(neighborBlockEntity, side.getOpposite)
                   if (canConnectColor && canConnectIM) neighbor.connect(node)
                   else node.disconnect(neighbor)
                 case _ =>
@@ -477,7 +477,7 @@ object Network extends api.detail.NetworkAPI {
     }
   }
 
-  override def joinOrCreateNetwork(tileEntity: TileEntity): Unit = {
+  override def joinOrCreateNetwork(tileEntity: BlockEntity): Unit = {
     if (tileEntity != null) {
       val world = tileEntity.getLevel
       val pos = tileEntity.getBlockPos
@@ -493,7 +493,7 @@ object Network extends api.detail.NetworkAPI {
     case _ =>
   }
 
-  def getNetworkNode(tileEntity: TileEntity, side: Direction): Option[ImmutableNode] = {
+  def getNetworkNode(tileEntity: BlockEntity, side: Direction): Option[ImmutableNode] = {
     if (tileEntity != null) {
       if (tileEntity.getCapability(Capabilities.SidedEnvironmentCapability, side).isPresent) {
         val host = tileEntity.getCapability(Capabilities.SidedEnvironmentCapability, side).orElse(null)
@@ -509,7 +509,7 @@ object Network extends api.detail.NetworkAPI {
     None
   }
 
-  private def getConnectionColor(tileEntity: TileEntity): Int = {
+  private def getConnectionColor(tileEntity: BlockEntity): Int = {
     if (tileEntity != null) {
       if (tileEntity.getCapability(Capabilities.ColoredCapability, null).isPresent) {
         val colored = tileEntity.getCapability(Capabilities.ColoredCapability, null).orElse(null)
@@ -520,12 +520,12 @@ object Network extends api.detail.NetworkAPI {
     Color.rgbValues(DyeColor.LIGHT_GRAY)
   }
 
-  private def canConnectBasedOnColor(te1: TileEntity, te2: TileEntity) = {
+  private def canConnectBasedOnColor(te1: BlockEntity, te2: BlockEntity) = {
     val (c1, c2) = (getConnectionColor(te1), getConnectionColor(te2))
     c1 == c2 || c1 == Color.rgbValues(DyeColor.LIGHT_GRAY) || c2 == Color.rgbValues(DyeColor.LIGHT_GRAY)
   }
 
-  private def canConnectFromSideIM(tileEntity: TileEntity, side: Direction) =
+  private def canConnectFromSideIM(tileEntity: BlockEntity, side: Direction) =
     tileEntity match {
       case im: tileentity.traits.ImmibisMicroblock => im.ImmibisMicroblocks_isSideOpen(side.ordinal)
       case _ => true
@@ -545,7 +545,7 @@ object Network extends api.detail.NetworkAPI {
     WirelessNetwork.remove(endpoint)
   }
 
-  override def leaveWirelessNetwork(endpoint: WirelessEndpoint, dimension: RegistryKey[World]) {
+  override def leaveWirelessNetwork(endpoint: WirelessEndpoint, dimension: ResourceKey[Level]) {
     WirelessNetwork.remove(endpoint, dimension)
   }
 
@@ -571,7 +571,7 @@ object Network extends api.detail.NetworkAPI {
     packet
   }
 
-  override def newPacket(nbt: CompoundNBT) = {
+  override def newPacket(nbt: CompoundTag) = {
     val source = nbt.getString("source")
     val destination =
       if (nbt.contains("dest")) null
@@ -587,7 +587,7 @@ object Network extends api.detail.NetworkAPI {
           case tag: LongNBT => Long.box(tag.getAsLong)
           case tag: FloatNBT => Float.box(tag.getAsFloat)
           case tag: DoubleNBT => Double.box(tag.getAsDouble)
-          case tag: StringNBT => tag.getAsString: AnyRef
+          case tag: StringTag => tag.getAsString: AnyRef
           case tag: ByteArrayNBT => tag.getAsByteArray
         }
       }
@@ -732,7 +732,7 @@ object Network extends api.detail.NetworkAPI {
 
     override def hop() = new Packet(source, destination, port, data, ttl - 1)
 
-    override def saveData(nbt: CompoundNBT) {
+    override def saveData(nbt: CompoundTag) {
       nbt.putString("source", source)
       if (destination != null && !destination.isEmpty) {
         nbt.putString("dest", destination)

@@ -32,7 +32,7 @@ object UpgradeTankController {
     override def getDeviceInfo: util.Map[String, String] = deviceInfo
   }
 
-  class Adapter(val host: EnvironmentHost) extends AbstractManagedEnvironment with traits.WorldTankAnalytics with Common {
+  class Adapter(val host: EnvironmentHost) extends AbstractManagedEnvironment with traits.LevelTankAnalytics with Common {
     override val node = Network.newNode(this, Visibility.Network).
       withComponent("tank_controller", Visibility.Network).
       create()
@@ -44,7 +44,7 @@ object UpgradeTankController {
     override protected def checkSideForAction(args: Arguments, n: Int) = args.checkSideAny(n)
   }
 
-  class Drone(val host: EnvironmentHost with internal.Agent) extends AbstractManagedEnvironment with traits.TankInventoryControl with traits.WorldTankAnalytics with Common {
+  class Drone(val host: EnvironmentHost with internal.Agent) extends AbstractManagedEnvironment with traits.TankInventoryControl with traits.LevelTankAnalytics with Common {
     override val node = Network.newNode(this, Visibility.Network).
       withComponent("tank_controller", Visibility.Neighbors).
       create()
@@ -66,7 +66,7 @@ object UpgradeTankController {
     override protected def checkSideForAction(args: Arguments, n: Int) = args.checkSideAny(n)
   }
 
-  class Robot(val host: EnvironmentHost with tileentity.Robot) extends AbstractManagedEnvironment with traits.TankInventoryControl with traits.WorldTankAnalytics with Common {
+  class Robot(val host: EnvironmentHost with tileentity.Robot) extends AbstractManagedEnvironment with traits.TankInventoryControl with traits.LevelTankAnalytics with Common {
     override val node = Network.newNode(this, Visibility.Network).
       withComponent("tank_controller", Visibility.Neighbors).
       create()

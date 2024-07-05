@@ -5,8 +5,8 @@ import java.io.IOException
 
 import li.cil.oc.api
 import li.cil.oc.api.fs.Mode
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.ListNBT
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.ListTag
 import net.minecraftforge.common.util.Constants.NBT
 
 import scala.collection.mutable
@@ -50,7 +50,7 @@ trait OutputStreamFileSystem extends InputStreamFileSystem {
   private final val HandleTag = "handle"
   private final val PathTag = "path"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundTag) {
     super.loadData(nbt)
 
     val handlesNbt = nbt.getList(OutputTag, NBT.TAG_COMPOUND)
@@ -64,13 +64,13 @@ trait OutputStreamFileSystem extends InputStreamFileSystem {
     })
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = this.synchronized {
+  override def saveData(nbt: CompoundTag): Unit = this.synchronized {
     super.saveData(nbt)
 
-    val handlesNbt = new ListNBT()
+    val handlesNbt = new ListTag()
     for (file <- handles.values) {
       assert(!file.isClosed)
-      val handleNbt = new CompoundNBT()
+      val handleNbt = new CompoundTag()
       handleNbt.putInt(HandleTag, file.handle)
       handleNbt.putString(PathTag, file.path)
       handlesNbt.add(handleNbt)

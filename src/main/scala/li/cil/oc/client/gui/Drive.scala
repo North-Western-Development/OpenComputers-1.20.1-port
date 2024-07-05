@@ -1,6 +1,6 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.Localization
 import li.cil.oc.client.Textures
 import li.cil.oc.client.{PacketSender => ClientPacketSender}
@@ -9,7 +9,7 @@ import net.minecraft.client.gui.widget.button.Button
 import net.minecraft.client.gui.screen
 import net.minecraft.client.settings.KeyBinding
 import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import net.minecraft.util.text.StringTextComponent
 
 class Drive(playerInventory: PlayerInventory, val driveStack: () => ItemStack) extends screen.Screen(StringTextComponent.EMPTY) with traits.Window {
@@ -57,7 +57,7 @@ class Drive(playerInventory: PlayerInventory, val driveStack: () => ItemStack) e
     updateButtonStates()
   }
 
-  override def render(stack: MatrixStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
+  override def render(stack: PoseStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
     super.render(stack, mouseX, mouseY, dt)
     font.drawWordWrap(new StringTextComponent(Localization.Drive.Warning), leftPos + 11, topPos + 37, imageWidth - 20, 0x404040)
     font.drawWordWrap(new StringTextComponent(Localization.Drive.LockWarning), leftPos + 61, topPos + windowHeight - 48, imageWidth - 68, 0x404040)

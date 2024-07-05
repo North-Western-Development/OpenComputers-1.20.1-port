@@ -10,22 +10,22 @@ import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.client.gui
 import li.cil.oc.common.component
-import li.cil.oc.common.tileentity.traits.TileEntity
+import li.cil.oc.common.tileentity.traits.BlockEntity
 import li.cil.oc.util.Tooltip
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.model.ModelBakery
 import net.minecraft.client.renderer.model.ModelResourceLocation
 import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.item.Item.Properties
-import net.minecraft.item.ItemStack
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.ItemStack
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.World
+import net.minecraft.world.level.Level
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.model.ModelLoader
@@ -35,7 +35,7 @@ class Terminal(props: Properties) extends Item(props) with IForgeItem with trait
   def hasServer(stack: ItemStack) = stack.hasTag && stack.getTag.contains(Settings.namespace + "server")
 
   @OnlyIn(Dist.CLIENT)
-  override def appendHoverText(stack: ItemStack, world: World, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
+  override def appendHoverText(stack: ItemStack, world: Level, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
     super.appendHoverText(stack, world, tooltip, flag)
     if (hasServer(stack)) {
       val server = stack.getTag.getString(Settings.namespace + "server")
@@ -60,7 +60,7 @@ class Terminal(props: Properties) extends Item(props) with IForgeItem with trait
     }
   }
 
-  override def use(stack: ItemStack, world: World, player: PlayerEntity): ActionResult[ItemStack] = {
+  override def use(stack: ItemStack, world: Level, player: Player): ActionResult[ItemStack] = {
     if (!player.isCrouching && stack.hasTag) {
       val key = stack.getTag.getString(Settings.namespace + "key")
       val server = stack.getTag.getString(Settings.namespace + "server")
@@ -72,7 +72,7 @@ class Terminal(props: Properties) extends Item(props) with IForgeItem with trait
             if (!Strings.isNullOrEmpty(key) && !Strings.isNullOrEmpty(address)) {
               component.TerminalServer.loaded.find(address) match {
                 case Some(term) if term != null && term.rack != null => term.rack match {
-                  case rack: TileEntity with api.internal.Rack => {
+                  case rack: BlockEntity with api.internal.Rack => {
                     def inRange = player.isAlive && !rack.isRemoved && player.distanceToSqr(rack.x + 0.5, rack.y + 0.5, rack.z + 0.5) < term.range * term.range
                     if (inRange) {
                       if (term.sidedKeys.contains(key)) showGui(stack, key, term, () => inRange)

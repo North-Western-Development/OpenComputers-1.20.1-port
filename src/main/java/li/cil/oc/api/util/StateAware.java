@@ -13,7 +13,7 @@ import java.util.EnumSet;
  */
 public interface StateAware {
     /**
-     * Get the current work state (usually a <tt>TileEntity</tt>.
+     * Get the current work state (usually a <tt>BlockEntity</tt>.
      * <br>
      * An empty set indicates that no work can be performed.
      *

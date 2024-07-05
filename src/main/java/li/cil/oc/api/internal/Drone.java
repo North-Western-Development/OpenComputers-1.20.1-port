@@ -1,7 +1,7 @@
 package li.cil.oc.api.internal;
 
 import li.cil.oc.api.network.EnvironmentHost;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * This interface is implemented as a marker by drones.
@@ -20,7 +20,7 @@ public interface Drone extends Agent, EnvironmentHost, Rotatable, Tiered {
     /**
      * Get the current target coordinates of the drone.
      */
-    Vector3d getTarget();
+    Vec3 getTarget();
 
     /**
      * Set the new target coordinates of the drone.
@@ -29,14 +29,14 @@ public interface Drone extends Agent, EnvironmentHost, Rotatable, Tiered {
      * to avoid jitter on the client and floating point inaccuracies to
      * accumulate.
      */
-    void setTarget(Vector3d value);
+    void setTarget(Vec3 value);
 
     /**
      * Get the drones velocity vector.
      * <br>
      * Note that this is really just the underlying entity's <tt>motionX/Y/Z</tt>,
-     * so you can cast this to {@link net.minecraft.entity.Entity} and use that
+     * so you can cast this to {@link net.minecraft.world.entity.Entity} and use that
      * instead, if you'd like.
      */
-    Vector3d getVelocity();
+    Vec3 getVelocity();
 }

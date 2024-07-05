@@ -39,8 +39,8 @@ import li.cil.oc.util.ResultWrapper
 import li.cil.oc.util.ResultWrapper.result
 import li.cil.oc.util.ThreadPoolFactory
 import net.minecraft.client.Minecraft
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt._
 import net.minecraft.server.integrated.IntegratedServer
 import net.minecraftforge.common.util.Constants.NBT
@@ -174,7 +174,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     if (uptime < 0) {
       uptime = worldTime + uptime
     }
-    // World time is in ticks, and each second has 20 ticks. Since we
+    // Level time is in ticks, and each second has 20 ticks. Since we
     // want uptime() to return real seconds, though, we'll divide it
     // accordingly.
     uptime / 20.0
@@ -324,7 +324,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
       case arg: java.lang.Number => Double.box(arg.doubleValue)
       case arg: java.lang.String => arg
       case arg: Array[Byte] => arg
-      case arg: CompoundNBT => arg
+      case arg: CompoundTag => arg
       case arg =>
         OpenComputers.log.warn("Trying to push signal with an unsupported argument of type " + arg.getClass.getName)
         null
@@ -636,7 +636,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     message.data match {
       case Array(name: String, args@_*) if message.name == "computer.signal" =>
         signal(name, Seq(message.source.address) ++ args: _*)
-      case Array(player: PlayerEntity, name: String, args@_*) if message.name == "computer.checked_signal" =>
+      case Array(player: Player, name: String, args@_*) if message.name == "computer.checked_signal" =>
         if (canInteract(player.getName.getString))
           signal(name, Seq(message.source.address) ++ args: _*)
       case _ =>
@@ -746,7 +746,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
   private final val CPUTimeTag = "cpuTime"
   private final val RemainingPauseTag = "remainingPause"
 
-  override def loadData(nbt: CompoundNBT): Unit = Machine.this.synchronized(state.synchronized {
+  override def loadData(nbt: CompoundTag): Unit = Machine.this.synchronized(state.synchronized {
     assert(state.top == Machine.State.Stopped || state.top == Machine.State.Paused)
     close()
     state.clear()
@@ -754,12 +754,12 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     super.loadData(nbt)
 
     state.pushAll(nbt.getIntArray(StateTag).reverseMap(Machine.State(_)))
-    nbt.getList(UsersTag, NBT.TAG_STRING).foreach((tag: StringNBT) => _users += tag.getAsString)
+    nbt.getList(UsersTag, NBT.TAG_STRING).foreach((tag: StringTag) => _users += tag.getAsString)
     if (nbt.contains(MessageTag)) {
       message = Some(nbt.getString(MessageTag))
     }
 
-    _components ++= nbt.getList(ComponentsTag, NBT.TAG_COMPOUND).map((tag: CompoundNBT) =>
+    _components ++= nbt.getList(ComponentsTag, NBT.TAG_COMPOUND).map((tag: CompoundTag) =>
       tag.getString(AddressTag) -> tag.getString(NameTag))
 
     tmp.foreach(fs => {
@@ -770,7 +770,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     if (state.nonEmpty && isRunning && init()) try {
       architecture.loadData(nbt)
 
-      signals ++= nbt.getList(SignalsTag, NBT.TAG_COMPOUND).map((signalNbt: CompoundNBT) => {
+      signals ++= nbt.getList(SignalsTag, NBT.TAG_COMPOUND).map((signalNbt: CompoundTag) => {
         val argsNbt = signalNbt.getCompound(ArgsTag)
         val argsLength = argsNbt.getInt(LengthTag)
         new Machine.Signal(signalNbt.getString(NameTag),
@@ -779,15 +779,15 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
             case tag: ByteNBT => Boolean.box(tag.getAsByte == 1)
             case tag: LongNBT => Long.box(tag.getAsLong)
             case tag: DoubleNBT => Double.box(tag.getAsDouble)
-            case tag: StringNBT => tag.getAsString
+            case tag: StringTag => tag.getAsString
             case tag: ByteArrayNBT => tag.getAsByteArray
-            case tag: ListNBT =>
+            case tag: ListTag =>
               val data = mutable.Map.empty[String, String]
               for (i <- 0 until tag.size by 2) {
                 data += tag.getString(i) -> tag.getString(i + 1)
               }
               data
-            case tag: CompoundNBT => tag
+            case tag: CompoundTag => tag
             case _ => null
           }.toArray[AnyRef])
       })
@@ -815,7 +815,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     }
   })
 
-  override def saveData(nbt: CompoundNBT): Unit = Machine.this.synchronized(state.synchronized {
+  override def saveData(nbt: CompoundTag): Unit = Machine.this.synchronized(state.synchronized {
     // The lock on 'this' should guarantee that this never happens regularly.
     // If something other than regular saving tries to save while we are executing code,
     // e.g. SpongeForge saving during robot.move due to block changes being captured,
@@ -838,9 +838,9 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     nbt.setNewTagList(UsersTag, _users)
     message.foreach(nbt.putString(MessageTag, _))
 
-    val componentsNbt = new ListNBT()
+    val componentsNbt = new ListTag()
     for ((address, name) <- _components) {
-      val componentNbt = new CompoundNBT()
+      val componentNbt = new CompoundTag()
       componentNbt.putString(AddressTag, address)
       componentNbt.putString(NameTag, name)
       componentsNbt.add(componentNbt)
@@ -852,9 +852,9 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     if (state.top != Machine.State.Stopped) try {
       architecture.saveData(nbt)
 
-      val signalsNbt = new ListNBT()
+      val signalsNbt = new ListTag()
       for (s <- signals.iterator) {
-        val signalNbt = new CompoundNBT()
+        val signalNbt = new CompoundTag()
         signalNbt.putString(NameTag, s.name)
         signalNbt.setNewCompoundTag(ArgsTag, args => {
           args.putInt(LengthTag, s.args.length)
@@ -866,13 +866,13 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
             case (arg: String, i) => args.putString(ArgPrefixTag + i, arg)
             case (arg: Array[Byte], i) => args.putByteArray(ArgPrefixTag + i, arg)
             case (arg: Map[_, _], i) =>
-              val list = new ListNBT()
+              val list = new ListTag()
               for ((key, value) <- arg) {
                 list.append(key.toString)
                 list.append(value.toString)
               }
               args.put(ArgPrefixTag + i, list)
-            case (arg: CompoundNBT, i) => args.put(ArgPrefixTag + i, arg)
+            case (arg: CompoundTag, i) => args.put(ArgPrefixTag + i, arg)
             case (_, i) => args.putByte(ArgPrefixTag + i, -1)
           }
         })

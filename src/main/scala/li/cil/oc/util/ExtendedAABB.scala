@@ -1,9 +1,9 @@
 package li.cil.oc.util
 
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 import net.minecraft.util.math.AxisAlignedBB
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.vector.Vector3d
+import net.minecraft.core.BlockPos
+import net.minecraft.world.phys.Vec3
 
 import scala.language.implicitConversions
 
@@ -23,9 +23,9 @@ object ExtendedAABB {
         bounds.maxZ + pos.getZ)
     }
 
-    def minVec = new Vector3d(bounds.minX, bounds.minY, bounds.minZ)
+    def minVec = new Vec3(bounds.minX, bounds.minY, bounds.minZ)
 
-    def maxVec = new Vector3d(bounds.maxX, bounds.maxY, bounds.maxZ)
+    def maxVec = new Vec3(bounds.maxX, bounds.maxY, bounds.maxZ)
 
     def volume: Int = {
       val sx = ((bounds.maxX - bounds.minX) * 16).round.toInt
@@ -49,8 +49,8 @@ object ExtendedAABB {
     })
 
     def rotateY(count: Int): AxisAlignedBB = {
-      var min = new Vector3d(bounds.minX - 0.5, bounds.minY - 0.5, bounds.minZ - 0.5)
-      var max = new Vector3d(bounds.maxX - 0.5, bounds.maxY - 0.5, bounds.maxZ - 0.5)
+      var min = new Vec3(bounds.minX - 0.5, bounds.minY - 0.5, bounds.minZ - 0.5)
+      var max = new Vec3(bounds.maxX - 0.5, bounds.maxY - 0.5, bounds.maxZ - 0.5)
       min = min.yRot(count * Math.PI.toFloat * 0.5f)
       max = max.yRot(count * Math.PI.toFloat * 0.5f)
       new AxisAlignedBB(

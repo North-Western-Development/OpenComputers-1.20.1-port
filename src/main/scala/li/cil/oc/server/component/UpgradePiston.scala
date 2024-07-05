@@ -16,11 +16,11 @@ import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedArguments._
-import net.minecraft.block.Blocks
+import net.minecraft.world.level.block.Blocks
 import net.minecraft.block.PistonBlock
 import net.minecraft.util.SoundEvents
 import net.minecraft.util.{Direction, SoundCategory}
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import net.minecraft.block.material.PushReaction
 

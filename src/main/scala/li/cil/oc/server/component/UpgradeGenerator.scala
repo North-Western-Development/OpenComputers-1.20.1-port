@@ -19,8 +19,8 @@ import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
 import net.minecraft.entity.item.ItemEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.util.text.ITextComponent
 import net.minecraftforge.common.ForgeHooks
 
@@ -213,7 +213,7 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
   private final val InventoryTag = "inventory"
   private final val RemainingTicksTag = "remainingTicks"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundTag) {
     super.loadData(nbt)
       inventory = StackOption(ItemStack.of(nbt.getCompound("inventory")))
     if (nbt.contains(InventoryTag)) {
@@ -222,7 +222,7 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
     remainingTicks = nbt.getInt(RemainingTicksTag)
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundTag) {
     super.saveData(nbt)
     inventory match {
       case SomeStack(stack) => nbt.setNewCompoundTag(InventoryTag, stack.save)

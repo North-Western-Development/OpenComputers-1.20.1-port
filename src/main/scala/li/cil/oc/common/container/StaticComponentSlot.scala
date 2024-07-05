@@ -3,12 +3,12 @@ package li.cil.oc.common.container
 import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.client.Textures
 import li.cil.oc.common
-import net.minecraft.inventory.IInventory
-import net.minecraft.util.ResourceLocation
+import net.minecraft.world.Container
+import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-class StaticComponentSlot(val agentContainer: Player, inventory: IInventory, index: Int, x: Int, y: Int, host: Class[_ <: EnvironmentHost], val slot: String, val tier: Int)
+class StaticComponentSlot(val agentContainer: Player, inventory: Container, index: Int, x: Int, y: Int, host: Class[_ <: EnvironmentHost], val slot: String, val tier: Int)
   extends ComponentSlot(inventory, index, x, y, host) {
 
   @OnlyIn(Dist.CLIENT)

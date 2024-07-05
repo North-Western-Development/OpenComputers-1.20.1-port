@@ -7,8 +7,8 @@ import java.nio.channels.ReadableByteChannel
 
 import li.cil.oc.api
 import li.cil.oc.api.fs.Mode
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.ListNBT
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.ListTag
 import net.minecraftforge.common.util.Constants.NBT
 
 import scala.collection.mutable
@@ -58,7 +58,7 @@ trait InputStreamFileSystem extends api.fs.FileSystem {
   private final val PathTag = "path"
   private final val PositionTag = "position"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundTag) {
     val handlesNbt = nbt.getList(InputTag, NBT.TAG_COMPOUND)
     (0 until handlesNbt.size).map(handlesNbt.getCompound).foreach(handleNbt => {
       val handle = handleNbt.getInt(HandleTag)
@@ -74,11 +74,11 @@ trait InputStreamFileSystem extends api.fs.FileSystem {
     })
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = this.synchronized {
-    val handlesNbt = new ListNBT()
+  override def saveData(nbt: CompoundTag): Unit = this.synchronized {
+    val handlesNbt = new ListTag()
     for (file <- handles.values) {
       assert(file.channel.isOpen)
-      val handleNbt = new CompoundNBT()
+      val handleNbt = new CompoundTag()
       handleNbt.putInt(HandleTag, file.handle)
       handleNbt.putString(PathTag, file.path)
       handleNbt.putLong(PositionTag, file.position)

@@ -13,7 +13,7 @@ import li.cil.oc.api.machine.Context
 import li.cil.oc.api.network.Component
 import li.cil.oc.common.tileentity.Relay
 import li.cil.oc.util.ResultWrapper._
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 
 import scala.collection.JavaConverters.mapAsJavaMap
 import scala.collection.convert.ImplicitConversionsToJava._

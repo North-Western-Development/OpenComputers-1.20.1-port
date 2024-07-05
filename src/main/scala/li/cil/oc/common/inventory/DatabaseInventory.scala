@@ -4,10 +4,10 @@ import li.cil.oc.Settings
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.container.{Database => DatabaseContainer}
 import li.cil.oc.integration.opencomputers.DriverUpgradeDatabase
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.entity.player.Player
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import net.minecraft.util.text.StringTextComponent
 
 trait DatabaseInventory extends ItemStackInventory with INamedContainerProvider {
@@ -25,6 +25,6 @@ trait DatabaseInventory extends ItemStackInventory with INamedContainerProvider 
 
   override def getDisplayName = StringTextComponent.EMPTY
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
+  override def createMenu(id: Int, playerInventory: PlayerInventory, player: Player) =
     new DatabaseContainer(ContainerTypes.DATABASE, id, playerInventory, container, this, tier)
 }

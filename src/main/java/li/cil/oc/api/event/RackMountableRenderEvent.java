@@ -1,14 +1,14 @@
 package li.cil.oc.api.event;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import li.cil.oc.api.component.RackMountable;
 import li.cil.oc.api.internal.Rack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
@@ -36,9 +36,9 @@ public abstract class RackMountableRenderEvent extends Event {
      *
      * @see RackMountable#getData()
      */
-    public final CompoundNBT data;
+    public final CompoundTag data;
 
-    public RackMountableRenderEvent(Rack rack, int mountable, CompoundNBT data) {
+    public RackMountableRenderEvent(Rack rack, int mountable, CompoundTag data) {
         this.rack = rack;
         this.mountable = mountable;
         this.data = data;
@@ -66,7 +66,7 @@ public abstract class RackMountableRenderEvent extends Event {
          */
         private TextureAtlasSprite frontTextureOverride;
 
-        public Block(final Rack rack, final int mountable, final CompoundNBT data, final Direction side) {
+        public Block(final Rack rack, final int mountable, final CompoundTag data, final Direction side) {
             super(rack, mountable, data);
             this.side = side;
         }
@@ -91,22 +91,22 @@ public abstract class RackMountableRenderEvent extends Event {
     /**
      * Fired when the dynamic rack model is rendered.
      * <br>
-     * Code here runs inside a <tt>TileEntityRenderer</tt>, so go nuts. This is
+     * Code here runs inside a <tt>BlockEntityRenderer</tt>, so go nuts. This is
      * primarily meant to allow rendering custom overlays, such as LEDs. The GL state
      * will have been adjusted such that rendering a one by one quad starting at the
      * origin will fill the full front face of the rack (i.e. rotation and translation
      * have already been applied).
      */
-    public static class TileEntity extends RackMountableRenderEvent {
+    public static class BlockEntity extends RackMountableRenderEvent {
         /**
          * The transformation used by the rendering engine.
          */
-        public final MatrixStack stack;
+        public final PoseStack stack;
 
         /**
          * An accessor to the renderer's buffer context.
          */
-        public final IRenderTypeBuffer typeBuffer;
+        public final MultiBufferSource typeBuffer;
 
         /**
          * Packed block light and overlay texture coordinates.
@@ -120,7 +120,7 @@ public abstract class RackMountableRenderEvent extends Event {
          */
         public final float v0, v1;
 
-        public TileEntity(final Rack rack, final int mountable, final CompoundNBT data, final MatrixStack stack, final IRenderTypeBuffer typeBuffer, final int light, final int overlay, final float v0, final float v1) {
+        public BlockEntity(final Rack rack, final int mountable, final CompoundTag data, final PoseStack stack, final MultiBufferSource typeBuffer, final int light, final int overlay, final float v0, final float v1) {
             super(rack, mountable, data);
             this.stack = stack;
             this.typeBuffer = typeBuffer;

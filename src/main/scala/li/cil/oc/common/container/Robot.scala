@@ -9,13 +9,13 @@ import li.cil.oc.integration.opencomputers.DriverKeyboard
 import li.cil.oc.integration.opencomputers.DriverScreen
 import li.cil.oc.util.SideTracker
 import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.IInventory
+import net.minecraft.world.Container
 import net.minecraft.inventory.container.ContainerType
-import net.minecraft.item.ItemStack
-import net.minecraft.network.PacketBuffer
-import net.minecraft.world.World
+import net.minecraft.world.item.ItemStack
+import net.minecraft.network.FriendlyByteBuf
+import net.minecraft.world.level.Level
 import net.minecraft.util.IntReferenceHolder
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
@@ -26,7 +26,7 @@ object RobotInfo {
 
   def hasKeyboard(robot: tileentity.Robot) = robot.info.components.map(api.Driver.driverFor(_, robot.getClass)).contains(DriverKeyboard)
 
-  def readRobotInfo(buff: PacketBuffer): RobotInfo = {
+  def readRobotInfo(buff: FriendlyByteBuf): RobotInfo = {
     val mainInvSize = buff.readVarInt()
     val slot1 = buff.readUtf(32)
     val tier1 = buff.readVarInt()
@@ -42,7 +42,7 @@ object RobotInfo {
     new RobotInfo(mainInvSize, slot1, tier1, slot2, tier2, slot3, tier3, screenBuffer, hasKeyboard)
   }
   
-  def writeRobotInfo(buff: PacketBuffer, info: RobotInfo) {
+  def writeRobotInfo(buff: FriendlyByteBuf, info: RobotInfo) {
     buff.writeVarInt(info.mainInvSize)
     buff.writeUtf(info.slot1, 32)
     buff.writeVarInt(info.tier1)
@@ -70,7 +70,7 @@ class RobotInfo(val mainInvSize: Int, val slot1: String, val tier1: Int,
     RobotInfo.getScreenBuffer(robot), RobotInfo.hasKeyboard(robot))
 }
 
-class Robot(selfType: ContainerType[_ <: Robot], id: Int, playerInventory: PlayerInventory, robot: IInventory, val info: RobotInfo)
+class Robot(selfType: ContainerType[_ <: Robot], id: Int, playerInventory: PlayerInventory, robot: Container, val info: RobotInfo)
   extends Player(selfType, id, playerInventory, robot) {
 
   private val withScreenHeight = 256
@@ -168,7 +168,7 @@ class Robot(selfType: ContainerType[_ <: Robot], id: Int, playerInventory: Playe
   }
   def selectedSlot = selectedSlotData.get
 
-  class InventorySlot(container: Player, inventory: IInventory, index: Int, x: Int, y: Int, enabled: Boolean)
+  class InventorySlot(container: Player, inventory: Container, index: Int, x: Int, y: Int, enabled: Boolean)
     extends StaticComponentSlot(container, inventory, index, x, y, getHostClass, common.Slot.Any, common.Tier.Any) {
 
     def isValid: Boolean = getSlotIndex >= 4 && getSlotIndex < 4 + info.mainInvSize

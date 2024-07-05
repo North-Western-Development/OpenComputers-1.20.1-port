@@ -3,8 +3,8 @@ package li.cil.oc.common.inventory
 import li.cil.oc.Settings
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.StackOption
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.TranslationTextComponent
 import net.minecraftforge.common.util.Constants.NBT
@@ -61,8 +61,8 @@ trait Inventory extends SimpleInventory {
   private final val SlotTag = "slot"
   private final val ItemTag = "item"
 
-  def loadData(nbt: CompoundNBT) {
-    nbt.getList(ItemsTag, NBT.TAG_COMPOUND).foreach((tag: CompoundNBT) => {
+  def loadData(nbt: CompoundTag) {
+    nbt.getList(ItemsTag, NBT.TAG_COMPOUND).foreach((tag: CompoundTag) => {
       if (tag.contains(SlotTag)) {
         val slot = tag.getByte(SlotTag)
         if (slot >= 0 && slot < items.length) {
@@ -72,13 +72,13 @@ trait Inventory extends SimpleInventory {
     })
   }
 
-  def saveData(nbt: CompoundNBT) {
+  def saveData(nbt: CompoundTag) {
     nbt.setNewTagList(ItemsTag,
       items.zipWithIndex collect {
         case (stack, slot) if !stack.isEmpty => (stack, slot)
       } map {
         case (stack, slot) =>
-          val slotNbt = new CompoundNBT()
+          val slotNbt = new CompoundTag()
           slotNbt.putByte(SlotTag, slot.toByte)
           slotNbt.setNewCompoundTag(ItemTag, stack.save)
       })

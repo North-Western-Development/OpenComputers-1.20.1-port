@@ -1,7 +1,7 @@
 package li.cil.oc.common.item
 
 import net.minecraft.client.renderer.model.ModelResourceLocation
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import net.minecraftforge.client.event.ModelBakeEvent
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn

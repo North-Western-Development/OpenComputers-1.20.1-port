@@ -1,6 +1,6 @@
 package li.cil.oc.util
 
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 
 import scala.language.implicitConversions
 

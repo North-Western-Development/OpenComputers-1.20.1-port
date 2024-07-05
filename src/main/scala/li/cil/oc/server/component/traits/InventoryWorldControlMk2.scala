@@ -8,11 +8,11 @@ import li.cil.oc.server.component.result
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.InventoryUtils
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
 import net.minecraftforge.items.IItemHandler
 
-trait InventoryWorldControlMk2 extends InventoryAware with WorldAware with SideRestricted {
+trait InventoryLevelControlMk2 extends InventoryAware with LevelAware with SideRestricted {
   @Callback(doc = """function(facing:number, slot:number[, count:number[, fromSide:number]]):boolean -- Drops the selected item stack into the specified slot of an inventory.""")
   def dropIntoSlot(context: Context, args: Arguments): Array[AnyRef] = {
     val facing = checkSideForAction(args, 0)

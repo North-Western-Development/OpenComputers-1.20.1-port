@@ -13,18 +13,18 @@ import li.cil.oc.util.ExtendedAABB
 import li.cil.oc.util.ExtendedAABB._
 import li.cil.oc.util.ExtendedNBT._
 import net.minecraft.util.SoundEvents
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.core.Direction
 import net.minecraft.util.SoundCategory
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
 import net.minecraft.util.math.RayTraceResult
 import net.minecraft.util.math.shapes.IBooleanFunction
 import net.minecraft.util.math.shapes.VoxelShape
 import net.minecraft.util.math.shapes.VoxelShapes
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.world.phys.Vec3
+import net.minecraft.world.server.ServerLevel
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.model.data.IModelData
@@ -32,11 +32,11 @@ import net.minecraftforge.client.model.data.ModelProperty
 import scala.collection.Iterable
 import scala.collection.convert.ImplicitConversionsToJava._
 
-class Print(selfType: TileEntityType[_ <: Print], val canToggle: Option[() => Boolean], val scheduleUpdate: Option[Int => Unit], val onStateChange: Option[() => Unit])
-  extends TileEntity(selfType) with traits.TileEntity with traits.RedstoneAware with traits.RotatableTile with IModelData {
+class Print(selfType: BlockEntityType[_ <: Print], val canToggle: Option[() => Boolean], val scheduleUpdate: Option[Int => Unit], val onStateChange: Option[() => Unit])
+  extends BlockEntity(selfType) with traits.BlockEntity with traits.RedstoneAware with traits.RotatableTile with IModelData {
 
-  def this(selfType: TileEntityType[_ <: Print]) = this(selfType, None, None, None)
-  def this(selfType: TileEntityType[_ <: Print], canToggle: () => Boolean, scheduleUpdate: Int => Unit, onStateChange: () => Unit) =
+  def this(selfType: BlockEntityType[_ <: Print]) = this(selfType, None, None, None)
+  def this(selfType: BlockEntityType[_ <: Print], canToggle: () => Boolean, scheduleUpdate: Int => Unit, onStateChange: () => Unit) =
     this(selfType, Option(canToggle), Option(scheduleUpdate), Option(onStateChange))
 
   _isOutputEnabled = true
@@ -80,7 +80,7 @@ class Print(selfType: TileEntityType[_ <: Print], val canToggle: Option[() => Bo
         val delay = block.tickRate(getLevel)
         scheduleUpdate match {
           case Some(callback) => callback(delay)
-          case _ if !getLevel.isClientSide => getLevel.asInstanceOf[ServerWorld].getBlockTicks.scheduleTick(getBlockPos, block, delay)
+          case _ if !getLevel.isClientSide => getLevel.asInstanceOf[ServerLevel].getBlockTicks.scheduleTick(getBlockPos, block, delay)
           case _ =>
         }
       }
@@ -128,7 +128,7 @@ class Print(selfType: TileEntityType[_ <: Print], val canToggle: Option[() => Bo
   @Deprecated
   private final val StateTagCompat = "state"
 
-  override def loadForServer(nbt: CompoundNBT): Unit = {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     super.loadForServer(nbt)
     if (nbt.contains(DataTagCompat))
       data.loadData(nbt.getCompound(DataTagCompat))
@@ -141,14 +141,14 @@ class Print(selfType: TileEntityType[_ <: Print], val canToggle: Option[() => Bo
     updateShape()
   }
 
-  override def saveForServer(nbt: CompoundNBT): Unit = {
+  override def saveForServer(nbt: CompoundTag): Unit = {
     super.saveForServer(nbt)
     nbt.setNewCompoundTag(DataTag, data.saveData)
     nbt.putBoolean(StateTag, state)
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT): Unit = {
+  override def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     data.loadData(nbt.getCompound(DataTag))
     state = nbt.getBoolean(StateTag)
@@ -159,7 +159,7 @@ class Print(selfType: TileEntityType[_ <: Print], val canToggle: Option[() => Bo
     }
   }
 
-  override def saveForClient(nbt: CompoundNBT): Unit = {
+  override def saveForClient(nbt: CompoundTag): Unit = {
     super.saveForClient(nbt)
     nbt.setNewCompoundTag(DataTag, data.saveData)
     nbt.putBoolean(StateTag, state)

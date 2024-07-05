@@ -12,35 +12,35 @@ import li.cil.oc.server.agent.ActivationType
 import li.cil.oc.server.agent.Player
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedArguments._
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.InventoryUtils
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
-import net.minecraft.entity.Entity
+import net.minecraft.world.level.block.Block
+net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.Pose
 import net.minecraft.entity.item.ItemEntity
 import net.minecraft.entity.item.minecart.MinecartEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.inventory.IInventory
-import net.minecraft.util.Direction
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.Container
+import net.minecraft.core.Direction
 import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
 import net.minecraft.util.math.BlockRayTraceResult
 import net.minecraft.util.math.EntityRayTraceResult
 import net.minecraft.util.math.RayTraceContext
 import net.minecraft.util.math.RayTraceResult
-import net.minecraft.util.math.vector.Vector3d
+import net.minecraft.world.phys.Vec3
 import net.minecraftforge.common.MinecraftForge
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
-trait Agent extends traits.WorldControl with traits.InventoryControl with traits.InventoryWorldControl with traits.TankAware with traits.TankControl with traits.TankWorldControl {
+trait Agent extends traits.LevelControl with traits.InventoryControl with traits.InventoryLevelControl with traits.TankAware with traits.TankControl with traits.TankLevelControl {
   def agent: internal.Agent
 
   override def position = BlockPosition(agent)
 
-  override def fakePlayer: PlayerEntity = agent.player
+  override def fakePlayer: Player = agent.player
 
   protected def rotatedPlayer(facing: Direction = agent.facing, side: Direction = agent.facing): Player = {
     val player = agent.player.asInstanceOf[Player]
@@ -52,7 +52,7 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
 
   // ----------------------------------------------------------------------- //
 
-  override def inventory: IInventory = agent.mainInventory
+  override def inventory: Container = agent.mainInventory
 
   override def selectedSlot: Int = agent.selectedSlot
 
@@ -74,7 +74,7 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
     event.isAllowed
   }
 
-  def onWorldInteraction(context: Context, duration: Double): Unit = {
+  def onLevelInteraction(context: Context, duration: Double): Unit = {
     context.pause(duration)
   }
 
@@ -98,7 +98,7 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
     val sneaky = args.isBoolean(2) && args.checkBoolean(2)
 
     def triggerDelay(delay: Double = Settings.get.swingDelay) = {
-      onWorldInteraction(context, delay)
+      onLevelInteraction(context, delay)
     }
     def attack(player: Player, entity: Entity) = {
       beginConsumeDrops(entity)
@@ -193,7 +193,7 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
       else 0.0
 
     def triggerDelay() {
-      onWorldInteraction(context, Settings.get.useDelay)
+      onLevelInteraction(context, Settings.get.useDelay)
     }
     def activationResult(activationType: ActivationType.Value) =
       activationType match {
@@ -302,7 +302,7 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
       }
       player.setPose(Pose.STANDING)
       if (success) {
-        onWorldInteraction(context, Settings.get.placeDelay)
+        onLevelInteraction(context, Settings.get.placeDelay)
         return result(true)
       }
     }
@@ -327,7 +327,7 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
       for (drop <- captured) {
         if (drop.isAlive) {
           val stack = drop.getItem
-          InventoryUtils.addToPlayerInventory(stack, player, spawnInWorld = false)
+          InventoryUtils.addToPlayerInventory(stack, player, spawnInLevel = false)
         }
       }
     }
@@ -338,7 +338,7 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
   protected def checkSideForFace(args: Arguments, n: Int, facing: Direction): Direction = agent.toGlobal(args.checkSideForFace(n, agent.toLocal(facing)))
 
   protected def pick(player: Player, range: Double): RayTraceResult = {
-    val origin = new Vector3d(
+    val origin = new Vec3(
       player.getX + player.facing.getStepX * 0.5,
       player.getY + player.facing.getStepY * 0.5,
       player.getZ + player.facing.getStepZ * 0.5)

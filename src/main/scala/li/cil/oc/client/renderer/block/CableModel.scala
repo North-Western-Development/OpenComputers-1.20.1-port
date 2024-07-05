@@ -7,18 +7,18 @@ import li.cil.oc.client.Textures
 import li.cil.oc.common.block.property.PropertyCableConnection
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.Color
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.ItemColorizer
-import net.minecraft.block.BlockState
+net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.renderer.model.BakedQuad
 import net.minecraft.client.renderer.model.IBakedModel
 import net.minecraft.client.renderer.model.ItemOverrideList
-import net.minecraft.client.world.ClientWorld
+import net.minecraft.client.world.ClientLevel
 import net.minecraft.entity.LivingEntity
-import net.minecraft.item.DyeColor
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
-import net.minecraft.util.math.vector.Vector3d
+import net.minecraft.world.item.DyeColor
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
+import net.minecraft.world.phys.Vec3
 import net.minecraftforge.client.model.data.IModelData
 
 import scala.collection.JavaConverters.bufferAsJavaList
@@ -64,38 +64,38 @@ object CableModel extends SmartBlockModelBase {
     }
   }
 
-  protected final val Middle = makeBox(new Vector3d(6 / 16f, 6 / 16f, 6 / 16f), new Vector3d(10 / 16f, 10 / 16f, 10 / 16f))
+  protected final val Middle = makeBox(new Vec3(6 / 16f, 6 / 16f, 6 / 16f), new Vec3(10 / 16f, 10 / 16f, 10 / 16f))
 
   // Per side, always plug + short cable + long cable (no plug).
   protected final val Connected = Array(
-    (makeBox(new Vector3d(5 / 16f, 0 / 16f, 5 / 16f), new Vector3d(11 / 16f, 1 / 16f, 11 / 16f)),
-      makeBox(new Vector3d(6 / 16f, 1 / 16f, 6 / 16f), new Vector3d(10 / 16f, 6 / 16f, 10 / 16f)),
-      makeBox(new Vector3d(6 / 16f, 0 / 16f, 6 / 16f), new Vector3d(10 / 16f, 6 / 16f, 10 / 16f))),
-    (makeBox(new Vector3d(5 / 16f, 15 / 16f, 5 / 16f), new Vector3d(11 / 16f, 16 / 16f, 11 / 16f)),
-      makeBox(new Vector3d(6 / 16f, 10 / 16f, 6 / 16f), new Vector3d(10 / 16f, 15 / 16f, 10 / 16f)),
-      makeBox(new Vector3d(6 / 16f, 10 / 16f, 6 / 16f), new Vector3d(10 / 16f, 16 / 16f, 10 / 16f))),
-    (makeBox(new Vector3d(5 / 16f, 5 / 16f, 0 / 16f), new Vector3d(11 / 16f, 11 / 16f, 1 / 16f)),
-      makeBox(new Vector3d(6 / 16f, 6 / 16f, 1 / 16f), new Vector3d(10 / 16f, 10 / 16f, 6 / 16f)),
-      makeBox(new Vector3d(6 / 16f, 6 / 16f, 0 / 16f), new Vector3d(10 / 16f, 10 / 16f, 6 / 16f))),
-    (makeBox(new Vector3d(5 / 16f, 5 / 16f, 15 / 16f), new Vector3d(11 / 16f, 11 / 16f, 16 / 16f)),
-      makeBox(new Vector3d(6 / 16f, 6 / 16f, 10 / 16f), new Vector3d(10 / 16f, 10 / 16f, 15 / 16f)),
-      makeBox(new Vector3d(6 / 16f, 6 / 16f, 10 / 16f), new Vector3d(10 / 16f, 10 / 16f, 16 / 16f))),
-    (makeBox(new Vector3d(0 / 16f, 5 / 16f, 5 / 16f), new Vector3d(1 / 16f, 11 / 16f, 11 / 16f)),
-      makeBox(new Vector3d(1 / 16f, 6 / 16f, 6 / 16f), new Vector3d(6 / 16f, 10 / 16f, 10 / 16f)),
-      makeBox(new Vector3d(0 / 16f, 6 / 16f, 6 / 16f), new Vector3d(6 / 16f, 10 / 16f, 10 / 16f))),
-    (makeBox(new Vector3d(15 / 16f, 5 / 16f, 5 / 16f), new Vector3d(16 / 16f, 11 / 16f, 11 / 16f)),
-      makeBox(new Vector3d(10 / 16f, 6 / 16f, 6 / 16f), new Vector3d(15 / 16f, 10 / 16f, 10 / 16f)),
-      makeBox(new Vector3d(10 / 16f, 6 / 16f, 6 / 16f), new Vector3d(16 / 16f, 10 / 16f, 10 / 16f)))
+    (makeBox(new Vec3(5 / 16f, 0 / 16f, 5 / 16f), new Vec3(11 / 16f, 1 / 16f, 11 / 16f)),
+      makeBox(new Vec3(6 / 16f, 1 / 16f, 6 / 16f), new Vec3(10 / 16f, 6 / 16f, 10 / 16f)),
+      makeBox(new Vec3(6 / 16f, 0 / 16f, 6 / 16f), new Vec3(10 / 16f, 6 / 16f, 10 / 16f))),
+    (makeBox(new Vec3(5 / 16f, 15 / 16f, 5 / 16f), new Vec3(11 / 16f, 16 / 16f, 11 / 16f)),
+      makeBox(new Vec3(6 / 16f, 10 / 16f, 6 / 16f), new Vec3(10 / 16f, 15 / 16f, 10 / 16f)),
+      makeBox(new Vec3(6 / 16f, 10 / 16f, 6 / 16f), new Vec3(10 / 16f, 16 / 16f, 10 / 16f))),
+    (makeBox(new Vec3(5 / 16f, 5 / 16f, 0 / 16f), new Vec3(11 / 16f, 11 / 16f, 1 / 16f)),
+      makeBox(new Vec3(6 / 16f, 6 / 16f, 1 / 16f), new Vec3(10 / 16f, 10 / 16f, 6 / 16f)),
+      makeBox(new Vec3(6 / 16f, 6 / 16f, 0 / 16f), new Vec3(10 / 16f, 10 / 16f, 6 / 16f))),
+    (makeBox(new Vec3(5 / 16f, 5 / 16f, 15 / 16f), new Vec3(11 / 16f, 11 / 16f, 16 / 16f)),
+      makeBox(new Vec3(6 / 16f, 6 / 16f, 10 / 16f), new Vec3(10 / 16f, 10 / 16f, 15 / 16f)),
+      makeBox(new Vec3(6 / 16f, 6 / 16f, 10 / 16f), new Vec3(10 / 16f, 10 / 16f, 16 / 16f))),
+    (makeBox(new Vec3(0 / 16f, 5 / 16f, 5 / 16f), new Vec3(1 / 16f, 11 / 16f, 11 / 16f)),
+      makeBox(new Vec3(1 / 16f, 6 / 16f, 6 / 16f), new Vec3(6 / 16f, 10 / 16f, 10 / 16f)),
+      makeBox(new Vec3(0 / 16f, 6 / 16f, 6 / 16f), new Vec3(6 / 16f, 10 / 16f, 10 / 16f))),
+    (makeBox(new Vec3(15 / 16f, 5 / 16f, 5 / 16f), new Vec3(16 / 16f, 11 / 16f, 11 / 16f)),
+      makeBox(new Vec3(10 / 16f, 6 / 16f, 6 / 16f), new Vec3(15 / 16f, 10 / 16f, 10 / 16f)),
+      makeBox(new Vec3(10 / 16f, 6 / 16f, 6 / 16f), new Vec3(16 / 16f, 10 / 16f, 10 / 16f)))
   )
 
   // Per side, cap only.
   protected final val Disconnected = Array(
-    makeBox(new Vector3d(6 / 16f, 5 / 16f, 6 / 16f), new Vector3d(10 / 16f, 6 / 16f, 10 / 16f)),
-    makeBox(new Vector3d(6 / 16f, 10 / 16f, 6 / 16f), new Vector3d(10 / 16f, 11 / 16f, 10 / 16f)),
-    makeBox(new Vector3d(6 / 16f, 6 / 16f, 5 / 16f), new Vector3d(10 / 16f, 10 / 16f, 6 / 16f)),
-    makeBox(new Vector3d(6 / 16f, 6 / 16f, 10 / 16f), new Vector3d(10 / 16f, 10 / 16f, 11 / 16f)),
-    makeBox(new Vector3d(5 / 16f, 6 / 16f, 6 / 16f), new Vector3d(6 / 16f, 10 / 16f, 10 / 16f)),
-    makeBox(new Vector3d(10 / 16f, 6 / 16f, 6 / 16f), new Vector3d(11 / 16f, 10 / 16f, 10 / 16f))
+    makeBox(new Vec3(6 / 16f, 5 / 16f, 6 / 16f), new Vec3(10 / 16f, 6 / 16f, 10 / 16f)),
+    makeBox(new Vec3(6 / 16f, 10 / 16f, 6 / 16f), new Vec3(10 / 16f, 11 / 16f, 10 / 16f)),
+    makeBox(new Vec3(6 / 16f, 6 / 16f, 5 / 16f), new Vec3(10 / 16f, 10 / 16f, 6 / 16f)),
+    makeBox(new Vec3(6 / 16f, 6 / 16f, 10 / 16f), new Vec3(10 / 16f, 10 / 16f, 11 / 16f)),
+    makeBox(new Vec3(5 / 16f, 6 / 16f, 6 / 16f), new Vec3(6 / 16f, 10 / 16f, 10 / 16f)),
+    makeBox(new Vec3(10 / 16f, 6 / 16f, 6 / 16f), new Vec3(11 / 16f, 10 / 16f, 10 / 16f))
   )
 
   protected def cableTexture = Array.fill(6)(Textures.getSprite(Textures.Block.Cable))
@@ -119,7 +119,7 @@ object CableModel extends SmartBlockModelBase {
       }
     }
 
-    override def resolve(originalModel: IBakedModel, stack: ItemStack, world: ClientWorld, entity: LivingEntity): IBakedModel = new ItemModel(stack)
+    override def resolve(originalModel: IBakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity): IBakedModel = new ItemModel(stack)
   }
 
 }

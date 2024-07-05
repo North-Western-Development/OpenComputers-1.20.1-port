@@ -18,8 +18,8 @@ import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.{UpgradeExperience => ExperienceUtil}
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.item.ExperienceOrbEntity
-import net.minecraft.item.Items
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.item.Items
+import net.minecraft.nbt.CompoundTag
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -115,12 +115,12 @@ class UpgradeExperience(val host: EnvironmentHost with internal.Agent) extends A
     case _ =>
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundTag) {
     super.saveData(nbt)
     ExperienceUtil.setExperience(nbt, experience)
   }
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundTag) {
     super.loadData(nbt)
     experience = ExperienceUtil.getExperience(nbt)
     updateXpInfo()

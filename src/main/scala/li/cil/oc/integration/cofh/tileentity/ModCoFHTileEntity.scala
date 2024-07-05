@@ -4,7 +4,7 @@ import li.cil.oc.api.Driver
 import li.cil.oc.integration.ModProxy
 import li.cil.oc.integration.Mods
 
-object ModCoFHTileEntity extends ModProxy {
+object ModCoFHBlockEntity extends ModProxy {
   override def getMod = Mods.CoFHCore
 
   override def initialize() {

@@ -23,10 +23,10 @@ import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.particles.ParticleTypes
-import net.minecraft.util.Direction
-import net.minecraft.util.ResourceLocation
+import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceLocation
 
 import scala.collection.convert.ImplicitConversionsToJava._
 
@@ -53,8 +53,8 @@ class Robot(val agent: tileentity.Robot) extends AbstractManagedEnvironment with
 
   override protected def checkSideForAction(args: Arguments, n: Int) = agent.toGlobal(args.checkSideForAction(n))
 
-  override def onWorldInteraction(context: Context, duration: Double): Unit = {
-    super.onWorldInteraction(context, duration)
+  override def onLevelInteraction(context: Context, duration: Double): Unit = {
+    super.onLevelInteraction(context, duration)
     agent.animateSwing(duration)
   }
 
@@ -158,12 +158,12 @@ class Robot(val agent: tileentity.Robot) extends AbstractManagedEnvironment with
 
   private final val RomRobotTag = "romRobot"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundTag) {
     super.loadData(nbt)
     romRobot.foreach(_.loadData(nbt.getCompound(RomRobotTag)))
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundTag) {
     super.saveData(nbt)
     romRobot.foreach(fs => nbt.setNewCompoundTag(RomRobotTag, fs.saveData))
   }

@@ -10,15 +10,15 @@ import li.cil.oc.util.ResultWrapper.result
 import li.cil.oc.util.StackOption._
 import net.minecraft.entity.item.ItemEntity
 import net.minecraft.item.BlockItem
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.entity.item.ItemTossEvent
 import net.minecraftforge.eventbus.api.Event.Result
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
-trait InventoryWorldControl extends InventoryAware with WorldAware with SideRestricted {
+trait InventoryLevelControl extends InventoryAware with LevelAware with SideRestricted {
   @Callback(doc = "function(side:number):boolean -- Compare the block on the specified side with the one in the selected slot. Returns true if equal.")
   def compare(context: Context, args: Arguments): Array[AnyRef] = {
     val side = checkSideForAction(args, 0)
@@ -68,7 +68,7 @@ trait InventoryWorldControl extends InventoryAware with WorldAware with SideRest
             !canceled && !denied
           }
           if (!dropped.isEmpty) {
-            if (InventoryUtils.spawnStackInWorld(position, dropped, Some(facing), Some(validator)) == null)
+            if (InventoryUtils.spawnStackInLevel(position, dropped, Some(facing), Some(validator)) == null)
               fakePlayer.inventory.add(dropped)
           }
       }

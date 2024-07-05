@@ -6,14 +6,14 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.RotationHelper
 import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.IInventory
+import net.minecraft.world.Container
 import net.minecraft.inventory.container.ContainerType
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.IntArrayNBT
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 import net.minecraftforge.common.util.Constants.NBT
 
-class Rack(selfType: ContainerType[_ <: Rack], id: Int, playerInventory: PlayerInventory, val rack: IInventory)
+class Rack(selfType: ContainerType[_ <: Rack], id: Int, playerInventory: PlayerInventory, val rack: Container)
   extends Player(selfType, id, playerInventory, rack) {
 
   override protected def getHostClass = classOf[tileentity.Rack]
@@ -29,7 +29,7 @@ class Rack(selfType: ContainerType[_ <: Rack], id: Int, playerInventory: PlayerI
   val nodeMapping: Array[Array[Option[Direction]]] = Array.fill(rack.getContainerSize)(Array.fill[Option[Direction]](4)(None))
   var isRelayEnabled = false
 
-  override def updateCustomData(nbt: CompoundNBT): Unit = {
+  override def updateCustomData(nbt: CompoundTag): Unit = {
     super.updateCustomData(nbt)
     nbt.getList("nodeMapping", NBT.TAG_INT_ARRAY).map((sides: IntArrayNBT) => {
       sides.getAsIntArray.map(side => if (side >= 0) Option(Direction.from3DDataValue(side)) else None)
@@ -38,7 +38,7 @@ class Rack(selfType: ContainerType[_ <: Rack], id: Int, playerInventory: PlayerI
     isRelayEnabled = nbt.getBoolean("isRelayEnabled")
   }
 
-  override protected def detectCustomDataChanges(nbt: CompoundNBT): Unit = {
+  override protected def detectCustomDataChanges(nbt: CompoundTag): Unit = {
     super.detectCustomDataChanges(nbt)
     rack match {
       case te: tileentity.Rack => {

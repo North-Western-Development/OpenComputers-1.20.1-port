@@ -6,25 +6,25 @@ import li.cil.oc.api.machine.Arguments
 import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
 import li.cil.oc.api.network.ManagedEnvironment
-import li.cil.oc.api.prefab.DriverSidedTileEntity
-import li.cil.oc.integration.ManagedTileEntityEnvironment
+import li.cil.oc.api.prefab.DriverSidedBlockEntity
+import li.cil.oc.integration.ManagedBlockEntityEnvironment
 import li.cil.oc.util.ResultWrapper.result
-import net.minecraft.block.Block
-import net.minecraft.block.Blocks
-import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.CommandBlockTileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.item.ItemStack
+import net.minecraft.tileentity.CommandBlockBlockEntity
+import net.minecraft.core.Direction
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.Level
 import net.minecraftforge.fml.server.ServerLifecycleHooks
 
-object DriverCommandBlock extends DriverSidedTileEntity {
-  override def getTileEntityClass: Class[_] = classOf[CommandBlockTileEntity]
+object DriverCommandBlock extends DriverSidedBlockEntity {
+  override def getBlockEntityClass: Class[_] = classOf[CommandBlockBlockEntity]
 
-  override def createEnvironment(world: World, pos: BlockPos, side: Direction): ManagedEnvironment =
-    new Environment(world.getBlockEntity(pos).asInstanceOf[CommandBlockTileEntity])
+  override def createEnvironment(world: Level, pos: BlockPos, side: Direction): ManagedEnvironment =
+    new Environment(world.getBlockEntity(pos).asInstanceOf[CommandBlockBlockEntity])
 
-  final class Environment(tileEntity: CommandBlockTileEntity) extends ManagedTileEntityEnvironment[CommandBlockTileEntity](tileEntity, "command_block") with NamedBlock {
+  final class Environment(tileEntity: CommandBlockBlockEntity) extends ManagedBlockEntityEnvironment[CommandBlockBlockEntity](tileEntity, "command_block") with NamedBlock {
     override def preferredName = "command_block"
 
     override def priority = 0

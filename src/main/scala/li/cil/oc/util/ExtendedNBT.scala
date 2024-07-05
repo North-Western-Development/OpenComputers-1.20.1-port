@@ -1,9 +1,9 @@
 package li.cil.oc.util
 
 import com.google.common.base.Charsets
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt._
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 import net.minecraftforge.common.util.Constants.NBT
 
 import scala.collection.JavaConverters.mapAsScalaMap
@@ -35,24 +35,24 @@ object ExtendedNBT {
 
   implicit def toNbt(value: Array[Boolean]): ByteArrayNBT = new ByteArrayNBT(value.map(if (_) 1: Byte else 0: Byte))
 
-  implicit def toNbt(value: String): StringNBT = StringNBT.valueOf(value)
+  implicit def toNbt(value: String): StringTag = StringTag.valueOf(value)
 
-  implicit def toNbt(value: ItemStack): CompoundNBT = {
-    val nbt = new CompoundNBT()
+  implicit def toNbt(value: ItemStack): CompoundTag = {
+    val nbt = new CompoundTag()
     if (value != null) {
       value.save(nbt)
     }
     nbt
   }
 
-  implicit def toNbt(value: CompoundNBT => Unit): CompoundNBT = {
-    val nbt = new CompoundNBT()
+  implicit def toNbt(value: CompoundTag => Unit): CompoundTag = {
+    val nbt = new CompoundTag()
     value(nbt)
     nbt
   }
 
-  implicit def toNbt(value: Map[String, _]): CompoundNBT = {
-    val nbt = new CompoundNBT()
+  implicit def toNbt(value: Map[String, _]): CompoundTag = {
+    val nbt = new CompoundTag()
     for ((key, value) <- value) value match {
       case value: Boolean => nbt.put(key, value)
       case value: Byte => nbt.put(key, value)
@@ -129,19 +129,19 @@ object ExtendedNBT {
           case _ => throw new IllegalArgumentException("Illegal value.")
         }.toArray)
 
-        case NBT.TAG_STRING => StringNBT.valueOf(nbtValue match {
+        case NBT.TAG_STRING => StringTag.valueOf(nbtValue match {
           case Some(v: String) => v
           case Some(v: Array[Byte]) => new String(v, Charsets.UTF_8)
           case _ => throw new IllegalArgumentException("Illegal or missing value.")
         })
 
         case NBT.TAG_LIST =>
-          val list = new ListNBT()
+          val list = new ListTag()
           asList(nbtValue).map(v => asMap(Option(v))).foreach(v => list.add(typedMapToNbt(v)))
           list
 
         case NBT.TAG_COMPOUND =>
-          val nbt = new CompoundNBT()
+          val nbt = new CompoundTag()
           val values = asMap[String](nbtValue)
           for ((name, entry) <- values) {
             try nbt.put(name, typedMapToNbt(asMap[Any](Option(entry)))) catch {
@@ -181,17 +181,17 @@ object ExtendedNBT {
 
   implicit def byteArrayIterableToNbt(value: Iterable[Array[Byte]]): Iterable[ByteArrayNBT] = value.map(toNbt)
 
-  implicit def stringIterableToNbt(value: Iterable[String]): Iterable[StringNBT] = value.map(toNbt)
+  implicit def stringIterableToNbt(value: Iterable[String]): Iterable[StringTag] = value.map(toNbt)
 
-  implicit def writableIterableToNbt(value: Iterable[CompoundNBT => Unit]): Iterable[CompoundNBT] = value.map(toNbt)
+  implicit def writableIterableToNbt(value: Iterable[CompoundTag => Unit]): Iterable[CompoundTag] = value.map(toNbt)
 
-  implicit def itemStackIterableToNbt(value: Iterable[ItemStack]): Iterable[CompoundNBT] = value.map(toNbt)
+  implicit def itemStackIterableToNbt(value: Iterable[ItemStack]): Iterable[CompoundTag] = value.map(toNbt)
 
   implicit def extendINBT(nbt: INBT): ExtendedINBT = new ExtendedINBT(nbt)
 
-  implicit def extendCompoundNBT(nbt: CompoundNBT): ExtendedCompoundNBT = new ExtendedCompoundNBT(nbt)
+  implicit def extendCompoundTag(nbt: CompoundTag): ExtendedCompoundTag = new ExtendedCompoundTag(nbt)
 
-  implicit def extendListNBT(nbt: ListNBT): ExtendedListNBT = new ExtendedListNBT(nbt)
+  implicit def extendListTag(nbt: ListTag): ExtendedListTag = new ExtendedListTag(nbt)
 
   class ExtendedINBT(val nbt: INBT) {
     def toTypedMap: Map[String, _] = Map("type" -> nbt.getId, "value" -> (nbt match {
@@ -202,9 +202,9 @@ object ExtendedNBT {
       case tag: FloatNBT => tag.getAsFloat
       case tag: DoubleNBT => tag.getAsDouble
       case tag: ByteArrayNBT => tag.getAsByteArray
-      case tag: StringNBT => tag.getAsString
-      case tag: ListNBT => tag.map((entry: INBT) => entry.toTypedMap)
-      case tag: CompoundNBT => tag.getAllKeys.collect {
+      case tag: StringTag => tag.getAsString
+      case tag: ListTag => tag.map((entry: INBT) => entry.toTypedMap)
+      case tag: CompoundTag => tag.getAllKeys.collect {
         case key: String => key -> tag.get(key).toTypedMap
       }.toMap
       case tag: IntArrayNBT => tag.getAsIntArray
@@ -212,22 +212,22 @@ object ExtendedNBT {
     }))
   }
 
-  class ExtendedCompoundNBT(val nbt: CompoundNBT) {
-    def setNewCompoundTag(name: String, f: (CompoundNBT) => Any) = {
-      val t = new CompoundNBT()
+  class ExtendedCompoundTag(val nbt: CompoundTag) {
+    def setNewCompoundTag(name: String, f: (CompoundTag) => Any) = {
+      val t = new CompoundTag()
       f(t)
       nbt.put(name, t)
       nbt
     }
 
     def setNewTagList(name: String, values: Iterable[INBT]) = {
-      val t = new ListNBT()
+      val t = new ListTag()
       t.append(values)
       nbt.put(name, t)
       nbt
     }
 
-    def setNewTagList(name: String, values: INBT*): CompoundNBT = setNewTagList(name, values)
+    def setNewTagList(name: String, values: INBT*): CompoundTag = setNewTagList(name, values)
 
     def getDirection(name: String) = {
       nbt.getByte(name) match {
@@ -248,9 +248,9 @@ object ExtendedNBT {
     def setBooleanArray(name: String, value: Array[Boolean]) = nbt.put(name, toNbt(value))
   }
 
-  class ExtendedListNBT(val nbt: ListNBT) {
-    def appendNewCompoundTag(f: (CompoundNBT) => Unit) {
-      val t = new CompoundNBT()
+  class ExtendedListTag(val nbt: ListTag) {
+    def appendNewCompoundTag(f: (CompoundTag) => Unit) {
+      val t = new CompoundTag()
       f(t)
       nbt.add(t)
     }
@@ -264,14 +264,14 @@ object ExtendedNBT {
     def append(values: INBT*): Unit = append(values)
 
     def foreach[Tag <: INBT](f: Tag => Unit) {
-      val iterable = nbt.copy(): ListNBT
+      val iterable = nbt.copy(): ListTag
       while (iterable.size > 0) {
         f((iterable.remove(0): INBT).asInstanceOf[Tag])
       }
     }
 
     def map[Tag <: INBT, Value](f: Tag => Value): IndexedSeq[Value] = {
-      val iterable = nbt.copy(): ListNBT
+      val iterable = nbt.copy(): ListTag
       val buffer = mutable.ArrayBuffer.empty[Value]
       while (iterable.size > 0) {
         buffer += f((iterable.remove(0): INBT).asInstanceOf[Tag])

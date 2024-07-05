@@ -1,14 +1,14 @@
 package li.cil.oc.util
 
 import li.cil.oc.util.ExtendedBlock._
-import li.cil.oc.util.ExtendedWorld._
-import net.minecraft.block.Block
+import li.cil.oc.util.ExtendedLevel._
+import net.minecraft.world.level.block.Block
 import net.minecraft.block.FlowingFluidBlock
-import net.minecraft.block.Blocks
+import net.minecraft.world.level.block.Blocks
 import net.minecraft.fluid.Fluid
-import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.Direction
 import net.minecraftforge.fluids.FluidAttributes
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.IFluidBlock
@@ -26,7 +26,7 @@ object FluidUtils {
   def fluidHandlerAt(position: BlockPosition, side: Direction): Option[IFluidHandler] = position.world match {
     case Some(world) if world.blockExists(position) => world.getBlockEntity(position) match {
       case handler: IFluidHandler => Option(handler)
-      case t: TileEntity if t.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side).isPresent =>
+      case t: BlockEntity if t.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side).isPresent =>
         t.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side).orElse(null) match {
           case handler: IFluidHandler => Option(handler)
           case _ => Option(new GenericBlockWrapper(position))

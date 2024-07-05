@@ -119,7 +119,7 @@ public interface Machine extends ManagedEnvironment, Context {
      * The current world time. This is updated each tick and provides a thread
      * safe way to access the world time for architectures.
      * <br>
-     * This is equivalent to <tt>owner().world().getWorldTime()</tt>.
+     * This is equivalent to <tt>owner().world().getLevelTime()</tt>.
      *
      * @return the current world time.
      */

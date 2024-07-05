@@ -25,16 +25,16 @@ import li.cil.oc.common.item.TabletWrapper
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.DatabaseAccess
 import li.cil.oc.util.ExtendedArguments._
-import li.cil.oc.util.ExtendedWorld._
-import net.minecraft.block.Block
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.Direction
-import net.minecraft.world.World
+import li.cil.oc.util.ExtendedLevel._
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.core.Direction
+import net.minecraft.world.level.Level
 import net.minecraft.world.biome.Biome.RainType
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.world.server.ServerLevel
 import net.minecraftforge.common.MinecraftForge
 
 import scala.collection.JavaConverters.mapAsJavaMap
@@ -42,7 +42,7 @@ import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.language.existentials
 
-class Geolyzer(val host: EnvironmentHost) extends AbstractManagedEnvironment with traits.WorldControl with DeviceInfo {
+class Geolyzer(val host: EnvironmentHost) extends AbstractManagedEnvironment with traits.LevelControl with DeviceInfo {
   override val node = api.Network.newNode(this, Visibility.Network).
     withComponent("geolyzer").
     withConnector().
@@ -82,7 +82,7 @@ class Geolyzer(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
 
   private def canSeeSky: Boolean = {
     val blockPos = position.offset(Direction.UP)
-    host.world.dimension != World.NETHER && host.world.canSeeSkyFromBelowWater(blockPos.toBlockPos)
+    host.world.dimension != Level.NETHER && host.world.canSeeSkyFromBelowWater(blockPos.toBlockPos)
   }
 
   @Callback(doc = """function():boolean -- Returns whether there is a clear line of sight to the sky directly above.""")
@@ -177,7 +177,7 @@ class Geolyzer(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
     val item = blockState.getBlock().asItem()
     if (item == null) result((), "block has no registered item representation")
     else {
-      val stacks = Block.getDrops(blockState, host.world.asInstanceOf[ServerWorld], blockPos.toBlockPos, host.world.getBlockEntity(blockPos.toBlockPos))
+      val stacks = Block.getDrops(blockState, host.world.asInstanceOf[ServerLevel], blockPos.toBlockPos, host.world.getBlockEntity(blockPos.toBlockPos))
       val stack = if (!stacks.isEmpty) {
         val drop = stacks.find(s => s.getItem == item).getOrElse(stacks.get(0))
         drop.setCount(1)
@@ -197,7 +197,7 @@ class Geolyzer(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
     super.onMessage(message)
     if (message.name == "tablet.use") message.source.host match {
       case machine: api.machine.Machine => (machine.host, message.data) match {
-        case (tablet: internal.Tablet, Array(nbt: CompoundNBT, stack: ItemStack, player: PlayerEntity, blockPos: BlockPosition, side: Direction, hitX: java.lang.Float, hitY: java.lang.Float, hitZ: java.lang.Float)) =>
+        case (tablet: internal.Tablet, Array(nbt: CompoundTag, stack: ItemStack, player: Player, blockPos: BlockPosition, side: Direction, hitX: java.lang.Float, hitY: java.lang.Float, hitZ: java.lang.Float)) =>
           if (node.tryChangeBuffer(-Settings.get.geolyzerScanCost)) {
             val event = new Analyze(host, Map.empty[AnyRef, AnyRef], blockPos.toBlockPos)
             MinecraftForge.EVENT_BUS.post(event)

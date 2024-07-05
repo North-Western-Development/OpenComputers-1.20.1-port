@@ -34,7 +34,7 @@ object UpgradeInventoryController {
     override def getDeviceInfo: util.Map[String, String] = deviceInfo
   }
 
-  class Adapter(val host: EnvironmentHost) extends AbstractManagedEnvironment with traits.WorldInventoryAnalytics with Common {
+  class Adapter(val host: EnvironmentHost) extends AbstractManagedEnvironment with traits.LevelInventoryAnalytics with Common {
     override val node = Network.newNode(this, Visibility.Network).
       withComponent("inventory_controller", Visibility.Network).
       create()
@@ -46,7 +46,7 @@ object UpgradeInventoryController {
     override protected def checkSideForAction(args: Arguments, n: Int) = args.checkSideAny(n)
   }
 
-  class Drone(val host: EnvironmentHost with internal.Agent) extends AbstractManagedEnvironment with traits.InventoryAnalytics with traits.InventoryWorldControlMk2 with traits.WorldInventoryAnalytics with traits.ItemInventoryControl with Common {
+  class Drone(val host: EnvironmentHost with internal.Agent) extends AbstractManagedEnvironment with traits.InventoryAnalytics with traits.InventoryLevelControlMk2 with traits.LevelInventoryAnalytics with traits.ItemInventoryControl with Common {
     override val node = Network.newNode(this, Visibility.Network).
       withComponent("inventory_controller", Visibility.Neighbors).
       create()
@@ -64,7 +64,7 @@ object UpgradeInventoryController {
     override protected def checkSideForAction(args: Arguments, n: Int) = args.checkSideAny(n)
   }
 
-  class Robot(val host: EnvironmentHost with tileentity.Robot) extends AbstractManagedEnvironment with traits.InventoryAnalytics with traits.InventoryWorldControlMk2 with traits.WorldInventoryAnalytics with traits.ItemInventoryControl with Common {
+  class Robot(val host: EnvironmentHost with tileentity.Robot) extends AbstractManagedEnvironment with traits.InventoryAnalytics with traits.InventoryLevelControlMk2 with traits.LevelInventoryAnalytics with traits.ItemInventoryControl with Common {
     override val node = Network.newNode(this, Visibility.Network).
       withComponent("inventory_controller", Visibility.Neighbors).
       create()

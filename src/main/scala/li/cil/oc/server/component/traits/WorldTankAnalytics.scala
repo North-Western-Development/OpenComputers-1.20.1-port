@@ -8,7 +8,7 @@ import li.cil.oc.server.component.result
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.FluidUtils
 
-trait WorldTankAnalytics extends WorldAware with SideRestricted {
+trait LevelTankAnalytics extends LevelAware with SideRestricted {
   @Callback(doc = """function(side:number [, tank:number]):number -- Get the amount of fluid in the tank on the specified side.""")
   def getTankLevel(context: Context, args: Arguments): Array[AnyRef] = {
     val facing = checkSideForAction(args, 0)

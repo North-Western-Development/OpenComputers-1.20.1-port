@@ -4,8 +4,8 @@ import java.io
 import java.io.FileNotFoundException
 
 import li.cil.oc.api.fs.Mode
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.ListNBT
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.ListTag
 import net.minecraftforge.common.util.Constants.NBT
 
 import scala.collection.mutable
@@ -126,12 +126,12 @@ trait VirtualFileSystem extends OutputStreamFileSystem {
 
   // ----------------------------------------------------------------------- //
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundTag) {
     if (!this.isInstanceOf[Buffered]) root.loadData(nbt)
     super.loadData(nbt) // Last to ensure streams can be re-opened.
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundTag) {
     super.saveData(nbt) // First to allow flushing.
     if (!this.isInstanceOf[Buffered]) root.saveData(nbt)
   }
@@ -149,12 +149,12 @@ trait VirtualFileSystem extends OutputStreamFileSystem {
 
     var lastModified = System.currentTimeMillis()
 
-    def loadData(nbt: CompoundNBT) {
+    def loadData(nbt: CompoundTag) {
       if (nbt.contains("lastModified"))
         lastModified = nbt.getLong("lastModified")
     }
 
-    def saveData(nbt: CompoundNBT) {
+    def saveData(nbt: CompoundTag) {
       nbt.putLong("lastModified", lastModified)
     }
 
@@ -188,13 +188,13 @@ trait VirtualFileSystem extends OutputStreamFileSystem {
         handle
       }
 
-    override def loadData(nbt: CompoundNBT) {
+    override def loadData(nbt: CompoundTag) {
       super.loadData(nbt)
       data.clear()
       data ++= nbt.getByteArray("data")
     }
 
-    override def saveData(nbt: CompoundNBT) {
+    override def saveData(nbt: CompoundTag) {
       super.saveData(nbt)
       nbt.putByteArray("data", data.toArray)
     }
@@ -248,7 +248,7 @@ trait VirtualFileSystem extends OutputStreamFileSystem {
     private final val IsDirectoryTag = "isDirectory"
     private final val NameTag = "name"
 
-    override def loadData(nbt: CompoundNBT) {
+    override def loadData(nbt: CompoundTag) {
       super.loadData(nbt)
       val childrenNbt = nbt.getList(ChildrenTag, NBT.TAG_COMPOUND)
       (0 until childrenNbt.size).map(childrenNbt.getCompound).foreach(childNbt => {
@@ -260,11 +260,11 @@ trait VirtualFileSystem extends OutputStreamFileSystem {
       })
     }
 
-    override def saveData(nbt: CompoundNBT) {
+    override def saveData(nbt: CompoundTag) {
       super.saveData(nbt)
-      val childrenNbt = new ListNBT()
+      val childrenNbt = new ListTag()
       for ((childName, child) <- children) {
-        val childNbt = new CompoundNBT()
+        val childNbt = new CompoundTag()
         childNbt.putBoolean(IsDirectoryTag, child.isDirectory)
         childNbt.putString(NameTag, childName)
         child.saveData(childNbt)

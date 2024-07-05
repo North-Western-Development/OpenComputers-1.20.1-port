@@ -2,8 +2,8 @@ package li.cil.oc.integration.util
 
 import li.cil.oc.integration.Mods
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedWorld._
-import net.minecraft.util.Direction
+import li.cil.oc.util.ExtendedLevel._
+import net.minecraft.core.Direction
 
 import scala.collection.mutable
 

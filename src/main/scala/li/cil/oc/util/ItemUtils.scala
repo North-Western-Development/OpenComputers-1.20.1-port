@@ -9,28 +9,28 @@ import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.common.Tier
-import net.minecraft.block.Block
-import net.minecraft.item.Item
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.item.Item
 import net.minecraft.item.BlockItem
 import net.minecraft.item.BucketItem
-import net.minecraft.item.ItemStack
-import net.minecraft.item.crafting.RecipeManager
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.crafting.RecipeManager
 import net.minecraft.item.crafting.ICraftingRecipe
-import net.minecraft.item.crafting.IRecipe
-import net.minecraft.item.crafting.IRecipeType
+import net.minecraft.world.item.crafting.Recipe
+import net.minecraft.world.item.crafting.RecipeType
 import net.minecraft.item.crafting.Ingredient
 import net.minecraft.item.crafting.ShapedRecipe
 import net.minecraft.item.crafting.ShapelessRecipe
 import net.minecraft.inventory.CraftingInventory
 import net.minecraft.nbt.CompressedStreamTools
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 import net.minecraftforge.registries.ForgeRegistries
 
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 
 object ItemUtils {
-  def getDisplayName(nbt: CompoundNBT): Option[String] = {
+  def getDisplayName(nbt: CompoundTag): Option[String] = {
     if (nbt.contains("display")) {
       val displayNbt = nbt.getCompound("display")
       if (displayNbt.contains("Name"))
@@ -39,9 +39,9 @@ object ItemUtils {
     None
   }
 
-  def setDisplayName(nbt: CompoundNBT, name: String): Unit = {
+  def setDisplayName(nbt: CompoundTag, name: String): Unit = {
     if (!nbt.contains("display")) {
-      nbt.put("display", new CompoundNBT())
+      nbt.put("display", new CompoundTag())
     }
     nbt.getCompound("display").putString("Name", name)
   }
@@ -70,18 +70,18 @@ object ItemUtils {
 
   def caseNameWithTierSuffix(name: String, tier: Int): String = name + (if (tier == Tier.Four) "creative" else (tier + 1).toString)
 
-  def loadTag(data: Array[Byte]): CompoundNBT = {
+  def loadTag(data: Array[Byte]): CompoundTag = {
     val bais = new ByteArrayInputStream(data)
     CompressedStreamTools.readCompressed(bais)
   }
 
   def saveStack(stack: ItemStack): Array[Byte] = {
-    val tag = new CompoundNBT()
+    val tag = new CompoundTag()
     stack.save(tag)
     saveTag(tag)
   }
 
-  def saveTag(tag: CompoundNBT): Array[Byte] = {
+  def saveTag(tag: CompoundTag): Array[Byte] = {
     val baos = new ByteArrayOutputStream()
     CompressedStreamTools.writeCompressed(tag, baos)
     baos.toByteArray
@@ -96,7 +96,7 @@ object ItemUtils {
         // to make it output fluids into fluiducts or such, sorry).
         !input.getItem.isInstanceOf[BucketItem]).toArray, outputSize)
 
-    def getOutputSize(recipe: IRecipe[_]) = recipe.getResultItem.getCount
+    def getOutputSize(recipe: Recipe[_]) = recipe.getResultItem.getCount
 
     def isInputBlacklisted(stack: ItemStack) = stack.getItem match {
       case item: BlockItem => Settings.get.disassemblerInputBlacklist.contains(ForgeRegistries.BLOCKS.getKey(item.getBlock))
@@ -104,7 +104,7 @@ object ItemUtils {
       case _ => false
     }
 
-    val (ingredients, count) = manager.getAllRecipesFor[CraftingInventory, ICraftingRecipe](IRecipeType.CRAFTING).
+    val (ingredients, count) = manager.getAllRecipesFor[CraftingInventory, ICraftingRecipe](RecipeType.CRAFTING).
       filter(recipe => !recipe.getResultItem.isEmpty && recipe.getResultItem.sameItem(stack)).collect {
       case recipe: ShapedRecipe => getFilteredInputs(resolveOreDictEntries(recipe.getIngredients), getOutputSize(recipe))
       case recipe: ShapelessRecipe => getFilteredInputs(resolveOreDictEntries(recipe.getIngredients), getOutputSize(recipe))

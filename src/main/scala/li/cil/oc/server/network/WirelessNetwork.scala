@@ -4,33 +4,33 @@ import li.cil.oc.Settings
 import li.cil.oc.api.network.WirelessEndpoint
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedBlock._
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.RTree
-import net.minecraft.util.RegistryKey
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.world.World
+import net.minecraft.resources.ResourceKey
+import net.minecraft.world.phys.Vec3
+import net.minecraft.world.level.Level
 import net.minecraftforge.event.world.ChunkEvent
-import net.minecraftforge.event.world.WorldEvent
+import net.minecraftforge.event.world.LevelEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 
 object WirelessNetwork {
-  val dimensions = mutable.Map.empty[RegistryKey[World], RTree[WirelessEndpoint]]
+  val dimensions = mutable.Map.empty[ResourceKey[Level], RTree[WirelessEndpoint]]
 
   @SubscribeEvent
-  def onWorldUnload(e: WorldEvent.Unload) {
-    if (!e.getWorld.isClientSide) e.getWorld match {
-      case world: World => dimensions.remove(world.dimension)
+  def onLevelUnload(e: LevelEvent.Unload) {
+    if (!e.getLevel.isClientSide) e.getLevel match {
+      case world: Level => dimensions.remove(world.dimension)
       case _ =>
     }
   }
 
   @SubscribeEvent
-  def onWorldLoad(e: WorldEvent.Load) {
-    if (!e.getWorld.isClientSide) e.getWorld match {
-      case world: World => dimensions.remove(world.dimension)
+  def onLevelLoad(e: LevelEvent.Load) {
+    if (!e.getLevel.isClientSide) e.getLevel match {
+      case world: Level => dimensions.remove(world.dimension)
       case _ =>
     }
   }
@@ -66,7 +66,7 @@ object WirelessNetwork {
     }
   }
 
-  def remove(endpoint: WirelessEndpoint, dimension: RegistryKey[World]) = {
+  def remove(endpoint: WirelessEndpoint, dimension: ResourceKey[Level]) = {
     dimensions.get(dimension) match {
       case Some(set) => set.remove(endpoint)
       case _ => false
@@ -121,8 +121,8 @@ object WirelessNetwork {
       // the message.
       val world = endpoint.world
 
-      val origin = new Vector3d(reference.x, reference.y, reference.z)
-      val target = new Vector3d(endpoint.x, endpoint.y, endpoint.z)
+      val origin = new Vec3(reference.x, reference.y, reference.z)
+      val target = new Vec3(endpoint.x, endpoint.y, endpoint.z)
 
       // Vector from reference endpoint (sender) to this one (receiver).
       val delta = subtract(target, origin)
@@ -131,10 +131,10 @@ object WirelessNetwork {
       // Get the vectors that are orthogonal to the direction vector.
       val up = if (v.x == 0 && v.z == 0) {
         assert(v.y != 0)
-        new Vector3d(1, 0, 0)
+        new Vec3(1, 0, 0)
       }
       else {
-        new Vector3d(0, 1, 0)
+        new Vec3(0, 1, 0)
       }
       val side = crossProduct(v, up)
       val top = crossProduct(v, side)
@@ -168,7 +168,7 @@ object WirelessNetwork {
     else true
   }
 
-  private def subtract(v1: Vector3d, v2: Vector3d) = new Vector3d(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z)
+  private def subtract(v1: Vec3, v2: Vec3) = new Vec3(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z)
 
-  private def crossProduct(v1: Vector3d, v2: Vector3d) = new Vector3d(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x)
+  private def crossProduct(v1: Vec3, v2: Vec3) = new Vec3(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x)
 }

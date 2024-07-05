@@ -19,7 +19,7 @@ import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.InventoryUtils
 import net.minecraft.entity.item.ItemEntity
 import net.minecraft.util.SoundEvents
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 import net.minecraft.util.SoundCategory
 
 import scala.collection.convert.ImplicitConversionsToJava._
@@ -52,8 +52,8 @@ class Drone(val agent: entity.Drone) extends AbstractManagedEnvironment with Age
     }
   }
 
-  override def onWorldInteraction(context: Context, duration: Double): Unit = {
-    super.onWorldInteraction(context, duration * 2)
+  override def onLevelInteraction(context: Context, duration: Double): Unit = {
+    super.onLevelInteraction(context, duration * 2)
   }
 
   // ----------------------------------------------------------------------- //

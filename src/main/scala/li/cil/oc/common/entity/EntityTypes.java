@@ -1,9 +1,9 @@
 package li.cil.oc.common.entity;
 
 import li.cil.oc.OpenComputers;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.EntityType;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.EntityClassification;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.IForgeRegistry;

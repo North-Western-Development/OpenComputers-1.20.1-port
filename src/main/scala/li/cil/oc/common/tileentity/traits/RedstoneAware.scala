@@ -5,8 +5,8 @@ import li.cil.oc.Settings
 import li.cil.oc.common.EventHandler
 import li.cil.oc.integration.util.BundledRedstone
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.Direction
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.core.Direction
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
@@ -135,7 +135,7 @@ trait RedstoneAware extends RotationAware {
 
   // ----------------------------------------------------------------------- //
 
-  override def loadForServer(nbt: CompoundNBT): Unit = {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     super.loadForServer(nbt)
 
     val input = nbt.getIntArray(Settings.namespace + "rs.input")
@@ -144,7 +144,7 @@ trait RedstoneAware extends RotationAware {
     output.copyToArray(_output, 0, output.length min _output.length)
   }
 
-  override def saveForServer(nbt: CompoundNBT): Unit = {
+  override def saveForServer(nbt: CompoundTag): Unit = {
     super.saveForServer(nbt)
 
     nbt.putIntArray(Settings.namespace + "rs.input", _input)
@@ -152,13 +152,13 @@ trait RedstoneAware extends RotationAware {
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT) {
+  override def loadForClient(nbt: CompoundTag) {
     super.loadForClient(nbt)
     _isOutputEnabled = nbt.getBoolean("isOutputEnabled")
     nbt.getIntArray("output").copyToArray(_output)
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundTag) {
     super.saveForClient(nbt)
     nbt.putBoolean("isOutputEnabled", _isOutputEnabled)
     nbt.putIntArray("output", _output)

@@ -3,14 +3,14 @@ package li.cil.oc.common.container
 import li.cil.oc.common.InventorySlots
 import li.cil.oc.common.inventory.ServerInventory
 import li.cil.oc.server.component
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.entity.player.Player
 import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.IInventory
+import net.minecraft.world.Container
 import net.minecraft.inventory.container.ContainerType
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
 
-class Server(selfType: ContainerType[_ <: Server], id: Int, playerInventory: PlayerInventory, val stack: ItemStack, serverInventory: IInventory, tier: Int, val rackSlot: Int)
+class Server(selfType: ContainerType[_ <: Server], id: Int, playerInventory: PlayerInventory, val stack: ItemStack, serverInventory: Container, tier: Int, val rackSlot: Int)
   extends Player(selfType, id, playerInventory, serverInventory) {
 
   override protected def getHostClass = classOf[component.Server]
@@ -49,7 +49,7 @@ class Server(selfType: ContainerType[_ <: Server], id: Int, playerInventory: Pla
   // Show the player's inventory.
   addPlayerInventorySlots(8, 84)
 
-  override def stillValid(player: PlayerEntity) = {
+  override def stillValid(player: Player) = {
     otherInventory match {
       case _: component.Server => super.stillValid(player)
       case _ => player == playerInventory.player
@@ -59,13 +59,13 @@ class Server(selfType: ContainerType[_ <: Server], id: Int, playerInventory: Pla
   var isRunning = false
   var isItem = true
 
-  override def updateCustomData(nbt: CompoundNBT): Unit = {
+  override def updateCustomData(nbt: CompoundTag): Unit = {
     super.updateCustomData(nbt)
     isRunning = nbt.getBoolean("isRunning")
     isItem = nbt.getBoolean("isItem")
   }
 
-  override protected def detectCustomDataChanges(nbt: CompoundNBT): Unit = {
+  override protected def detectCustomDataChanges(nbt: CompoundTag): Unit = {
     super.detectCustomDataChanges(nbt)
     otherInventory match {
       case s: component.Server => nbt.putBoolean("isRunning", s.machine.isRunning)

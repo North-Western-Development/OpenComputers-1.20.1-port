@@ -7,17 +7,17 @@ import li.cil.oc.client.KeyBindings
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.inventory.ServerInventory
 import li.cil.oc.util.Tooltip
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.item.Item.Properties
-import net.minecraft.item.ItemStack
+import net.minecraft.world.entity.player.Player
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.ItemStack
 import net.minecraft.util.ActionResult
 import net.minecraft.util.ActionResultType
 import net.minecraft.util.Hand
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.World
+import net.minecraft.world.level.Level
 import net.minecraftforge.common.extensions.IForgeItem
 
 import scala.collection.mutable
@@ -56,15 +56,15 @@ class Server(props: Properties, val tier: Int) extends Item(props) with IForgeIt
     }
   }
 
-  override def use(stack: ItemStack, world: World, player: PlayerEntity): ActionResult[ItemStack] = {
+  override def use(stack: ItemStack, world: Level, player: Player): ActionResult[ItemStack] = {
     if (!player.isCrouching) {
       if (!world.isClientSide) player match {
-        case srvPlr: ServerPlayerEntity => ContainerTypes.openServerGui(srvPlr, new ServerInventory {
+        case srvPlr: ServerPlayer => ContainerTypes.openServerGui(srvPlr, new ServerInventory {
             override def container = stack
 
             override def rackSlot = -1
 
-            override def stillValid(player: PlayerEntity) = player == srvPlr
+            override def stillValid(player: Player) = player == srvPlr
           }, -1)
         case _ =>
       }

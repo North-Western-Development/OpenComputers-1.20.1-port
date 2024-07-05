@@ -27,7 +27,7 @@ function robot.setLightColor(value)
 end
 
 -------------------------------------------------------------------------------
--- World
+-- Level
 
 function robot.detect()
   return component.robot.detect(sides.front)
@@ -70,7 +70,7 @@ function robot.transferTo(...)
 end
 
 -------------------------------------------------------------------------------
--- Inventory + World
+-- Inventory + Level
 
 function robot.compare()
   return component.robot.compare(sides.front)
@@ -232,7 +232,7 @@ function robot.transferFluidTo(...)
 end
 
 -------------------------------------------------------------------------------
--- Tank + World
+-- Tank + Level
 
 function robot.compareFluid()
   return component.robot.compareFluid(sides.front)

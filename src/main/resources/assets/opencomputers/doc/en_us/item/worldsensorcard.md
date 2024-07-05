@@ -1,4 +1,4 @@
-# World Sensor Card
+# Level Sensor Card
 
 ![To boldly go...](oredict:opencomputers:worldSensorCard)
 

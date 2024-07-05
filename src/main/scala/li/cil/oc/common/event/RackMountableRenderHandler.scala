@@ -8,14 +8,14 @@ import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.client.renderer.tileentity.RenderUtil
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.model.ItemCameraTransforms
 import net.minecraft.entity.item.ItemEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.vector.Vector3f
+import net.minecraft.world.item.ItemStack
+import net.minecraft.resources.ResourceLocation
+import com.mojang.math.Vector3f
 import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import org.lwjgl.opengl.GL11
@@ -34,7 +34,7 @@ object RackMountableRenderHandler {
   lazy val TerminalServer = api.Items.get(Constants.ItemName.TerminalServer)
 
   @SubscribeEvent
-  def onRackMountableRendering(e: RackMountableRenderEvent.TileEntity): Unit = {
+  def onRackMountableRendering(e: RackMountableRenderEvent.BlockEntity): Unit = {
     if (e.data != null && DiskDriveMountable == api.Items.get(e.rack.getItem(e.mountable))) {
       // Disk drive.
 
@@ -85,7 +85,7 @@ object RackMountableRenderHandler {
     }
   }
 
-  private def renderOverlayFromAtlas(e: RackMountableRenderEvent.TileEntity, texture: ResourceLocation, u0: Float = 0, u1: Float = 1) {
+  private def renderOverlayFromAtlas(e: RackMountableRenderEvent.BlockEntity, texture: ResourceLocation, u0: Float = 0, u1: Float = 1) {
     val matrix = e.stack.last.pose
     val r = e.typeBuffer.getBuffer(RenderTypes.BLOCK_OVERLAY)
     val icon = Textures.getSprite(texture)

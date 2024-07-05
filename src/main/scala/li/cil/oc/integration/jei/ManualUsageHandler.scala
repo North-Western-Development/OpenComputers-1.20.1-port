@@ -2,21 +2,21 @@ package li.cil.oc.integration.jei
 
 import java.util
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.Localization
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api
 import mezz.jei.api.constants.VanillaTypes
-import mezz.jei.api.gui.IRecipeLayout
+import mezz.jei.api.gui.RecipeLayout
 import mezz.jei.api.gui.drawable.IDrawable
 import mezz.jei.api.helpers.IGuiHelper
 import mezz.jei.api.ingredients.IIngredients
-import mezz.jei.api.recipe.category.IRecipeCategory
-import mezz.jei.api.registration.IRecipeRegistration
+import mezz.jei.api.recipe.category.RecipeCategory
+import mezz.jei.api.registration.RecipeRegistration
 import net.minecraft.client.Minecraft
-import net.minecraft.item.ItemStack
-import net.minecraft.util.ResourceLocation
+import net.minecraft.world.item.ItemStack
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.client.gui.widget.button.Button
 import org.lwjgl.glfw.GLFW
 
@@ -25,7 +25,7 @@ import scala.collection.convert.ImplicitConversionsToScala._
 
 object ManualUsageHandler {
 
-  def getRecipes(registration: IRecipeRegistration): util.List[ManualUsageRecipe] = registration.getIngredientManager.getAllIngredients(VanillaTypes.ITEM).collect {
+  def getRecipes(registration: RecipeRegistration): util.List[ManualUsageRecipe] = registration.getIngredientManager.getAllIngredients(VanillaTypes.ITEM).collect {
     case stack: ItemStack => api.Manual.pathFor(stack) match {
       case s: String => Option(new ManualUsageRecipe(stack, s))
       case _ => None
@@ -34,7 +34,7 @@ object ManualUsageHandler {
 
   class ManualUsageRecipe(val stack: ItemStack, val path: String)
 
-  object ManualUsageRecipeCategory extends IRecipeCategory[ManualUsageRecipe] {
+  object ManualUsageRecipeCategory extends RecipeCategory[ManualUsageRecipe] {
     val recipeWidth: Int = 160
     val recipeHeight: Int = 125
     private var background: IDrawable = _
@@ -58,10 +58,10 @@ object ManualUsageHandler {
       ingredients.setInput(VanillaTypes.ITEM, recipeWrapper.stack)
     }
 
-    override def setRecipe(recipeLayout: IRecipeLayout, recipeWrapper: ManualUsageRecipe, ingredients: IIngredients) {
+    override def setRecipe(recipeLayout: RecipeLayout, recipeWrapper: ManualUsageRecipe, ingredients: IIngredients) {
     }
 
-    override def draw(recipeWrapper: ManualUsageRecipe, stack: MatrixStack, mouseX: Double, mouseY: Double) {
+    override def draw(recipeWrapper: ManualUsageRecipe, stack: PoseStack, mouseX: Double, mouseY: Double) {
       button.render(stack, mouseX.toInt, mouseY.toInt, 0)
     }
 

@@ -10,11 +10,11 @@ import li.cil.oc.common.tileentity._
 import li.cil.oc.common.tileentity.traits.Computer
 import net.minecraft.client.Minecraft
 import net.minecraft.client.audio.SimpleSound
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.entity.player.Player
 import net.minecraft.util.SoundEvents
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
-import net.minecraft.util.ResourceLocation
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SoundCategory
 
 object PacketSender {
@@ -236,7 +236,7 @@ object PacketSender {
   def sendWaypointLabel(t: Waypoint): Unit = {
     val pb = new SimplePacketBuilder(PacketType.WaypointLabel)
 
-    pb.writeTileEntity(t)
+    pb.writeBlockEntity(t)
     pb.writeUTF(t.label)
 
     pb.sendToServer()

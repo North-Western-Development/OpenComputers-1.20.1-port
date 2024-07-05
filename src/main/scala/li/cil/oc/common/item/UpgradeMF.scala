@@ -6,22 +6,22 @@ import li.cil.oc.Localization
 import li.cil.oc.Settings
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.Tooltip
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.item.Item.Properties
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.util.ActionResultType
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.World
+import net.minecraft.world.level.Level
 import net.minecraftforge.common.extensions.IForgeItem
 
 class UpgradeMF(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with traits.ItemTier {
-  override def onItemUseFirst(stack: ItemStack, player: PlayerEntity, world: World, pos: BlockPos, side: Direction, hitX: Float, hitY: Float, hitZ: Float, hand: Hand): ActionResultType = {
+  override def onItemUseFirst(stack: ItemStack, player: Player, world: Level, pos: BlockPos, side: Direction, hitX: Float, hitY: Float, hitZ: Float, hand: Hand): ActionResultType = {
     if (!player.level.isClientSide && player.isCrouching) {
       val data = stack.getOrCreateTag
       data.putString(Settings.namespace + "dimension", world.dimension.location.toString)
@@ -33,7 +33,7 @@ class UpgradeMF(props: Properties) extends Item(props) with IForgeItem with trai
 
   override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[ITextComponent]) {
     tooltip.add(new StringTextComponent(Localization.Tooltip.MFULinked(stack.getTag match {
-      case data: CompoundNBT => data.contains(Settings.namespace + "coord")
+      case data: CompoundTag => data.contains(Settings.namespace + "coord")
       case _ => false
     })).setStyle(Tooltip.DefaultStyle))
   }

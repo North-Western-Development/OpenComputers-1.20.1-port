@@ -4,15 +4,15 @@ import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.network._
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.core.Direction
 import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-class PowerDistributor(selfType: TileEntityType[_ <: PowerDistributor]) extends TileEntity(selfType) with traits.Environment with traits.PowerBalancer with traits.NotAnalyzable {
+class PowerDistributor(selfType: BlockEntityType[_ <: PowerDistributor]) extends BlockEntity(selfType) with traits.Environment with traits.PowerBalancer with traits.NotAnalyzable {
   val node = null
 
   private val nodes = Array.fill(6)(api.Network.newNode(this, Visibility.None).
@@ -32,20 +32,20 @@ class PowerDistributor(selfType: TileEntityType[_ <: PowerDistributor]) extends 
 
   private final val ConnectorTag = Settings.namespace + "connector"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundTag) {
     super.loadForServer(nbt)
-    nbt.getList(ConnectorTag, NBT.TAG_COMPOUND).toTagArray[CompoundNBT].
+    nbt.getList(ConnectorTag, NBT.TAG_COMPOUND).toTagArray[CompoundTag].
       zipWithIndex.foreach {
       case (tag, index) => nodes(index).loadData(tag)
     }
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundTag) {
     super.saveForServer(nbt)
     // Side check for Waila (and other mods that may call this client side).
     if (isServer) {
       nbt.setNewTagList(ConnectorTag, nodes.map(connector => {
-        val connectorNbt = new CompoundNBT()
+        val connectorNbt = new CompoundTag()
         connector.saveData(connectorNbt)
         connectorNbt
       }))

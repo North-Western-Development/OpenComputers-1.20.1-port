@@ -9,8 +9,8 @@ import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.ItemUtils
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.item
-import net.minecraft.item.Item
-import net.minecraft.nbt.{CompoundNBT, ListNBT, StringNBT}
+import net.minecraft.world.item.Item
+import net.minecraft.nbt.{CompoundTag, ListTag, StringTag}
 import net.minecraft.tags.ItemTags
 import net.minecraftforge.common.util.Constants.NBT
 
@@ -18,7 +18,7 @@ import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 
 object ConverterItemStack extends api.driver.Converter {
-  def getTagValue(tag: CompoundNBT, key: String): AnyRef = tag.getTagType(key) match {
+  def getTagValue(tag: CompoundTag, key: String): AnyRef = tag.getTagType(key) match {
     case NBT.TAG_INT => Int.box(tag.getInt(key))
     case NBT.TAG_STRING => tag.getString(key)
     case NBT.TAG_BYTE => Byte.box(tag.getByte(key))
@@ -27,7 +27,7 @@ object ConverterItemStack extends api.driver.Converter {
     case _ => null
   }
 
-  def withTag(tag: CompoundNBT, key: String, tagId: Int, f: AnyRef => AnyRef): AnyRef = {
+  def withTag(tag: CompoundTag, key: String, tagId: Int, f: AnyRef => AnyRef): AnyRef = {
     if (tag.contains(key, tagId)) {
       Option(getTagValue(tag, key)) match {
         case Some(value) => f(value)
@@ -36,12 +36,12 @@ object ConverterItemStack extends api.driver.Converter {
     } else null
   }
 
-  def withCompound(tag: CompoundNBT, key: String, f: CompoundNBT => AnyRef): AnyRef = {
-    withTag(tag, key, NBT.TAG_COMPOUND, { case value: CompoundNBT => f(value)})
+  def withCompound(tag: CompoundTag, key: String, f: CompoundTag => AnyRef): AnyRef = {
+    withTag(tag, key, NBT.TAG_COMPOUND, { case value: CompoundTag => f(value)})
   }
 
-  def withList(tag: CompoundNBT, key: String, f: ListNBT => AnyRef): AnyRef = {
-    withTag(tag, key, NBT.TAG_STRING, { case value: ListNBT => f(value)})
+  def withList(tag: CompoundTag, key: String, f: ListTag => AnyRef): AnyRef = {
+    withTag(tag, key, NBT.TAG_STRING, { case value: ListTag => f(value)})
   }
 
   override def convert(value: AnyRef, output: util.Map[AnyRef, AnyRef]) =
@@ -65,7 +65,7 @@ object ConverterItemStack extends api.driver.Converter {
 
           //Lore tags
           withCompound(tags, "display", withList(_, "Lore", {
-              output += "lore" -> _.map((tag: StringNBT) => tag.getAsString).mkString("\n")
+              output += "lore" -> _.map((tag: StringTag) => tag.getAsString).mkString("\n")
             })
           )
 

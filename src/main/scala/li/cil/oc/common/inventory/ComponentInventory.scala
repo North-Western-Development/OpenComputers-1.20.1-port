@@ -10,8 +10,8 @@ import li.cil.oc.api.network.ManagedEnvironment
 import li.cil.oc.api.network.Node
 import li.cil.oc.api.util.Lifecycle
 import li.cil.oc.integration.opencomputers.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
 
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
@@ -99,7 +99,7 @@ trait ComponentInventory extends Inventory with network.Environment {
 
   // ----------------------------------------------------------------------- //
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundTag) {
     saveComponents()
     super.saveData(nbt) // Save items after updating their tags.
   }

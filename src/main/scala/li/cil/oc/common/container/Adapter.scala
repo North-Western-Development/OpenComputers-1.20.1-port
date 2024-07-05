@@ -5,11 +5,11 @@ import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
 import li.cil.oc.common.tileentity
 import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.inventory.IInventory
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.Container
 import net.minecraft.inventory.container.ContainerType
 
-class Adapter(selfType: ContainerType[_ <: Adapter], id: Int, playerInventory: PlayerInventory, adapter: IInventory)
+class Adapter(selfType: ContainerType[_ <: Adapter], id: Int, playerInventory: PlayerInventory, adapter: Container)
   extends Player(selfType, id, playerInventory, adapter) {
 
   override protected def getHostClass = classOf[tileentity.Adapter]

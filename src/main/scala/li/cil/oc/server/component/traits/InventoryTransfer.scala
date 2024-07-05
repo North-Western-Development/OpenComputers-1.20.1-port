@@ -9,7 +9,7 @@ import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.FluidUtils
 import li.cil.oc.util.InventoryUtils
 
-trait InventoryTransfer extends traits.WorldAware with traits.SideRestricted {
+trait InventoryTransfer extends traits.LevelAware with traits.SideRestricted {
   // Return None on success, else Some("failure reason")
   def onTransferContents(): Option[String]
 

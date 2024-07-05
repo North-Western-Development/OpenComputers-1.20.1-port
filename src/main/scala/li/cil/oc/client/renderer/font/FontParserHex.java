@@ -7,7 +7,7 @@ import li.cil.oc.Settings;
 import li.cil.oc.util.FontUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.IResource;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.BufferUtils;
 
 import java.io.BufferedReader;

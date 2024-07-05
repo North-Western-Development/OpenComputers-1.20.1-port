@@ -17,13 +17,13 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.SafeThreadPool
 import li.cil.oc.util.ThreadPoolFactory
 import net.minecraft.nbt.CompressedStreamTools
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.ChunkPos
-import net.minecraft.world.World
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.level.ChunkPos
+import net.minecraft.world.level.Level
+import net.minecraft.world.server.ServerLevel
 import net.minecraft.world.storage.FolderName
-import net.minecraftforge.event.world.WorldEvent
+import net.minecraftforge.event.world.LevelEvent
 import net.minecraftforge.eventbus.api.EventPriority
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.server.ServerLifecycleHooks
@@ -77,34 +77,34 @@ object SaveHandler {
   val chunkDirs = new ConcurrentLinkedDeque[io.File]()
   val saving = mutable.HashMap.empty[String, Future[_]]
 
-  def savePath = ServerLifecycleHooks.getCurrentServer.getWorldPath(new FolderName(Settings.savePath)).toFile
+  def savePath = ServerLifecycleHooks.getCurrentServer.getLevelPath(new FolderName(Settings.savePath)).toFile
 
   def statePath = new io.File(savePath, "state")
 
-  def scheduleSave(host: MachineHost, nbt: CompoundNBT, name: String, data: Array[Byte]) {
+  def scheduleSave(host: MachineHost, nbt: CompoundTag, name: String, data: Array[Byte]) {
     scheduleSave(BlockPosition(host), nbt, name, data)
   }
 
-  def scheduleSave(host: MachineHost, nbt: CompoundNBT, name: String, save: CompoundNBT => Unit) {
+  def scheduleSave(host: MachineHost, nbt: CompoundTag, name: String, save: CompoundTag => Unit) {
     scheduleSave(host, nbt, name, writeNBT(save))
   }
 
-  def scheduleSave(host: EnvironmentHost, nbt: CompoundNBT, name: String, save: CompoundNBT => Unit) {
+  def scheduleSave(host: EnvironmentHost, nbt: CompoundTag, name: String, save: CompoundTag => Unit) {
     scheduleSave(BlockPosition(host), nbt, name, writeNBT(save))
   }
 
-  def scheduleSave(world: World, x: Double, z: Double, nbt: CompoundNBT, name: String, data: Array[Byte]) {
+  def scheduleSave(world: Level, x: Double, z: Double, nbt: CompoundTag, name: String, data: Array[Byte]) {
     scheduleSave(BlockPosition(x, 0, z, world), nbt, name, data)
   }
 
-  def scheduleSave(world: World, x: Double, z: Double, nbt: CompoundNBT, name: String, save: CompoundNBT => Unit) {
+  def scheduleSave(world: Level, x: Double, z: Double, nbt: CompoundTag, name: String, save: CompoundTag => Unit) {
     scheduleSave(world, x, z, nbt, name, writeNBT(save))
   }
 
-  def scheduleSave(position: BlockPosition, nbt: CompoundNBT, name: String, data: Array[Byte]) {
+  def scheduleSave(position: BlockPosition, nbt: CompoundTag, name: String, data: Array[Byte]) {
     val world = position.world.get
     // Try to exclude wrapped/client-side worlds.
-    if (world.isInstanceOf[ServerWorld]) {
+    if (world.isInstanceOf[ServerLevel]) {
       val dimension = world.dimension.location
       val chunk = new ChunkPos(position.x >> 4, position.z >> 4)
 
@@ -118,8 +118,8 @@ object SaveHandler {
     }
   }
 
-  private def writeNBT(save: CompoundNBT => Unit) = {
-    val tmpNbt = new CompoundNBT()
+  private def writeNBT(save: CompoundTag => Unit) = {
+    val tmpNbt = new CompoundTag()
     save(tmpNbt)
     val baos = new ByteArrayOutputStream()
     val dos = new DataOutputStream(baos)
@@ -127,7 +127,7 @@ object SaveHandler {
     baos.toByteArray
   }
 
-  def loadNBT(nbt: CompoundNBT, name: String): CompoundNBT = {
+  def loadNBT(nbt: CompoundTag, name: String): CompoundTag = {
     val data = load(nbt, name)
     if (data.length > 0) try {
       val bais = new ByteArrayInputStream(data)
@@ -137,12 +137,12 @@ object SaveHandler {
     catch {
       case t: Throwable =>
         OpenComputers.log.warn("There was an error trying to restore a block's state from external data. This indicates that data was somehow corrupted.", t)
-        new CompoundNBT()
+        new CompoundTag()
     }
-    else new CompoundNBT()
+    else new CompoundTag()
   }
 
-  def load(nbt: CompoundNBT, name: String): Array[Byte] = {
+  def load(nbt: CompoundTag, name: String): Array[Byte] = {
     // Since we have no world yet, we rely on the dimension we were saved in.
     // Same goes for the chunk. This also works around issues with computers
     // being moved (e.g. Redstone in Motion).
@@ -223,8 +223,8 @@ object SaveHandler {
   }
 
   @SubscribeEvent(priority = EventPriority.HIGHEST)
-  def onWorldLoad(e: WorldEvent.Load) {
-    if (!e.getWorld.isClientSide) {
+  def onLevelLoad(e: LevelEvent.Load) {
+    if (!e.getLevel.isClientSide) {
       // Touch all externally saved data when loading, to avoid it getting
       // deleted in the next save (because the now - save time will usually
       // be larger than the time out after loading a world again).
@@ -233,7 +233,7 @@ object SaveHandler {
   }
 
   @SubscribeEvent(priority = EventPriority.LOWEST)
-  def onWorldSave(e: WorldEvent.Save) {
+  def onLevelSave(e: LevelEvent.Save) {
     stateSaveHandler.withPool(_.submit(new Runnable {
       override def run(): Unit = cleanSaveData()
     }))

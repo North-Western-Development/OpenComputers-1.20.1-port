@@ -5,7 +5,7 @@ import appeng.api.storage.cells.ICellInventory;
 import appeng.api.storage.cells.ICellInventoryHandler;
 import appeng.api.storage.channels.IItemStorageChannel;
 import li.cil.oc.api.driver.Converter;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.Map;
 

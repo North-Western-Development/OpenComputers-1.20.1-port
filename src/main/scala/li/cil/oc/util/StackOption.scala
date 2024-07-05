@@ -1,7 +1,7 @@
 package li.cil.oc.util
 
 import li.cil.oc.util.StackOption._
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 object StackOption {
 

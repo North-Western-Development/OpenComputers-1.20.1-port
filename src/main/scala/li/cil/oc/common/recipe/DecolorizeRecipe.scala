@@ -2,15 +2,15 @@ package li.cil.oc.common.recipe
 
 import li.cil.oc.util.ItemColorizer
 import li.cil.oc.util.StackOption
-import net.minecraft.block.Block
+import net.minecraft.world.level.block.Block
 import net.minecraft.inventory.CraftingInventory
 import net.minecraft.item.crafting.SpecialRecipe
-import net.minecraft.item.Item
-import net.minecraft.item.Items
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.Items
+import net.minecraft.world.item.ItemStack
 import net.minecraft.util.IItemProvider
-import net.minecraft.util.ResourceLocation
-import net.minecraft.world.World
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.level.Level
 
 /**
   * @author Vexatos
@@ -18,7 +18,7 @@ import net.minecraft.world.World
 class DecolorizeRecipe(id: ResourceLocation, target: IItemProvider) extends SpecialRecipe(id) {
   val targetItem: Item = target.asItem()
 
-  override def matches(crafting: CraftingInventory, world: World): Boolean = {
+  override def matches(crafting: CraftingInventory, world: Level): Boolean = {
     val stacks = (0 until crafting.getContainerSize).flatMap(i => StackOption(crafting.getItem(i)))
     val targets = stacks.filter(stack => stack.getItem == targetItem)
     val other = stacks.filterNot(targets.contains)

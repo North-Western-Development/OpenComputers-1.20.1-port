@@ -1,14 +1,14 @@
 package li.cil.oc.client.renderer.markdown.segment
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.api.manual.ImageRenderer
 import li.cil.oc.api.manual.InteractiveImageRenderer
 import li.cil.oc.client.renderer.markdown.Document
 import li.cil.oc.client.renderer.markdown.MarkupFormat
 import net.minecraft.client.gui.FontRenderer
-import net.minecraft.util.math.vector.Matrix4f
-import net.minecraft.util.math.vector.Vector4f
+import com.mojang.math.Matrix4f
+import com.mojang.math.Vector4f
 import org.lwjgl.opengl.GL11
 
 private[markdown] class RenderSegment(val parent: Segment, val title: String, val imageRenderer: ImageRenderer) extends InteractiveSegment {
@@ -35,7 +35,7 @@ private[markdown] class RenderSegment(val parent: Segment, val title: String, va
 
   override def nextX(indent: Int, maxWidth: Int, renderer: FontRenderer): Int = 0
 
-  override def render(stack: MatrixStack, x: Int, y: Int, indent: Int, maxWidth: Int, renderer: FontRenderer, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = {
+  override def render(stack: PoseStack, x: Int, y: Int, indent: Int, maxWidth: Int, renderer: FontRenderer, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = {
     val width = imageWidth(maxWidth)
     val height = imageHeight(maxWidth)
     val xOffset = (maxWidth - width) / 2

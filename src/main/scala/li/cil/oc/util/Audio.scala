@@ -7,11 +7,11 @@ import li.cil.oc.Settings
 import net.minecraft.client.Minecraft
 import net.minecraft.client.audio.SimpleSound
 import net.minecraft.util.SoundEvents
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SoundCategory
 import net.minecraft.util.SoundEvent
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.vector.Vector3d
+import net.minecraft.core.BlockPos
+import net.minecraft.world.phys.Vec3
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.event.TickEvent.ClientTickEvent
 import org.lwjgl.BufferUtils
@@ -45,7 +45,7 @@ object Audio {
 
   def play(x: Float, y: Float, z: Float, pattern: String, frequencyInHz: Int = 1000, durationInMilliseconds: Int = 200): Unit = {
     val mc = Minecraft.getInstance
-    val distanceBasedGain = math.max(0, 1 - mc.player.position.distanceTo(new Vector3d(x, y, z)) / maxDistance).toFloat
+    val distanceBasedGain = math.max(0, 1 - mc.player.position.distanceTo(new Vec3(x, y, z)) / maxDistance).toFloat
     val gain = distanceBasedGain * volume
     if (gain <= 0 || amplitude <= 0) return
 

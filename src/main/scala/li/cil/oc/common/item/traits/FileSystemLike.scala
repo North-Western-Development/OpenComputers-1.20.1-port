@@ -10,14 +10,14 @@ import li.cil.oc.common.item.data.DriveData
 import li.cil.oc.util.Tooltip
 import net.minecraft.client.Minecraft
 import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 import net.minecraft.util.ActionResult
 import net.minecraft.util.ActionResultType
 import net.minecraft.util.Hand
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.World
+import net.minecraft.world.level.Level
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
@@ -27,7 +27,7 @@ trait FileSystemLike extends SimpleItem {
   def kiloBytes: Int
 
   @OnlyIn(Dist.CLIENT)
-  override def appendHoverText(stack: ItemStack, world: World, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
+  override def appendHoverText(stack: ItemStack, world: Level, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
     super.appendHoverText(stack, world, tooltip, flag)
     if (stack.hasTag) {
       val nbt = stack.getTag
@@ -50,7 +50,7 @@ trait FileSystemLike extends SimpleItem {
     }
   }
 
-  override def use(stack: ItemStack, world: World, player: PlayerEntity): ActionResult[ItemStack] = {
+  override def use(stack: ItemStack, world: Level, player: Player): ActionResult[ItemStack] = {
     if (!player.isCrouching && (!stack.hasTag || !stack.getTag.contains(Settings.namespace + "lootFactory"))) {
       if (world.isClientSide) showGui(stack, player)
       player.swing(Hand.MAIN_HAND)
@@ -59,7 +59,7 @@ trait FileSystemLike extends SimpleItem {
   }
 
   @OnlyIn(Dist.CLIENT)
-  private def showGui(stack: ItemStack, player: PlayerEntity) {
+  private def showGui(stack: ItemStack, player: Player) {
     Minecraft.getInstance.pushGuiLayer(new gui.Drive(player.inventory, () => stack))
   }
 }

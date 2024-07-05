@@ -1,7 +1,7 @@
 package li.cil.oc.server.machine
 
 import li.cil.oc.api
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 
 abstract class ArchitectureAPI(val machine: api.machine.Machine) {
   protected def node = machine.node
@@ -10,7 +10,7 @@ abstract class ArchitectureAPI(val machine: api.machine.Machine) {
 
   def initialize(): Unit
 
-  def loadData(nbt: CompoundNBT) {}
+  def loadData(nbt: CompoundTag) {}
 
-  def saveData(nbt: CompoundNBT) {}
+  def saveData(nbt: CompoundTag) {}
 }

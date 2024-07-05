@@ -6,17 +6,17 @@ import li.cil.oc.Settings
 import li.cil.oc.Settings.DebugCardAccess
 import li.cil.oc.common.item.data.DebugCardData
 import li.cil.oc.server.component.{DebugCard => CDebugCard}
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.item.Item.Properties
-import net.minecraft.item.ItemStack
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.ItemStack
 import net.minecraft.util.ActionResult
 import net.minecraft.util.ActionResultType
 import net.minecraft.util.Hand
 import net.minecraft.util.Util
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.World
+import net.minecraft.world.level.Level
 import net.minecraftforge.common.extensions.IForgeItem
 
 class DebugCard(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem {
@@ -26,7 +26,7 @@ class DebugCard(props: Properties) extends Item(props) with IForgeItem with trai
     data.access.foreach(access => tooltip.add(new StringTextComponent(s"§8${access.player}§r")))
   }
 
-  override def use(stack: ItemStack, world: World, player: PlayerEntity): ActionResult[ItemStack] = {
+  override def use(stack: ItemStack, world: Level, player: Player): ActionResult[ItemStack] = {
     if (!world.isClientSide && player.isCrouching) {
       val data = new DebugCardData(stack)
       val name = player.getName

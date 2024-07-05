@@ -1,8 +1,8 @@
 package li.cil.oc.api.internal;
 
 import li.cil.oc.api.machine.MachineHost;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
 
 import java.util.UUID;
 
@@ -18,7 +18,7 @@ public interface Agent extends MachineHost, Rotatable {
      * <br>
      * If an agent has no equipment slots this will be a zero-sized inventory.
      */
-    IInventory equipmentInventory();
+    Container equipmentInventory();
 
     /**
      * The main inventory of this agent, which it (usually) also can
@@ -26,7 +26,7 @@ public interface Agent extends MachineHost, Rotatable {
      * <br>
      * If an agent has no inventory slots this will be a zero-sized inventory.
      */
-    IInventory mainInventory();
+    Container mainInventory();
 
     /**
      * Provides access to the tanks of the agent.
@@ -67,7 +67,7 @@ public interface Agent extends MachineHost, Rotatable {
      *
      * @return the fake player for the agent.
      */
-    PlayerEntity player();
+    Player player();
 
     /**
      * Get the name of this agent.

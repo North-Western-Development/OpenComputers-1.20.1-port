@@ -5,30 +5,29 @@ import java.util.function.Function;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import net.minecraft.item.Item;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
-public class ItemSpecialSerializer<T extends IRecipe<?>> extends ForgeRegistryEntry<IRecipeSerializer<?>>
-    implements IRecipeSerializer<T> {
+public class ItemSpecialSerializer<T extends Recipe<?>> extends ForgeRegistryEntry<RecipeSerializer<?>>
+    implements RecipeSerializer<T> {
 
-    private BiFunction<ResourceLocation, IItemProvider, T> ctor;
+    private BiFunction<ResourceLocation, Item, T> ctor;
     private Function<T, Item> getter;
 
-    public ItemSpecialSerializer(BiFunction<ResourceLocation, IItemProvider, T> ctor, Function<T, Item> getter) {
+    public ItemSpecialSerializer(BiFunction<ResourceLocation, Item, T> ctor, Function<T, Item> getter) {
         this.ctor = ctor;
         this.getter = getter;
     }
 
     @Override
     public T fromJson(ResourceLocation recipeId, JsonObject json) {
-        ResourceLocation loc = new ResourceLocation(JSONUtils.getAsString(json, "item"));
+        ResourceLocation loc = new ResourceLocation(GsonHelper.getAsString(json, "item"));
         if (!ForgeRegistries.ITEMS.containsKey(loc)) {
             throw new JsonSyntaxException("Unknown item '" + loc + "'");
         }
@@ -36,12 +35,12 @@ public class ItemSpecialSerializer<T extends IRecipe<?>> extends ForgeRegistryEn
     }
 
     @Override
-    public T fromNetwork(ResourceLocation recipeId, PacketBuffer buff) {
+    public T fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buff) {
         return ctor.apply(recipeId, buff.readRegistryIdUnsafe(ForgeRegistries.ITEMS));
     }
 
     @Override
-    public void toNetwork(PacketBuffer buff, T recipe) {
+    public void toNetwork(FriendlyByteBuf buff, T recipe) {
         buff.writeRegistryIdUnsafe(ForgeRegistries.ITEMS, getter.apply(recipe));
     }
 }

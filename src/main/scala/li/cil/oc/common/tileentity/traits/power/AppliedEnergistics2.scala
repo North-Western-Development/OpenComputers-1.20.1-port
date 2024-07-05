@@ -12,11 +12,11 @@ import li.cil.oc.common.EventHandler
 import li.cil.oc.integration.Mods
 import li.cil.oc.integration.appeng.AEUtil
 import li.cil.oc.integration.util.Power
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.core.Direction
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.Level
 import net.minecraftforge.fml.common._
 
 import scala.collection.JavaConverters
@@ -83,16 +83,16 @@ trait AppliedEnergistics2 extends Common with IGridHost {
 
   // ----------------------------------------------------------------------- //
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundTag) {
     super.loadForServer(nbt)
     if (useAppliedEnergistics2Power()) loadNode(nbt)
   }
 
-  private def loadNode(nbt: CompoundNBT): Unit = {
+  private def loadNode(nbt: CompoundTag): Unit = {
     getGridNode(AEPartLocation.INTERNAL).loadFromNBT(Settings.namespace + "ae2power", nbt)
   }
 
-  override def setLevelAndPosition(worldIn: World, pos: BlockPos): Unit = {
+  override def setLevelAndPosition(worldIn: Level, pos: BlockPos): Unit = {
     if (getLevel == worldIn)
       return
     super.setLevelAndPosition(worldIn, pos)
@@ -101,12 +101,12 @@ trait AppliedEnergistics2 extends Common with IGridHost {
     }
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundTag) {
     super.saveForServer(nbt)
     if (useAppliedEnergistics2Power()) saveNode(nbt)
   }
 
-  private def saveNode(nbt: CompoundNBT): Unit = {
+  private def saveNode(nbt: CompoundTag): Unit = {
     getGridNode(AEPartLocation.INTERNAL).saveToNBT(Settings.namespace + "ae2power", nbt)
   }
 
@@ -133,7 +133,7 @@ class AppliedEnergistics2GridBlock(val tileEntity: AppliedEnergistics2) extends 
 
   override def getFlags: util.EnumSet[GridFlags] = util.EnumSet.noneOf(classOf[GridFlags])
 
-  def isWorldAccessible: Boolean = true
+  def isLevelAccessible: Boolean = true
 
   override def getLocation: DimensionalCoord = new DimensionalCoord(tileEntity)
 

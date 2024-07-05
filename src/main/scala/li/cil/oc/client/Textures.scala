@@ -9,7 +9,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.inventory.container.PlayerContainer
 import net.minecraft.client.renderer.texture.SimpleTexture
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.client.event.TextureStitchEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 

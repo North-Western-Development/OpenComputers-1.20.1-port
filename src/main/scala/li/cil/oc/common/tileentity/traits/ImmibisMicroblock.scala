@@ -2,8 +2,8 @@ package li.cil.oc.common.tileentity.traits
 
 import li.cil.oc.api
 
-trait ImmibisMicroblock extends TileEntity {
-  val ImmibisMicroblocks_TransformableTileEntityMarker = null
+trait ImmibisMicroblock extends BlockEntity {
+  val ImmibisMicroblocks_TransformableBlockEntityMarker = null
 
   def ImmibisMicroblocks_isSideOpen(side: Int) = true
 

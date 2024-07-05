@@ -1,16 +1,16 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.client.Textures
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.AbstractGui
 import net.minecraft.client.gui.widget.button.Button
 import net.minecraft.client.gui.widget.button.Button.IPressable
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.util.ResourceLocation
+import com.mojang.blaze3d.vertex.Tesselator
+import com.mojang.blaze3d.vertex.DefaultVertexFormat
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.StringTextComponent
 import net.minecraftforge.api.distmarker.Dist
@@ -32,7 +32,7 @@ class ImageButton(xPos: Int, yPos: Int, w: Int, h: Int,
 
   var hoverOverride = false
 
-  override def renderButton(stack: MatrixStack, mouseX: Int, mouseY: Int, partialTicks: Float) {
+  override def renderButton(stack: PoseStack, mouseX: Int, mouseY: Int, partialTicks: Float) {
     if (visible) {
       Textures.bind(image)
       RenderSystem.color4f(1, 1, 1, 1)
@@ -45,7 +45,7 @@ class ImageButton(xPos: Int, yPos: Int, w: Int, h: Int,
 
       val drawHover = hoverOverride || getYImage(isHovered) == 2
 
-      val t = Tessellator.getInstance
+      val t = Tesselator.getInstance
       val r = t.getBuilder
       if (image != null) {
         val u0 = if (toggled) 0.5f else 0
@@ -53,7 +53,7 @@ class ImageButton(xPos: Int, yPos: Int, w: Int, h: Int,
         val v0 = if (drawHover) 0.5f else 0
         val v1 = v0 + 0.5f
 
-        r.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)
+        r.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX)
         r.vertex(stack.last.pose, x0, y1, getBlitOffset).uv(u0, v1).endVertex()
         r.vertex(stack.last.pose, x1, y1, getBlitOffset).uv(u1, v1).endVertex()
         r.vertex(stack.last.pose, x1, y0, getBlitOffset).uv(u1, v0).endVertex()
@@ -64,7 +64,7 @@ class ImageButton(xPos: Int, yPos: Int, w: Int, h: Int,
         RenderSystem.enableBlend()
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA)
         val alpha = if (drawHover) 0.8f else 0.4f
-        r.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR)
+        r.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR)
         r.vertex(stack.last.pose, x0, y1, getBlitOffset).color(1, 1, 1, alpha).endVertex()
         r.vertex(stack.last.pose, x1, y1, getBlitOffset).color(1, 1, 1, alpha).endVertex()
         r.vertex(stack.last.pose, x1, y0, getBlitOffset).color(1, 1, 1, alpha).endVertex()

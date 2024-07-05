@@ -4,7 +4,7 @@ import li.cil.oc.api.manual.ImageProvider
 import li.cil.oc.api.manual.ImageRenderer
 import li.cil.oc.api.manual.InteractiveImageRenderer
 import li.cil.oc.client.Textures
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
 
 object TextureImageProvider extends ImageProvider {
   val ManualMissingItem = {

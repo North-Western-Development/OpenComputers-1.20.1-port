@@ -15,22 +15,22 @@ import li.cil.oc.server.agent.{Inventory => AgentInventory}
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.InventoryUtils
 import net.minecraft.block.PistonBlock
-import net.minecraft.entity.Entity
-import net.minecraft.entity.EntitySize
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntitySize
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.Pose
 import net.minecraft.entity.item.ItemEntity
 import net.minecraft.entity.merchant.IMerchant
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerEntity.SleepResult
-import net.minecraft.block.Blocks
-import net.minecraft.item.Items
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.Player.SleepResult
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.item.Items
 import net.minecraft.inventory._
 import net.minecraft.inventory.container.INamedContainerProvider
 import net.minecraft.inventory.container.PlayerContainer
 import net.minecraft.item.BlockItem
-import net.minecraft.item.ItemUseContext
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemUseContext
+import net.minecraft.world.item.ItemStack
 import net.minecraft.item.MerchantOffers
 import net.minecraft.network.play.ServerPlayNetHandler
 import net.minecraft.network.play.client.CPlayerDiggingPacket
@@ -39,15 +39,15 @@ import net.minecraft.server.management.{PlayerInteractionManager, OpEntry}
 import net.minecraft.tileentity._
 import net.minecraft.util.ActionResultType
 import net.minecraft.util.DamageSource
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
 import net.minecraft.util.math.BlockRayTraceResult
-import net.minecraft.util.math.vector.Vector3d
+import net.minecraft.world.phys.Vec3
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.World
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.world.level.Level
+import net.minecraft.world.server.ServerLevel
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.FakePlayer
 import net.minecraftforge.common.util.LazyOptional
@@ -64,11 +64,11 @@ import scala.jdk.CollectionConverters._
 
 object Player {
   // These use unobfuscated names because they're added by forge (LazyOptional / capabilities).
-  private val playerMainHandler = ObfuscationReflectionHelper.findField(classOf[PlayerEntity], "playerMainHandler")
+  private val playerMainHandler = ObfuscationReflectionHelper.findField(classOf[Player], "playerMainHandler")
 
-  private val playerEquipmentHandler = ObfuscationReflectionHelper.findField(classOf[PlayerEntity], "playerEquipmentHandler")
+  private val playerEquipmentHandler = ObfuscationReflectionHelper.findField(classOf[Player], "playerEquipmentHandler")
 
-  private val playerJoinedHandler = ObfuscationReflectionHelper.findField(classOf[PlayerEntity], "playerJoinedHandler")
+  private val playerJoinedHandler = ObfuscationReflectionHelper.findField(classOf[Player], "playerJoinedHandler")
 
   def profileFor(agent: internal.Agent): GameProfile = {
     val uuid = agent.ownerUUID
@@ -94,7 +94,7 @@ object Player {
   def updatePositionAndRotation(player: Player, facing: Direction, side: Direction) {
     player.facing = facing
     player.side = side
-    val direction = new Vector3d(
+    val direction = new Vec3(
       facing.getStepX + side.getStepX,
       facing.getStepY + side.getStepY,
       facing.getStepZ + side.getStepZ).normalize()
@@ -110,7 +110,7 @@ object Player {
   def setPlayerInventoryItems(player: Player): Unit = {
     // the offhand is simply the agent's tool item
     val agent = player.agent
-    def setCopyOrNull(inv: net.minecraft.util.NonNullList[ItemStack], agentInv: IInventory, slot: Int): Unit = {
+    def setCopyOrNull(inv: net.minecraft.util.NonNullList[ItemStack], agentInv: Container, slot: Int): Unit = {
       val item = agentInv.getItem(slot)
       inv.set(slot, if (item != null) item.copy() else ItemStack.EMPTY)
     }
@@ -133,7 +133,7 @@ object Player {
   	val agent = player.agent
     player.inventoryMenu.broadcastChanges()
     // The follow code will set agent.inventories = FakePlayer's inv.stack
-    def setCopy(inv: IInventory, index: Int, item: ItemStack): Unit = {
+    def setCopy(inv: Container, index: Int, item: ItemStack): Unit = {
       val result = if (item != null) item.copy else ItemStack.EMPTY
       val current = inv.getItem(index)
       if (!ItemStack.matches(result, current)) {
@@ -150,7 +150,7 @@ object Player {
   }
 }
 
-class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanceOf[ServerWorld], Player.profileFor(agent)) {
+class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanceOf[ServerLevel], Player.profileFor(agent)) {
   connection= new ServerPlayNetHandler(server, FakeNetworkManager, this)
 
   abilities.mayfly = true
@@ -225,7 +225,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
 
   override def attack(entity: Entity) {
     callUsingItemInSlot(agent.equipmentInventory, 0, stack => entity match {
-      case player: PlayerEntity if !canHarmPlayer(player) => // Avoid player damage.
+      case player: Player if !canHarmPlayer(player) => // Avoid player damage.
       case _ =>
         val event = new RobotAttackEntityEvent.Pre(agent, entity)
         MinecraftForge.EVENT_BUS.post(event)
@@ -272,7 +272,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
 
       val item = if (!stack.isEmpty) stack.getItem else null
       val state = level.getBlockState(pos)
-      val traceEndPos = new Vector3d(pos.getX + hitX, pos.getY + hitY, pos.getZ + hitZ)
+      val traceEndPos = new Vec3(pos.getX + hitX, pos.getY + hitY, pos.getZ + hitZ)
       val traceCtx = if (state.getBlock.isAir(state, level, pos)) BlockRayTraceResult.miss(traceEndPos, side, pos) else new BlockRayTraceResult(traceEndPos, side, pos, false)
       if (item != null && item.onItemUseFirst(stack, new ItemUseContext(level, this, Hand.OFF_HAND, stack, traceCtx)).consumesAction) {
         return ActivationType.ItemUsed
@@ -281,7 +281,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
       val canActivate = !state.getBlock.isAir(state, level, pos) && Settings.get.allowActivateBlocks
       val shouldActivate = canActivate && (!isCrouching || (item == null || item.doesSneakBypassUse(stack, level, pos, this)))
       val result =
-        if (shouldActivate && state.use(level, this, Hand.OFF_HAND, new BlockRayTraceResult(new Vector3d(hitX, hitY, hitZ), side, pos, false)).consumesAction)
+        if (shouldActivate && state.use(level, this, Hand.OFF_HAND, new BlockRayTraceResult(new Vec3(hitX, hitY, hitZ), side, pos, false)).consumesAction)
           ActivationType.BlockActivated
         else if (duration <= Double.MinPositiveValue && isItemUseAllowed(stack) && tryPlaceBlockWhileHandlingFunnySpecialCases(stack, pos, side, hitX, hitY, hitZ))
           ActivationType.ItemPlaced
@@ -322,7 +322,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
   }
 
   def fireRightClickBlock(pos: BlockPos, side: Direction): PlayerInteractEvent.RightClickBlock = {
-    val hitVec = new Vector3d(0.5 + side.getStepX * 0.5, 0.5 + side.getStepY * 0.5, 0.5 + side.getStepZ * 0.5)
+    val hitVec = new Vec3(0.5 + side.getStepX * 0.5, 0.5 + side.getStepY * 0.5, 0.5 + side.getStepZ * 0.5)
     val event = new PlayerInteractEvent.RightClickBlock(this, Hand.OFF_HAND, pos, new BlockRayTraceResult(hitVec, side, pos, false))
     MinecraftForge.EVENT_BUS.post(event)
     event
@@ -468,7 +468,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
   }
 
   override def drop(stack: ItemStack, dropAround: Boolean, traceItem: Boolean): ItemEntity =
-    InventoryUtils.spawnStackInWorld(BlockPosition(agent), stack, if (dropAround) None else Option(facing))
+    InventoryUtils.spawnStackInLevel(BlockPosition(agent), stack, if (dropAround) None else Option(facing))
 
   private def shouldCancel(f: () => PlayerInteractEvent) = {
     try {
@@ -489,7 +489,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
     }
   }
 
-  private def callUsingItemInSlot[T](inventory: IInventory, slot: Int, f: ItemStack => T, repair: Boolean = true) = {
+  private def callUsingItemInSlot[T](inventory: Container, slot: Int, f: ItemStack => T, repair: Boolean = true) = {
     val itemsBefore = adjacentItems
     val stack = inventory.getItem(slot)
     val oldStack = stack.copy()
@@ -543,7 +543,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
         setPos(getX, getY - fakeEyeHeight, getZ)
         Player.setPlayerInventoryItems(this)
         val state = level.getBlockState(pos)
-        val traceEndPos = new Vector3d(pos.getX + hitX, pos.getY + hitY, pos.getZ + hitZ)
+        val traceEndPos = new Vec3(pos.getX + hitX, pos.getY + hitY, pos.getZ + hitZ)
         val traceCtx = if (state.getBlock.isAir(state, level, pos)) BlockRayTraceResult.miss(traceEndPos, side, pos) else new BlockRayTraceResult(traceEndPos, side, pos, false)
         val didPlace = stack.useOn(new ItemUseContext(level, this, Hand.OFF_HAND, stack, traceCtx))
         Player.detectPlayerInventoryChanges(this)
@@ -591,7 +591,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
     else 0
   }
 
-  override def canHarmPlayer(player: PlayerEntity): Boolean = Settings.get.canAttackPlayers
+  override def canHarmPlayer(player: Player): Boolean = Settings.get.canAttackPlayers
 
   override def canEat(value: Boolean) = false
 
@@ -621,7 +621,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
 
   override def sendMessage(message: ITextComponent, sender: UUID) {}
 
-  override def openCommandBlock(commandBlock: CommandBlockTileEntity): Unit = {}
+  override def openCommandBlock(commandBlock: CommandBlockBlockEntity): Unit = {}
 
   override def sendMerchantOffers(containerId: Int, offers: MerchantOffers, villagerLevel: Int, villagerXP: Int, showProgress: Boolean, canRestock: Boolean): Unit = {}
 
@@ -629,12 +629,12 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
 
   override def openMinecartCommandBlock(thing: CommandBlockLogic): Unit = {}
 
-  override def openTextEdit(signTile: SignTileEntity) {}
+  override def openTextEdit(signTile: SignBlockEntity) {}
 
   // ----------------------------------------------------------------------- //
 
   class DamageOverTime(val player: Player, val pos: BlockPos, val side: Direction, val ticksTotal: Int) {
-    val level: World = player.level
+    val level: Level = player.level
     var ticks = 0
     var lastDamageSent = 0
 

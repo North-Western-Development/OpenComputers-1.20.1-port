@@ -6,7 +6,7 @@ import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.api.driver.item.Container
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 object DriverContainerFloppy extends Item with Container {
   override def worksWith(stack: ItemStack) = isOneOf(stack,

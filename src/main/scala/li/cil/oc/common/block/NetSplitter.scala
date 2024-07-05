@@ -3,24 +3,24 @@ package li.cil.oc.common.block
 import li.cil.oc.common.tileentity
 import li.cil.oc.integration.util.Wrench
 import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.block.BlockState
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
+net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 import net.minecraft.util.ActionResultType
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
 import net.minecraft.util.math.BlockRayTraceResult
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.World
+import net.minecraft.world.level.BlockGetter
+import net.minecraft.world.level.Level
 
 class NetSplitter(props: Properties) extends RedstoneAware(props) {
-  override def newBlockEntity(world: IBlockReader) = new tileentity.NetSplitter(tileentity.TileEntityTypes.NET_SPLITTER)
+  override def newBlockEntity(world: BlockGetter) = new tileentity.NetSplitter(tileentity.BlockEntityTypes.NET_SPLITTER)
 
   // ----------------------------------------------------------------------- //
 
   // NOTE: must not be final for immibis microblocks to work.
-  override def use(state: BlockState, world: World, pos: BlockPos, player: PlayerEntity, hand: Hand, trace: BlockRayTraceResult): ActionResultType = {
+  override def use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: Hand, trace: BlockRayTraceResult): ActionResultType = {
     if (Wrench.holdsApplicableWrench(player, pos)) {
       val side = trace.getDirection
       val sideToToggle = if (player.isCrouching) side.getOpposite else side

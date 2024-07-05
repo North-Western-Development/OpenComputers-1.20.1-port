@@ -1,12 +1,12 @@
 package li.cil.oc.common.inventory
 
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.Container
+import net.minecraft.world.item.ItemStack
 import net.minecraft.util.text.ITextComponent
 
-trait InventoryProxy extends IInventory {
-  def inventory: IInventory
+trait InventoryProxy extends Container {
+  def inventory: Container
 
   def offset = 0
 
@@ -16,7 +16,7 @@ trait InventoryProxy extends IInventory {
 
   override def getMaxStackSize: Int = inventory.getMaxStackSize
 
-  override def stillValid(player: PlayerEntity): Boolean = inventory.stillValid(player)
+  override def stillValid(player: Player): Boolean = inventory.stillValid(player)
 
   override def canPlaceItem(slot: Int, stack: ItemStack): Boolean = {
     val offsetSlot = slot + offset
@@ -48,9 +48,9 @@ trait InventoryProxy extends IInventory {
 
   override def setChanged(): Unit = inventory.setChanged()
 
-  override def startOpen(player: PlayerEntity): Unit = inventory.startOpen(player)
+  override def startOpen(player: Player): Unit = inventory.startOpen(player)
 
-  override def stopOpen(player: PlayerEntity): Unit = inventory.stopOpen(player)
+  override def stopOpen(player: Player): Unit = inventory.stopOpen(player)
 
   override def clearContent(): Unit = inventory.clearContent()
 

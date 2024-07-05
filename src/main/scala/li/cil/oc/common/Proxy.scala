@@ -11,7 +11,7 @@ import li.cil.oc.common.entity.Drone
 import li.cil.oc.common.entity.EntityTypes
 import li.cil.oc.common.init.Blocks
 import li.cil.oc.common.init.Items
-import li.cil.oc.common.tileentity.TileEntityTypes
+import li.cil.oc.common.tileentity.BlockEntityTypes
 import li.cil.oc.common.recipe.RecipeSerializers
 import li.cil.oc.integration.Mods
 import li.cil.oc.server
@@ -19,20 +19,20 @@ import li.cil.oc.server._
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.server.machine.luac.{LuaStateFactory, NativeLua52Architecture, NativeLua53Architecture, NativeLua54Architecture}
 import li.cil.oc.server.machine.luaj.LuaJLuaArchitecture
-import net.minecraft.block.Block
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.entity.player.Player
 import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.entity.player.ServerPlayerEntity
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.inventory.container.Container
 import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.network.PacketBuffer
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.tags.ItemTags
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.World
+import net.minecraft.world.level.Level
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.FakePlayer
 import net.minecraftforge.event.RegistryEvent.MissingMappings
@@ -51,7 +51,7 @@ class Proxy {
   protected val modBus = ScorgeModLoadingContext.get.getModEventBus
   modBus.register(classOf[ContainerTypes])
   modBus.register(classOf[EntityTypes])
-  modBus.register(classOf[TileEntityTypes])
+  modBus.register(classOf[BlockEntityTypes])
   modBus.register(classOf[RecipeSerializers])
   LootFunctions.init()
 
@@ -93,7 +93,7 @@ class Proxy {
     e.enqueueWork((() => {
       OpenComputers.channel = NetworkRegistry.newSimpleChannel(new ResourceLocation(OpenComputers.ID, "net_main"), () => "", "".equals(_), "".equals(_))
       OpenComputers.channel.registerMessage(0, classOf[Array[Byte]],
-        (msg: Array[Byte], buff: PacketBuffer) => buff.writeByteArray(msg), _.readByteArray(),
+        (msg: Array[Byte], buff: FriendlyByteBuf) => buff.writeByteArray(msg), _.readByteArray(),
         (msg: Array[Byte], ctx: Supplier[NetworkEvent.Context]) => {
           val context = ctx.get
           context.enqueueWork(() => CommonPacketHandler.handlePacket(context.getDirection, msg, context.getSender))

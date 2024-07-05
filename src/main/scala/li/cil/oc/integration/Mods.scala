@@ -39,7 +39,7 @@ object Mods {
 
   val Proxies = Array(
     integration.appeng.ModAppEng,
-    integration.cofh.tileentity.ModCoFHTileEntity,
+    integration.cofh.tileentity.ModCoFHBlockEntity,
     integration.cofh.foundation.ModThermalFoundation,
     integration.minecraftforge.ModMinecraftForge,
     integration.tis3d.ModTIS3D,

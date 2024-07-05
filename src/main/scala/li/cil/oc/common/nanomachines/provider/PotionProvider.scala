@@ -5,11 +5,11 @@ import li.cil.oc.api
 import li.cil.oc.api.nanomachines.Behavior
 import li.cil.oc.api.nanomachines.DisableReason
 import li.cil.oc.api.prefab.AbstractBehavior
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.entity.player.Player
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.potion.Effect
 import net.minecraft.potion.EffectInstance
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.registries.ForgeRegistries
 
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -31,11 +31,11 @@ object PotionProvider extends ScalaProvider("c29e4eec-5a46-479a-9b3d-ad0f06da784
 
   def isPotionEligible(potion: Effect) = potion != null && PotionWhitelist.contains(potion)
 
-  override def createScalaBehaviors(player: PlayerEntity) = {
+  override def createScalaBehaviors(player: Player) = {
     ForgeRegistries.POTIONS.getValues.filter(isPotionEligible).map(new PotionBehavior(_, player))
   }
 
-  override def writeBehaviorToNBT(behavior: Behavior, nbt: CompoundNBT): Unit = {
+  override def writeBehaviorToNBT(behavior: Behavior, nbt: CompoundTag): Unit = {
     behavior match {
       case potionBehavior: PotionBehavior =>
         nbt.putString("potionId", potionBehavior.potion.getRegistryName.toString)
@@ -43,15 +43,15 @@ object PotionProvider extends ScalaProvider("c29e4eec-5a46-479a-9b3d-ad0f06da784
     }
   }
 
-  override def readBehaviorFromNBT(player: PlayerEntity, nbt: CompoundNBT) = {
+  override def readBehaviorFromNBT(player: Player, nbt: CompoundTag) = {
     val potionId = nbt.getString("potionId")
     new PotionBehavior(ForgeRegistries.POTIONS.getValue(new ResourceLocation(potionId)), player)
   }
 
-  class PotionBehavior(val potion: Effect, player: PlayerEntity) extends AbstractBehavior(player) {
+  class PotionBehavior(val potion: Effect, player: Player) extends AbstractBehavior(player) {
     final val Duration = 600
 
-    def amplifier(player: PlayerEntity) = api.Nanomachines.getController(player).getInputCount(this) - 1
+    def amplifier(player: Player) = api.Nanomachines.getController(player).getInputCount(this) - 1
 
     override def getNameHint: String = potion.getDescriptionId.stripPrefix("effect.")
 

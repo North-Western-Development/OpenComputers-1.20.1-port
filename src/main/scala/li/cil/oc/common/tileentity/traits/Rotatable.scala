@@ -5,14 +5,14 @@ import li.cil.oc.common.block.SimpleBlock
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedEnumFacing._
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.RotationHelper
-import net.minecraft.block.BlockState
-import net.minecraft.entity.Entity
-import net.minecraft.util.Direction
+net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.entity.Entity
+import net.minecraft.core.Direction
 import net.minecraft.util.Rotation
 
-/** TileEntity base class for rotatable blocks. */
+/** BlockEntity base class for rotatable blocks. */
 trait Rotatable extends RotationAware with internal.Rotatable {
   // ----------------------------------------------------------------------- //
   // Lookup tables

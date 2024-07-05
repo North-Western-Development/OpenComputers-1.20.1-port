@@ -24,10 +24,10 @@ import li.cil.oc.api.network.ManagedEnvironment;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.Visibility;
 import li.cil.oc.util.Reflection;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.Direction;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -62,7 +62,7 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
         return false;
     }
 
-    private IPeripheral findPeripheral(final World world, final BlockPos pos, final Direction side) {
+    private IPeripheral findPeripheral(final Level world, final BlockPos pos, final Direction side) {
         try {
             final IPeripheral p = dan200.computercraft.shared.Peripherals.getPeripheral(world, pos, side, cap -> {});
             if (!isBlacklisted(p)) {
@@ -75,8 +75,8 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
     }
 
     @Override
-    public boolean worksWith(final World world, final BlockPos pos, final Direction side) {
-        final TileEntity tileEntity = world.getBlockEntity(pos);
+    public boolean worksWith(final Level world, final BlockPos pos, final Direction side) {
+        final BlockEntity tileEntity = world.getBlockEntity(pos);
         return tileEntity != null
                 // This ensures we don't get duplicate components, in case the
                 // tile entity is natively compatible with OpenComputers.
@@ -89,7 +89,7 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
     }
 
     @Override
-    public ManagedEnvironment createEnvironment(final World world, final BlockPos pos, final Direction side) {
+    public ManagedEnvironment createEnvironment(final Level world, final BlockPos pos, final Direction side) {
         return new Environment(findPeripheral(world, pos, side));
     }
 

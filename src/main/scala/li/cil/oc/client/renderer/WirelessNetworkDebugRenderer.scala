@@ -5,10 +5,10 @@ import li.cil.oc.Settings
 import li.cil.oc.server.network.WirelessNetwork
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
-import net.minecraft.util.math.vector.Vector4f
-import net.minecraft.util.math.vector.Matrix4f
-import net.minecraft.world.World
-import net.minecraftforge.client.event.RenderWorldLastEvent
+import com.mojang.math.Vector4f
+import com.mojang.math.Matrix4f
+import net.minecraft.world.level.Level
+import net.minecraftforge.client.event.RenderLevelLastEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import org.lwjgl.opengl.GL11
 
@@ -16,9 +16,9 @@ object WirelessNetworkDebugRenderer {
   val colors = Array(0xFF0000, 0x00FFFF, 0x00FF00, 0x0000FF, 0xFF00FF, 0xFFFF00, 0xFFFFFF, 0x000000)
 
   @SubscribeEvent
-  def onRenderWorldLastEvent(e: RenderWorldLastEvent) {
+  def onRenderLevelLastEvent(e: RenderLevelLastEvent) {
     if (Settings.rTreeDebugRenderer) {
-      RenderState.checkError(getClass.getName + ".onRenderWorldLastEvent: entering (aka: wasntme)")
+      RenderState.checkError(getClass.getName + ".onRenderLevelLastEvent: entering (aka: wasntme)")
 
       val world = Minecraft.getInstance.level
       WirelessNetwork.dimensions.get(world.dimension) match {
@@ -28,7 +28,7 @@ object WirelessNetworkDebugRenderer {
           val py = player.yOld + (player.getY - player.yOld) * e.getPartialTicks
           val pz = player.zOld + (player.getZ - player.zOld) * e.getPartialTicks
 
-          val stack = e.getMatrixStack
+          val stack = e.getPoseStack
           RenderState.pushAttrib()
           stack.pushPose()
           stack.translate(-px, -py, -pz)
@@ -104,7 +104,7 @@ object WirelessNetworkDebugRenderer {
         case _ =>
       }
 
-      RenderState.checkError(getClass.getName + ".onRenderWorldLastEvent: leaving")
+      RenderState.checkError(getClass.getName + ".onRenderLevelLastEvent: leaving")
     }
   }
 

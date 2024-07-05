@@ -1,6 +1,6 @@
 package li.cil.oc.api.network;
 
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 public interface SidedComponent {
     /**

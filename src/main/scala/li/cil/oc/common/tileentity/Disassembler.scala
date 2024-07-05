@@ -19,14 +19,14 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.ItemUtils
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.entity.player.Player
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.core.Direction
 import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -35,7 +35,7 @@ import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-class Disassembler(selfType: TileEntityType[_ <: Disassembler]) extends TileEntity(selfType) with traits.Environment with traits.PowerAcceptor
+class Disassembler(selfType: BlockEntityType[_ <: Disassembler]) extends BlockEntity(selfType) with traits.Environment with traits.PowerAcceptor
   with traits.Inventory with traits.StateAware with traits.PlayerInputAware with traits.Tickable with DeviceInfo with INamedContainerProvider {
 
   val node: Connector = api.Network.newNode(this, Visibility.None).
@@ -144,7 +144,7 @@ class Disassembler(selfType: TileEntityType[_ <: Disassembler]) extends TileEnti
         InventoryUtils.insertIntoInventoryAt(stack, BlockPosition(this).offset(side), Some(side.getOpposite))
       }
       if (stack.getCount > 0) {
-        spawnStackInWorld(stack, Option(Direction.UP))
+        spawnStackInLevel(stack, Option(Direction.UP))
       }
     }
   }
@@ -156,17 +156,17 @@ class Disassembler(selfType: TileEntityType[_ <: Disassembler]) extends TileEnti
   private final val TotalTag = Settings.namespace + "total"
   private final val IsActiveTag = Settings.namespace + "isActive"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundTag) {
     super.loadForServer(nbt)
     queue.clear()
     queue ++= nbt.getList(QueueTag, NBT.TAG_COMPOUND).
-      map((tag: CompoundNBT) => ItemStack.of(tag))
+      map((tag: CompoundTag) => ItemStack.of(tag))
     buffer = nbt.getDouble(BufferTag)
     totalRequiredEnergy = nbt.getDouble(TotalTag)
     isActive = queue.nonEmpty
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundTag) {
     super.saveForServer(nbt)
     nbt.setNewTagList(QueueTag, queue)
     nbt.putDouble(BufferTag, buffer)
@@ -174,12 +174,12 @@ class Disassembler(selfType: TileEntityType[_ <: Disassembler]) extends TileEnti
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT) {
+  override def loadForClient(nbt: CompoundTag) {
     super.loadForClient(nbt)
     isActive = nbt.getBoolean(IsActiveTag)
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundTag) {
     super.saveForClient(nbt)
     nbt.putBoolean(IsActiveTag, isActive)
   }
@@ -202,7 +202,7 @@ class Disassembler(selfType: TileEntityType[_ <: Disassembler]) extends TileEnti
     }
   }
 
-  override def onSetInventorySlotContents(player: PlayerEntity, slot: Int, stack: ItemStack): Unit = {
+  override def onSetInventorySlotContents(player: Player, slot: Int, stack: ItemStack): Unit = {
     if (!getLevel.isClientSide) {
       disassembleNextInstantly = !stack.isEmpty && slot == 0 && player.isCreative
     }
@@ -210,6 +210,6 @@ class Disassembler(selfType: TileEntityType[_ <: Disassembler]) extends TileEnti
 
   // ----------------------------------------------------------------------- //
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
+  override def createMenu(id: Int, playerInventory: PlayerInventory, player: Player) =
     new container.Disassembler(ContainerTypes.DISASSEMBLER, id, playerInventory, this)
 }

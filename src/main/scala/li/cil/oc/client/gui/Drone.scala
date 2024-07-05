@@ -1,6 +1,6 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Localization
 import li.cil.oc.client.Textures
@@ -13,8 +13,8 @@ import li.cil.oc.util.PackedColor
 import li.cil.oc.util.RenderState
 import li.cil.oc.util.TextBuffer
 import net.minecraft.client.gui.widget.button.Button
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import com.mojang.blaze3d.vertex.Tesselator
+import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.util.text.ITextComponent
 import org.lwjgl.opengl.GL11
@@ -58,7 +58,7 @@ class Drone(state: container.Drone, playerInventory: PlayerInventory, name: ITex
   private val selectionsStates = 17
   private val selectionStepV = 1 / selectionsStates.toFloat
 
-  override def render(stack: MatrixStack, mouseX: Int, mouseY: Int, dt: Float) {
+  override def render(stack: PoseStack, mouseX: Int, mouseY: Int, dt: Float) {
     powerButton.toggled = inventoryContainer.isRunning
     bufferRenderer.dirty = inventoryContainer.statusText.linesIterator.zipWithIndex.exists {
       case (line, i) => buffer.set(0, i, line, vertical = false)
@@ -74,7 +74,7 @@ class Drone(state: container.Drone, playerInventory: PlayerInventory, name: ITex
     addButton(powerButton)
   }
 
-  override protected def drawBuffer(stack: MatrixStack) {
+  override protected def drawBuffer(stack: PoseStack) {
     stack.translate(bufferX, bufferY, 0)
     RenderState.disableEntityLighting()
     RenderState.makeItBlend()
@@ -88,10 +88,10 @@ class Drone(state: container.Drone, playerInventory: PlayerInventory, name: ITex
 
   override protected def changeSize(w: Double, h: Double) = 2.0
 
-  override protected def renderLabels(stack: MatrixStack, mouseX: Int, mouseY: Int) =
+  override protected def renderLabels(stack: PoseStack, mouseX: Int, mouseY: Int) =
     drawSecondaryForegroundLayer(stack, mouseX, mouseY)
 
-  override protected def drawSecondaryForegroundLayer(stack: MatrixStack, mouseX: Int, mouseY: Int) {
+  override protected def drawSecondaryForegroundLayer(stack: PoseStack, mouseX: Int, mouseY: Int) {
     drawBufferLayer(stack)
     RenderState.pushAttrib()
     if (isPointInRegion(power.x, power.y, power.width, power.height, mouseX - leftPos, mouseY - topPos)) {
@@ -110,7 +110,7 @@ class Drone(state: container.Drone, playerInventory: PlayerInventory, name: ITex
     RenderState.popAttrib()
   }
 
-  override protected def renderBg(stack: MatrixStack, dt: Float, mouseX: Int, mouseY: Int) {
+  override protected def renderBg(stack: PoseStack, dt: Float, mouseX: Int, mouseY: Int) {
     RenderSystem.color3f(1, 1, 1)
     Textures.bind(Textures.GUI.Drone)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
@@ -124,9 +124,9 @@ class Drone(state: container.Drone, playerInventory: PlayerInventory, name: ITex
   }
 
   // No custom slots, we just extend DynamicGuiContainer for the highlighting.
-  override protected def drawSlotBackground(stack: MatrixStack, x: Int, y: Int) {}
+  override protected def drawSlotBackground(stack: PoseStack, x: Int, y: Int) {}
 
-  private def drawSelection(stack: MatrixStack) {
+  private def drawSelection(stack: PoseStack) {
     val slot = inventoryContainer.selectedSlot
     if (slot >= 0 && slot < 16) {
       Textures.bind(Textures.GUI.RobotSelection)
@@ -135,9 +135,9 @@ class Drone(state: container.Drone, playerInventory: PlayerInventory, name: ITex
       val x = leftPos + inventoryX - 1 + (slot % 4) * (selectionSize - 2)
       val y = topPos + inventoryY - 1 + (slot / 4) * (selectionSize - 2)
 
-      val t = Tessellator.getInstance
+      val t = Tesselator.getInstance
       val r = t.getBuilder
-      r.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)
+      r.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX)
       r.vertex(stack.last.pose, x, y, getBlitOffset).uv(0, offsetV).endVertex()
       r.vertex(stack.last.pose, x, y + selectionSize, getBlitOffset).uv(0, offsetV + selectionStepV).endVertex()
       r.vertex(stack.last.pose, x + selectionSize, y + selectionSize, getBlitOffset).uv(1, offsetV + selectionStepV).endVertex()

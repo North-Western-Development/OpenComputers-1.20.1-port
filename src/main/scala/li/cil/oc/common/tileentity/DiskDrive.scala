@@ -23,20 +23,20 @@ import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.InventoryUtils
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.entity.player.Player
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.core.Direction
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.convert.ImplicitConversionsToJava._
 
-class DiskDrive(selfType: TileEntityType[_ <: DiskDrive]) extends TileEntity(selfType) with traits.Environment
+class DiskDrive(selfType: BlockEntityType[_ <: DiskDrive]) extends BlockEntity(selfType) with traits.Environment
   with traits.ComponentInventory with traits.Rotatable with Analyzable with DeviceInfo with INamedContainerProvider {
 
   // Used on client side to check whether to render disk activity indicators.
@@ -73,7 +73,7 @@ class DiskDrive(selfType: TileEntityType[_ <: DiskDrive]) extends TileEntity(sel
     val velocity = args.optDouble(0, 0) max 0 min 1
     val ejected = removeItem(0, 1)
     if (!ejected.isEmpty) {
-      val entity = InventoryUtils.spawnStackInWorld(position, ejected, Option(facing))
+      val entity = InventoryUtils.spawnStackInLevel(position, ejected, Option(facing))
       if (entity != null) {
         val vx = facing.getStepX * velocity
         val vy = facing.getStepY * velocity
@@ -96,10 +96,10 @@ class DiskDrive(selfType: TileEntityType[_ <: DiskDrive]) extends TileEntity(sel
   // ----------------------------------------------------------------------- //
   // Analyzable
 
-  override def onAnalyze(player: PlayerEntity, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = filesystemNode.fold(null: Array[Node])(Array(_))
+  override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = filesystemNode.fold(null: Array[Node])(Array(_))
 
   // ----------------------------------------------------------------------- //
-  // IInventory
+  // Container
 
   override def getContainerSize = 1
 
@@ -111,7 +111,7 @@ class DiskDrive(selfType: TileEntityType[_ <: DiskDrive]) extends TileEntity(sel
   // ----------------------------------------------------------------------- //
   // INamedContainerProvider
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
+  override def createMenu(id: Int, playerInventory: PlayerInventory, player: Player) =
     new container.DiskDrive(ContainerTypes.DISK_DRIVE, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
@@ -140,19 +140,19 @@ class DiskDrive(selfType: TileEntityType[_ <: DiskDrive]) extends TileEntity(sel
   }
 
   // ----------------------------------------------------------------------- //
-  // TileEntity
+  // BlockEntity
 
   private final val DiskTag = Settings.namespace + "disk"
 
   @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundNBT) {
+  def loadForClient(nbt: CompoundTag) {
     super.loadForClient(nbt)
     if (nbt.contains(DiskTag)) {
       setItem(0, ItemStack.of(nbt.getCompound(DiskTag)))
     }
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundTag) {
     super.saveForClient(nbt)
     if (!items(0).isEmpty) nbt.setNewCompoundTag(DiskTag, items(0).save)
   }

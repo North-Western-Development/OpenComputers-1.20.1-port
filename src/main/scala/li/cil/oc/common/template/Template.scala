@@ -8,8 +8,8 @@ import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
+import net.minecraft.world.Container
+import net.minecraft.world.item.ItemStack
 import net.minecraft.util.text.ITextComponent
 import org.apache.commons.lang3.tuple
 
@@ -20,7 +20,7 @@ abstract class Template {
     "BIOS" -> hasComponent(Constants.ItemName.EEPROM) _,
     "Screen" -> hasComponent(Constants.BlockName.ScreenTier1) _,
     "Keyboard" -> hasComponent(Constants.BlockName.Keyboard) _,
-    "GraphicsCard" -> ((inventory: IInventory) => Array(
+    "GraphicsCard" -> ((inventory: Container) => Array(
       Constants.ItemName.APUCreative,
       Constants.ItemName.APUTier1,
       Constants.ItemName.APUTier2,
@@ -33,7 +33,7 @@ abstract class Template {
 
   protected def hostClass: Class[_ <: api.network.EnvironmentHost]
 
-  protected def validateComputer(inventory: IInventory): Array[AnyRef] = {
+  protected def validateComputer(inventory: Container): Array[AnyRef] = {
     val hasCase = caseTier(inventory) != Tier.None
     val hasCPU = this.hasCPU(inventory)
     val hasRAM = this.hasRAM(inventory)
@@ -61,24 +61,24 @@ abstract class Template {
     Array(valid: java.lang.Boolean, progress, warnings.toArray)
   }
 
-  protected def exists(inventory: IInventory, p: ItemStack => Boolean) = {
+  protected def exists(inventory: Container, p: ItemStack => Boolean) = {
     (0 until inventory.getContainerSize).exists(slot => StackOption(inventory.getItem(slot)) match {
       case SomeStack(stack) => p(stack)
       case _ => false
     })
   }
 
-  protected def hasCPU(inventory: IInventory) = exists(inventory, api.Driver.driverFor(_, hostClass) match {
+  protected def hasCPU(inventory: Container) = exists(inventory, api.Driver.driverFor(_, hostClass) match {
     case _: api.driver.item.Processor => true
     case _ => false
   })
 
-  protected def hasRAM(inventory: IInventory) = exists(inventory, api.Driver.driverFor(_, hostClass) match {
+  protected def hasRAM(inventory: Container) = exists(inventory, api.Driver.driverFor(_, hostClass) match {
     case _: api.driver.item.Memory => true
     case _ => false
   })
 
-  protected def requiresRAM(inventory: IInventory) = !(0 until inventory.getContainerSize).
+  protected def requiresRAM(inventory: Container) = !(0 until inventory.getContainerSize).
     map(inventory.getItem).
     exists(stack => api.Driver.driverFor(stack, hostClass) match {
       case driver: api.driver.item.Processor =>
@@ -87,22 +87,22 @@ abstract class Template {
       case _ => false
     })
 
-  protected def hasComponent(name: String)(inventory: IInventory) = exists(inventory, stack => Option(api.Items.get(stack)) match {
+  protected def hasComponent(name: String)(inventory: Container) = exists(inventory, stack => Option(api.Items.get(stack)) match {
     case Some(descriptor) => descriptor.name == name
     case _ => false
   })
 
-  protected def hasInventory(inventory: IInventory) = exists(inventory, api.Driver.driverFor(_, hostClass) match {
+  protected def hasInventory(inventory: Container) = exists(inventory, api.Driver.driverFor(_, hostClass) match {
     case _: api.driver.item.Inventory => true
     case _ => false
   })
 
-  protected def hasFileSystem(inventory: IInventory) = exists(inventory, stack => Option(api.Driver.driverFor(stack, hostClass)) match {
+  protected def hasFileSystem(inventory: Container) = exists(inventory, stack => Option(api.Driver.driverFor(stack, hostClass)) match {
     case Some(driver) => driver.slot(stack) == Slot.Floppy || driver.slot(stack) == Slot.HDD
     case _ => false
   })
 
-  protected def complexity(inventory: IInventory) = {
+  protected def complexity(inventory: Container) = {
     var acc = 0
     for (slot <- 1 until inventory.getContainerSize) {
       val stack = inventory.getItem(slot)
@@ -116,7 +116,7 @@ abstract class Template {
     acc
   }
 
-  protected def maxComplexity(inventory: IInventory) = {
+  protected def maxComplexity(inventory: Container) = {
     val caseTier = this.caseTier(inventory)
     val cpuTier = (0 until inventory.getContainerSize).foldRight(0)((slot, acc) => {
       val stack = inventory.getItem(slot)
@@ -131,7 +131,7 @@ abstract class Template {
     else 0
   }
 
-  protected def caseTier(inventory: IInventory): Int
+  protected def caseTier(inventory: Container): Int
 
   protected def toPair(t: (String, Int)): tuple.Pair[String, java.lang.Integer] =
     if (t == null) null

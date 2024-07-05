@@ -8,7 +8,7 @@ import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.common.Slot
 import li.cil.oc.common.component
 import li.cil.oc.common.tileentity
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 object DriverScreen extends Item with HostAware {
   override def worksWith(stack: ItemStack) = isOneOf(stack,

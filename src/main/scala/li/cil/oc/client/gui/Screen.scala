@@ -1,6 +1,7 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.api
 import li.cil.oc.client.renderer.TextBufferRenderCache
 import li.cil.oc.client.renderer.gui.BufferRenderer
@@ -105,12 +106,12 @@ class Screen(val buffer: api.internal.TextBuffer, val hasMouse: Boolean, val has
     KeyBinding.releaseAll()
   }
 
-  override def render(stack: MatrixStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
+  override def render(stack: PoseStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
     super.render(stack, mouseX, mouseY, dt)
     drawBufferLayer(stack)
   }
 
-  override def drawBuffer(stack: MatrixStack) {
+  override def drawBuffer(stack: PoseStack) {
     stack.translate(x, y, 0)
     BufferRenderer.drawBackground(stack, innerWidth, innerHeight)
     if (hasPower()) {

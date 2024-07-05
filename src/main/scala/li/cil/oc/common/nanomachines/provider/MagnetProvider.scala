@@ -4,18 +4,18 @@ import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.prefab.AbstractBehavior
 import net.minecraft.entity.item.ItemEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.math.vector.Vector3d
+import net.minecraft.world.entity.player.Player
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.phys.Vec3
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
 object MagnetProvider extends ScalaProvider("9324d5ec-71f1-41c2-b51c-406e527668fc") {
-  override def createScalaBehaviors(player: PlayerEntity) = Iterable(new MagnetBehavior(player))
+  override def createScalaBehaviors(player: Player) = Iterable(new MagnetBehavior(player))
 
-  override def readBehaviorFromNBT(player: PlayerEntity, nbt: CompoundNBT) = new MagnetBehavior(player)
+  override def readBehaviorFromNBT(player: Player, nbt: CompoundTag) = new MagnetBehavior(player)
 
-  class MagnetBehavior(player: PlayerEntity) extends AbstractBehavior(player) {
+  class MagnetBehavior(player: Player) extends AbstractBehavior(player) {
     override def getNameHint = "magnet"
 
     override def update(): Unit = {
@@ -28,7 +28,7 @@ object MagnetProvider extends ScalaProvider("9324d5ec-71f1-41c2-b51c-406e527668f
             val dx = player.getX - item.getX
             val dy = player.getY - item.getY
             val dz = player.getZ - item.getZ
-            val delta = new Vector3d(dx, dy, dz).normalize()
+            val delta = new Vec3(dx, dy, dz).normalize()
             item.push(delta.x * 0.1, delta.y * 0.1, delta.z * 0.1)
         }
       }

@@ -6,16 +6,16 @@ import li.cil.oc.OpenComputers
 import li.cil.oc.api.event.RobotMoveEvent
 import li.cil.oc.server.component.UpgradeChunkloader
 import li.cil.oc.util.BlockPosition
-import net.minecraft.util.math.ChunkPos
-import net.minecraft.world.World
+import net.minecraft.world.level.ChunkPos
+import net.minecraft.world.level.Level
 import net.minecraft.world.ForcedChunksSaveData
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.world.server.ServerLevel
 import net.minecraftforge.common.world.ForgeChunkManager
 import net.minecraftforge.common.world.ForgeChunkManager.LoadingValidationCallback
 import net.minecraftforge.common.world.ForgeChunkManager.TicketHelper
-import net.minecraftforge.event.world.WorldEvent
+import net.minecraftforge.event.world.LevelEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraft.entity.Entity
+import net.minecraft.world.entity.Entity
 
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.immutable
@@ -33,7 +33,7 @@ object ChunkloaderUpgradeHandler extends LoadingValidationCallback {
 
   def claimTicket(addr: String) = parseAddress(addr).flatMap(restoredTickets.remove)
 
-  override def validateTickets(world: ServerWorld, helper: TicketHelper) {
+  override def validateTickets(world: ServerLevel, helper: TicketHelper) {
     for ((owner, ticketsPair) <- helper.getEntityTickets) {
       // This ensures that malformed tickets are also cleared on world save.
       restoredTickets += owner -> null
@@ -68,8 +68,8 @@ object ChunkloaderUpgradeHandler extends LoadingValidationCallback {
   }
 
   @SubscribeEvent
-  def onWorldSave(e: WorldEvent.Save) = e.getWorld match {
-    case world: ServerWorld => {
+  def onLevelSave(e: LevelEvent.Save) = e.getLevel match {
+    case world: ServerLevel => {
       // Any tickets that were not reassigned by the time the world gets saved
       // again can be considered orphaned, so we release them.
       // TODO figure out a better event *after* tile entities were restored
@@ -107,7 +107,7 @@ object ChunkloaderUpgradeHandler extends LoadingValidationCallback {
     })
   }
 
-  def releaseTicket(world: ServerWorld, addr: String, pos: ChunkPos): Unit = parseAddress(addr) match {
+  def releaseTicket(world: ServerLevel, addr: String, pos: ChunkPos): Unit = parseAddress(addr) match {
     case Some(uuid) => {
       for (x <- -1 to 1; z <- -1 to 1) {
         ForgeChunkManager.forceChunk(world, OpenComputers.ID, uuid, pos.x + x, pos.z + z, false, true)
@@ -119,7 +119,7 @@ object ChunkloaderUpgradeHandler extends LoadingValidationCallback {
   def updateLoadedChunk(loader: UpgradeChunkloader) {
     (loader.host.world, parseAddress(loader.node.address)) match {
       // If loader.ticket is None that means we shouldn't load anything (as did the old ticketing system).
-      case (world: ServerWorld, Some(owner)) if loader.ticket.isDefined => {
+      case (world: ServerLevel, Some(owner)) if loader.ticket.isDefined => {
         val blockPos = BlockPosition(loader.host)
         val centerChunk = new ChunkPos(blockPos.x >> 4, blockPos.z >> 4)
         if (centerChunk != loader.ticket.get) {

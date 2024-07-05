@@ -1,27 +1,26 @@
 package li.cil.oc.client.renderer.tileentity
 
 import java.util.function.Function
-
-import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity.DiskDrive
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.IRenderTypeBuffer
+import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.model.ItemCameraTransforms
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
-import net.minecraft.util.Direction
-import net.minecraft.util.math.vector.Vector3f
+import net.minecraft.client.renderer.tileentity.BlockEntityRenderer
+import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
+import net.minecraft.core.Direction
+import com.mojang.math.Vector3f
 
-object DiskDriveRenderer extends Function[TileEntityRendererDispatcher, DiskDriveRenderer] {
-  override def apply(dispatch: TileEntityRendererDispatcher) = new DiskDriveRenderer(dispatch)
+object DiskDriveRenderer extends Function[BlockEntityRendererDispatcher, DiskDriveRenderer] {
+  override def apply(dispatch: BlockEntityRendererDispatcher) = new DiskDriveRenderer(dispatch)
 }
 
-class DiskDriveRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[DiskDrive](dispatch) {
-  override def render(drive: DiskDrive, dt: Float, matrix: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+class DiskDriveRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntityRenderer[DiskDrive](dispatch) {
+  override def render(drive: DiskDrive, dt: Float, matrix: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     RenderSystem.color4f(1, 1, 1, 1)

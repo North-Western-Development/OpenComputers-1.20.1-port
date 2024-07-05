@@ -4,18 +4,18 @@ import li.cil.oc.Settings
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.tileentity
 import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.World
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.BlockGetter
+import net.minecraft.world.level.Level
 
 class Relay(props: Properties) extends SimpleBlock(props) with traits.GUI with traits.PowerAcceptor {
-  override def openGui(player: ServerPlayerEntity, world: World, pos: BlockPos): Unit = world.getBlockEntity(pos) match {
+  override def openGui(player: ServerPlayer, world: Level, pos: BlockPos): Unit = world.getBlockEntity(pos) match {
     case te: tileentity.Relay => ContainerTypes.openRelayGui(player, te)
     case _ =>
   }
 
   override def energyThroughput = Settings.get.accessPointRate
 
-  override def newBlockEntity(world: IBlockReader) = new tileentity.Relay(tileentity.TileEntityTypes.RELAY)
+  override def newBlockEntity(world: BlockGetter) = new tileentity.Relay(tileentity.BlockEntityTypes.RELAY)
 }

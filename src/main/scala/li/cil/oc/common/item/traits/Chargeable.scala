@@ -4,7 +4,7 @@ import li.cil.oc.{Settings, api}
 import li.cil.oc.integration.Mods
 import li.cil.oc.integration.opencomputers.ModOpenComputers
 import net.minecraft.util.{Direction, ResourceLocation}
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import net.minecraftforge.common.capabilities.{Capability, ICapabilityProvider}
 import net.minecraftforge.energy.{CapabilityEnergy, IEnergyStorage}
 import net.minecraftforge.common.util.LazyOptional

@@ -10,8 +10,8 @@ import li.cil.oc.common.item.data.DroneData
 import li.cil.oc.common.item.data.MicrocontrollerData
 import li.cil.oc.common.item.data.RobotData
 import li.cil.oc.util.ItemUtils
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
+import net.minecraft.world.Container
+import net.minecraft.world.item.ItemStack
 
 import scala.collection.JavaConverters.asJavaIterable
 import scala.collection.convert.ImplicitConversionsToJava._
@@ -28,9 +28,9 @@ object DroneTemplate extends Template {
 
   def selectTierCreative(stack: ItemStack) = api.Items.get(stack) == api.Items.get(Constants.ItemName.DroneCaseCreative)
 
-  def validate(inventory: IInventory): Array[AnyRef] = validateComputer(inventory)
+  def validate(inventory: Container): Array[AnyRef] = validateComputer(inventory)
 
-  def assemble(inventory: IInventory) = {
+  def assemble(inventory: Container) = {
     val items = (0 until inventory.getContainerSize).map(inventory.getItem)
     val data = new DroneData()
     data.tier = caseTier(inventory)
@@ -135,10 +135,10 @@ object DroneTemplate extends Template {
       "li.cil.oc.common.template.DroneTemplate.disassemble")
   }
 
-  override protected def maxComplexity(inventory: IInventory) =
+  override protected def maxComplexity(inventory: Container) =
     if (caseTier(inventory) == Tier.Two) 8
     else if (caseTier(inventory) == Tier.Four) 9001 // Creative
     else 5
 
-  override protected def caseTier(inventory: IInventory) = ItemUtils.caseTier(inventory.getItem(0))
+  override protected def caseTier(inventory: Container) = ItemUtils.caseTier(inventory.getItem(0))
 }

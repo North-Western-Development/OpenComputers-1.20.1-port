@@ -10,12 +10,12 @@ import li.cil.oc.integration.util.BundledRedstone
 import li.cil.oc.server.component
 import li.cil.oc.server.component.RedstoneVanilla
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.core.Direction
 
-class Redstone(selfType: TileEntityType[_ <: Redstone]) extends TileEntity(selfType) with traits.Environment with traits.BundledRedstoneAware with traits.Tickable {
+class Redstone(selfType: BlockEntityType[_ <: Redstone]) extends BlockEntity(selfType) with traits.Environment with traits.BundledRedstoneAware with traits.Tickable {
   val instance: RedstoneVanilla =
     if (BundledRedstone.isAvailable)
       new component.Redstone.Bundled(this)
@@ -34,12 +34,12 @@ class Redstone(selfType: TileEntityType[_ <: Redstone]) extends TileEntity(selfT
 
   private final val RedstoneTag = Settings.namespace + "redstone"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundTag) {
     super.loadForServer(nbt)
     instance.loadData(nbt.getCompound(RedstoneTag))
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundTag) {
     super.saveForServer(nbt)
     nbt.setNewCompoundTag(RedstoneTag, instance.saveData)
   }

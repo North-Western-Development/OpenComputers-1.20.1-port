@@ -7,18 +7,18 @@ import li.cil.oc.common.block
 import li.cil.oc.util.Color
 import li.cil.oc.util.ItemColorizer
 import li.cil.oc.util.ItemUtils
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
+import net.minecraft.world.level.block.Block
+net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.color.IBlockColor
 import net.minecraft.client.renderer.color.IItemColor
-import net.minecraft.item.DyeColor
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.DyeColor
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
 import net.minecraft.util.IItemProvider
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
 import net.minecraft.world.IBlockDisplayReader
-import net.minecraft.world.IBlockReader
+import net.minecraft.world.level.BlockGetter
 
 object ColorHandler {
   def init(): Unit = {
@@ -80,7 +80,7 @@ object ColorHandler {
       api.Items.get(Constants.ItemName.HoverBoots).item())
   }
 
-  def register(handler: (BlockState, IBlockReader, BlockPos, Int) => Int, blocks: Block*): Unit = {
+  def register(handler: (BlockState, BlockGetter, BlockPos, Int) => Int, blocks: Block*): Unit = {
     Minecraft.getInstance.getBlockColors.register(new IBlockColor {
       override def getColor(state: BlockState, world: IBlockDisplayReader, pos: BlockPos, tintIndex: Int): Int = handler(state, world, pos, tintIndex)
     }, blocks: _*)

@@ -2,7 +2,7 @@ package li.cil.oc.api.driver.item;
 
 import li.cil.oc.api.driver.DriverItem;
 import li.cil.oc.api.machine.Architecture;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Use this interface to implement item drivers extending the number of

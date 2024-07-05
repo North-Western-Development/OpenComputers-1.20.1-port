@@ -3,9 +3,9 @@ package li.cil.oc.common.item
 import li.cil.oc.Settings
 import li.cil.oc.api.driver.item.Chargeable
 import li.cil.oc.common.item.data.NodeData
-import net.minecraft.item.Item
-import net.minecraft.item.Item.Properties
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.ItemStack
 import net.minecraftforge.common.extensions.IForgeItem
 
 class UpgradeBattery(props: Properties, val tier: Int) extends Item(props) with IForgeItem with traits.SimpleItem with traits.ItemTier with traits.Chargeable {

@@ -1,10 +1,10 @@
 package li.cil.oc.api.prefab;
 
 import li.cil.oc.api.driver.DriverBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.Direction;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 
 /**
  * If you wish to create a block component for a third-party block, i.e. a block
@@ -18,7 +18,7 @@ import net.minecraft.world.World;
  * You still have to provide the implementation for creating its environment, if
  * any.
  * <br>
- * To limit sidedness, I recommend overriding {@link #worksWith(World, BlockPos, Direction)}
+ * To limit sidedness, I recommend overriding {@link #worksWith(Level, BlockPos, Direction)}
  * and calling <code>super.worksWith</code> in addition to the side check.
  *
  * @see li.cil.oc.api.network.ManagedEnvironment
@@ -32,7 +32,7 @@ public abstract class DriverSidedBlock implements DriverBlock {
     }
 
     @Override
-    public boolean worksWith(final World world, final BlockPos pos, final Direction side) {
+    public boolean worksWith(final Level world, final BlockPos pos, final Direction side) {
         final BlockState state = world.getBlockState(pos);
         for (BlockState block : blocks) {
             if (block == state) return true;

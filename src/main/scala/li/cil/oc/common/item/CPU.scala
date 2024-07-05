@@ -1,7 +1,7 @@
 package li.cil.oc.common.item
 
-import net.minecraft.item.Item
-import net.minecraft.item.Item.Properties
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.Item.Properties
 import net.minecraftforge.common.extensions.IForgeItem
 
 import scala.language.existentials

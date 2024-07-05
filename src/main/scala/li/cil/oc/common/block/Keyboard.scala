@@ -12,23 +12,23 @@ import li.cil.oc.util.ExtendedEnumFacing._
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.RotationHelper
 import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.block.Block
-import net.minecraft.block.Blocks
-import net.minecraft.block.BlockState
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.Blocks
+net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.entity.player.Player
 import net.minecraft.item.BlockItemUseContext
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
 import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
 import net.minecraft.util.math.shapes.ISelectionContext
 import net.minecraft.util.math.shapes.VoxelShape
 import net.minecraft.util.math.shapes.VoxelShapes
 import net.minecraft.state.StateContainer
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.IWorldReader
-import net.minecraft.world.World
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.world.level.BlockGetter
+import net.minecraft.world.ILevelReader
+import net.minecraft.world.level.Level
+import net.minecraft.world.server.ServerLevel
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
@@ -41,7 +41,7 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def getShape(state: BlockState, world: IBlockReader, pos: BlockPos, ctx: ISelectionContext): VoxelShape = {
+  override def getShape(state: BlockState, world: BlockGetter, pos: BlockPos, ctx: ISelectionContext): VoxelShape = {
     val (pitch, yaw) = (state.getValue(PropertyRotatable.Pitch), state.getValue(PropertyRotatable.Yaw))
     val (forward, up) = pitch match {
       case side@(Direction.DOWN | Direction.UP) => (side, yaw)
@@ -60,17 +60,17 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(world: IBlockReader) = new tileentity.Keyboard(tileentity.TileEntityTypes.KEYBOARD)
+  override def newBlockEntity(world: BlockGetter) = new tileentity.Keyboard(tileentity.BlockEntityTypes.KEYBOARD)
 
   // ----------------------------------------------------------------------- //
 
-  override def onPlace(state: BlockState, world: World, pos: BlockPos, prevState: BlockState, moved: Boolean): Unit = {
+  override def onPlace(state: BlockState, world: Level, pos: BlockPos, prevState: BlockState, moved: Boolean): Unit = {
     if (!world.isClientSide) {
-      world.asInstanceOf[ServerWorld].getBlockTicks.scheduleTick(pos, this, 10)
+      world.asInstanceOf[ServerLevel].getBlockTicks.scheduleTick(pos, this, 10)
     }
   }
 
-  override def tick(state: BlockState, world: ServerWorld, pos: BlockPos, rand: Random) = {
+  override def tick(state: BlockState, world: ServerLevel, pos: BlockPos, rand: Random) = {
     world.getBlockEntity(pos) match {
       case keyboard: tileentity.Keyboard => api.Network.joinOrCreateNetwork(keyboard)
       case _ =>
@@ -86,7 +86,7 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
     super.getStateForPlacement(ctx).setValue(PropertyRotatable.Pitch, pitch).setValue(PropertyRotatable.Yaw, yaw)
   }
 
-  override def canSurvive(state: BlockState, world: IWorldReader, pos: BlockPos) = {
+  override def canSurvive(state: BlockState, world: ILevelReader, pos: BlockPos) = {
     // Check without the TE because this is called to check if the block may be placed.
     val side = state.getValue(PropertyRotatable.Pitch) match {
       case pitch@(Direction.UP | Direction.DOWN) => pitch
@@ -101,19 +101,19 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
   }
 
   @Deprecated
-  override def neighborChanged(state: BlockState, world: World, pos: BlockPos, block: Block, fromPos: BlockPos, b: Boolean): Unit =
+  override def neighborChanged(state: BlockState, world: Level, pos: BlockPos, block: Block, fromPos: BlockPos, b: Boolean): Unit =
     if (!canSurvive(world.getBlockState(pos), world, pos)) {
       world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState)
-      InventoryUtils.spawnStackInWorld(BlockPosition(pos, world), api.Items.get(Constants.BlockName.Keyboard).createItemStack(1))
+      InventoryUtils.spawnStackInLevel(BlockPosition(pos, world), api.Items.get(Constants.BlockName.Keyboard).createItemStack(1))
     }
 
-  override def localOnBlockActivated(world: World, pos: BlockPos, player: PlayerEntity, hand: Hand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float) =
+  override def localOnBlockActivated(world: Level, pos: BlockPos, player: Player, hand: Hand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float) =
     adjacencyInfo(world, pos) match {
       case Some((keyboard, screen, blockPos, facing)) => screen.rightClick(world, blockPos, player, hand, heldItem, facing, 0, 0, 0, force = true)
       case _ => false
     }
 
-  def adjacencyInfo(world: World, pos: BlockPos) =
+  def adjacencyInfo(world: Level, pos: BlockPos) =
     world.getBlockEntity(pos) match {
       case keyboard: tileentity.Keyboard =>
         val blockPos = pos.relative(keyboard.facing.getOpposite)
@@ -141,5 +141,5 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
       case _ => None
     }
 
-  override def getValidRotations(world: World, pos: BlockPos) = null
+  override def getValidRotations(world: Level, pos: BlockPos) = null
 }

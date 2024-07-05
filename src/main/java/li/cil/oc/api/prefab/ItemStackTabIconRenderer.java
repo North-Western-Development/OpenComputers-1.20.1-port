@@ -1,10 +1,10 @@
 package li.cil.oc.api.prefab;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import li.cil.oc.api.manual.TabIconRenderer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.opengl.GL13;
@@ -22,8 +22,8 @@ public class ItemStackTabIconRenderer implements TabIconRenderer {
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void render(MatrixStack matrix) {
-        // Translate manually because ItemRenderer generally can't take a MatrixStack.
+    public void render(PoseStack matrix) {
+        // Translate manually because ItemRenderer generally can't take a PoseStack.
         RenderSystem.pushMatrix();
         RenderSystem.multMatrix(matrix.last().pose());
         RenderSystem.enableRescaleNormal();

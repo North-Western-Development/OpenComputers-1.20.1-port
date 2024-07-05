@@ -5,10 +5,10 @@ import li.cil.oc.common.Slot
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.container.{DiskDrive => DiskDriveContainer}
 import li.cil.oc.common.tileentity
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.entity.player.Player
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import net.minecraft.util.text.StringTextComponent
 
 trait DiskDriveMountableInventory extends ItemStackInventory with INamedContainerProvider {
@@ -27,6 +27,6 @@ trait DiskDriveMountableInventory extends ItemStackInventory with INamedContaine
 
   override def getDisplayName = StringTextComponent.EMPTY
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
+  override def createMenu(id: Int, playerInventory: PlayerInventory, player: Player) =
     new DiskDriveContainer(ContainerTypes.DISK_DRIVE, id, playerInventory, this)
 }

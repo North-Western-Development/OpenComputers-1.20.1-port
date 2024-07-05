@@ -1,15 +1,15 @@
 package li.cil.oc.client.renderer.font
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.IVertexBuilder
 import li.cil.oc.Settings
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.util.{ExtendedUnicodeHelper, PackedColor, RenderState, TextBuffer}
 import net.minecraft.client.renderer.RenderType
-import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.util.math.vector.Matrix4f
-import net.minecraft.util.math.vector.Vector4f
+import net.minecraft.client.renderer.MultiBufferSource
+import com.mojang.math.Matrix4f
+import com.mojang.math.Vector4f
 import org.lwjgl.opengl.GL11
 
 /**
@@ -43,7 +43,7 @@ abstract class TextureFontRenderer {
     }
   }
 
-  def drawBuffer(stack: MatrixStack, renderBuff: IRenderTypeBuffer, buffer: TextBuffer, viewportWidth: Int, viewportHeight: Int) {
+  def drawBuffer(stack: PoseStack, renderBuff: MultiBufferSource, buffer: TextBuffer, viewportWidth: Int, viewportHeight: Int) {
     val format = buffer.format
 
     stack.pushPose()
@@ -95,7 +95,7 @@ abstract class TextureFontRenderer {
     stack.popPose()
   }
 
-  def drawString(stack: MatrixStack, s: String, x: Int, y: Int): Unit = {
+  def drawString(stack: PoseStack, s: String, x: Int, y: Int): Unit = {
     val sLength = ExtendedUnicodeHelper.length(s)
 
     stack.pushPose()

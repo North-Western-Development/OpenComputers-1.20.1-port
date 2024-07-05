@@ -1,8 +1,8 @@
 package li.cil.oc
 
 import li.cil.oc.common.init.Items
-import net.minecraft.item.ItemGroup
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemGroup
+import net.minecraft.world.item.ItemStack
 import net.minecraft.util.NonNullList
 
 object CreativeTab extends ItemGroup(OpenComputers.Name) {

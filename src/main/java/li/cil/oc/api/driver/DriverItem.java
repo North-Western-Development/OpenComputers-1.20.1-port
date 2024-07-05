@@ -1,8 +1,8 @@
 package li.cil.oc.api.driver;
 
 import li.cil.oc.api.network.ManagedEnvironment;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
 /**
  * Interface for item component drivers.
@@ -110,5 +110,5 @@ public interface DriverItem {
      * @return the tag to use for saving and loading, or <tt>null</tt> to use
      * the default tag <tt>oc:data</tt>.
      */
-    CompoundNBT dataTag(ItemStack stack);
+    CompoundTag dataTag(ItemStack stack);
 }

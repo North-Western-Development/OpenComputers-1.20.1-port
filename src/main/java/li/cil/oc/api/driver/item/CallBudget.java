@@ -1,6 +1,6 @@
 package li.cil.oc.api.driver.item;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Common functionality provided by parts that influence a machine's speed.

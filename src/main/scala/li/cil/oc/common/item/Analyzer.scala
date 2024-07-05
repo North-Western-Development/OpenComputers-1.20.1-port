@@ -10,16 +10,16 @@ import li.cil.oc.api.network._
 import li.cil.oc.common.tileentity
 import li.cil.oc.server.PacketSender
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedWorld._
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.item.Item.Properties
-import net.minecraft.item.ItemStack
+import li.cil.oc.util.ExtendedLevel._
+import net.minecraft.world.entity.player.Player
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.ItemStack
 import net.minecraft.util.ActionResult
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 import net.minecraft.util.Util
-import net.minecraft.world.World
+import net.minecraft.world.level.Level
 import net.minecraftforge.common.extensions.IForgeItem
 import net.minecraftforge.common.util.FakePlayer
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
@@ -40,7 +40,7 @@ object Analyzer {
     }
   }
 
-  def analyze(thing: AnyRef, player: PlayerEntity, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Boolean = {
+  def analyze(thing: AnyRef, player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Boolean = {
     val world = player.level
     thing match {
       case analyzable: Analyzable =>
@@ -63,10 +63,10 @@ object Analyzer {
     }
   }
 
-  private def analyzeNodes(nodes: Array[Node], player: PlayerEntity) = if (nodes != null) for (node <- nodes if node != null) {
+  private def analyzeNodes(nodes: Array[Node], player: Player) = if (nodes != null) for (node <- nodes if node != null) {
     player match {
       case _: FakePlayer => // Nope
-      case playerMP: ServerPlayerEntity =>
+      case playerMP: ServerPlayer =>
         if (node != null) node.host match {
           case machine: Machine =>
             if (machine != null) {
@@ -105,14 +105,14 @@ object Analyzer {
 }
 
 class Analyzer(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem {
-  override def use(stack: ItemStack, world: World, player: PlayerEntity): ActionResult[ItemStack] = {
+  override def use(stack: ItemStack, world: Level, player: Player): ActionResult[ItemStack] = {
     if (player.isCrouching && stack.hasTag) {
       stack.removeTagKey(Settings.namespace + "clipboard")
     }
     super.use(stack, world, player)
   }
 
-  override def onItemUse(stack: ItemStack, player: PlayerEntity, position: BlockPosition, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = {
+  override def onItemUse(stack: ItemStack, player: Player, position: BlockPosition, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = {
     val world = player.level
     world.getBlockEntity(position) match {
       case screen: tileentity.Screen if side == screen.facing =>

@@ -21,14 +21,14 @@ import li.cil.oc.util.{DatabaseAccess, NbtDataStream}
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.ResultWrapper._
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.RegistryKey
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.BlockPos
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.resources.ResourceKey
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.core.BlockPos
 import net.minecraft.util.registry.{Registry => VanillaRegistry}
-import net.minecraft.world.World
+import net.minecraft.world.level.Level
 import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.fml.server.ServerLifecycleHooks
 
@@ -40,7 +40,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.existentials
 
 // Note to self: this class is used by ExtraCells (and potentially others), do not rename / drastically change it.
-trait NetworkControl[AETile >: Null <: TileEntity with IActionHost with IGridHost] {
+trait NetworkControl[AETile >: Null <: BlockEntity with IActionHost with IGridHost] {
   def tile: AETile
   def pos: AEPartLocation
 
@@ -279,7 +279,7 @@ object NetworkControl {
     }
   }
 
-  class Craftable(var controller: TileEntity with IActionHost with IGridHost,
+  class Craftable(var controller: BlockEntity with IActionHost with IGridHost,
                   var pos: AEPartLocation,
                   var stack: IAEItemStack)
                     extends AbstractValue with ICraftingRequester with IGridHost {
@@ -307,7 +307,7 @@ object NetworkControl {
 
     // ----------------------------------------------------------------------- //
 
-    private def withController(f: (TileEntity with IActionHost with IGridHost) => Array[AnyRef]): Array[AnyRef] = {
+    private def withController(f: (BlockEntity with IActionHost with IGridHost) => Array[AnyRef]): Array[AnyRef] = {
       if (delayData != null) {
         result((), "waiting for ae network to load")
       } else {
@@ -395,14 +395,14 @@ object NetworkControl {
     private val MAX_BACKOFF_TICKS = 20 * 5 // 5 seconds
     private val BACKOFF_SCALE = 2 // multiply by this factor on each failure
 
-    private class EphemeralDelayData(val dimension: RegistryKey[World], val x: Int, val y: Int, val z: Int) {
+    private class EphemeralDelayData(val dimension: ResourceKey[Level], val x: Int, val y: Int, val z: Int) {
       var delay: Int = 1
     }
     private var delayData: EphemeralDelayData = _ // null unless delay loading is active
 
     // return true when we do not want to try again, either because we completely failed or we succeeded
     // return false when things appears just not ready yet
-    private def tryLoadGrid(dimension: RegistryKey[World], x: Int, y: Int, z: Int): Boolean = {
+    private def tryLoadGrid(dimension: ResourceKey[Level], x: Int, y: Int, z: Int): Boolean = {
       val world = ServerLifecycleHooks.getCurrentServer.getLevel(dimension)
       if (world == null) {
         return false // maybe the dimension isn't loaded yet
@@ -411,10 +411,10 @@ object NetworkControl {
       if (tileEntity == null) {
         return false // maybe the chunk isn't loaded yet
       }
-      if (!tileEntity.isInstanceOf[TileEntity with IActionHost with IGridHost]) {
+      if (!tileEntity.isInstanceOf[BlockEntity with IActionHost with IGridHost]) {
         return true // failure: looks like the tile was swapped before we could see it
       }
-      val gridHost = tileEntity.asInstanceOf[TileEntity with IActionHost with IGridHost]
+      val gridHost = tileEntity.asInstanceOf[BlockEntity with IActionHost with IGridHost]
       val gridNode = gridHost.getGridNode(pos)
       if (gridNode == null) {
         return false // this is typical as the ae network is still loading
@@ -445,14 +445,14 @@ object NetworkControl {
       }
     }
 
-    override def loadData(nbt: CompoundNBT) {
+    override def loadData(nbt: CompoundTag) {
       super.loadData(nbt)
       stack = AEUtil.itemStorageChannel.createStack(ItemStack.of(nbt))
       links ++= nbt.getList(LINKS_KEY, NBT.TAG_COMPOUND).map(
-        (nbt: CompoundNBT) => LinkCache.store(AEUtil.aeApi.get.storage.loadCraftingLink(nbt, this)))
+        (nbt: CompoundTag) => LinkCache.store(AEUtil.aeApi.get.storage.loadCraftingLink(nbt, this)))
       pos = AEPartLocation.fromOrdinal(NbtDataStream.getOptInt(nbt, POS_KEY, AEPartLocation.INTERNAL.ordinal))
       if (nbt.contains(DIMENSION_KEY)) {
-        val dimension = RegistryKey.create(VanillaRegistry.DIMENSION_REGISTRY, new ResourceLocation(nbt.getString(DIMENSION_KEY)))
+        val dimension = ResourceKey.create(VanillaRegistry.DIMENSION_REGISTRY, new ResourceLocation(nbt.getString(DIMENSION_KEY)))
         val x = nbt.getInt(X_KEY)
         val y = nbt.getInt(Y_KEY)
         val z = nbt.getInt(Z_KEY)
@@ -463,11 +463,11 @@ object NetworkControl {
       }
     }
 
-    override def saveData(nbt: CompoundNBT) {
+    override def saveData(nbt: CompoundTag) {
       super.saveData(nbt)
       stack.createItemStack().save(nbt)
       nbt.setNewTagList(LINKS_KEY, links.map((link) => {
-        val comp = new CompoundNBT()
+        val comp = new CompoundTag()
         link.writeToNBT(comp)
         comp
       }))
@@ -533,7 +533,7 @@ object NetworkControl {
     private val FAILED_KEY: String = "failed"
     private val REASON_KEY: String = "reason"
 
-    override def saveData(nbt: CompoundNBT) {
+    override def saveData(nbt: CompoundTag) {
       super.saveData(nbt)
       nbt.putBoolean(COMPUTING_KEY, isComputing)
       if (link.nonEmpty)
@@ -542,7 +542,7 @@ object NetworkControl {
       nbt.putString(REASON_KEY, reason)
     }
 
-    override def loadData(nbt: CompoundNBT) {
+    override def loadData(nbt: CompoundTag) {
       super.loadData(nbt)
 
       isComputing = NbtDataStream.getOptBoolean(nbt, COMPUTING_KEY, isComputing)

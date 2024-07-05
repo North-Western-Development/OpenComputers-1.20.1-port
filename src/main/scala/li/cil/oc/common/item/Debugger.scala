@@ -4,22 +4,22 @@ import li.cil.oc.OpenComputers
 import li.cil.oc.api
 import li.cil.oc.api.network._
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedWorld._
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.item.Item.Properties
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
+import li.cil.oc.util.ExtendedLevel._
+import net.minecraft.world.entity.player.Player
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
 import net.minecraftforge.common.util.FakePlayer
 import net.minecraftforge.common.extensions.IForgeItem
 
 class Debugger(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem {
-  override def onItemUse(stack: ItemStack, player: PlayerEntity, position: BlockPosition, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = {
+  override def onItemUse(stack: ItemStack, player: Player, position: BlockPosition, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = {
     val world = position.world.get
     player match {
       case _: FakePlayer => false // Nope
-      case realPlayer: ServerPlayerEntity =>
+      case realPlayer: ServerPlayer =>
         world.getBlockEntity(position) match {
           case host: SidedEnvironment =>
             if (!world.isClientSide) {

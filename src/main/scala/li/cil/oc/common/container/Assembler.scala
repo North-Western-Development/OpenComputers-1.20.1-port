@@ -5,15 +5,15 @@ import li.cil.oc.common
 import li.cil.oc.common.InventorySlots.InventorySlot
 import li.cil.oc.common.template.AssemblerTemplates
 import li.cil.oc.common.tileentity
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import net.minecraft.inventory.container.ContainerType
 import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.IInventory
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.Container
+import net.minecraft.nbt.CompoundTag
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-class Assembler(selfType: ContainerType[_ <: Assembler], id: Int, playerInventory: PlayerInventory, val assembler: IInventory)
+class Assembler(selfType: ContainerType[_ <: Assembler], id: Int, playerInventory: PlayerInventory, val assembler: Container)
   extends Player(selfType, id, playerInventory, assembler) {
 
   override protected def getHostClass = classOf[tileentity.Assembler]
@@ -107,7 +107,7 @@ class Assembler(selfType: ContainerType[_ <: Assembler], id: Int, playerInventor
 
   def assemblyRemainingTime = synchronizedData.getInt("assemblyRemainingTime")
 
-  override protected def detectCustomDataChanges(nbt: CompoundNBT): Unit = {
+  override protected def detectCustomDataChanges(nbt: CompoundTag): Unit = {
     assembler match {
       case te: tileentity.Assembler => {
         synchronizedData.putBoolean("isAssembling", te.isAssembling)

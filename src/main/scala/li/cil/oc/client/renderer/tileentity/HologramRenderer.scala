@@ -9,20 +9,20 @@ import java.util.concurrent.TimeUnit
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.RemovalListener
 import com.google.common.cache.RemovalNotification
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Settings
 import li.cil.oc.client.Textures
 import li.cil.oc.common.tileentity.Hologram
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.math.vector.Vector3f
-import net.minecraftforge.client.event.RenderWorldLastEvent
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.tileentity.BlockEntityRenderer
+import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.Direction
+import com.mojang.math.Vector3f
+import net.minecraftforge.client.event.RenderLevelLastEvent
 import net.minecraftforge.event.TickEvent.ClientTickEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import org.lwjgl.BufferUtils
@@ -31,10 +31,10 @@ import org.lwjgl.opengl.GL15
 
 import scala.util.Random
 
-object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramRenderer]
-  with Callable[Int] with RemovalListener[TileEntity, Int] {
+object HologramRenderer extends Function[BlockEntityRendererDispatcher, HologramRenderer]
+  with Callable[Int] with RemovalListener[BlockEntity, Int] {
 
-  override def apply(dispatch: TileEntityRendererDispatcher) = new HologramRenderer(dispatch)
+  override def apply(dispatch: BlockEntityRendererDispatcher) = new HologramRenderer(dispatch)
 
   private val random = new Random()
 
@@ -80,10 +80,10 @@ object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramR
 
   // Defer actual rendering until now so transparent things render correctly.
   @SubscribeEvent
-  def onRenderWorldLast(e: RenderWorldLastEvent): Unit = {
-    RenderState.checkError(getClass.getName + ".onRenderWorldLastEvent: entering (aka: wasntme)")
+  def onRenderLevelLast(e: RenderLevelLastEvent): Unit = {
+    RenderState.checkError(getClass.getName + ".onRenderLevelLastEvent: entering (aka: wasntme)")
 
-    val stack = e.getMatrixStack
+    val stack = e.getPoseStack
     val camPos = Minecraft.getInstance.gameRenderer.getMainCamera.getPosition
     val buffer = Minecraft.getInstance.renderBuffers.bufferSource
 
@@ -96,10 +96,10 @@ object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramR
       stack.popPose()
     }
 
-    RenderState.checkError(getClass.getName + ".onRenderWorldLastEvent: leaving")
+    RenderState.checkError(getClass.getName + ".onRenderLevelLastEvent: leaving")
   }
 
-  private def doRender(hologram: Hologram, f: Float, stack: MatrixStack) {
+  private def doRender(hologram: Hologram, f: Float, stack: PoseStack) {
     HologramRenderer.hologram = hologram
     GL11.glPushClientAttrib(GL11.GL_CLIENT_ALL_ATTRIB_BITS)
     RenderState.makeItBlend()
@@ -393,7 +393,7 @@ object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramR
     glBuffer
   }
 
-  def onRemoval(e: RemovalNotification[TileEntity, Int]) {
+  def onRemoval(e: RemovalNotification[BlockEntity, Int]) {
     val glBuffer = e.getValue
     GL15.glDeleteBuffers(glBuffer)
     dataBuffer.clear()
@@ -403,8 +403,8 @@ object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramR
   def onTick(e: ClientTickEvent) = cache.cleanUp()
 }
 
-class HologramRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Hologram](dispatch) {
-  override def render(hologram: Hologram, f: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+class HologramRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntityRenderer[Hologram](dispatch) {
+  override def render(hologram: Hologram, f: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     if (HologramRenderer.failed) {
       HologramRendererFallback.render(hologram, f, stack, buffer, light, overlay)
       return

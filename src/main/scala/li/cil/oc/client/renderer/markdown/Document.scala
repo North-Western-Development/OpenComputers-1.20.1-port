@@ -1,6 +1,6 @@
 package li.cil.oc.client.renderer.markdown
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.api
 import li.cil.oc.client.renderer.markdown.segment.InteractiveSegment
@@ -8,7 +8,7 @@ import li.cil.oc.client.renderer.markdown.segment.Segment
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.FontRenderer
-import net.minecraft.util.math.vector.Vector4f
+import com.mojang.math.Vector4f
 import org.lwjgl.opengl.GL11
 
 import scala.collection.Iterable
@@ -69,7 +69,7 @@ object Document {
    * Renders a list of segments and tooltips if a segment with a tooltip is hovered.
    * Returns the hovered interactive segment, if any.
    */
-  def render(stack: MatrixStack, document: Segment, x: Int, y: Int, maxWidth: Int, maxHeight: Int, yOffset: Int, renderer: FontRenderer, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = {
+  def render(stack: PoseStack, document: Segment, x: Int, y: Int, maxWidth: Int, maxHeight: Int, yOffset: Int, renderer: FontRenderer, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = {
     val window = Minecraft.getInstance.getWindow
 
     RenderState.pushAttrib()

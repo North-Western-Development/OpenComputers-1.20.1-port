@@ -7,8 +7,8 @@ import li.cil.oc.api
 import li.cil.oc.api.driver.item.MutableProcessor
 import li.cil.oc.integration.opencomputers.DriverCPU
 import li.cil.oc.util.Tooltip
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 import net.minecraft.util.ActionResult
 import net.minecraft.util.ActionResultType
 import net.minecraft.util.Hand
@@ -16,7 +16,7 @@ import net.minecraft.util.Util
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.StringTextComponent
 import net.minecraft.util.text.TranslationTextComponent
-import net.minecraft.world.World
+import net.minecraft.world.level.Level
 
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.language.existentials
@@ -32,7 +32,7 @@ trait CPULike extends SimpleItem {
     }
   }
 
-  override def use(stack: ItemStack, world: World, player: PlayerEntity): ActionResult[ItemStack] = {
+  override def use(stack: ItemStack, world: Level, player: Player): ActionResult[ItemStack] = {
     if (player.isCrouching) {
       if (!world.isClientSide) {
         api.Driver.driverFor(stack) match {

@@ -13,12 +13,12 @@ import li.cil.oc.api.driver.item.HostAware
 import li.cil.oc.api.machine.Value
 import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.util.InventoryUtils
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.Container
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.Level
 import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandler
 
@@ -99,7 +99,7 @@ private[oc] object Registry extends api.detail.DriverAPI {
     }
   }
 
-  override def driverFor(world: World, pos: BlockPos, side: Direction): DriverBlock =
+  override def driverFor(world: Level, pos: BlockPos, side: Direction): DriverBlock =
     sidedBlocks.filter(_.worksWith(world, pos, side)) match {
       case sidedDrivers if sidedDrivers.nonEmpty => new CompoundBlockDriver(sidedDrivers.toArray)
       case _ => null
@@ -130,7 +130,7 @@ private[oc] object Registry extends api.detail.DriverAPI {
 
   override def environmentsFor(stack: ItemStack): util.Set[Class[_]] = environmentProviders.map(_.getEnvironment(stack)).filter(_ != null).toSet[Class[_]]
 
-  override def itemHandlerFor(stack: ItemStack, player: PlayerEntity): IItemHandler = {
+  override def itemHandlerFor(stack: ItemStack, player: Player): IItemHandler = {
     inventoryProviders.find(provider => provider.worksWith(stack, player)).
       map(provider => InventoryUtils.asItemHandler(provider.getInventory(stack, player))).
       getOrElse {

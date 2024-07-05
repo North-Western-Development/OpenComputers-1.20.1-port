@@ -1,7 +1,7 @@
 package li.cil.oc.util
 
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
 
 /**
   * @author asie, Vexatos

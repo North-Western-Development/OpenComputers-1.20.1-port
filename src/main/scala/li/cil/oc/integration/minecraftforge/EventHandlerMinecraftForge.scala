@@ -3,10 +3,10 @@ package li.cil.oc.integration.minecraftforge
 import li.cil.oc.OpenComputers
 import li.cil.oc.common.tileentity.traits.PowerAcceptor
 import li.cil.oc.integration.util.Power
-import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.ResourceLocation
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.ICapabilityProvider
 import net.minecraftforge.common.util.LazyOptional
@@ -19,7 +19,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 object EventHandlerMinecraftForge {
 
   @SubscribeEvent
-  def onAttachCapabilities(event: AttachCapabilitiesEvent[TileEntity]): Unit = {
+  def onAttachCapabilities(event: AttachCapabilitiesEvent[BlockEntity]): Unit = {
     event.getObject match {
       case tileEntity: PowerAcceptor =>
         val provider = new Provider(tileEntity)

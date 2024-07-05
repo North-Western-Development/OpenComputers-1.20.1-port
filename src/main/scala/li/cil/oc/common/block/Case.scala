@@ -8,21 +8,21 @@ import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.Tooltip
 import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
+import net.minecraft.world.level.block.Block
+net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.ServerPlayerEntity
+import net.minecraft.world.entity.player.Player
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.fluid.FluidState
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import net.minecraft.state.StateContainer
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.World
+import net.minecraft.world.level.BlockGetter
+import net.minecraft.world.level.Level
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
@@ -32,7 +32,7 @@ class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with t
 
   // ----------------------------------------------------------------------- //
 
-  override protected def tooltipBody(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) {
+  override protected def tooltipBody(stack: ItemStack, world: BlockGetter, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) {
     for (curr <- Tooltip.get(getClass.getSimpleName.toLowerCase, slots)) {
       tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
     }
@@ -49,16 +49,16 @@ class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with t
 
   override def energyThroughput = Settings.get.caseRate(tier)
 
-  override def openGui(player: ServerPlayerEntity, world: World, pos: BlockPos): Unit = world.getBlockEntity(pos) match {
+  override def openGui(player: ServerPlayer, world: Level, pos: BlockPos): Unit = world.getBlockEntity(pos) match {
     case te: tileentity.Case if te.stillValid(player) => ContainerTypes.openCaseGui(player, te)
     case _ =>
   }
 
-  override def newBlockEntity(world: IBlockReader) = new tileentity.Case(tileentity.TileEntityTypes.CASE, tier)
+  override def newBlockEntity(world: BlockGetter) = new tileentity.Case(tileentity.BlockEntityTypes.CASE, tier)
 
   // ----------------------------------------------------------------------- //
 
-  override def localOnBlockActivated(world: World, pos: BlockPos, player: PlayerEntity, hand: Hand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = {
+  override def localOnBlockActivated(world: Level, pos: BlockPos, player: Player, hand: Hand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = {
     if (player.isCrouching) {
       if (!world.isClientSide) world.getBlockEntity(pos) match {
         case computer: tileentity.Case if !computer.machine.isRunning && computer.stillValid(player) => computer.machine.start()
@@ -69,7 +69,7 @@ class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with t
     else super.localOnBlockActivated(world, pos, player, hand, heldItem, side, hitX, hitY, hitZ)
   }
 
-  override def removedByPlayer(state: BlockState, world: World, pos: BlockPos, player: PlayerEntity, willHarvest: Boolean, fluid: FluidState): Boolean =
+  override def removedByPlayer(state: BlockState, world: Level, pos: BlockPos, player: Player, willHarvest: Boolean, fluid: FluidState): Boolean =
     world.getBlockEntity(pos) match {
       case c: tileentity.Case =>
         if (c.isCreative && (!player.isCreative || !c.canInteract(player.getName.getString))) false

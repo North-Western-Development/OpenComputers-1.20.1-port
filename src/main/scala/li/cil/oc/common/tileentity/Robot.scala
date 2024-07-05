@@ -30,27 +30,27 @@ import li.cil.oc.server.component
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedNBT._
-import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
-import net.minecraft.block.Block
-import net.minecraft.block.Blocks
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.Blocks
 import net.minecraft.block.FlowingFluidBlock
 import net.minecraft.client.Minecraft
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.entity.player.Player
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.fluid.Fluid
 import net.minecraft.inventory.EquipmentSlotType
 import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.Direction
 import net.minecraft.util.SoundCategory
 import net.minecraft.util.SoundEvents
 import net.minecraft.util.Util
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
 import net.minecraft.util.text.StringTextComponent
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.capabilities.Capability
@@ -71,7 +71,7 @@ import scala.collection.mutable
 // robot moves we only create a new proxy tile entity, hook the instance of this
 // class that was held by the old proxy to it and can then safely forget the
 // old proxy, which will be cleaned up by Minecraft like any other tile entity.
-class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with traits.PowerInformation with traits.RotatableTile
+class Robot extends BlockEntity(BlockEntityTypes.ROBOT) with traits.Computer with traits.PowerInformation with traits.RotatableTile
   with IFluidHandler with internal.Robot with InventorySelection with TankSelection with INamedContainerProvider {
 
   var proxy: RobotProxy = _
@@ -210,7 +210,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
 
   override def setName(name: String): Unit = info.name = name
 
-  override def onAnalyze(player: PlayerEntity, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
+  override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
     player.sendMessage(Localization.Analyzer.RobotOwner(ownerName), Util.NIL_UUID)
     player.sendMessage(Localization.Analyzer.RobotName(player_.getName.getString), Util.NIL_UUID)
     MinecraftForge.EVENT_BUS.post(new RobotAnalyzeEvent(this, player))
@@ -423,7 +423,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
   private final val SwingingToolTag = Settings.namespace + "swingingTool"
   private final val TurnAxisTag = Settings.namespace + "turnAxis"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundTag) {
     updateInventorySize()
     machine.onHostChanged()
 
@@ -458,7 +458,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
   }
 
   // Side check for Waila (and other mods that may call this client side).
-  override def saveForServer(nbt: CompoundNBT): Unit = if (isServer) this.synchronized {
+  override def saveForServer(nbt: CompoundTag): Unit = if (isServer) this.synchronized {
     info.saveData(nbt)
 
     // Note: computer is saved when proxy is saved (in proxy's super save)
@@ -484,7 +484,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT) {
+  override def loadForClient(nbt: CompoundTag) {
     super.loadForClient(nbt)
     loadData(nbt)
     info.loadData(nbt)
@@ -507,7 +507,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
     connectComponents()
   }
 
-  override def saveForClient(nbt: CompoundNBT): Unit = this.synchronized {
+  override def saveForClient(nbt: CompoundTag): Unit = this.synchronized {
     super.saveForClient(nbt)
     saveData(nbt)
     info.saveData(nbt)
@@ -711,7 +711,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
       if (getLevel != null && isServer) {
         for (stack <- removed) {
           player().inventory.add(stack)
-          spawnStackInWorld(stack, Option(facing))
+          spawnStackInLevel(stack, Option(facing))
         }
         setSelectedSlot(oldSelected)
       } // else: save is screwed and we potentially lose items. Life is hard.
@@ -741,15 +741,15 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
         super.setItem(slot, stack.split(1))
         if (stack.getCount > 0 && isServer) {
           player().inventory.add(stack)
-          spawnStackInWorld(stack, Option(facing))
+          spawnStackInLevel(stack, Option(facing))
         }
       }
       else super.setItem(slot, stack)
     }
-    else if (!stack.isEmpty && stack.getCount > 0 && !getLevel.isClientSide) spawnStackInWorld(stack, Option(Direction.UP))
+    else if (!stack.isEmpty && stack.getCount > 0 && !getLevel.isClientSide) spawnStackInLevel(stack, Option(Direction.UP))
   }
 
-  override def stillValid(player: PlayerEntity): Boolean =
+  override def stillValid(player: Player): Boolean =
     super.stillValid(player) && (!isCreative || player.isCreative)
 
   override def canPlaceItem(slot: Int, stack: ItemStack): Boolean = (slot, Option(Driver.driverFor(stack, getClass))) match {
@@ -774,7 +774,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
 
   override def getDisplayName = StringTextComponent.EMPTY
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
+  override def createMenu(id: Int, playerInventory: PlayerInventory, player: Player) =
     new container.Robot(ContainerTypes.ROBOT, id, playerInventory, this, new container.RobotInfo(this))
 
   // ----------------------------------------------------------------------- //

@@ -1,6 +1,6 @@
 package li.cil.oc.client.renderer.markdown.segment
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.renderer.markdown.Document
 import net.minecraft.client.gui.FontRenderer
@@ -10,7 +10,7 @@ import scala.collection.mutable
 import scala.util.matching.Regex
 
 private[markdown] class TextSegment(val parent: Segment, val text: String) extends BasicTextSegment {
-  override def render(stack: MatrixStack, x: Int, y: Int, indent: Int, maxWidth: Int, renderer: FontRenderer, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = {
+  override def render(stack: PoseStack, x: Int, y: Int, indent: Int, maxWidth: Int, renderer: FontRenderer, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = {
     var currentX = x + indent
     var currentY = y
     var chars = text

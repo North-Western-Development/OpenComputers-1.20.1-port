@@ -3,7 +3,7 @@ package li.cil.oc.api.internal;
 import li.cil.oc.api.machine.MachineHost;
 import li.cil.oc.api.network.Environment;
 import li.cil.oc.api.network.EnvironmentHost;
-import net.minecraft.inventory.IInventory;
+import net.minecraft.world.Container;
 
 /**
  * This interface is implemented as a marker by computer cases.
@@ -18,5 +18,5 @@ import net.minecraft.inventory.IInventory;
  * via the API, i.e. without having to link against internal classes. This
  * also means that <em>you should not implement this</em>.
  */
-public interface Case extends Environment, EnvironmentHost, MachineHost, Colored, Rotatable, Tiered, IInventory {
+public interface Case extends Environment, EnvironmentHost, MachineHost, Colored, Rotatable, Tiered, Container {
 }

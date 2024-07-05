@@ -3,7 +3,7 @@ package li.cil.oc.integration.util
 import java.lang.reflect.Method
 
 import li.cil.oc.common.IMC
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 import scala.collection.mutable
 

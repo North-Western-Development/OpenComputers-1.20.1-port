@@ -5,8 +5,8 @@ import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.common.Tier
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
 import net.minecraftforge.common.util.Constants.NBT
 
 class MicrocontrollerData(itemName: String = Constants.BlockName.Microcontroller) extends ItemData(itemName) {
@@ -25,10 +25,10 @@ class MicrocontrollerData(itemName: String = Constants.BlockName.Microcontroller
   private final val ComponentsTag = Settings.namespace + "components"
   private final val StoredEnergyTag = Settings.namespace + "storedEnergy"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundTag) {
     tier = nbt.getByte(TierTag)
     components = nbt.getList(ComponentsTag, NBT.TAG_COMPOUND).
-      toTagArray[CompoundNBT].map(ItemStack.of(_)).filter(!_.isEmpty)
+      toTagArray[CompoundTag].map(ItemStack.of(_)).filter(!_.isEmpty)
     storedEnergy = nbt.getInt(StoredEnergyTag)
 
     // Reserve slot for EEPROM if necessary, avoids having to resize the
@@ -38,7 +38,7 @@ class MicrocontrollerData(itemName: String = Constants.BlockName.Microcontroller
     }
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundTag) {
     nbt.putByte(TierTag, tier.toByte)
     nbt.setNewTagList(ComponentsTag, components.filter(!_.isEmpty).toIterable)
     nbt.putInt(StoredEnergyTag, storedEnergy)

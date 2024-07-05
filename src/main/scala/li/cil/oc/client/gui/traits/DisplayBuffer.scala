@@ -1,6 +1,6 @@
 package li.cil.oc.client.gui.traits
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.util.RenderState
 import net.minecraft.client.gui.screen.Screen
 
@@ -15,7 +15,7 @@ trait DisplayBuffer extends Screen {
 
   protected var scale = 0.0
 
-  protected def drawBufferLayer(stack: MatrixStack) {
+  protected def drawBufferLayer(stack: PoseStack) {
     scale = changeSize(bufferColumns, bufferRows)
 
     RenderState.checkError(getClass.getName + ".drawBufferLayer: entering (aka: wasntme)")
@@ -27,7 +27,7 @@ trait DisplayBuffer extends Screen {
     RenderState.checkError(getClass.getName + ".drawBufferLayer: buffer layer")
   }
 
-  protected def drawBuffer(stack: MatrixStack): Unit
+  protected def drawBuffer(stack: PoseStack): Unit
 
   protected def changeSize(w: Double, h: Double): Double
 }

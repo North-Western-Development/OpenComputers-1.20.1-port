@@ -7,10 +7,10 @@ import li.cil.oc.integration.Mods
 import li.cil.oc.integration.util.BundledRedstone
 import li.cil.oc.integration.util.BundledRedstone.RedstoneProvider
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.ExtendedWorld._
-import net.minecraft.block.Blocks
+import li.cil.oc.util.ExtendedLevel._
+import net.minecraft.world.level.block.Blocks
 import net.minecraft.block.RedstoneWireBlock
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 import net.minecraftforge.common.MinecraftForge
 
 object ModMinecraft extends ModProxy with RedstoneProvider {
@@ -50,7 +50,7 @@ object ModMinecraft extends ModProxy with RedstoneProvider {
     Driver.add(ConverterFluidTankProperties)
     Driver.add(ConverterItemStack)
     Driver.add(ConverterNBT)
-    Driver.add(ConverterWorld)
+    Driver.add(ConverterLevel)
 
     BundledRedstone.addProvider(this)
 

@@ -4,7 +4,7 @@ import li.cil.oc.Settings
 import li.cil.oc.api.network
 import li.cil.oc.api.network.{Node => ImmutableNode}
 import li.cil.oc.common.item.data.NodeData
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 
 trait Connector extends network.Connector with Node {
   var localBufferSize = 0.0
@@ -119,12 +119,12 @@ trait Connector extends network.Connector with Node {
 
   // ----------------------------------------------------------------------- //
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundTag) {
     super.loadData(nbt)
     localBuffer = nbt.getDouble(NodeData.BufferTag)
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundTag) {
     super.saveData(nbt)
     nbt.putDouble(NodeData.BufferTag, math.min(localBuffer, localBufferSize))
   }

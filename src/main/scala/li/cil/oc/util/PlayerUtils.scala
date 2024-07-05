@@ -1,19 +1,19 @@
 package li.cil.oc.util
 
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.entity.player.Player
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.particles.IParticleData
 
 object PlayerUtils {
-  def persistedData(player: PlayerEntity): CompoundNBT = {
+  def persistedData(player: Player): CompoundTag = {
     val nbt = player.getPersistentData
-    if (!nbt.contains(PlayerEntity.PERSISTED_NBT_TAG)) {
-      nbt.put(PlayerEntity.PERSISTED_NBT_TAG, new CompoundNBT())
+    if (!nbt.contains(Player.PERSISTED_NBT_TAG)) {
+      nbt.put(Player.PERSISTED_NBT_TAG, new CompoundTag())
     }
-    nbt.getCompound(PlayerEntity.PERSISTED_NBT_TAG)
+    nbt.getCompound(Player.PERSISTED_NBT_TAG)
   }
 
-  def spawnParticleAround(player: PlayerEntity, effectType: IParticleData, chance: Double = 1.0): Unit = {
+  def spawnParticleAround(player: Player, effectType: IParticleData, chance: Double = 1.0): Unit = {
     val rng = player.level.random
     if (chance >= 1 || rng.nextDouble() < chance) {
       val bounds = player.getBoundingBox

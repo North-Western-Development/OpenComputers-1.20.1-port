@@ -1,7 +1,7 @@
 package li.cil.oc.util
 
-import net.minecraft.block.Block
-import net.minecraft.util.Direction
+import net.minecraft.world.level.block.Block
+import net.minecraft.core.Direction
 import net.minecraftforge.fluids.IFluidBlock
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction
 

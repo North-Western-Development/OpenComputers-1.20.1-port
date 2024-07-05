@@ -12,10 +12,10 @@ import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.RotationHelper
 import net.minecraft.util.SoundEvents
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.core.Direction
 import net.minecraft.util.SoundCategory
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -23,7 +23,7 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 
-class NetSplitter(selfType: TileEntityType[_ <: NetSplitter]) extends TileEntity(selfType) with traits.Environment with traits.OpenSides with traits.RedstoneAware with api.network.SidedEnvironment with DeviceInfo {
+class NetSplitter(selfType: BlockEntityType[_ <: NetSplitter]) extends BlockEntity(selfType) with traits.Environment with traits.OpenSides with traits.RedstoneAware with api.network.SidedEnvironment with DeviceInfo {
   private lazy val deviceInfo: util.Map[String, String] = Map(
     DeviceAttribute.Class -> DeviceClass.Network,
     DeviceAttribute.Description -> "Ethernet controller",
@@ -100,23 +100,23 @@ class NetSplitter(selfType: TileEntityType[_ <: NetSplitter]) extends TileEntity
   private final val IsInvertedTag = Settings.namespace + "isInverted"
   private final val OpenSidesTag = Settings.namespace + "openSides"
 
-  override def loadForServer(nbt: CompoundNBT): Unit = {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     super.loadForServer(nbt)
     isInverted = nbt.getBoolean(IsInvertedTag)
   }
 
-  override def saveForServer(nbt: CompoundNBT): Unit = {
+  override def saveForServer(nbt: CompoundTag): Unit = {
     super.saveForServer(nbt)
     nbt.putBoolean(IsInvertedTag, isInverted)
   }
 
   @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundNBT): Unit = {
+  def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     isInverted = nbt.getBoolean(IsInvertedTag)
   }
 
-  override def saveForClient(nbt: CompoundNBT): Unit = {
+  override def saveForClient(nbt: CompoundTag): Unit = {
     super.saveForClient(nbt)
     nbt.putBoolean(IsInvertedTag, isInverted)
   }

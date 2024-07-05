@@ -8,9 +8,9 @@ import li.cil.oc.api.nanomachines.Behavior
 import li.cil.oc.api.nanomachines.BehaviorProvider
 import li.cil.oc.server.PacketSender
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.entity.player.Player
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.util.Util
 import net.minecraft.util.text.StringTextComponent
 import net.minecraft.util.text.TextFormatting
@@ -100,7 +100,7 @@ class NeuralNetwork(controller: ControllerImpl) extends Persistable {
   // Enter debug configuration, one input -> one behavior, and list mapping in console.
   def debug(): Unit = {
     val log = controller.player match {
-      case playerMP: ServerPlayerEntity => (s: String) => PacketSender.sendClientLog(s, playerMP)
+      case playerMP: ServerPlayer => (s: String) => PacketSender.sendClientLog(s, playerMP)
       case _ => (s: String) => OpenComputers.log.info(s)
     }
     log(s"Creating debug configuration for nanomachines in player ${controller.player.getDisplayName.getString}.")
@@ -124,7 +124,7 @@ class NeuralNetwork(controller: ControllerImpl) extends Persistable {
     }
   }
 
-  def print(player: PlayerEntity): Unit = {
+  def print(player: Player): Unit = {
     val sb = StringBuilder.newBuilder
     def colored(value: Any, enabled: Boolean) = {
       if (enabled) sb.append(TextFormatting.GREEN)
@@ -159,7 +159,7 @@ class NeuralNetwork(controller: ControllerImpl) extends Persistable {
     }
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     saveData(nbt, forItem = false)
   }
 
@@ -171,21 +171,21 @@ class NeuralNetwork(controller: ControllerImpl) extends Persistable {
   private final val TriggerInputsTag = "triggerInputs"
   private final val ConnectorInputsTag = "connectorInputs"
 
-  def saveData(nbt: CompoundNBT, forItem: Boolean): Unit = {
+  def saveData(nbt: CompoundTag, forItem: Boolean): Unit = {
     nbt.setNewTagList(TriggersTag, triggers.map(t => {
-      val nbt = new CompoundNBT()
+      val nbt = new CompoundTag()
       nbt.putBoolean(IsActiveTag, t.isActive && !forItem)
       nbt
     }))
 
     nbt.setNewTagList(ConnectorsTag, connectors.map(c => {
-      val nbt = new CompoundNBT()
+      val nbt = new CompoundTag()
       nbt.putIntArray(TriggerInputsTag, c.inputs.map(triggers.indexOf(_)).filter(_ >= 0).toArray)
       nbt
     }))
 
     nbt.setNewTagList(BehaviorsTag, behaviors.map(b => {
-      val nbt = new CompoundNBT()
+      val nbt = new CompoundTag()
       nbt.putIntArray(TriggerInputsTag, b.inputs.map(triggers.indexOf(_)).filter(_ >= 0).toArray)
       nbt.putIntArray(ConnectorInputsTag, b.inputs.map(connectors.indexOf(_)).filter(_ >= 0).toArray)
       nbt.put(BehaviorTag, b.provider.save(b.behavior))
@@ -193,23 +193,23 @@ class NeuralNetwork(controller: ControllerImpl) extends Persistable {
     }))
   }
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     triggers.clear()
-    nbt.getList(TriggersTag, NBT.TAG_COMPOUND).foreach((t: CompoundNBT) => {
+    nbt.getList(TriggersTag, NBT.TAG_COMPOUND).foreach((t: CompoundTag) => {
       val neuron = new TriggerNeuron()
       neuron.isActive = t.getBoolean(IsActiveTag)
       triggers += neuron
     })
 
     connectors.clear()
-    nbt.getList(ConnectorsTag, NBT.TAG_COMPOUND).foreach((t: CompoundNBT) => {
+    nbt.getList(ConnectorsTag, NBT.TAG_COMPOUND).foreach((t: CompoundTag) => {
       val neuron = new ConnectorNeuron()
       neuron.inputs ++= t.getIntArray(TriggerInputsTag).map(triggers.apply)
       connectors += neuron
     })
 
     behaviors.clear()
-    nbt.getList(BehaviorsTag, NBT.TAG_COMPOUND).foreach((t: CompoundNBT) => {
+    nbt.getList(BehaviorsTag, NBT.TAG_COMPOUND).foreach((t: CompoundTag) => {
       api.Nanomachines.getProviders.find(p => p.load(controller.player, t.getCompound(BehaviorTag)) match {
         case b: Behavior =>
           val neuron = new BehaviorNeuron(p, b)
