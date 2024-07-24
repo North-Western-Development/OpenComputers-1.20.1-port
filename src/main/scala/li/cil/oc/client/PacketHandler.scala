@@ -2,8 +2,6 @@ package li.cil.oc.client
 
 import java.io.EOFException
 import java.io.InputStream
-
-import com.mojang.blaze3d.systems.IRenderCall
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Localization
 import li.cil.oc.OpenComputers
@@ -25,18 +23,16 @@ import li.cil.oc.integration.Mods
 import li.cil.oc.integration.jei.ModJEI
 import li.cil.oc.util.Audio
 import li.cil.oc.util.ExtendedLevel._
+import net.minecraft.Util
 import net.minecraft.client.Minecraft
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompressedStreamTools
-import net.minecraft.particles.IParticleData
 import net.minecraft.core.Direction
-import net.minecraft.util.Util
+import net.minecraft.core.particles.ParticleOptions
+import net.minecraft.nbt.NbtIo
+import net.minecraft.network.chat.ChatType
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.SoundCategory
-import net.minecraft.util.SoundEvent
+import net.minecraft.sounds.{SoundEvent, SoundSource}
 import net.minecraft.world.phys.Vec3
-import net.minecraft.util.text.ChatType
 import net.minecraft.world.level.Level
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.registries.ForgeRegistries
@@ -121,12 +117,10 @@ object PacketHandler extends CommonPacketHandler {
   def onAnalyze(p: PacketParser) {
     val address = p.readUTF()
     if (KeyBindings.isAnalyzeCopyingAddress) {
-      RenderSystem.recordRenderCall(new IRenderCall {
-        override def execute = {
-          val mc = Minecraft.getInstance
-          mc.keyboardHandler.setClipboard(address)
-          mc.gui.handleChat(ChatType.SYSTEM, Localization.Analyzer.AddressCopied, Util.NIL_UUID)
-        }
+      RenderSystem.recordRenderCall(() => {
+        val mc = Minecraft.getInstance
+        mc.keyboardHandler.setClipboard(address)
+        mc.gui.handleChat(ChatType.SYSTEM, Localization.Analyzer.AddressCopied, Util.NIL_UUID)
       })
     }
   }
@@ -146,9 +140,7 @@ object PacketHandler extends CommonPacketHandler {
 
   def onClipboard(p: PacketParser) {
     val contents = p.readUTF()
-    RenderSystem.recordRenderCall(new IRenderCall {
-      override def execute = Minecraft.getInstance.keyboardHandler.setClipboard(contents)
-    })
+    RenderSystem.recordRenderCall(() => Minecraft.getInstance.keyboardHandler.setClipboard(contents))
   }
 
   def onColorChange(p: PacketParser): Unit =
@@ -202,7 +194,7 @@ object PacketHandler extends CommonPacketHandler {
 
   def onFileSystemActivity(p: PacketParser): AnyVal = {
     val sound = p.readUTF()
-    val data = CompressedStreamTools.read(p)
+    val data = NbtIo.read(p)
     if (p.readBoolean()) p.readBlockEntity[net.minecraft.world.level.block.entity.BlockEntity]() match {
       case Some(t) =>
         MinecraftForge.EVENT_BUS.post(new FileSystemAccessEvent.Client(sound, t, data))
@@ -219,7 +211,7 @@ object PacketHandler extends CommonPacketHandler {
   }
 
   def onNetworkActivity(p: PacketParser): AnyVal = {
-    val data = CompressedStreamTools.read(p)
+    val data = NbtIo.read(p)
     if (p.readBoolean()) p.readBlockEntity[net.minecraft.world.level.block.entity.BlockEntity]() match {
       case Some(t) =>
         MinecraftForge.EVENT_BUS.post(new NetworkActivityEvent.Client(t, data))
@@ -414,31 +406,32 @@ object PacketHandler extends CommonPacketHandler {
         val velocity = p.readDouble()
         val direction = p.readDirection()
         val particleType = p.readRegistryEntry(ForgeRegistries.PARTICLE_TYPES)
-        if (particleType.isInstanceOf[IParticleData]) {
-          val particle = particleType.asInstanceOf[IParticleData]
-          val count = p.readUnsignedByte() / (1 << Minecraft.getInstance.options.particles.getId())
+        particleType match {
+          case particle: ParticleOptions =>
+            val count = p.readUnsignedByte() / (1 << Minecraft.getInstance.options.particles.getId)
 
-          for (i <- 0 until count) {
-            def rv(f: Direction => Int) = direction match {
-              case Some(d) => world.random.nextFloat - 0.5 + f(d) * 0.5
-              case _ => world.random.nextFloat * 2.0 - 1
-            }
-
-            val vx = rv(_.getStepX)
-            val vy = rv(_.getStepY)
-            val vz = rv(_.getStepZ)
-            if (vx * vx + vy * vy + vz * vz < 1) {
-              def rp(x: Int, v: Double, f: Direction => Int) = direction match {
-                case Some(d) => x + 0.5 + v * velocity * 0.5 + f(d) * velocity
-                case _ => x + 0.5 + v * velocity
+            for (i <- 0 until count) {
+              def rv(f: Direction => Int) = direction match {
+                case Some(d) => world.random.nextFloat - 0.5 + f(d) * 0.5
+                case _ => world.random.nextFloat * 2.0 - 1
               }
 
-              val px = rp(x, vx, _.getStepX)
-              val py = rp(y, vy, _.getStepY)
-              val pz = rp(z, vz, _.getStepZ)
-              world.addParticle(particle, px, py, pz, vx, vy + velocity * 0.25, vz)
+              val vx = rv(_.getStepX)
+              val vy = rv(_.getStepY)
+              val vz = rv(_.getStepZ)
+              if (vx * vx + vy * vy + vz * vz < 1) {
+                def rp(x: Int, v: Double, f: Direction => Int) = direction match {
+                  case Some(d) => x + 0.5 + v * velocity * 0.5 + f(d) * velocity
+                  case _ => x + 0.5 + v * velocity
+                }
+
+                val px = rp(x, vx, _.getStepX)
+                val py = rp(y, vy, _.getStepY)
+                val pz = rp(z, vz, _.getStepZ)
+                world.addParticle(particle, px, py, pz, vx, vy + velocity * 0.25, vz)
+              }
             }
-          }
+          case _ =>
         }
       case _ => // Invalid packet.
     }
@@ -828,7 +821,7 @@ object PacketHandler extends CommonPacketHandler {
         val y = p.readDouble()
         val z = p.readDouble()
         val sound = p.readUTF()
-        val category = SoundCategory.values()(p.readByte())
+        val category = SoundSource.values()(p.readByte())
         val range = p.readFloat()
         world.playSound(p.player, x, y, z, new SoundEvent(new ResourceLocation(sound)), category, range / 15 + 0.5F, 1.0F)
       case _ => // Invalid packet.

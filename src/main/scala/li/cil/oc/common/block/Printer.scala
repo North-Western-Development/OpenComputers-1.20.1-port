@@ -4,7 +4,7 @@ import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.tileentity
 import net.minecraft.block.AbstractBlock.Properties
 import net.minecraft.world.level.block.Block
-net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.core.BlockPos
 import net.minecraft.util.math.shapes.IBooleanFunction

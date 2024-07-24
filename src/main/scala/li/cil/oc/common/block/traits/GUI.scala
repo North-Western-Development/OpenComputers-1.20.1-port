@@ -2,7 +2,7 @@ package li.cil.oc.common.block.traits
 
 import li.cil.oc.OpenComputers
 import li.cil.oc.common.block.SimpleBlock
-net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.entity.player.Player
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.inventory.container.INamedContainerProvider

@@ -7,7 +7,7 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.util.RotationHelper
 import net.minecraft.block.AbstractBlock.Properties
 import net.minecraft.world.level.block.Block
-net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.Minecraft
 import net.minecraft.world.entity.player.Player
 import net.minecraft.state.StateContainer

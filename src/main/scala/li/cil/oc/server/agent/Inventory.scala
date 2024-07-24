@@ -16,7 +16,7 @@ import net.minecraft.nbt.ListTag
 import net.minecraft.util.DamageSource
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.StringTextComponent
-net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.BlockState
 
 import scala.collection.immutable
 

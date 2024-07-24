@@ -10,7 +10,7 @@ import li.cil.oc.common.block
 import li.cil.oc.common.block.Screen
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.Color
-net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.world.ClientLevel
 import net.minecraft.client.renderer.model.BakedQuad
 import net.minecraft.client.renderer.model.IBakedModel

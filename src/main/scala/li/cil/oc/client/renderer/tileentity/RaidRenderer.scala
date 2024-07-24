@@ -1,31 +1,29 @@
 package li.cil.oc.client.renderer.tileentity
 
 import java.util.function.Function
-
-import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.{BufferBuilder, IVertexBuilder, PoseStack, VertexConsumer}
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.IVertexBuilder
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity.Raid
 import li.cil.oc.util.RenderState
-import com.mojang.blaze3d.vertex.BufferBuilder
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.client.renderer.tileentity.BlockEntityRenderer
 import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
 import net.minecraft.core.Direction
 import com.mojang.math.Vector3f
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 
-object RaidRenderer extends Function[BlockEntityRendererDispatcher, RaidRenderer] {
-  override def apply(dispatch: BlockEntityRendererDispatcher) = new RaidRenderer(dispatch)
+object RaidRenderer extends Function[BlockEntityRendererProvider.Context, RaidRenderer] {
+  override def apply(dispatch: BlockEntityRendererProvider.Context) = new RaidRenderer(dispatch)
 }
 
-class RaidRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntityRenderer[Raid](dispatch) {
+class RaidRenderer(dispatch: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Raid](dispatch) {
   override def render(raid: Raid, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
 
     stack.pushPose()
 
@@ -69,7 +67,7 @@ class RaidRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntityR
   private val u1 = 2 / 16f
   private val fs = 4 / 16f
 
-  private def renderSlot(stack: PoseStack, r: IVertexBuilder, slot: Int, icon: TextureAtlasSprite) {
+  private def renderSlot(stack: PoseStack, r: VertexConsumer, slot: Int, icon: TextureAtlasSprite) {
     val l = u1 + slot * fs
     val h = u1 + (slot + 1) * fs
     r.vertex(stack.last.pose, l, 1, 0).uv(icon.getU(l * 16), icon.getV1).endVertex()

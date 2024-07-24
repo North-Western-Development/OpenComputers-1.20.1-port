@@ -14,7 +14,7 @@ import li.cil.oc.util.RotationHelper
 import net.minecraft.block.AbstractBlock.Properties
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
-net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.entity.player.Player
 import net.minecraft.item.BlockItemUseContext
 import net.minecraft.world.item.ItemStack

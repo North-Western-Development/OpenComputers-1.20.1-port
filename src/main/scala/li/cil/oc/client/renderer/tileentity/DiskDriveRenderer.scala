@@ -9,21 +9,20 @@ import li.cil.oc.common.tileentity.DiskDrive
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.model.ItemCameraTransforms
-import net.minecraft.client.renderer.tileentity.BlockEntityRenderer
-import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
 import net.minecraft.core.Direction
 import com.mojang.math.Vector3f
+import net.minecraft.client.renderer.block.model.ItemTransforms
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 
-object DiskDriveRenderer extends Function[BlockEntityRendererDispatcher, DiskDriveRenderer] {
-  override def apply(dispatch: BlockEntityRendererDispatcher) = new DiskDriveRenderer(dispatch)
+object DiskDriveRenderer extends Function[BlockEntityRendererProvider.Context, DiskDriveRenderer] {
+  override def apply(ctx: BlockEntityRendererProvider.Context) = new DiskDriveRenderer(ctx)
 }
 
-class DiskDriveRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntityRenderer[DiskDrive](dispatch) {
+class DiskDriveRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[DiskDrive](ctx) {
   override def render(drive: DiskDrive, dt: Float, matrix: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
 
     matrix.pushPose()
 
@@ -43,7 +42,7 @@ class DiskDriveRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEn
         matrix.mulPose(Vector3f.XN.rotationDegrees(90))
         matrix.scale(0.5f, 0.5f, 0.5f)
 
-        Minecraft.getInstance.getItemRenderer.renderStatic(stack, ItemCameraTransforms.TransformType.FIXED, light, overlay, matrix, buffer)
+        Minecraft.getInstance.getItemRenderer.renderStatic(stack, ItemTransforms.TransformType.FIXED, light, overlay, matrix, buffer, 1)
         matrix.popPose()
       case _ =>
     }

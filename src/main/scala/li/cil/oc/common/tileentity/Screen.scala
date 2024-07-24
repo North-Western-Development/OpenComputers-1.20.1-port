@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.core.Direction
 import net.minecraft.util.math.AxisAlignedBB
+import net.minecraft.world.phys.AABB
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
@@ -55,7 +56,7 @@ class Screen(selfType: BlockEntityType[_ <: Screen], var tier: Int) extends Bloc
 
   var hadRedstoneInput = false
 
-  var cachedBounds: Option[AxisAlignedBB] = None
+  var cachedBounds: Option[AABB] = None
 
   var invertTouchMode = false
 
@@ -337,8 +338,8 @@ class Screen(selfType: BlockEntityType[_ <: Screen], var tier: Int) extends Bloc
         val ox = x + (if (spos.x < 0) 1 else 0)
         val oy = y + (if (spos.y < 0) 1 else 0)
         val oz = z + (if (spos.z < 0) 1 else 0)
-        val btmp = new AxisAlignedBB(ox, oy, oz, ox + spos.x, oy + spos.y, oz + spos.z)
-        val b = new AxisAlignedBB(
+        val btmp = new AABB(ox, oy, oz, ox + spos.x, oy + spos.y, oz + spos.z)
+        val b = new AABB(
           math.min(btmp.minX, btmp.maxX), math.min(btmp.minY, btmp.maxY), math.min(btmp.minZ, btmp.maxZ),
           math.max(btmp.minX, btmp.maxX), math.max(btmp.minY, btmp.maxY), math.max(btmp.minZ, btmp.maxZ))
         cachedBounds = Some(b)

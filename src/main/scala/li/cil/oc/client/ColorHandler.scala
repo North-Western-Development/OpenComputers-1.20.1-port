@@ -1,5 +1,6 @@
 package li.cil.oc.client
 
+import codechicken.lib.datagen.ItemModelProvider
 import li.cil.oc.Constants
 import li.cil.oc.api
 import li.cil.oc.api.internal.Colored
@@ -7,17 +8,16 @@ import li.cil.oc.common.block
 import li.cil.oc.util.Color
 import li.cil.oc.util.ItemColorizer
 import li.cil.oc.util.ItemUtils
+import net.minecraft.client.color.block.BlockColor
+import net.minecraft.client.color.item.ItemColors
+import net.minecraft.world.level.BlockAndTintGetter
 import net.minecraft.world.level.block.Block
-net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.color.IBlockColor
-import net.minecraft.client.renderer.color.IItemColor
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
-import net.minecraft.util.IItemProvider
 import net.minecraft.core.BlockPos
-import net.minecraft.world.IBlockDisplayReader
 import net.minecraft.world.level.BlockGetter
 
 object ColorHandler {
@@ -81,14 +81,14 @@ object ColorHandler {
   }
 
   def register(handler: (BlockState, BlockGetter, BlockPos, Int) => Int, blocks: Block*): Unit = {
-    Minecraft.getInstance.getBlockColors.register(new IBlockColor {
-      override def getColor(state: BlockState, world: IBlockDisplayReader, pos: BlockPos, tintIndex: Int): Int = handler(state, world, pos, tintIndex)
-    }, blocks: _*)
+    Minecraft.getInstance.getBlockColors.register((state, blockAndTintGetter, blockPos, tint) => handler(state, blockAndTintGetter, blockPos, tint), blocks: _*)
   }
 
-  def register(handler: (ItemStack, Int) => Int, items: IItemProvider*): Unit = {
-    Minecraft.getInstance.getItemColors.register(new IItemColor {
-      override def getColor(stack: ItemStack, tintIndex: Int): Int = handler(stack, tintIndex)
-    }, items: _*)
+  def register(handler: (ItemStack, Int) => Int, blocks: Block*): Unit = {
+    Minecraft.getInstance.getBlockColors.register((state, blockAndTintGetter, blockPos, tint) => handler(new ItemStack(state.getBlock.asItem()), tint), blocks: _*)
+  }
+
+  def register(handler: (ItemStack, Int) => Int, items: Item*): Unit = {
+    Minecraft.getInstance.getItemColors.register((stack: ItemStack, tintIndex: Int) => handler(stack, tintIndex), items: _*)
   }
 }

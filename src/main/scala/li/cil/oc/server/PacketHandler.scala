@@ -1,36 +1,31 @@
 package li.cil.oc.server
 
 import java.io.InputStream
-
 import li.cil.oc.Localization
 import li.cil.oc.OpenComputers
 import li.cil.oc.api
-import li.cil.oc.api.internal.Server
 import li.cil.oc.api.machine.Machine
-import li.cil.oc.api.network.Connector
 import li.cil.oc.common.Achievement
 import li.cil.oc.common.PacketType
 import li.cil.oc.common.component.TextBuffer
 import li.cil.oc.common.container
-import li.cil.oc.common.entity.Drone
 import li.cil.oc.common.entity.DroneInventory
-import li.cil.oc.common.item.{Tablet, TabletWrapper}
+import li.cil.oc.common.item.Tablet
 import li.cil.oc.common.item.data.DriveData
 import li.cil.oc.common.item.traits.FileSystemLike
 import li.cil.oc.common.tileentity._
 import li.cil.oc.common.tileentity.traits.Computer
 import li.cil.oc.common.{PacketHandler => CommonPacketHandler}
+import net.minecraft.Util
+import net.minecraft.core.Registry
 import net.minecraft.world.entity.player.Player
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.util.Hand
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.Util
-import net.minecraft.util.registry.Registry
+import net.minecraft.world.InteractionHand
 import net.minecraft.world.level.Level
-import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.server.ServerLifecycleHooks
+import net.minecraftforge.server.ServerLifecycleHooks
 import org.apache.logging.log4j.MarkerManager
 
 object PacketHandler extends CommonPacketHandler {
@@ -125,7 +120,7 @@ object PacketHandler extends CommonPacketHandler {
 
   def onDriveLock(p: PacketParser): Unit = p.player match {
     case player: ServerPlayer => {
-      val heldItem = player.getItemInHand(Hand.MAIN_HAND)
+      val heldItem = player.getItemInHand(InteractionHand.MAIN_HAND)
       heldItem.getItem match {
         case drive: FileSystemLike => DriveData.lock(heldItem, player)
         case _ => // Invalid packet
@@ -138,7 +133,7 @@ object PacketHandler extends CommonPacketHandler {
     val unmanaged = p.readBoolean()
     p.player match {
       case player: ServerPlayer =>
-        val heldItem = player.getItemInHand(Hand.MAIN_HAND)
+        val heldItem = player.getItemInHand(InteractionHand.MAIN_HAND)
         heldItem.getItem match {
           case drive: FileSystemLike => DriveData.setUnmanaged(heldItem, unmanaged)
           case _ => // Invalid packet.

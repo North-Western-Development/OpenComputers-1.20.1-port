@@ -2,7 +2,7 @@ package li.cil.oc.common.block
 
 import li.cil.oc.common.tileentity
 import net.minecraft.block.AbstractBlock.Properties
-net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.BlockGetter

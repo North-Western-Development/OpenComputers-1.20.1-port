@@ -3,7 +3,7 @@ package li.cil.oc.util
 import li.cil.oc.api.network.EnvironmentHost
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
-net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.material.Material
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.block.entity.BlockEntity

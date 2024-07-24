@@ -10,8 +10,7 @@ import li.cil.oc.integration.opencomputers.DriverScreen
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.ItemUtils
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.nbt.{CompoundTag, Tag}
 
 import scala.io.Source
 
@@ -67,9 +66,9 @@ class RobotData extends ItemData(Constants.BlockName.Robot) {
     totalEnergy = nbt.getInt(StoredEnergyTag)
     robotEnergy = nbt.getInt(RobotEnergyTag)
     tier = nbt.getInt(TierTag)
-    components = nbt.getList(ComponentsTag, NBT.TAG_COMPOUND).
+    components = nbt.getList(ComponentsTag, Tag.TAG_COMPOUND).
       toTagArray[CompoundTag].map(ItemStack.of(_))
-    containers = nbt.getList(ContainersTag, NBT.TAG_COMPOUND).
+    containers = nbt.getList(ContainersTag, Tag.TAG_COMPOUND).
       toTagArray[CompoundTag].map(ItemStack.of(_))
     if (nbt.contains(LightColorTag)) {
       lightColor = nbt.getInt(LightColorTag)

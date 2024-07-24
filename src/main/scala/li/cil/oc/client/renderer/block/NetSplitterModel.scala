@@ -8,7 +8,7 @@ import li.cil.oc.client.Textures
 import li.cil.oc.common.block
 import li.cil.oc.common.item.data.PrintData
 import li.cil.oc.common.tileentity
-net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.world.ClientLevel
 import net.minecraft.client.renderer.model.BakedQuad
 import net.minecraft.client.renderer.model.IBakedModel

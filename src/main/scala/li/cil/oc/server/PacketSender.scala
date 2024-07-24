@@ -13,15 +13,13 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.PackedColor
 import net.minecraft.world.entity.player.Player
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.inventory.container.Container
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompressedStreamTools
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.particles.IParticleData
+import net.minecraft.nbt.{CompoundTag, NbtIo}
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.SoundCategory
 import net.minecraft.core.BlockPos
+import net.minecraft.core.particles.ParticleOptions
+import net.minecraft.sounds.SoundSource
 import net.minecraft.world.level.Level
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.registries.ForgeRegistries
@@ -154,7 +152,7 @@ object PacketSender {
           val pb = new SimplePacketBuilder(PacketType.FileSystemActivity)
 
           pb.writeUTF(event.getSound)
-          CompressedStreamTools.write(event.getData, pb)
+          NbtIo.write(event.getData, pb)
           event.getBlockEntity match {
             case t: net.minecraft.world.level.block.entity.BlockEntity =>
               pb.writeBoolean(true)
@@ -184,7 +182,7 @@ object PacketSender {
 
       val pb = new SimplePacketBuilder(PacketType.NetworkActivity)
 
-      CompressedStreamTools.write(event.getData, pb)
+      NbtIo.write(event.getData, pb)
       event.getBlockEntity match {
         case t: net.minecraft.world.level.block.entity.BlockEntity =>
           pb.writeBoolean(true)
@@ -391,7 +389,7 @@ object PacketSender {
     pb.sendToPlayersNearBlockEntity(t)
   }
 
-  def sendParticleEffect(position: BlockPosition, particleType: IParticleData, count: Int, velocity: Double, direction: Option[Direction] = None): Unit = if (count > 0) {
+  def sendParticleEffect(position: BlockPosition, particleType: ParticleOptions, count: Int, velocity: Double, direction: Option[Direction] = None): Unit = if (count > 0) {
     val pb = new SimplePacketBuilder(PacketType.ParticleEffect)
 
     pb.writeUTF(position.world.get.dimension.location.toString)
@@ -400,7 +398,7 @@ object PacketSender {
     pb.writeInt(position.z)
     pb.writeDouble(velocity)
     pb.writeDirection(direction)
-    pb.writeRegistryEntry(ForgeRegistries.PARTICLE_TYPES, particleType.getType())
+    pb.writeRegistryEntry(ForgeRegistries.PARTICLE_TYPES, particleType.getType)
     pb.writeByte(count.toByte)
 
     pb.sendToNearbyPlayers(position.world.get, position.x, position.y, position.z, Some(Settings.get.maxNetworkClientEffectPacketDistance / 2.0D))
@@ -777,7 +775,7 @@ object PacketSender {
     pb.sendToPlayersNearBlockEntity(t)
   }
 
-  def sendSound(world: Level, x: Double, y: Double, z: Double, sound: ResourceLocation, category: SoundCategory, range: Double) {
+  def sendSound(world: Level, x: Double, y: Double, z: Double, sound: ResourceLocation, category: SoundSource, range: Double) {
     val pb = new SimplePacketBuilder(PacketType.SoundEffect)
 
     pb.writeUTF(world.dimension.location.toString)

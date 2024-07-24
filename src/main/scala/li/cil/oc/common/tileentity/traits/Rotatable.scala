@@ -7,7 +7,7 @@ import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedEnumFacing._
 import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.RotationHelper
-net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.entity.Entity
 import net.minecraft.core.Direction
 import net.minecraft.util.Rotation

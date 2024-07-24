@@ -4,29 +4,23 @@ import java.io.ByteArrayInputStream
 import java.io.DataInputStream
 import java.io.InputStream
 import java.util.zip.InflaterInputStream
-
 import li.cil.oc.Constants
 import li.cil.oc.OpenComputers
 import li.cil.oc.api
 import li.cil.oc.common.block.RobotAfterimage
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedLevel._
-import li.cil.oc.util.RotationHelper
 import net.minecraft.world.entity.player.Player
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompressedStreamTools
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.network.INetHandler
+import net.minecraft.nbt.{CompoundTag, NbtIo}
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.Level
-import net.minecraftforge.fml.network.NetworkDirection
-import net.minecraftforge.fml.server.ServerLifecycleHooks
+import net.minecraftforge.network.NetworkDirection
 import net.minecraftforge.registries._
 
-import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
 import scala.reflect.classTag
 
@@ -154,7 +148,7 @@ abstract class PacketHandler {
     def readNBT(): CompoundTag = {
       val haveNbt = readBoolean()
       if (haveNbt) {
-        CompressedStreamTools.read(this)
+        NbtIo.read(this)
       }
       else null
     }

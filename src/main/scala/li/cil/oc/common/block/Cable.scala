@@ -10,7 +10,7 @@ import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.ItemColorizer
 import net.minecraft.block.AbstractBlock.Properties
 import net.minecraft.world.level.block.Block
-net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.entity.player.Player
 import net.minecraft.entity.{Entity, LivingEntity}
 import net.minecraft.item.{BlockItemUseContext, DyeColor, ItemStack}

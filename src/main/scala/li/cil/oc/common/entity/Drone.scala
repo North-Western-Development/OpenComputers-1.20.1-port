@@ -31,7 +31,7 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.InventoryUtils
-net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.material.Material
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntitySize

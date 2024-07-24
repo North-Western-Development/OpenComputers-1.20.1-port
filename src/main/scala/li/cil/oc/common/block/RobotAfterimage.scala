@@ -8,7 +8,7 @@ import li.cil.oc.api
 import li.cil.oc.common.tileentity
 import net.minecraft.block.AbstractBlock.Properties
 import net.minecraft.world.level.block.Blocks
-net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.entity.player.Player
 import net.minecraft.fluid.FluidState
 import net.minecraft.world.item.ItemStack

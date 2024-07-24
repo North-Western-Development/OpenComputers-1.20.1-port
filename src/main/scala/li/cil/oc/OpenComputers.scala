@@ -1,7 +1,6 @@
 package li.cil.oc
 
 import java.nio.file.Paths
-
 import li.cil.oc.common.IMC
 import li.cil.oc.common.Proxy
 import li.cil.oc.common.init.Blocks
@@ -22,8 +21,7 @@ import net.minecraftforge.fml.ModContainer
 import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent
 import net.minecraftforge.fml.loading.FMLPaths
-import net.minecraftforge.fml.network.simple.SimpleChannel
-import net.minecraftforge.scorge.lang.ScorgeModLoadingContext
+import net.minecraftforge.network.simple.SimpleChannel
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
@@ -61,23 +59,21 @@ object OpenComputers {
 class OpenComputers {
   val modContainer: ModContainer = ModLoadingContext.get.getActiveContainer
 
-  ScorgeModLoadingContext.get.getModEventBus.register(this)
   OpenComputers.instance = Some(this)
 
   MinecraftForge.EVENT_BUS.register(OpenComputers.proxy)
-  ScorgeModLoadingContext.get.getModEventBus.register(OpenComputers.proxy)
   Settings.load(FMLPaths.CONFIGDIR.get().resolve(Paths.get("opencomputers", "settings.conf")).toFile())
   OpenComputers.proxy.preInit()
   MinecraftForge.EVENT_BUS.register(ThreadPoolFactory)
   Mods.preInit() // Must happen after loading Settings but before registry events are fired.
 
   @SubscribeEvent
-  def registerBlocks(e: RegistryEvent.Register[Block]) {
+  def registerBlocks(e: RegistryEvent.Register[Block]): Unit = {
     Blocks.init()
   }
 
   @SubscribeEvent
-  def registerItems(e: RegistryEvent.Register[Item]) {
+  def registerItems(e: RegistryEvent.Register[Item]): Unit = {
     Items.init()
   }
 

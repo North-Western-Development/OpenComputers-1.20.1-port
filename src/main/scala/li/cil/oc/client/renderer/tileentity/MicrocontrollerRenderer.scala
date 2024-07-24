@@ -1,29 +1,27 @@
 package li.cil.oc.client.renderer.tileentity
 
 import java.util.function.Function
-import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.{PoseStack, VertexConsumer}
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.{IVertexBuilder, PoseStack}
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity.Microcontroller
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.tileentity.BlockEntityRenderer
-import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
 import com.mojang.math.Vector3f
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 
-object MicrocontrollerRenderer extends Function[BlockEntityRendererDispatcher, MicrocontrollerRenderer] {
-  override def apply(dispatch: BlockEntityRendererDispatcher) = new MicrocontrollerRenderer(dispatch)
+object MicrocontrollerRenderer extends Function[BlockEntityRendererProvider.Context, MicrocontrollerRenderer] {
+  override def apply(dispatch: BlockEntityRendererProvider.Context) = new MicrocontrollerRenderer(dispatch)
 }
 
-class MicrocontrollerRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntityRenderer[Microcontroller](dispatch) {
+class MicrocontrollerRenderer(dispatch: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Microcontroller](dispatch) {
   override def render(mcu: Microcontroller, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
 
     stack.pushPose()
 
@@ -55,7 +53,7 @@ class MicrocontrollerRenderer(dispatch: BlockEntityRendererDispatcher) extends B
     RenderState.checkError(getClass.getName + ".render: leaving")
   }
 
-  private def renderFrontOverlay(stack: PoseStack, texture: ResourceLocation, r: IVertexBuilder): Unit = {
+  private def renderFrontOverlay(stack: PoseStack, texture: ResourceLocation, r: VertexConsumer): Unit = {
     val icon = Textures.getSprite(texture)
     r.vertex(stack.last.pose, 0, 1, 0).uv(icon.getU0, icon.getV1).endVertex()
     r.vertex(stack.last.pose, 1, 1, 0).uv(icon.getU1, icon.getV1).endVertex()

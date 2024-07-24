@@ -1,13 +1,12 @@
 package li.cil.oc.client.renderer.block
 
 import java.util.Random
-
 import li.cil.oc.Constants
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.common.item.CustomModel
-net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.BlockModelShapes
 import net.minecraft.client.renderer.model.IBakedModel
@@ -19,6 +18,7 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.util.IItemProvider
 import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.client.event.{ModelBakeEvent, ModelRegistryEvent}
 import net.minecraftforge.client.model.data.IDynamicBakedModel
 import net.minecraftforge.client.model.data.IModelData
@@ -70,13 +70,13 @@ object ModelInitialization {
 
   // ----------------------------------------------------------------------- //
 
-  def registerModel(instance: IItemProvider, id: String): Unit = {
+  def registerModel(instance: Item, id: String): Unit = {
     meshableItems += instance.asItem
   }
 
   // ----------------------------------------------------------------------- //
 
-  private def registerModel(blockName: String, blockLocation: ModelResourceLocation, itemLocation: ModelResourceLocation): Unit = {
+  private def registerModel(blockName: String, blockLocation: ResourceLocation, itemLocation: ResourceLocation): Unit = {
     val descriptor = api.Items.get(blockName)
     if (itemLocation != null) {
       val stack = descriptor.createItemStack(1)

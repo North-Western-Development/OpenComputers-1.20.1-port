@@ -9,7 +9,7 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.util.Color
 import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.ItemColorizer
-net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.renderer.model.BakedQuad
 import net.minecraft.client.renderer.model.IBakedModel
 import net.minecraft.client.renderer.model.ItemOverrideList

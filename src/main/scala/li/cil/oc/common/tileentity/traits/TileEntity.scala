@@ -6,7 +6,7 @@ import li.cil.oc.client.Sound
 import li.cil.oc.common.SaveHandler
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.SideTracker
-net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.NetworkManager
 import net.minecraft.network.play.server.SUpdateBlockEntityPacket

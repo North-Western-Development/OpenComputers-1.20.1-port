@@ -1,16 +1,15 @@
 package li.cil.oc.common.inventory
 
 import li.cil.oc.Localization
+import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.Container
+import net.minecraft.world.{Container, Nameable}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.util.INameable
-import net.minecraft.util.text.ITextComponent
 
-trait SimpleInventory extends Container with INameable {
+trait SimpleInventory extends Container with Nameable {
   override def hasCustomName = false
 
-  override def getDisplayName: ITextComponent = getName
+  override def getDisplayName: Component = getName
 
   override def getMaxStackSize = 64
 

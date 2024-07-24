@@ -2,8 +2,7 @@ package li.cil.oc.client.renderer.tileentity
 
 import java.util.function.Function
 import com.google.common.base.Strings
-import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.{IVertexBuilder, PoseStack}
+import com.mojang.blaze3d.vertex.{PoseStack, VertexConsumer}
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api.driver.item.UpgradeRenderer
@@ -17,18 +16,13 @@ import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer._
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType
-import net.minecraft.client.renderer.tileentity.BlockEntityRenderer
-import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
-import net.minecraft.world.item.Items
-import net.minecraft.item.BlockItem
-import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.{BlockItem, ItemStack, Items}
 import net.minecraft.core.Direction
 import net.minecraft.world.phys.Vec3
-import com.mojang.math.Vector3f
-import net.minecraft.util.math.vector.Matrix3f
-import net.minecraft.util.text.TextFormatting
+import com.mojang.math.{Matrix3f, Vector3f}
+import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
+import net.minecraft.network.chat.Style
 import net.minecraftforge.client.ForgeHooksClient
 import net.minecraftforge.common.MinecraftForge
 
@@ -36,8 +30,8 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 
-object RobotRenderer extends Function[BlockEntityRendererDispatcher, RobotRenderer] {
-  override def apply(dispatch: BlockEntityRendererDispatcher) = new RobotRenderer(dispatch)
+object RobotRenderer extends Function[BlockEntityRendererProvider.Context, RobotRenderer] {
+  override def apply(dispatch: BlockEntityRendererProvider.Context) = new RobotRenderer(dispatch)
 
   private val instance = new RobotRenderer(null)
 
@@ -45,7 +39,7 @@ object RobotRenderer extends Function[BlockEntityRendererDispatcher, RobotRender
     instance.renderChassis(stack, buffer, light, null, offset, isRunningOverride)
 }
 
-class RobotRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntityRenderer[tileentity.RobotProxy](dispatch) {
+class RobotRenderer(dispatch: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[tileentity.RobotProxy](dispatch) {
   private val mountPoints = new Array[RobotRenderEvent.MountPoint](7)
 
   private val slotNameMapping = Map(
@@ -69,10 +63,10 @@ class RobotRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntity
   private val gt = 0.5f + gap
   private val gb = 0.5f - gap
 
-  private implicit def extendLevelRenderer(self: IVertexBuilder): ExtendedLevelRenderer = new ExtendedLevelRenderer(self)
+  private implicit def extendLevelRenderer(self: VertexConsumer): ExtendedLevelRenderer = new ExtendedLevelRenderer(self)
 
-  private class ExtendedLevelRenderer(val buffer: IVertexBuilder) {
-    def normal(matrix: Matrix3f, normal: Vec3): IVertexBuilder = {
+  private class ExtendedLevelRenderer(val buffer: VertexConsumer) {
+    def normal(matrix: Matrix3f, normal: Vec3): VertexConsumer = {
       val normalized = normal.normalize()
       buffer.normal(matrix, normalized.x.toFloat, normalized.y.toFloat, normalized.z.toFloat)
     }
@@ -357,7 +351,7 @@ class RobotRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntity
               matrix.mulPose(Vector3f.ZP.rotationDegrees(180.0F))
             }
 
-            itemRenderer.renderStatic(Minecraft.getInstance.player, stack, TransformType.THIRD_PERSON_RIGHT_HAND, false, matrix, buffer, proxy.getLevel, light, overlay)
+            itemRenderer.renderStatic(Minecraft.getInstance.player, stack, TransformType.THIRD_PERSON_RIGHT_HAND, false, matrix, buffer, proxy.getLevel, light, overlay, 1)
           }
           catch {
             case e: Throwable =>
@@ -419,7 +413,7 @@ class RobotRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntity
       matrix.mulPose(Minecraft.getInstance.getEntityRenderDispatcher.cameraOrientation)
       matrix.scale(-scale, -scale, scale)
 
-      f.drawInBatch((if (EventHandler.isItTime) TextFormatting.OBFUSCATED.toString else "") + name,
+      f.drawInBatch((if (EventHandler.isItTime) Style.EMPTY.withObfuscated(true).toString else "") + name,
         -halfWidth, 0, -1, false, matrix.last.pose, buffer, false, bgColor, light)
     }
 

@@ -1,7 +1,6 @@
 package li.cil.oc.common.tileentity
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.Settings
 import li.cil.oc.api
@@ -18,23 +17,19 @@ import li.cil.oc.common.container
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import net.minecraft.world.entity.player.Player
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.INamedContainerProvider
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.ListTag
+import net.minecraft.nbt.{CompoundTag, ListTag, Tag}
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
-import net.minecraft.util.SoundCategory
-import net.minecraft.util.SoundEvents
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.sounds.{SoundEvents, SoundSource}
+import net.minecraft.world.level.block.state.BlockState
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 
-class Adapter(selfType: BlockEntityType[_ <: Adapter]) extends BlockEntity(selfType) with traits.Environment with traits.ComponentInventory
-  with traits.Tickable with traits.OpenSides with Analyzable with internal.Adapter with DeviceInfo with INamedContainerProvider {
+class Adapter(selfType: BlockEntityType[_ <: Adapter], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Environment with traits.ComponentInventory
+ with traits.OpenSides with Analyzable with internal.Adapter with DeviceInfo with INamedContainerProvider {
 
   val node = api.Network.newNode(this, Visibility.Network).create()
 
@@ -61,7 +56,7 @@ class Adapter(selfType: BlockEntityType[_ <: Adapter]) extends BlockEntity(selfT
     super.setSideOpen(side, value)
     if (isServer) {
       ServerPacketSender.sendAdapterState(this)
-      getLevel.playSound(null, getBlockPos, SoundEvents.PISTON_EXTEND, SoundCategory.BLOCKS, 0.5f, getLevel.random.nextFloat() * 0.25f + 0.7f)
+      getLevel.playSound(null, getBlockPos, SoundEvents.PISTON_EXTEND, SoundSource.BLOCKS, 0.5f, getLevel.random.nextFloat() * 0.25f + 0.7f)
       getLevel.updateNeighborsAt(getBlockPos, getBlockState.getBlock)
       neighborChanged(side)
     } else {
@@ -205,7 +200,7 @@ class Adapter(selfType: BlockEntityType[_ <: Adapter]) extends BlockEntity(selfT
   override def loadForServer(nbt: CompoundTag) {
     super.loadForServer(nbt)
 
-    val blocksNbt = nbt.getList(BlocksTag, NBT.TAG_COMPOUND)
+    val blocksNbt = nbt.getList(BlocksTag, Tag.TAG_COMPOUND)
     (0 until (blocksNbt.size min blocksData.length)).
       map(blocksNbt.getCompound).
       zipWithIndex.

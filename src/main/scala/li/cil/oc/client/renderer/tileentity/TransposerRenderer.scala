@@ -1,7 +1,6 @@
 package li.cil.oc.client.renderer.tileentity
 
 import java.util.function.Function
-
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.Textures
@@ -9,18 +8,17 @@ import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.tileentity.BlockEntityRenderer
-import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 
-object TransposerRenderer extends Function[BlockEntityRendererDispatcher, TransposerRenderer] {
-  override def apply(dispatch: BlockEntityRendererDispatcher) = new TransposerRenderer(dispatch)
+object TransposerRenderer extends Function[BlockEntityRendererProvider.Context, TransposerRenderer] {
+  override def apply(dispatch: BlockEntityRendererProvider.Context) = new TransposerRenderer(dispatch)
 }
 
-class TransposerRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntityRenderer[tileentity.Transposer](dispatch) {
+class TransposerRenderer(dispatch: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[tileentity.Transposer](dispatch) {
   override def render(transposer: tileentity.Transposer, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
 
     val activity = math.max(0, 1 - (System.currentTimeMillis() - transposer.lastOperation) / 1000.0f)
     if (activity > 0) {

@@ -1,7 +1,6 @@
 package li.cil.oc.client.renderer.tileentity
 
 import java.util.function.Function
-
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.Textures
@@ -14,13 +13,15 @@ import net.minecraft.client.renderer.model.ItemCameraTransforms
 import net.minecraft.client.renderer.tileentity.BlockEntityRenderer
 import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
 import com.mojang.math.Vector3f
+import net.minecraft.client.renderer.block.model.ItemTransforms
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 import org.lwjgl.opengl.GL13
 
-object PrinterRenderer extends Function[BlockEntityRendererDispatcher, PrinterRenderer] {
-  override def apply(dispatch: BlockEntityRendererDispatcher) = new PrinterRenderer(dispatch)
+object PrinterRenderer extends Function[BlockEntityRendererProvider.Context, PrinterRenderer] {
+  override def apply(dispatch: BlockEntityRendererProvider.Context) = new PrinterRenderer(dispatch)
 }
 
-class PrinterRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntityRenderer[Printer](dispatch) {
+class PrinterRenderer(dispatch: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Printer](dispatch) {
   override def render(printer: Printer, dt: Float, matrix: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
@@ -34,7 +35,7 @@ class PrinterRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEnti
       matrix.scale(0.75f, 0.75f, 0.75f)
 
       Textures.Block.bind()
-      Minecraft.getInstance.getItemRenderer.renderStatic(stack, ItemCameraTransforms.TransformType.FIXED, light, overlay, matrix, buffer)
+      Minecraft.getInstance.getItemRenderer.renderStatic(stack, ItemTransforms.TransformType.FIXED, light, overlay, matrix, buffer, 1)
 
       matrix.popPose()
     }

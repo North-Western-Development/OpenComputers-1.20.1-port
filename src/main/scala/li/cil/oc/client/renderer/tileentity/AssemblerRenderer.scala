@@ -1,7 +1,6 @@
 package li.cil.oc.client.renderer.tileentity
 
 import java.util.function.Function
-
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.Textures
@@ -9,19 +8,18 @@ import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity.Assembler
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.tileentity.BlockEntityRenderer
-import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
 import com.mojang.math.Vector3f
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 
-object AssemblerRenderer extends Function[BlockEntityRendererDispatcher, AssemblerRenderer] {
-  override def apply(dispatch: BlockEntityRendererDispatcher) = new AssemblerRenderer(dispatch)
+object AssemblerRenderer extends Function[BlockEntityRendererProvider.Context, AssemblerRenderer] {
+  override def apply(ctx: BlockEntityRendererProvider.Context) = new AssemblerRenderer(ctx)
 }
 
-class AssemblerRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntityRenderer[Assembler](dispatch) {
+class AssemblerRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Assembler](ctx) {
   override def render(assembler: Assembler, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
 
     stack.pushPose()
 

@@ -1,7 +1,6 @@
 package li.cil.oc.client.renderer.tileentity
 
 import java.util.function.Function
-
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.Textures
@@ -10,20 +9,21 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.texture.AtlasTexture
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
+import net.minecraft.client.renderer.texture.{AtlasTexture, TextureAtlas}
 import net.minecraft.client.renderer.tileentity.BlockEntityRenderer
 import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
 import net.minecraft.core.Direction
 
-object NetSplitterRenderer extends Function[BlockEntityRendererDispatcher, NetSplitterRenderer] {
-  override def apply(dispatch: BlockEntityRendererDispatcher) = new NetSplitterRenderer(dispatch)
+object NetSplitterRenderer extends Function[BlockEntityRendererProvider.Context, NetSplitterRenderer] {
+  override def apply(dispatch: BlockEntityRendererProvider.Context) = new NetSplitterRenderer(dispatch)
 }
 
-class NetSplitterRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntityRenderer[tileentity.NetSplitter](dispatch) {
+class NetSplitterRenderer(dispatch: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[tileentity.NetSplitter](dispatch) {
   override def render(splitter: tileentity.NetSplitter, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
 
     if (splitter.openSides.contains(!splitter.isInverted)) {
       stack.pushPose()
@@ -32,7 +32,7 @@ class NetSplitterRenderer(dispatch: BlockEntityRendererDispatcher) extends Block
       stack.scale(1.0025f, -1.0025f, 1.0025f)
       stack.translate(-0.5f, -0.5f, -0.5f)
 
-      Minecraft.getInstance().getModelManager().getAtlas(AtlasTexture.LOCATION_BLOCKS).bind()
+      Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).bind()
 
       val r = buffer.getBuffer(RenderTypes.BLOCK_OVERLAY)
 

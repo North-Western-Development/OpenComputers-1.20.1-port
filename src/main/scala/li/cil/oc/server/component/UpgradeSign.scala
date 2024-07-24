@@ -1,7 +1,6 @@
 package li.cil.oc.server.component
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.Settings
 import li.cil.oc.api
@@ -12,17 +11,16 @@ import li.cil.oc.api.event.SignChangeEvent
 import li.cil.oc.api.internal
 import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.api.network.Message
-import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedLevel._
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.tileentity.SignBlockEntity
 import net.minecraft.core.Direction
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.server.ServerLevel
+import net.minecraft.network.chat.TextComponent
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.level.block.entity.SignBlockEntity
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.FakePlayerFactory
 import net.minecraftforge.event.world.BlockEvent
@@ -63,7 +61,7 @@ abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
           return result((), "not allowed")
         }
 
-        lines.map(line => new StringTextComponent(line)).copyToArray(sign.messages)
+        lines.map(line => new TextComponent(line)).copyToArray(sign.messages)
         host.world.notifyBlockUpdate(sign.getBlockPos)
 
         MinecraftForge.EVENT_BUS.post(new SignChangeEvent.Post(sign, lines))

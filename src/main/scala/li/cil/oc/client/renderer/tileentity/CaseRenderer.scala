@@ -1,24 +1,22 @@
 package li.cil.oc.client.renderer.tileentity
 
 import java.util.function.Function
-import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.{IVertexBuilder, PoseStack}
+import com.mojang.blaze3d.vertex.{PoseStack, VertexConsumer}
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity.Case
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.tileentity.BlockEntityRenderer
-import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
 import com.mojang.math.Vector3f
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 
-object CaseRenderer extends Function[BlockEntityRendererDispatcher, CaseRenderer] {
-  override def apply(dispatch: BlockEntityRendererDispatcher) = new CaseRenderer(dispatch)
+object CaseRenderer extends Function[BlockEntityRendererProvider.Context, CaseRenderer] {
+  override def apply(ctx: BlockEntityRendererProvider.Context) = new CaseRenderer(ctx)
 }
 
-class CaseRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntityRenderer[Case](dispatch) {
+class CaseRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Case](ctx) {
   override def render(computer: Case, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
@@ -51,7 +49,7 @@ class CaseRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntityR
     RenderState.checkError(getClass.getName + ".render: leaving")
   }
 
-  private def renderFrontOverlay(stack: PoseStack, texture: ResourceLocation, r: IVertexBuilder): Unit = {
+  private def renderFrontOverlay(stack: PoseStack, texture: ResourceLocation, r: VertexConsumer): Unit = {
     val icon = Textures.getSprite(texture)
     r.vertex(stack.last.pose, 0, 1, 0).uv(icon.getU0, icon.getV1).endVertex()
     r.vertex(stack.last.pose, 1, 1, 0).uv(icon.getU1, icon.getV1).endVertex()

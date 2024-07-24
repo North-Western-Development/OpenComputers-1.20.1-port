@@ -15,7 +15,7 @@ import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.InventoryUtils
 import net.minecraft.world.level.block.Block
-net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.Pose

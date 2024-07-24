@@ -1,7 +1,6 @@
 package li.cil.oc.common.block
 
 import java.util
-
 import li.cil.oc.CreativeTab
 import li.cil.oc.common.tileentity
 import li.cil.oc.common.tileentity.traits.Colored
@@ -9,40 +8,38 @@ import li.cil.oc.common.tileentity.traits.Inventory
 import li.cil.oc.common.tileentity.traits.Rotatable
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.Color
-import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.Tooltip
-import net.minecraft.block.AbstractBlock.Properties
-net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.level.block.BlockRenderType
-import net.minecraft.block.ContainerBlock
-import net.minecraft.world.level.material.Material
-import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.world.entity.Entity
-import net.minecraft.world.entity.EntityType
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.DyeColor
-import net.minecraft.world.item.ItemGroup
-import net.minecraft.world.item.ItemStack
-import net.minecraft.loot.LootContext
-import net.minecraft.loot.LootParameters
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.{Block, EntityBlock, RenderShape}
 import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.util.ActionResultType
-import net.minecraft.core.Direction
-import net.minecraft.util.Hand
-import net.minecraft.core.BlockPos
+import net.minecraft.world.level.material.Material
+import net.minecraft.client.Minecraft
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.{DyeColor, ItemStack, TooltipFlag}
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.world.level.{BlockGetter, Level, LevelReader}
 import net.minecraft.world.phys.BlockHitResult
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.level.BlockGetter
-import net.minecraft.world.ILevelReader
-import net.minecraft.world.level.Level
+import net.minecraft.world.item.context.BlockPlaceContext
+import net.minecraft.world.InteractionResult
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.level.block.state.StateDefinition
+import net.minecraft.world.level.block.state.properties.BlockStateProperties
+import net.minecraft.world.phys.shapes.VoxelShape
+import net.minecraft.world.phys.shapes.CollisionContext
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.TextComponent
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.level.storage.loot.LootContext
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraftforge.common.ToolType
+import net.minecraftforge.common.ToolActions
 
-import scala.collection.convert.ImplicitConversionsToScala._
+import scala.jdk.CollectionConverters._
 
-abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
+abstract class SimpleBlock(props: Properties) extends Block(props) with EntityBlock {
   @Deprecated
   private var unlocalizedName = super.getDescriptionId()
 
@@ -56,38 +53,38 @@ abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
 
   def createItemStack(amount: Int = 1) = new ItemStack(this, amount)
 
-  override def newBlockEntity(world: BlockGetter): BlockEntity = null
+  override def newBlockEntity(pos: BlockPos, state: BlockState): BlockEntity = null
 
-  override def getRenderShape(state: BlockState): BlockRenderType = BlockRenderType.MODEL
+  override def getRenderShape(state: BlockState): RenderShape = RenderShape.MODEL
 
   // ----------------------------------------------------------------------- //
   // BlockItem
   // ----------------------------------------------------------------------- //
 
   @OnlyIn(Dist.CLIENT)
-  override def appendHoverText(stack: ItemStack, world: BlockGetter, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
+  override def appendHoverText(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], flag: TooltipFlag): Unit = {
     tooltipHead(stack, world, tooltip, flag)
     tooltipBody(stack, world, tooltip, flag)
     tooltipTail(stack, world, tooltip, flag)
   }
 
-  protected def tooltipHead(stack: ItemStack, world: BlockGetter, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
+  protected def tooltipHead(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], flag: TooltipFlag): Unit = {
   }
 
-  protected def tooltipBody(stack: ItemStack, world: BlockGetter, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
+  protected def tooltipBody(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], flag: TooltipFlag): Unit = {
     for (curr <- Tooltip.get(getClass.getSimpleName.toLowerCase)) {
-      tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 
-  protected def tooltipTail(stack: ItemStack, world: BlockGetter, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
+  protected def tooltipTail(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], flag: TooltipFlag): Unit = {
   }
 
   // ----------------------------------------------------------------------- //
   // Rotation
   // ----------------------------------------------------------------------- //
 
-  def getFacing(world: BlockGetter, pos: BlockPos): Direction =
+  def getFacing(world: Level, pos: BlockPos): Direction =
     world.getBlockEntity(pos) match {
       case tileEntity: Rotatable => tileEntity.facing
       case _ => Direction.SOUTH
@@ -105,7 +102,7 @@ abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
       case _ => false
     }
 
-  def toLocal(world: BlockGetter, pos: BlockPos, value: Direction): Direction =
+  def toLocal(world: Level, pos: BlockPos, value: Direction): Direction =
     world.getBlockEntity(pos) match {
       case rotatable: Rotatable => rotatable.toLocal(value)
       case _ => value
@@ -115,28 +112,25 @@ abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
   // Block
   // ----------------------------------------------------------------------- //
 
-  override def canHarvestBlock(state: BlockState, world: BlockGetter, pos: BlockPos, player: Player) = true
-
-  override def getHarvestTool(state: BlockState): ToolType = null
-
-  override def canBeReplacedByLeaves(state: BlockState, world: ILevelReader, pos: BlockPos): Boolean = false
+  override def canHarvestBlock(state: BlockState, world: BlockGetter, pos: BlockPos, player: Player): Boolean = true
 
   def getValidRotations(world: Level, pos: BlockPos): Array[Direction] = validRotations_
 
-  override def getDrops(state: BlockState, ctx: LootContext.Builder): util.List[ItemStack] = {
-    val newCtx = ctx.getOptionalParameter(LootParameters.BLOCK_ENTITY) match {
-      case _: Inventory => ctx.withDynamicDrop(LootFunctions.DYN_VOLATILE_CONTENTS, (c, f) => {
-          c.getParamOrNull(LootParameters.BLOCK_ENTITY) match {
-            case inventory: Inventory => inventory.forAllLoot(f)
-            case _ =>
-          }
-        })
-      case _ => ctx
+  //noinspection ScalaDeprecation
+  override def getDrops(state: BlockState, builder: LootContext.Builder): util.List[ItemStack] = {
+    val newBuilder = builder.getOptionalParameter(LootContextParams.BLOCK_ENTITY) match {
+      case _: Inventory => builder.withDynamicDrop(LootFunctions.DYN_VOLATILE_CONTENTS, (c, f) => {
+        c.getParamOrNull(LootContextParams.BLOCK_ENTITY) match {
+          case inventory: Inventory => inventory.forAllLoot(f)
+          case _ =>
+        }
+      })
+      case _ => builder
     }
-    super.getDrops(state, newCtx)
+    super.getDrops(state, newBuilder)
   }
 
-  override def playerWillDestroy(world: Level, pos: BlockPos, state: BlockState, player: Player) {
+  override def playerWillDestroy(world: Level, pos: BlockPos, state: BlockState, player: Player): Unit = {
     if (!world.isClientSide && player.isCreative) world.getBlockEntity(pos) match {
       case inventory: Inventory => inventory.dropAllSlots()
       case _ => // Ignore.
@@ -157,7 +151,7 @@ abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: Hand, trace: BlockHitResult): ActionResultType = {
+  override def use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: InteractionHand, trace: BlockHitResult): InteractionResult = {
     val heldItem = player.getItemInHand(hand)
     world.getBlockEntity(pos) match {
       case colored: Colored if Color.isDye(heldItem) =>
@@ -166,7 +160,7 @@ abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
         if (!player.isCreative && colored.consumesDye) {
           heldItem.split(1)
         }
-        ActionResultType.sidedSuccess(world.isClientSide)
+        InteractionResult.sidedSuccess(world.isClientSide)
       case _ => {
         val loc = trace.getLocation
         val pos = trace.getBlockPos
@@ -174,10 +168,10 @@ abstract class SimpleBlock(props: Properties) extends ContainerBlock(props) {
         val y = loc.y.toFloat - pos.getY
         val z = loc.z.toFloat - pos.getZ
         if (localOnBlockActivated(world, pos, player, hand, heldItem, trace.getDirection, x, y, z))
-          ActionResultType.sidedSuccess(world.isClientSide) else ActionResultType.PASS
+          InteractionResult.sidedSuccess(world.isClientSide) else InteractionResult.PASS
       }
     }
   }
 
-  def localOnBlockActivated(world: Level, pos: BlockPos, player: Player, hand: Hand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = false
+  def localOnBlockActivated(world: Level, pos: BlockPos, player: Player, hand: InteractionHand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Boolean = false
 }

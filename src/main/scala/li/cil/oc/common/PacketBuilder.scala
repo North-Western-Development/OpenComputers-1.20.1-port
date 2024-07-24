@@ -1,7 +1,6 @@
 package li.cil.oc.common
 
 import java.util.function.Supplier
-
 import java.io.BufferedOutputStream
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
@@ -12,18 +11,16 @@ import io.netty.buffer.Unpooled
 import li.cil.oc.{OpenComputers, Settings}
 import li.cil.oc.api.network.EnvironmentHost
 import net.minecraft.world.entity.Entity
-import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.level.{ServerLevel, ServerPlayer}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompressedStreamTools
-import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.{CompoundTag, NbtIo}
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.core.Direction
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.Level
-import net.minecraft.world.server.ServerLevel
-import net.minecraftforge.fml.network.PacketDistributor
-import net.minecraftforge.fml.server.ServerLifecycleHooks
+import net.minecraftforge.network.PacketDistributor
 import net.minecraftforge.registries._
+import net.minecraftforge.server.ServerLifecycleHooks
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
@@ -60,7 +57,7 @@ abstract class PacketBuilder(stream: OutputStream) extends DataOutputStream(stre
     val haveNbt = nbt != null
     writeBoolean(haveNbt)
     if (haveNbt) {
-      CompressedStreamTools.write(nbt, this)
+      NbtIo.write(nbt, this)
     }
   }
 

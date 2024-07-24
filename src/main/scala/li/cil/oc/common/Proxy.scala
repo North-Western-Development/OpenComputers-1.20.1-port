@@ -1,7 +1,6 @@
 package li.cil.oc.common
 
 import java.util.function.Supplier
-
 import com.google.common.base.Strings
 import li.cil.oc._
 import li.cil.oc.common.{PacketHandler => CommonPacketHandler}
@@ -20,35 +19,22 @@ import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.server.machine.luac.{LuaStateFactory, NativeLua52Architecture, NativeLua53Architecture, NativeLua54Architecture}
 import li.cil.oc.server.machine.luaj.LuaJLuaArchitecture
 import net.minecraft.world.level.block.Block
-import net.minecraft.world.entity.player.Player
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.inventory.container.Container
-import net.minecraft.inventory.container.INamedContainerProvider
 import net.minecraft.world.item.Item
-import net.minecraft.world.item.ItemStack
 import net.minecraft.network.FriendlyByteBuf
-import net.minecraft.tags.ItemTags
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.level.Level
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.common.util.FakePlayer
 import net.minecraftforge.event.RegistryEvent.MissingMappings
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
-import net.minecraftforge.fml.network.NetworkEvent
-import net.minecraftforge.fml.network.NetworkRegistry
+import net.minecraftforge.network.{NetworkEvent, NetworkRegistry}
 import net.minecraftforge.registries.ForgeRegistries
-import net.minecraftforge.scorge.lang.ScorgeModLoadingContext
 
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 
 class Proxy {
-  protected val modBus = ScorgeModLoadingContext.get.getModEventBus
+  protected val modBus = MinecraftForge.EVENT_BUS
   modBus.register(classOf[ContainerTypes])
   modBus.register(classOf[EntityTypes])
   modBus.register(classOf[BlockEntityTypes])

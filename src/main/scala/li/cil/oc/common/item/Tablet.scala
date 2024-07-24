@@ -1,6 +1,5 @@
 package li.cil.oc.common.item
 
-import java.lang.Iterable
 import java.util
 import java.util.UUID
 import java.util.concurrent.Callable
@@ -30,48 +29,32 @@ import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.inventory.ComponentInventory
 import li.cil.oc.common.item.data.TabletData
 import li.cil.oc.integration.opencomputers.DriverScreen
-import li.cil.oc.server.{PacketSender, component}
+import li.cil.oc.server.component
 import li.cil.oc.util.Audio
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedNBT._
-import li.cil.oc.util.Rarity
 import li.cil.oc.util.RotationHelper
 import li.cil.oc.util.Tooltip
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.model.ModelBakery
-import net.minecraft.client.renderer.model.ModelResourceLocation
+import net.minecraft.client.resources.model.ModelResourceLocation
+import net.minecraft.client.server.IntegratedServer
 import net.minecraft.world.entity.Entity
-import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.player.{Player, PlayerInventory, ServerPlayer}
-import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.item // Rarity
-import net.minecraft.world.item.Item
+import net.minecraft.world.item.{CreativeModeTab, Item, ItemStack, Rarity}
 import net.minecraft.world.item.Item.Properties
-import net.minecraft.world.item.ItemGroup
-import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.server.integrated.IntegratedServer
-import net.minecraft.util.ActionResult
-import net.minecraft.util.ActionResultType
-import net.minecraft.core.Direction
-import net.minecraft.util.Hand
-import net.minecraft.util.NonNullList
-import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.Util
-import net.minecraft.core.BlockPos
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.nbt.{CompoundTag, Tag}
+import net.minecraft.core.{BlockPos, Direction, NonNullList}
+import net.minecraft.network.chat.TextComponent
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.{InteractionHand, InteractionResult, InteractionResultHolder}
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.Level
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraftforge.client.model.ModelLoader
 import net.minecraftforge.common.extensions.IForgeItem
-import net.minecraftforge.common.util.Constants.NBT
-import net.minecraftforge.event.world.LevelEvent
 import net.minecraftforge.event.TickEvent.ClientTickEvent
 import net.minecraftforge.event.TickEvent.ServerTickEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.server.ServerLifecycleHooks
+import net.minecraftforge.server.ServerLifecycleHooks
 
 import scala.collection.JavaConverters.asJavaIterable
 import scala.collection.convert.ImplicitConversionsToJava._
@@ -82,25 +65,33 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
 
   // ----------------------------------------------------------------------- //
 
-  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[ITextComponent]): Unit = {
+  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[TextComponent]): Unit = {
     if (KeyBindings.showExtendedTooltips) {
       val info = new TabletData(stack)
       // Ignore/hide the screen.
       val components = info.items.drop(1)
       if (components.length > 1) {
         for (curr <- Tooltip.get("server.Components")) {
-          tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
+          tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
         }
         components.collect {
-          case component if !component.isEmpty => tooltip.add(new StringTextComponent("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
+          case component if !component.isEmpty => tooltip.add(new TextComponent("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
         }
       }
     }
   }
 
-  override def getRarity(stack: ItemStack): item.Rarity = {
+  override def getRarity(stack: ItemStack): Rarity = {
     val data = new TabletData(stack)
-    Rarity.byTier(data.tier)
+    rarityByTier(data.tier)
+  }
+
+  private def rarityByTier(tier: Int): Rarity = tier match {
+    case 1 => Rarity.COMMON
+    case 2 => Rarity.UNCOMMON
+    case 3 => Rarity.RARE
+    case 4 => Rarity.EPIC
+    case _ => Rarity.COMMON // Default to common if tier is out of range
   }
 
   override def showDurabilityBar(stack: ItemStack) = true
@@ -138,7 +129,7 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
   @OnlyIn(Dist.CLIENT)
   override def registerModelLocations(): Unit = {
     for (state <- Seq(None, Some(true), Some(false))) {
-      ModelLoader.addSpecialModel(modelLocationFromState(state))
+      Minecraft.getInstance().getItemRenderer.getItemModelShaper.register(this, modelLocationFromState(state))
     }
   }
 
@@ -156,7 +147,7 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
   // ----------------------------------------------------------------------- //
 
   // Must be assembled to be usable so we hide it in the item list.
-  override def fillItemCategory(tab: ItemGroup, list: NonNullList[ItemStack]) {}
+  override def fillItemCategory(tab: CreativeModeTab, list: NonNullList[ItemStack]) {}
 
   override def inventoryTick(stack: ItemStack, world: Level, entity: Entity, slot: Int, selected: Boolean): Unit =
     entity match {
@@ -169,19 +160,19 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
       case _ =>
     }
 
-  override def onItemUseFirst(stack: ItemStack, player: Player, world: Level, pos: BlockPos, side: Direction, hitX: Float, hitY: Float, hitZ: Float, hand: Hand): ActionResultType = {
+  override def onItemUseFirst(stack: ItemStack, player: Player, world: Level, pos: BlockPos, side: Direction, hitX: Float, hitY: Float, hitZ: Float, hand: InteractionHand): InteractionResult = {
     Tablet.currentlyAnalyzing = Some((BlockPosition(pos, world), side, hitX, hitY, hitZ))
     super.onItemUseFirst(stack, player, world, pos, side, hitX, hitY, hitZ, hand)
   }
 
   override def onItemUse(stack: ItemStack, player: Player, position: BlockPosition, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Boolean = {
-    player.startUsingItem(if (player.getItemInHand(Hand.MAIN_HAND) == stack) Hand.MAIN_HAND else Hand.OFF_HAND)
+    player.startUsingItem(if (player.getItemInHand(InteractionHand.MAIN_HAND) == stack) InteractionHand.MAIN_HAND else InteractionHand.OFF_HAND)
     true
   }
 
-  override def use(stack: ItemStack, world: Level, player: Player): ActionResult[ItemStack] = {
-    player.startUsingItem(if (player.getItemInHand(Hand.MAIN_HAND) == stack) Hand.MAIN_HAND else Hand.OFF_HAND)
-    new ActionResult(ActionResultType.sidedSuccess(world.isClientSide), stack)
+  override def use(stack: ItemStack, world: Level, player: Player): InteractionResultHolder[ItemStack] = {
+    player.startUsingItem(if (player.getItemInHand(InteractionHand.MAIN_HAND) == stack) InteractionHand.MAIN_HAND else InteractionHand.OFF_HAND)
+    new InteractionResultHolder(InteractionResult.sidedSuccess(world.isClientSide), stack)
   }
 
   override def getUseDuration(stack: ItemStack): Int = 72000
@@ -506,7 +497,7 @@ object Tablet {
   var currentlyAnalyzing: Option[(BlockPosition, Direction, Float, Float, Float)] = None
 
   def getId(stack: ItemStack): Option[String] = {
-    if (stack.hasTag && stack.getTag.contains(Settings.namespace + "tablet", NBT.TAG_STRING)) {
+    if (stack.hasTag && stack.getTag.contains(Settings.namespace + "tablet", Tag.TAG_STRING)) {
       Some(stack.getTag.getString(Settings.namespace + "tablet"))
     }
     else None

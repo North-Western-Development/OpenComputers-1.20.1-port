@@ -1,10 +1,8 @@
 package li.cil.oc.client.renderer.tileentity
 
 import java.util.function.Function
-
-import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.{IVertexBuilder, PoseStack, VertexConsumer}
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.IVertexBuilder
 import li.cil.oc.Constants
 import li.cil.oc.Settings
 import li.cil.oc.api
@@ -16,18 +14,17 @@ import li.cil.oc.integration.util.Wrench
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.tileentity.BlockEntityRenderer
-import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
-import net.minecraft.util.Hand
 import com.mojang.math.Vector3f
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
+import net.minecraft.world.InteractionHand
 
-object ScreenRenderer extends Function[BlockEntityRendererDispatcher, ScreenRenderer] {
-  override def apply(dispatch: BlockEntityRendererDispatcher) = new ScreenRenderer(dispatch)
+object ScreenRenderer extends Function[BlockEntityRendererProvider.Context, ScreenRenderer] {
+  override def apply(dispatch: BlockEntityRendererProvider.Context) = new ScreenRenderer(dispatch)
 }
 
-class ScreenRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntityRenderer[Screen](dispatch) {
+class ScreenRenderer(dispatch: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Screen](dispatch) {
   private val maxRenderDistanceSq = Settings.get.maxScreenTextRenderDistance * Settings.get.maxScreenTextRenderDistance
 
   private val fadeDistanceSq = Settings.get.screenTextFadeStartDistance * Settings.get.screenTextFadeStartDistance
@@ -65,7 +62,7 @@ class ScreenRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntit
       return
     }
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
 
     stack.pushPose()
 
@@ -122,9 +119,9 @@ class ScreenRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntit
     case _ => false
   }
 
-  private def drawOverlay(matrix: PoseStack, r: IVertexBuilder) = if (screen.facing == Direction.UP || screen.facing == Direction.DOWN) {
+  private def drawOverlay(matrix: PoseStack, r: VertexConsumer) = if (screen.facing == Direction.UP || screen.facing == Direction.DOWN) {
     // Show up vector overlay when holding same screen block.
-    val stack = Minecraft.getInstance.player.getItemInHand(Hand.MAIN_HAND)
+    val stack = Minecraft.getInstance.player.getItemInHand(InteractionHand.MAIN_HAND)
     if (!stack.isEmpty) {
       if (Wrench.holdsApplicableWrench(Minecraft.getInstance.player, screen.getBlockPos) || isScreen(stack)) {
         matrix.pushPose()

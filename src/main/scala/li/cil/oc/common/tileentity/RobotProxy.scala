@@ -2,53 +2,39 @@ package li.cil.oc.common.tileentity
 
 import java.util.UUID
 import java.util.function.Consumer
-
 import li.cil.oc.api
 import li.cil.oc.api.internal
 import li.cil.oc.api.internal.MultiTank
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
-import li.cil.oc.api.machine.Machine
-import li.cil.oc.api.network._
+import li.cil.oc.api.machine.{Arguments, Callback, Context, Machine}
+import li.cil.oc.api.network.{Component, ManagedEnvironment, Message, Node, Packet, Visibility}
 import li.cil.oc.common.inventory.InventoryProxy
 import li.cil.oc.common.tileentity.traits.RedstoneAware
 import li.cil.oc.server.agent.Player
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import net.minecraftforge.common.capabilities.Capability
-import net.minecraftforge.common.util.LazyOptional
-import net.minecraftforge.common.util.NonNullSupplier
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler
-import net.minecraftforge.fluids.capability.IFluidHandler
-import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraft.world.entity.Entity
-import net.minecraft.world.entity.player.Player
-import net.minecraft.fluid.Fluid
-import net.minecraft.inventory.ISidedInventory
+import net.minecraftforge.fluids.capability.{CapabilityFluidHandler, IFluidHandler}
+import net.minecraftforge.fluids.{FluidStack, IFluidTank}
+import net.minecraft.world.entity.{Entity, player => _}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
-import net.minecraft.util.math.AxisAlignedBB
-import net.minecraft.util.text.ITextComponent
-import net.minecraftforge.fluids.FluidStack
-import net.minecraftforge.fluids.IFluidTank
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.network.chat.Component
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.phys.AABB
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
+import net.minecraftforge.common.util.LazyOptional
 
-class RobotProxy(selfType: BlockEntityType[_ <: RobotProxy], val robot: Robot) extends BlockEntity(selfType)
-  with traits.Computer with traits.PowerInformation with traits.RotatableTile with ISidedInventory with IFluidHandler with internal.Robot {
+class RobotProxy(selfType: BlockEntityType[_ <: RobotProxy], pos: BlockPos, state: BlockState, val robot: Robot) extends BlockEntity(selfType, pos, state)
+  with traits.Computer with traits.PowerInformation with traits.RotatableTile with IFluidHandler with internal.Robot {
 
-  def this(selfType: BlockEntityType[_ <: RobotProxy]) = this(selfType, new Robot())
+  def this(selfType: BlockEntityType[_ <: RobotProxy], pos: BlockPos, state: BlockState) = this(selfType, pos, state, new Robot())
 
   // ----------------------------------------------------------------------- //
 
-  private val wrapper = LazyOptional.of(new NonNullSupplier[IFluidHandler] {
-    override def get = RobotProxy.this
-  })
+  private val wrapper: LazyOptional[IFluidHandler] = LazyOptional.of(() => this)
 
-  override def invalidateCaps() {
+  override def invalidateCaps(): Unit = {
     super.invalidateCaps()
     wrapper.invalidate()
   }
@@ -56,7 +42,8 @@ class RobotProxy(selfType: BlockEntityType[_ <: RobotProxy], val robot: Robot) e
   override def getCapability[T](capability: Capability[T], facing: Direction): LazyOptional[T] = {
     if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
       wrapper.cast[T]
-    else super.getCapability(capability, facing)
+    else
+      super.getCapability(capability, facing)
   }
 
   override val node: Component = api.Network.newNode(this, Visibility.Network).
@@ -69,21 +56,17 @@ class RobotProxy(selfType: BlockEntityType[_ <: RobotProxy], val robot: Robot) e
 
   override def equipmentInventory: InventoryProxy {
     def inventory: Robot
-
     def getContainerSize: Int
   } = robot.equipmentInventory
 
   override def mainInventory: InventoryProxy {
     def offset: Int
-
     def inventory: Robot
-
     def getContainerSize: Int
   } = robot.mainInventory
 
   override def tank: MultiTank {
     def tankCount: Int
-
     def getFluidTank(index: Int): ManagedEnvironment with IFluidTank
   } = robot.tank
 
@@ -107,9 +90,9 @@ class RobotProxy(selfType: BlockEntityType[_ <: RobotProxy], val robot: Robot) e
 
   // ----------------------------------------------------------------------- //
 
-  override def connectComponents() {}
+  override def connectComponents(): Unit = {}
 
-  override def disconnectComponents() {}
+  override def disconnectComponents(): Unit = {}
 
   override def isRunning: Boolean = robot.isRunning
 
@@ -152,7 +135,7 @@ class RobotProxy(selfType: BlockEntityType[_ <: RobotProxy], val robot: Robot) e
   @Callback(doc = "function():string -- Returns the robot name.")
   def getName(context: Context, args: Arguments): Array[AnyRef] = result(robot.name)
 
-  override def onMessage(message: Message) {
+  override def onMessage(message: Message): Unit = {
     super.onMessage(message)
     if (message.name == "network.message" && message.source != this.node) message.data match {
       case Array(packet: Packet) => robot.node.sendToReachable(message.name, packet)
@@ -162,59 +145,29 @@ class RobotProxy(selfType: BlockEntityType[_ <: RobotProxy], val robot: Robot) e
 
   // ----------------------------------------------------------------------- //
 
-  override def updateEntity() {
-    robot.updateEntity()
-  }
+  override def setChanged(): Unit = robot.setChanged()
 
-  override def clearRemoved() {
-    super.clearRemoved()
-    val firstProxy = robot.proxy == null
-    robot.proxy = this
-    robot.setLevelAndPosition(getLevel, getBlockPos)
-    if (firstProxy) {
-      robot.clearRemoved()
-    }
-    if (isServer) {
-      // Use the same address we use internally on the outside.
-      val nbt = new CompoundTag()
-      nbt.putString("address", robot.node.address)
-      node.loadData(nbt)
-    }
-  }
+  override def tick(): Unit = robot.updateEntity()
 
-  override def dispose() {
-    super.dispose()
-    if (robot.proxy == this) {
-      robot.dispose()
-    }
-  }
-
-  override def loadForServer(nbt: CompoundTag) {
-    robot.info.loadData(nbt)
-    super.loadForServer(nbt)
+  override def load(nbt: CompoundTag): Unit = {
+    super.load(nbt)
     robot.loadForServer(nbt)
   }
 
-  override def saveForServer(nbt: CompoundTag) {
-    super.saveForServer(nbt)
+  override def save(nbt: CompoundTag): CompoundTag = {
+    super.save(nbt)
     robot.saveForServer(nbt)
+    nbt
   }
 
-  override def saveData(nbt: CompoundTag): Unit = robot.saveData(nbt)
-
-  override def loadData(nbt: CompoundTag): Unit = robot.loadData(nbt)
+  @OnlyIn(Dist.CLIENT)
+  override def loadClientData(nbt: CompoundTag): Unit = robot.loadForClient(nbt)
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundTag): Unit = robot.loadForClient(nbt)
-
-  override def saveForClient(nbt: CompoundTag): Unit = robot.saveForClient(nbt)
+  override def saveClientData(nbt: CompoundTag): Unit = robot.saveForClient(nbt)
 
   @OnlyIn(Dist.CLIENT)
-  override def getViewDistance: Double = robot.getViewDistance
-
-  override def getRenderBoundingBox: AxisAlignedBB = robot.getRenderBoundingBox
-
-  override def setChanged(): Unit = robot.setChanged()
+  override def getRenderBoundingBox: AABB = robot.getRenderBoundingBox
 
   // ----------------------------------------------------------------------- //
 
@@ -290,7 +243,7 @@ class RobotProxy(selfType: BlockEntityType[_ <: RobotProxy], val robot: Robot) e
 
   override def componentSlot(address: String): Int = robot.componentSlot(address)
 
-  override def getName: ITextComponent = robot.getName
+  override def getName: Component = robot.getName
 
   override def getContainerSize: Int = robot.getContainerSize
 
@@ -328,9 +281,9 @@ class RobotProxy(selfType: BlockEntityType[_ <: RobotProxy], val robot: Robot) e
 
   override def isFluidValid(tank: Int, resource: FluidStack): Boolean = robot.isFluidValid(tank, resource)
 
-  override def fill(resource: FluidStack, action: FluidAction): Int = robot.fill(resource, action)
+  override def fill(resource: FluidStack, action: IFluidHandler.FluidAction): Int = robot.fill(resource, action)
 
-  override def drain(resource: FluidStack, action: FluidAction): FluidStack = robot.drain(resource, action)
+  override def drain(resource: FluidStack, action: IFluidHandler.FluidAction): FluidStack = robot.drain(resource, action)
 
-  override def drain(maxDrain: Int, action: FluidAction): FluidStack = robot.drain(maxDrain, action)
+  override def drain(maxDrain: Int, action: IFluidHandler.FluidAction): FluidStack = robot.drain(maxDrain, action)
 }

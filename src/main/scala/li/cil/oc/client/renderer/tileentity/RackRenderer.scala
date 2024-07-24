@@ -1,7 +1,6 @@
 package li.cil.oc.client.renderer.tileentity
 
 import java.util.function.Function
-
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.api.event.RackMountableRenderEvent
@@ -12,21 +11,22 @@ import net.minecraft.client.renderer.tileentity.BlockEntityRenderer
 import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
 import net.minecraft.core.Direction
 import com.mojang.math.Vector3f
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 import net.minecraftforge.common.MinecraftForge
 import org.lwjgl.opengl.GL11
 
-object RackRenderer extends Function[BlockEntityRendererDispatcher, RackRenderer] {
-  override def apply(dispatch: BlockEntityRendererDispatcher) = new RackRenderer(dispatch)
+object RackRenderer extends Function[BlockEntityRendererProvider.Context, RackRenderer] {
+  override def apply(dispatch: BlockEntityRendererProvider.Context) = new RackRenderer(dispatch)
 }
 
-class RackRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntityRenderer[Rack](dispatch) {
+class RackRenderer(dispatch: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Rack](dispatch) {
   private final val vOffset = 2 / 16f
   private final val vSize = 3 / 16f
 
   override def render(rack: Rack, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
 
     stack.pushPose()
 

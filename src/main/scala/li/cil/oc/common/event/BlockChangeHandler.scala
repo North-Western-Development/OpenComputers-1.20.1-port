@@ -2,7 +2,7 @@ package li.cil.oc.common.event
 
 import li.cil.oc.common.EventHandler
 import li.cil.oc.util.BlockPosition
-net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.util.SoundCategory

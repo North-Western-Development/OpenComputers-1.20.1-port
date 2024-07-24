@@ -3,24 +3,22 @@ package li.cil.oc.client.renderer.tileentity
 import java.util.function.Function
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.tileentity.BlockEntityRenderer
-import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 
-object DisassemblerRenderer extends Function[BlockEntityRendererDispatcher, DisassemblerRenderer] {
-  override def apply(dispatch: BlockEntityRendererDispatcher) = new DisassemblerRenderer(dispatch)
+object DisassemblerRenderer extends Function[BlockEntityRendererProvider.Context, DisassemblerRenderer] {
+  override def apply(ctx: BlockEntityRendererProvider.Context) = new DisassemblerRenderer(ctx)
 }
 
-class DisassemblerRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntityRenderer[tileentity.Disassembler](dispatch) {
+class DisassemblerRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[tileentity.Disassembler](ctx) {
   override def render(disassembler: tileentity.Disassembler, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
 
     if (disassembler.isActive) {
       stack.pushPose()

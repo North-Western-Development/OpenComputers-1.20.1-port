@@ -2,7 +2,7 @@ package li.cil.oc.common.block.traits
 
 import li.cil.oc.api
 import net.minecraft.world.level.block.Block
-net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.Level
 

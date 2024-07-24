@@ -5,7 +5,6 @@ import java.util.ArrayDeque
 import java.util.function.Function
 import java.util.concurrent.Callable
 import java.util.concurrent.TimeUnit
-
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.RemovalListener
 import com.google.common.cache.RemovalNotification
@@ -17,11 +16,10 @@ import li.cil.oc.common.tileentity.Hologram
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.tileentity.BlockEntityRenderer
-import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.core.Direction
 import com.mojang.math.Vector3f
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 import net.minecraftforge.client.event.RenderLevelLastEvent
 import net.minecraftforge.event.TickEvent.ClientTickEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -31,10 +29,10 @@ import org.lwjgl.opengl.GL15
 
 import scala.util.Random
 
-object HologramRenderer extends Function[BlockEntityRendererDispatcher, HologramRenderer]
+object HologramRenderer extends Function[BlockEntityRendererProvider.Context, HologramRenderer]
   with Callable[Int] with RemovalListener[BlockEntity, Int] {
 
-  override def apply(dispatch: BlockEntityRendererDispatcher) = new HologramRenderer(dispatch)
+  override def apply(ctx: BlockEntityRendererProvider.Context) = new HologramRenderer(ctx)
 
   private val random = new Random()
 
@@ -92,7 +90,7 @@ object HologramRenderer extends Function[BlockEntityRendererDispatcher, Hologram
       val pos = holo.getBlockPos
       stack.pushPose()
       stack.translate(pos.getX + 0.5 - camPos.x, pos.getY + 0.5 - camPos.y, pos.getZ + 0.5 - camPos.z)
-      doRender(holo, e.getPartialTicks, stack)
+      doRender(holo, e.getPartialTick, stack)
       stack.popPose()
     }
 
@@ -163,8 +161,8 @@ object HologramRenderer extends Function[BlockEntityRendererDispatcher, Hologram
     // When we don't do this the hologram will look different from different
     // angles (because some faces will shine through sometimes and sometimes
     // they won't), so a more... consistent look is desirable.
-    RenderSystem.pushMatrix()
-    RenderSystem.multMatrix(stack.last.pose)
+    stack.pushPose()
+    stack.mulPoseMatrix(stack.last.pose)
     val glBuffer = cache.get(hologram, this)
     GL11.glEnable(GL11.GL_DEPTH_TEST)
     RenderSystem.colorMask(false, false, false, false)
@@ -174,7 +172,7 @@ object HologramRenderer extends Function[BlockEntityRendererDispatcher, Hologram
     RenderSystem.depthFunc(GL11.GL_EQUAL)
     draw(glBuffer)
     RenderSystem.depthFunc(GL11.GL_LEQUAL)
-    RenderSystem.popMatrix()
+    stack.popPose()
 
     RenderState.disableBlend()
     GL11.glPopClientAttrib()
@@ -403,7 +401,7 @@ object HologramRenderer extends Function[BlockEntityRendererDispatcher, Hologram
   def onTick(e: ClientTickEvent) = cache.cleanUp()
 }
 
-class HologramRenderer(dispatch: BlockEntityRendererDispatcher) extends BlockEntityRenderer[Hologram](dispatch) {
+class HologramRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Hologram](ctx) {
   override def render(hologram: Hologram, f: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     if (HologramRenderer.failed) {
       HologramRendererFallback.render(hologram, f, stack, buffer, light, overlay)

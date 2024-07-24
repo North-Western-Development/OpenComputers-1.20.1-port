@@ -108,8 +108,14 @@ if (!System.getProperty('idea.active')) {
 
 compileScala {
     configure(scalaCompileOptions.forkOptions) {
-        memoryMaximumSize = '1g'
+        memoryMaximumSize = '4g'
     }
+    List<String> args = new ArrayList<String>() {
+        {
+            add("-nowarn");
+        }
+    }
+    scalaCompileOptions.setAdditionalParameters(args)
 }
 
 repositories {
