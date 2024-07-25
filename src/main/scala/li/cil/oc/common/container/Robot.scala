@@ -16,6 +16,8 @@ import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.world.level.Level
 import net.minecraft.util.IntReferenceHolder
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.{AbstractContainerMenu, MenuType}
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
@@ -70,7 +72,7 @@ class RobotInfo(val mainInvSize: Int, val slot1: String, val tier1: Int,
     RobotInfo.getScreenBuffer(robot), RobotInfo.hasKeyboard(robot))
 }
 
-class Robot(selfType: ContainerType[_ <: Robot], id: Int, playerInventory: PlayerInventory, robot: Container, val info: RobotInfo)
+class Robot(selfType: MenuType[_ <: Robot], id: Int, playerInventory: Inventory, robot: AbstractContainerMenu, val info: RobotInfo)
   extends Player(selfType, id, playerInventory, robot) {
 
   private val withScreenHeight = 256

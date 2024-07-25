@@ -2,7 +2,6 @@ package li.cil.oc.common.tileentity
 
 import java.util.UUID
 import java.util.function.Consumer
-
 import li.cil.oc._
 import li.cil.oc.api.Driver
 import li.cil.oc.api.driver.item
@@ -34,24 +33,23 @@ import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
+import net.minecraft.Util
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
-import net.minecraft.block.FlowingFluidBlock
 import net.minecraft.client.Minecraft
-import net.minecraft.world.entity.player.Player
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.fluid.Fluid
-import net.minecraft.inventory.EquipmentSlotType
-import net.minecraft.inventory.container.INamedContainerProvider
+import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.core.Direction
-import net.minecraft.util.SoundCategory
-import net.minecraft.util.SoundEvents
-import net.minecraft.util.Util
 import net.minecraft.core.BlockPos
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.network.chat.TextComponent
+import net.minecraft.sounds.{SoundEvents, SoundSource}
+import net.minecraft.world.MenuProvider
+import net.minecraft.world.entity.EquipmentSlot
+import net.minecraft.world.inventory.AbstractContainerMenu
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.material.{FlowingFluid, Fluid, FluidState, Fluids}
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.util.LazyOptional
@@ -71,8 +69,8 @@ import scala.collection.mutable
 // robot moves we only create a new proxy tile entity, hook the instance of this
 // class that was held by the old proxy to it and can then safely forget the
 // old proxy, which will be cleaned up by Minecraft like any other tile entity.
-class Robot extends BlockEntity(BlockEntityTypes.ROBOT) with traits.Computer with traits.PowerInformation with traits.RotatableTile
-  with IFluidHandler with internal.Robot with InventorySelection with TankSelection with INamedContainerProvider {
+class Robot(state: BlockState, pos: BlockPos) extends BlockEntity(BlockEntityTypes.ROBOT, pos, state) with MenuProvider with traits.Computer with traits.PowerInformation with traits.RotatableTile
+  with IFluidHandler with internal.Robot with InventorySelection with TankSelection {
 
   var proxy: RobotProxy = _
 
@@ -148,7 +146,7 @@ class Robot extends BlockEntity(BlockEntityTypes.ROBOT) with traits.Computer wit
 
   override def getComponentInSlot(index: Int): ManagedEnvironment = if (components.length > index) components(index).orNull else null
 
-  override def player: Player = {
+  override def player: net.minecraft.world.entity.player.Player = {
     agent.Player.updatePositionAndRotation(player_, facing, facing)
     agent.Player.setPlayerInventoryItems(player_)
     player_
@@ -210,9 +208,9 @@ class Robot extends BlockEntity(BlockEntityTypes.ROBOT) with traits.Computer wit
 
   override def setName(name: String): Unit = info.name = name
 
-  override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
+  override def onAnalyze(player: net.minecraft.world.entity.player.Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
     player.sendMessage(Localization.Analyzer.RobotOwner(ownerName), Util.NIL_UUID)
-    player.sendMessage(Localization.Analyzer.RobotName(player_.getName.getString), Util.NIL_UUID)
+    player.sendMessage(Localization.Analyzer.RobotName(player_.getName.toString), Util.NIL_UUID)
     MinecraftForge.EVENT_BUS.post(new RobotAnalyzeEvent(this, player))
     super.onAnalyze(player, side, hitX, hitY, hitZ)
   }
@@ -267,10 +265,10 @@ class Robot extends BlockEntity(BlockEntityTypes.ROBOT) with traits.Computer wit
           if (!wasAir) {
             if (block != Blocks.AIR && block != blockRobotAfterImage) {
               if (!state.getFluidState.isEmpty) {
-                getLevel.playLocalSound(newPosition.getX + 0.5, newPosition.getY + 0.5, newPosition.getZ + 0.5, SoundEvents.WATER_AMBIENT, SoundCategory.BLOCKS,
+                getLevel.playLocalSound(newPosition.getX + 0.5, newPosition.getY + 0.5, newPosition.getZ + 0.5, SoundEvents.WATER_AMBIENT, SoundSource.BLOCKS,
                   getLevel.random.nextFloat * 0.25f + 0.75f, getLevel.random.nextFloat * 1.0f + 0.5f, false)
               }
-              if (!block.isInstanceOf[FlowingFluidBlock]) {
+              if (block.getFluidState(state) == Fluids.EMPTY.defaultFluidState()) {
                 getLevel.levelEvent(2001, newPosition, Block.getId(state))
               }
             }
@@ -359,7 +357,7 @@ class Robot extends BlockEntity(BlockEntityTypes.ROBOT) with traits.Computer wit
       if (!appliedToolEnchantments) {
         appliedToolEnchantments = true
         StackOption(getItem(0)) match {
-          case SomeStack(item) => player_.getAttributes.addTransientAttributeModifiers(item.getAttributeModifiers(EquipmentSlotType.MAINHAND))
+          case SomeStack(item) => player_.getAttributes.addTransientAttributeModifiers(item.getAttributeModifiers(EquipmentSlot.MAINHAND))
           case _ =>
         }
       }
@@ -554,7 +552,7 @@ class Robot extends BlockEntity(BlockEntityTypes.ROBOT) with traits.Computer wit
   override protected def onItemAdded(slot: Int, stack: ItemStack) {
     if (isServer) {
       if (isToolSlot(slot)) {
-        player_.getAttributes.addTransientAttributeModifiers(stack.getAttributeModifiers(EquipmentSlotType.MAINHAND))
+        player_.getAttributes.addTransientAttributeModifiers(stack.getAttributeModifiers(EquipmentSlot.MAINHAND))
         ServerPacketSender.sendRobotInventory(this, slot, stack)
       }
       if (isUpgradeSlot(slot)) {
@@ -578,7 +576,7 @@ class Robot extends BlockEntity(BlockEntityTypes.ROBOT) with traits.Computer wit
     super.onItemRemoved(slot, stack)
     if (isServer) {
       if (isToolSlot(slot)) {
-        player_.getAttributes.removeAttributeModifiers(stack.getAttributeModifiers(EquipmentSlotType.MAINHAND))
+        player_.getAttributes.removeAttributeModifiers(stack.getAttributeModifiers(EquipmentSlot.MAINHAND))
         ServerPacketSender.sendRobotInventory(this, slot, ItemStack.EMPTY)
       }
       if (isUpgradeSlot(slot)) {
@@ -749,7 +747,7 @@ class Robot extends BlockEntity(BlockEntityTypes.ROBOT) with traits.Computer wit
     else if (!stack.isEmpty && stack.getCount > 0 && !getLevel.isClientSide) spawnStackInLevel(stack, Option(Direction.UP))
   }
 
-  override def stillValid(player: Player): Boolean =
+  override def stillValid(player: net.minecraft.world.entity.player.Player): Boolean =
     super.stillValid(player) && (!isCreative || player.isCreative)
 
   override def canPlaceItem(slot: Int, stack: ItemStack): Boolean = (slot, Option(Driver.driverFor(stack, getClass))) match {
@@ -772,9 +770,9 @@ class Robot extends BlockEntity(BlockEntityTypes.ROBOT) with traits.Computer wit
 
   // ----------------------------------------------------------------------- //
 
-  override def getDisplayName = StringTextComponent.EMPTY
+  override def getDisplayName = TextComponent.EMPTY
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: Player) =
+  override def createMenu(id: Int, playerInventory: Inventory, player: net.minecraft.world.entity.player.Player): AbstractContainerMenu =
     new container.Robot(ContainerTypes.ROBOT, id, playerInventory, this, new container.RobotInfo(this))
 
   // ----------------------------------------------------------------------- //

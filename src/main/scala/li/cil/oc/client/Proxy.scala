@@ -29,7 +29,6 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider.Context
 import net.minecraft.world.level.block.Block
 import net.minecraft.client.renderer.entity.{EntityRenderer, EntityRendererProvider, EntityRenderers}
 import net.minecraft.world.item.Item
-import net.minecraft.world.level.Level
 import net.minecraftforge.client.ClientRegistry
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
@@ -100,5 +99,5 @@ private[oc] class Proxy extends CommonProxy {
 
   override def registerModel(instance: Item, id: String): Unit = ModelInitialization.registerModel(instance, id)
 
-  override def registerModel(instance: Block, id: String): Unit = ModelInitialization.registerModel(instance, id)
+  //override def registerModel(instance: Block, id: String): Unit = ModelInitialization.registerModel(instance, id)
 }

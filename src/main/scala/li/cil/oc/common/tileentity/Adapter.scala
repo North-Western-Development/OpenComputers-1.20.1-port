@@ -16,20 +16,21 @@ import li.cil.oc.common.Slot
 import li.cil.oc.common.container
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.{CompoundTag, ListTag, Tag}
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.sounds.{SoundEvents, SoundSource}
+import net.minecraft.world.MenuProvider
 import net.minecraft.world.level.block.state.BlockState
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 
 class Adapter(selfType: BlockEntityType[_ <: Adapter], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Environment with traits.ComponentInventory
- with traits.OpenSides with Analyzable with internal.Adapter with DeviceInfo with INamedContainerProvider {
+ with traits.OpenSides with Analyzable with internal.Adapter with DeviceInfo with MenuProvider {
 
   val node = api.Network.newNode(this, Visibility.Network).create()
 
@@ -188,7 +189,7 @@ class Adapter(selfType: BlockEntityType[_ <: Adapter], pos: BlockPos, state: Blo
 
   // ----------------------------------------------------------------------- //
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: Player) =
+  override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
     new container.Adapter(ContainerTypes.ADAPTER, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //

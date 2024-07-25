@@ -1,27 +1,17 @@
 package li.cil.oc.common.container
 
 import java.util.Arrays
-
 import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.common
 import li.cil.oc.common.InventorySlots.InventorySlot
 import li.cil.oc.common.Tier
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.SideTracker
-import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory._
-import net.minecraft.inventory.container.ClickType
-import net.minecraft.inventory.container.Container
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.inventory.container.IContainerListener
-import net.minecraft.inventory.container.Slot
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.ByteArrayNBT
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.INBT
-import net.minecraft.nbt.IntArrayNBT
+import net.minecraft.world.inventory.{AbstractContainerMenu, ClickType, MenuType}
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.util.FakePlayer
@@ -29,9 +19,9 @@ import net.minecraftforge.common.util.FakePlayer
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 
-abstract class Player(selfType: ContainerType[_ <: Player], id: Int, val playerInventory: PlayerInventory, val otherInventory: Container) extends Container(selfType, id) {
+abstract class Player(selfType: MenuType[_ <: Player], id: Int, val playerInventory: Inventory, val otherInventory: AbstractContainerMenu) extends AbstractContainerMenu(selfType, id) {
   /** Number of player inventory slots to display horizontally. */
-  protected val playerInventorySizeX = math.min(9, PlayerInventory.getSelectionSize)
+  protected val playerInventorySizeX = math.min(9, Inventory.getSelectionSize)
 
   protected val playerInventorySizeY = math.min(4, playerInventory.items.size / playerInventorySizeX)
 
@@ -42,9 +32,9 @@ abstract class Player(selfType: ContainerType[_ <: Player], id: Int, val playerI
 
   protected val playerListeners = mutable.ArrayBuffer.empty[ServerPlayer]
 
-  override def stillValid(player: Player) = otherInventory.stillValid(player)
+  override def stillValid(player: net.minecraft.world.entity.player.Player) = otherInventory.stillValid(player)
 
-  override def clicked(slot: Int, dragType: Int, clickType: ClickType, player: Player): ItemStack = {
+  override def clicked(slot: Int, dragType: Int, clickType: ClickType, player: net.minecraft.world.entity.player.Player): Unit = {
     val result = super.clicked(slot, dragType, clickType, player)
     if (SideTracker.isServer) {
       broadcastChanges() // We have to enforce this more than MC does itself
