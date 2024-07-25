@@ -5,10 +5,9 @@ import li.cil.oc.CreativeTab
 import li.cil.oc.Settings
 import li.cil.oc.common.Tier
 import li.cil.oc.common.block._
-import net.minecraft.block.AbstractBlock.Properties
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.material.Material
-import net.minecraft.item.Rarity
-import net.minecraft.world.item.Item
+import net.minecraft.world.item.{Item, Rarity}
 
 object Blocks {
   def init() {

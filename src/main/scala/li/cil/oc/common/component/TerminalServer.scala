@@ -2,7 +2,6 @@ package li.cil.oc.common.component
 
 import java.util
 import java.util.UUID
-
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -26,10 +25,10 @@ import li.cil.oc.common.item
 import li.cil.oc.util.ExtendedNBT._
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.StringTag
+import net.minecraft.nbt.{CompoundTag, StringTag, Tag}
 import net.minecraft.core.Direction
 import net.minecraft.util.Hand
+import net.minecraft.world.InteractionHand
 import net.minecraftforge.common.util.Constants.NBT
 
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -53,7 +52,7 @@ class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environ
     val keyboard = api.Driver.driverFor(keyboardItem, getClass).createEnvironment(keyboardItem, this).asInstanceOf[api.internal.Keyboard]
     keyboard.setUsableOverride(new UsabilityChecker {
       override def isUsableByPlayer(keyboard: api.internal.Keyboard, player: Player) = {
-        val stack = player.getItemInHand(Hand.MAIN_HAND)
+        val stack = player.getItemInHand(InteractionHand.MAIN_HAND)
         stack.getItem match {
           case t: item.Terminal if stack.hasTag => sidedKeys.contains(stack.getTag.getString(Settings.namespace + "key"))
           case _ => false
@@ -80,7 +79,7 @@ class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environ
 
   def sidedKeys = {
     if (!rack.world.isClientSide) keys
-    else rack.getMountableData(slot).getList("keys", NBT.TAG_STRING).map((tag: StringTag) => tag.getAsString)
+    else rack.getMountableData(slot).getList("keys", Tag.TAG_STRING).map((tag: StringTag) => tag.getAsString)
   }
 
   // ----------------------------------------------------------------------- //
@@ -145,7 +144,7 @@ class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environ
 
   override def getConnectableAt(index: Int): RackBusConnectable = null
 
-  override def onActivate(player: Player, hand: Hand, heldItem: ItemStack, hitX: Float, hitY: Float): Boolean = {
+  override def onActivate(player: Player, hand: InteractionHand, heldItem: ItemStack, hitX: Float, hitY: Float): Boolean = {
     if (api.Items.get(heldItem) == api.Items.get(Constants.ItemName.Terminal)) {
       if (!world.isClientSide) {
         val key = UUID.randomUUID().toString
@@ -179,7 +178,7 @@ class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environ
     buffer.loadData(nbt.getCompound(BufferTag))
     keyboard.loadData(nbt.getCompound(KeyboardTag))
     keys.clear()
-    nbt.getList(KeysTag, NBT.TAG_STRING).foreach((tag: StringTag) => keys += tag.getAsString)
+    nbt.getList(KeysTag, Tag.TAG_STRING).foreach((tag: StringTag) => keys += tag.getAsString)
   }
 
   override def saveData(nbt: CompoundTag): Unit = {

@@ -16,7 +16,7 @@ import li.cil.oc.server.fs.FileSystem.{ItemLabel, ReadOnlyLabel}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.resources.ResourceLocation
-import net.minecraftforge.fml.server.ServerLifecycleHooks
+import net.minecraftforge.server.ServerLifecycleHooks
 
 object DriverFileSystem extends Item {
   val UUIDVerifier = """^([0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12})$""".r

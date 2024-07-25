@@ -6,7 +6,7 @@ import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
 import li.cil.oc.integration.util.Wrench
 import li.cil.oc.server.PacketSender
-import net.minecraft.block.AbstractBlock.Properties
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.entity.player.Player

@@ -268,7 +268,7 @@ class Robot(state: BlockState, pos: BlockPos) extends BlockEntity(BlockEntityTyp
                 getLevel.playLocalSound(newPosition.getX + 0.5, newPosition.getY + 0.5, newPosition.getZ + 0.5, SoundEvents.WATER_AMBIENT, SoundSource.BLOCKS,
                   getLevel.random.nextFloat * 0.25f + 0.75f, getLevel.random.nextFloat * 1.0f + 0.5f, false)
               }
-              if (block.getFluidState(state) == Fluids.EMPTY.defaultFluidState()) {
+              if (!block.isInstanceOf[IFluidBlock]) {
                 getLevel.levelEvent(2001, newPosition, Block.getId(state))
               }
             }

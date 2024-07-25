@@ -1,19 +1,19 @@
 package li.cil.oc.common.recipe;
 
 import com.google.gson.JsonObject;
-import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.item.crafting.ICraftingRecipe;
-import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.item.crafting.ShapelessRecipe;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.NonNullList;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
-public class ExtendedShapelessRecipe implements ICraftingRecipe {
+public class ExtendedShapelessRecipe implements CraftingRecipe {
     private ShapelessRecipe wrapped;
 
     public ExtendedShapelessRecipe(ShapelessRecipe wrapped) {
@@ -21,12 +21,12 @@ public class ExtendedShapelessRecipe implements ICraftingRecipe {
     }
 
     @Override
-    public boolean matches(CraftingInventory inv, Level world) {
+    public boolean matches(CraftingContainer inv, Level world) {
         return wrapped.matches(inv, world);
     }
 
     @Override
-    public ItemStack assemble(CraftingInventory inv) {
+    public ItemStack assemble(CraftingContainer inv) {
         return ExtendedRecipe.addNBTToResult(this, wrapped.assemble(inv), inv);
     }
 
@@ -41,7 +41,7 @@ public class ExtendedShapelessRecipe implements ICraftingRecipe {
     }
 
     @Override
-    public NonNullList<ItemStack> getRemainingItems(CraftingInventory inv) {
+    public NonNullList<ItemStack> getRemainingItems(CraftingContainer inv) {
         return wrapped.getRemainingItems(inv);
     }
 

@@ -14,14 +14,14 @@ object ConverterNBT extends api.driver.Converter {
       case _ =>
     }
 
-  private def convert(nbt: INBT): AnyRef = nbt match {
-    case tag: ByteNBT => Byte.box(tag.getAsByte)
-    case tag: ShortNBT => Short.box(tag.getAsShort)
-    case tag: IntNBT => Int.box(tag.getAsInt)
-    case tag: LongNBT => Long.box(tag.getAsLong)
-    case tag: FloatNBT => Float.box(tag.getAsFloat)
-    case tag: DoubleNBT => Double.box(tag.getAsDouble)
-    case tag: ByteArrayNBT => tag.getAsByteArray
+  private def convert(nbt: Tag): AnyRef = nbt match {
+    case tag: ByteTag => Byte.box(tag.getAsByte)
+    case tag: ShortTag => Short.box(tag.getAsShort)
+    case tag: IntTag => Int.box(tag.getAsInt)
+    case tag: LongTag => Long.box(tag.getAsLong)
+    case tag: FloatTag => Float.box(tag.getAsFloat)
+    case tag: DoubleTag => Double.box(tag.getAsDouble)
+    case tag: ByteArrayTag => tag.getAsByteArray
     case tag: StringTag => tag.getAsString
     case tag: ListTag =>
       val copy = tag.copy(): ListTag
@@ -30,6 +30,6 @@ object ConverterNBT extends api.driver.Converter {
       tag.getAllKeys.collect {
         case key: String => key -> convert(tag.get(key))
       }.toMap
-    case tag: IntArrayNBT => tag.getAsIntArray
+    case tag: IntArrayTag => tag.getAsIntArray
   }
 }

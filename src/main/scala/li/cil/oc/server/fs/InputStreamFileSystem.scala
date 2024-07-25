@@ -4,11 +4,9 @@ import java.io.FileNotFoundException
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.channels.ReadableByteChannel
-
 import li.cil.oc.api
 import li.cil.oc.api.fs.Mode
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.ListTag
+import net.minecraft.nbt.{CompoundTag, ListTag, Tag}
 import net.minecraftforge.common.util.Constants.NBT
 
 import scala.collection.mutable
@@ -59,7 +57,7 @@ trait InputStreamFileSystem extends api.fs.FileSystem {
   private final val PositionTag = "position"
 
   override def loadData(nbt: CompoundTag) {
-    val handlesNbt = nbt.getList(InputTag, NBT.TAG_COMPOUND)
+    val handlesNbt = nbt.getList(InputTag, Tag.TAG_COMPOUND)
     (0 until handlesNbt.size).map(handlesNbt.getCompound).foreach(handleNbt => {
       val handle = handleNbt.getInt(HandleTag)
       val path = handleNbt.getString(PathTag)

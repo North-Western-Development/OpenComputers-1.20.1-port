@@ -11,7 +11,7 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedEnumFacing._
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.RotationHelper
-import net.minecraft.block.AbstractBlock.Properties
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState

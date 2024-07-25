@@ -14,14 +14,11 @@ import mezz.jei.api.JeiPlugin
 import mezz.jei.api.constants.VanillaTypes
 import mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter
 import mezz.jei.api.ingredients.subtypes.UidContext
-import mezz.jei.api.registration.IAdvancedRegistration
-import mezz.jei.api.registration.IGuiHandlerRegistration
-import mezz.jei.api.registration.RecipeCategoryRegistration
-import mezz.jei.api.registration.RecipeRegistration
-import mezz.jei.api.registration.ISubtypeRegistration
+import mezz.jei.api.registration.{IAdvancedRegistration, IGuiHandlerRegistration, IRecipeCategoryRegistration, IRecipeRegistration, ISubtypeRegistration, RecipeCategoryRegistration, RecipeRegistration}
 import mezz.jei.api.runtime.IIngredientManager
 import mezz.jei.api.runtime.IJeiRuntime
 import net.minecraft.client.gui.screen.inventory.ContainerScreen
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
@@ -33,12 +30,12 @@ import scala.collection.JavaConverters._
 class ModPluginOpenComputers extends IModPlugin {
   override def getPluginUid = new ResourceLocation(OpenComputers.ID, "jei_plugin")
 
-  override def registerCategories(registry: RecipeCategoryRegistration): Unit = {
+  override def registerCategories(registry: IRecipeCategoryRegistration): Unit = {
     registry.addRecipeCategories(ManualUsageHandler.ManualUsageRecipeCategory)
     registry.addRecipeCategories(CallbackDocHandler.CallbackDocRecipeCategory)
   }
 
-  override def registerRecipes(registration: RecipeRegistration) {
+  override def registerRecipes(registration: IRecipeRegistration) {
     registration.addRecipes(ManualUsageHandler.getRecipes(registration), ManualUsageHandler.ManualUsageRecipeCategory.getUid)
     registration.addRecipes(CallbackDocHandler.getRecipes(registration), CallbackDocHandler.CallbackDocRecipeCategory.getUid)
   }
@@ -53,7 +50,7 @@ class ModPluginOpenComputers extends IModPlugin {
     CallbackDocHandler.CallbackDocRecipeCategory.initialize(registration.getJeiHelpers.getGuiHelper)
   }
 
-  private var stackUnderMouse: (ContainerScreen[_], Int, Int) => StackOption = _
+  private var stackUnderMouse: (AbstractContainerScreen[_], Int, Int) => StackOption = _
 
   override def onRuntimeAvailable(jeiRuntime: IJeiRuntime) {
     if (stackUnderMouse == null) {

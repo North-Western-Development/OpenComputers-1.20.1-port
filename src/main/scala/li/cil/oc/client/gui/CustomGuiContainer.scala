@@ -11,12 +11,17 @@ import net.minecraft.client.gui.screen.inventory.ContainerScreen
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderHelper
 import com.mojang.blaze3d.vertex.Tesselator
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.container.Container
+import net.minecraft.locale.Language
+import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.util.text.ITextComponent
 import net.minecraft.util.text.ITextProperties
 import net.minecraft.util.text.LanguageMap
 import net.minecraft.util.text.StringTextComponent
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.AbstractContainerMenu
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
@@ -24,14 +29,14 @@ import scala.collection.convert.ImplicitConversionsToScala._
 // transformations that break things! Such fun. Many annoyed. And yes, this
 // is a common issue, have a look at EnderIO and Enchanting Plus. They have
 // to work around this, too.
-abstract class CustomGuiContainer[C <: Container](val inventoryContainer: C, inv: PlayerInventory, title: ITextComponent)
-  extends ContainerScreen(inventoryContainer, inv, title) with WidgetContainer {
+abstract class CustomGuiContainer[C <: AbstractContainerMenu](val inventoryContainer: C, inv: Inventory, title: Component)
+  extends AbstractContainerScreen(inventoryContainer, inv, title) with WidgetContainer {
 
   override def windowX = leftPos
 
   override def windowY = topPos
 
-  override def windowZ = getBlitOffset
+  override def windowZ: Float = getBlitOffset
 
   override def isPauseScreen = false
 
@@ -46,9 +51,9 @@ abstract class CustomGuiContainer[C <: Container](val inventoryContainer: C, inv
     pointX >= rectX - 1 && pointX < rectX + rectWidth + 1 && pointY >= rectY - 1 && pointY < rectY + rectHeight + 1
 
   protected def copiedDrawHoveringText(stack: PoseStack, lines: util.List[String], x: Int, y: Int, font: FontRenderer): Unit = {
-    val text = new util.ArrayList[StringTextComponent]()
+    val text = new util.ArrayList[TextComponent]()
     for (line <- lines) {
-      text.add(new StringTextComponent(line))
+      text.add(new TextComponent(line))
     }
     copiedDrawHoveringText0(stack, text, x, y, font)
   }
@@ -94,7 +99,7 @@ abstract class CustomGuiContainer[C <: Container](val inventoryContainer: C, inv
       stack.translate(0, 0, 400)
       val buffer = MultiBufferSource.immediate(Tesselator.getInstance.getBuilder())
       for ((line, index) <- text.zipWithIndex) {
-        font.drawInBatch(LanguageMap.getInstance.getVisualOrder(line), posX, posY, -1, true, stack.last.pose, buffer, false, 0, 15728880)
+        font.drawInBatch(Language.getInstance.getVisualOrder(line), posX, posY, -1, true, stack.last.pose, buffer, false, 0, 15728880)
         if (index == 0) {
           posY += 2
         }

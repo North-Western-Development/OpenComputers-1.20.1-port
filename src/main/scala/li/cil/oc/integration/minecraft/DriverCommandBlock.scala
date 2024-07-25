@@ -9,22 +9,20 @@ import li.cil.oc.api.network.ManagedEnvironment
 import li.cil.oc.api.prefab.DriverSidedBlockEntity
 import li.cil.oc.integration.ManagedBlockEntityEnvironment
 import li.cil.oc.util.ResultWrapper.result
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.Blocks
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.tileentity.CommandBlockBlockEntity
-import net.minecraft.core.Direction
-import net.minecraft.core.BlockPos
 import net.minecraft.world.level.Level
-import net.minecraftforge.fml.server.ServerLifecycleHooks
+import net.minecraft.world.level.block.{Block, Blocks}
+import net.minecraft.world.level.block.entity.CommandBlockEntity
+import net.minecraftforge.server.ServerLifecycleHooks
 
 object DriverCommandBlock extends DriverSidedBlockEntity {
-  override def getBlockEntityClass: Class[_] = classOf[CommandBlockBlockEntity]
+  override def getBlockEntityClass: Class[_] = classOf[CommandBlockEntity]
 
   override def createEnvironment(world: Level, pos: BlockPos, side: Direction): ManagedEnvironment =
-    new Environment(world.getBlockEntity(pos).asInstanceOf[CommandBlockBlockEntity])
+    new Environment(world.getBlockEntity(pos).asInstanceOf[CommandBlockEntity])
 
-  final class Environment(tileEntity: CommandBlockBlockEntity) extends ManagedBlockEntityEnvironment[CommandBlockBlockEntity](tileEntity, "command_block") with NamedBlock {
+  final class Environment(tileEntity: CommandBlockEntity) extends ManagedBlockEntityEnvironment[CommandBlockEntity](tileEntity, "command_block") with NamedBlock {
     override def preferredName = "command_block"
 
     override def priority = 0

@@ -16,6 +16,7 @@ import net.minecraft.tileentity.FurnaceBlockEntity
 import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.entity.FurnaceBlockEntity
 
 object DriverFurnace extends DriverSidedBlockEntity {
   override def getBlockEntityClass: Class[_] = classOf[FurnaceBlockEntity]

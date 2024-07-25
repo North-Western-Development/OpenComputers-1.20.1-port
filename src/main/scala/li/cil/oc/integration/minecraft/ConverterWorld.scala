@@ -3,11 +3,10 @@ package li.cil.oc.integration.minecraft
 import java.nio.charset.StandardCharsets
 import java.util
 import java.util.UUID
-
 import com.google.common.hash.Hashing
 import li.cil.oc.api
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.Level
-import net.minecraft.world.server.ServerLevel
 
 import scala.collection.convert.ImplicitConversionsToScala._
 

@@ -2,11 +2,8 @@ package li.cil.oc.server.fs
 
 import java.io
 import java.io.FileNotFoundException
-
 import li.cil.oc.api.fs.Mode
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.ListTag
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.nbt.{CompoundTag, ListTag, Tag}
 
 import scala.collection.mutable
 
@@ -250,7 +247,7 @@ trait VirtualFileSystem extends OutputStreamFileSystem {
 
     override def loadData(nbt: CompoundTag) {
       super.loadData(nbt)
-      val childrenNbt = nbt.getList(ChildrenTag, NBT.TAG_COMPOUND)
+      val childrenNbt = nbt.getList(ChildrenTag, Tag.TAG_COMPOUND)
       (0 until childrenNbt.size).map(childrenNbt.getCompound).foreach(childNbt => {
         val child =
           if (childNbt.getBoolean(IsDirectoryTag)) new VirtualDirectory

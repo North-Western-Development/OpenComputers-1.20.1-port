@@ -13,7 +13,7 @@ import li.cil.oc.integration.util.Wrench
 import li.cil.oc.util.PackedColor
 import li.cil.oc.util.RotationHelper
 import li.cil.oc.util.Tooltip
-import net.minecraft.block.AbstractBlock.Properties
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.Minecraft

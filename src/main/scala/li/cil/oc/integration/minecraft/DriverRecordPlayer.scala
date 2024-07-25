@@ -9,16 +9,13 @@ import li.cil.oc.api.network.ManagedEnvironment
 import li.cil.oc.api.prefab.DriverSidedBlockEntity
 import li.cil.oc.integration.ManagedBlockEntityEnvironment
 import li.cil.oc.util.ResultWrapper.result
-import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
-import net.minecraft.world.item.Item
-import net.minecraft.world.item.ItemStack
-import net.minecraft.item.MusicDiscItem
-import net.minecraft.tileentity.JukeboxBlockEntity
+import net.minecraft.world.item.{Item, ItemStack, RecordItem}
 import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
-import net.minecraft.util.text.LanguageMap
+import net.minecraft.locale.Language
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.entity.JukeboxBlockEntity
 
 object DriverRecordPlayer extends DriverSidedBlockEntity {
   override def getBlockEntityClass: Class[_] = classOf[JukeboxBlockEntity]
@@ -34,8 +31,8 @@ object DriverRecordPlayer extends DriverSidedBlockEntity {
     @Callback(doc = "function():string -- Get the title of the record currently in the jukebox.")
     def getRecord(context: Context, args: Arguments): Array[AnyRef] = {
       val record = tileEntity.getRecord
-      if (!record.isEmpty && record.getItem.isInstanceOf[MusicDiscItem]) {
-        result(LanguageMap.getInstance.getOrDefault(record.getItem.asInstanceOf[MusicDiscItem].getDescriptionId))
+      if (!record.isEmpty && record.getItem.isInstanceOf[RecordItem]) {
+        result(Language.getInstance.getOrDefault(record.getItem.asInstanceOf[RecordItem].getDescriptionId))
       }
       else null
     }
@@ -43,7 +40,7 @@ object DriverRecordPlayer extends DriverSidedBlockEntity {
     @Callback(doc = "function() -- Start playing the record currently in the jukebox.")
     def play(context: Context, args: Arguments): Array[AnyRef] = {
       val record = tileEntity.getRecord
-      if (!record.isEmpty && record.getItem.isInstanceOf[MusicDiscItem]) {
+      if (!record.isEmpty && record.getItem.isInstanceOf[RecordItem]) {
         tileEntity.getLevel.levelEvent(null, 1010, tileEntity.getBlockPos, Item.getId(record.getItem))
         result(true)
       }

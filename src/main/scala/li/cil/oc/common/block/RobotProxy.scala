@@ -15,7 +15,7 @@ import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.Tooltip
-import net.minecraft.block.AbstractBlock.Properties
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.entity.LivingEntity

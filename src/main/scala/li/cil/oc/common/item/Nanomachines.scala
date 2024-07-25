@@ -12,7 +12,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.item.ItemStack
-import net.minecraft.item.Rarity
+import net.minecraft.world.item.Rarity
 import net.minecraft.item.UseAction
 import net.minecraft.util.ActionResult
 import net.minecraft.util.ActionResultType

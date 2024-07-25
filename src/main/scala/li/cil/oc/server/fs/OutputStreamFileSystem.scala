@@ -2,11 +2,9 @@ package li.cil.oc.server.fs
 
 import java.io.FileNotFoundException
 import java.io.IOException
-
 import li.cil.oc.api
 import li.cil.oc.api.fs.Mode
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.ListTag
+import net.minecraft.nbt.{CompoundTag, ListTag, Tag}
 import net.minecraftforge.common.util.Constants.NBT
 
 import scala.collection.mutable
@@ -53,7 +51,7 @@ trait OutputStreamFileSystem extends InputStreamFileSystem {
   override def loadData(nbt: CompoundTag) {
     super.loadData(nbt)
 
-    val handlesNbt = nbt.getList(OutputTag, NBT.TAG_COMPOUND)
+    val handlesNbt = nbt.getList(OutputTag, Tag.TAG_COMPOUND)
     (0 until handlesNbt.size).map(handlesNbt.getCompound).foreach(handleNbt => {
       val handle = handleNbt.getInt(HandleTag)
       val path = handleNbt.getString(PathTag)

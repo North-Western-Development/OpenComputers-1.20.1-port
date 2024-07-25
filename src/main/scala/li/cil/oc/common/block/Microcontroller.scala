@@ -15,7 +15,7 @@ import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.StackOption._
 import li.cil.oc.util.Tooltip
-import net.minecraft.block.AbstractBlock.Properties
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.util.ITooltipFlag

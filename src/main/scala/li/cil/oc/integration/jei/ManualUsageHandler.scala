@@ -1,23 +1,24 @@
 package li.cil.oc.integration.jei
 
 import java.util
-
 import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.Localization
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api
 import mezz.jei.api.constants.VanillaTypes
-import mezz.jei.api.gui.RecipeLayout
+import mezz.jei.api.gui.builder.IRecipeLayoutBuilder
 import mezz.jei.api.gui.drawable.IDrawable
 import mezz.jei.api.helpers.IGuiHelper
 import mezz.jei.api.ingredients.IIngredients
-import mezz.jei.api.recipe.category.RecipeCategory
-import mezz.jei.api.registration.RecipeRegistration
+import mezz.jei.api.recipe.IFocusGroup
+import mezz.jei.api.recipe.category.IRecipeCategory
+import mezz.jei.api.registration.IRecipeRegistration
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.components.Button
+import net.minecraft.network.chat.TextComponent
 import net.minecraft.world.item.ItemStack
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.client.gui.widget.button.Button
 import org.lwjgl.glfw.GLFW
 
 import scala.collection.convert.ImplicitConversionsToJava._
@@ -25,7 +26,7 @@ import scala.collection.convert.ImplicitConversionsToScala._
 
 object ManualUsageHandler {
 
-  def getRecipes(registration: RecipeRegistration): util.List[ManualUsageRecipe] = registration.getIngredientManager.getAllIngredients(VanillaTypes.ITEM).collect {
+  def getRecipes(registration: IRecipeRegistration): util.List[ManualUsageRecipe] = registration.getIngredientManager.getAllIngredients(VanillaTypes.ITEM).collect {
     case stack: ItemStack => api.Manual.pathFor(stack) match {
       case s: String => Option(new ManualUsageRecipe(stack, s))
       case _ => None
@@ -34,12 +35,12 @@ object ManualUsageHandler {
 
   class ManualUsageRecipe(val stack: ItemStack, val path: String)
 
-  object ManualUsageRecipeCategory extends RecipeCategory[ManualUsageRecipe] {
+  object ManualUsageRecipeCategory extends IRecipeCategory[ManualUsageRecipe] {
     val recipeWidth: Int = 160
     val recipeHeight: Int = 125
     private var background: IDrawable = _
     private var icon: IDrawable = _
-    private val button = new Button((160 - 100) / 2, 10, 100, 20, Localization.localizeLater("nei.usage.oc.Manual"), new Button.IPressable {
+    private val button = new Button((160 - 100) / 2, 10, 100, 20, Localization.localizeLater("nei.usage.oc.Manual"), new Button.OnPress {
       override def onPress(b: Button) = ()
     })
 
@@ -58,7 +59,7 @@ object ManualUsageHandler {
       ingredients.setInput(VanillaTypes.ITEM, recipeWrapper.stack)
     }
 
-    override def setRecipe(recipeLayout: RecipeLayout, recipeWrapper: ManualUsageRecipe, ingredients: IIngredients) {
+    override def setRecipe(recipeLayout: IRecipeLayoutBuilder, recipeWrapper: ManualUsageRecipe, ingredients: IFocusGroup) {
     }
 
     override def draw(recipeWrapper: ManualUsageRecipe, stack: PoseStack, mouseX: Double, mouseY: Double) {
@@ -77,7 +78,7 @@ object ManualUsageHandler {
     }
 
     @Deprecated
-    override def getTitle = "OpenComputers Manual"
+    override def getTitle = new TextComponent("OpenComputers Manual")
 
     override def getUid = new ResourceLocation(OpenComputers.ID, "manual")
   }

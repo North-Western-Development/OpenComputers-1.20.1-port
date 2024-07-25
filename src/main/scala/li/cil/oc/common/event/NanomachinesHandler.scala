@@ -2,9 +2,7 @@ package li.cil.oc.common.event
 
 import java.io.FileInputStream
 import java.io.FileOutputStream
-
-import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.IVertexBuilder
+import com.mojang.blaze3d.vertex.{DefaultVertexFormat, PoseStack, Tesselator, VertexConsumer}
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api
@@ -15,11 +13,8 @@ import li.cil.oc.common.EventHandler
 import li.cil.oc.common.nanomachines.ControllerImpl
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
-import com.mojang.blaze3d.vertex.Tesselator
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import net.minecraft.world.entity.player.Player
-import net.minecraft.nbt.CompressedStreamTools
-import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.{CompoundTag, NbtIo}
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 import net.minecraftforge.event.entity.living.LivingEvent
 import net.minecraftforge.event.entity.player.PlayerEvent
@@ -39,7 +34,7 @@ object NanomachinesHandler {
         val mc = Minecraft.getInstance
         api.Nanomachines.getController(mc.player) match {
           case controller: Controller =>
-            val stack = e.getPoseStack
+            val stack = e.getMatrixStack
             val window = mc.getWindow
             val sizeX = 8
             val sizeY = 12
@@ -66,7 +61,7 @@ object NanomachinesHandler {
       }
     }
 
-    private def drawRect(stack: PoseStack, r: IVertexBuilder, x: Int, y: Int, w: Int, h: Int, tw: Int, th: Int, fill: Float = 1) {
+    private def drawRect(stack: PoseStack, r: VertexConsumer, x: Int, y: Int, w: Int, h: Int, tw: Int, th: Int, fill: Float = 1) {
       val sx = 1f / tw
       val sy = 1f / th
       r.vertex(stack.last.pose, x, y + h, 0).uv(0, h * sy).endVertex()
@@ -120,7 +115,7 @@ object NanomachinesHandler {
             val nbt = new CompoundTag()
             controller.saveData(nbt)
             val fos = new FileOutputStream(file)
-            try CompressedStreamTools.writeCompressed(nbt, fos) catch {
+            try NbtIo.writeCompressed(nbt, fos) catch {
               case t: Throwable =>
                 OpenComputers.log.warn("Error saving nanomachine state.", t)
             }
@@ -142,7 +137,7 @@ object NanomachinesHandler {
           case controller: ControllerImpl =>
             try {
               val fis = new FileInputStream(file)
-              try controller.loadData(CompressedStreamTools.readCompressed(fis)) catch {
+              try controller.loadData(NbtIo.readCompressed(fis)) catch {
                 case t: Throwable =>
                   OpenComputers.log.warn("Error loading nanomachine state.", t)
               }

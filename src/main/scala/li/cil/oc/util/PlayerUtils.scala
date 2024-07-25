@@ -1,8 +1,8 @@
 package li.cil.oc.util
 
+import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.world.entity.player.Player
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.particles.IParticleData
 
 object PlayerUtils {
   def persistedData(player: Player): CompoundTag = {
@@ -13,7 +13,7 @@ object PlayerUtils {
     nbt.getCompound(Player.PERSISTED_NBT_TAG)
   }
 
-  def spawnParticleAround(player: Player, effectType: IParticleData, chance: Double = 1.0): Unit = {
+  def spawnParticleAround(player: Player, effectType: ParticleOptions, chance: Double = 1.0): Unit = {
     val rng = player.level.random
     if (chance >= 1 || rng.nextDouble() < chance) {
       val bounds = player.getBoundingBox

@@ -6,15 +6,13 @@ import li.cil.oc.api.network.{EnvironmentHost, ManagedEnvironment}
 import li.cil.oc.common.{Slot, Tier}
 import li.cil.oc.server.component
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.RotationHelper
 import li.cil.oc.{Constants, Settings, api}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.core.Direction
+import net.minecraft.core.{Direction, Registry}
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.registry.Registry
-import net.minecraft.world.server.ServerLevel
-import net.minecraftforge.fml.server.ServerLifecycleHooks
+import net.minecraft.server.level.ServerLevel
+import net.minecraftforge.server.ServerLifecycleHooks
 
 /**
   * @author Vexatos

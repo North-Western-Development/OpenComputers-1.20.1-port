@@ -581,14 +581,14 @@ object Network extends api.detail.NetworkAPI {
     val data = (for (i <- 0 until nbt.getInt("dataLength")) yield {
       if (nbt.contains("data" + i)) {
         nbt.get("data" + i) match {
-          case tag: ByteNBT => Boolean.box(tag.getAsByte == 1)
-          case tag: ShortNBT => Short.box(tag.getAsShort)
-          case tag: IntNBT => Int.box(tag.getAsInt)
-          case tag: LongNBT => Long.box(tag.getAsLong)
-          case tag: FloatNBT => Float.box(tag.getAsFloat)
-          case tag: DoubleNBT => Double.box(tag.getAsDouble)
+          case tag: ByteTag => Boolean.box(tag.getAsByte == 1)
+          case tag: ShortTag => Short.box(tag.getAsShort)
+          case tag: IntTag => Int.box(tag.getAsInt)
+          case tag: LongTag => Long.box(tag.getAsLong)
+          case tag: FloatTag => Float.box(tag.getAsFloat)
+          case tag: DoubleTag => Double.box(tag.getAsDouble)
           case tag: StringTag => tag.getAsString: AnyRef
-          case tag: ByteArrayNBT => tag.getAsByteArray
+          case tag: ByteArrayTag => tag.getAsByteArray
         }
       }
       else null

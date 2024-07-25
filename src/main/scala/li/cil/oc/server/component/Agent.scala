@@ -16,21 +16,15 @@ import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.InventoryUtils
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.entity.Entity
-import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.Pose
-import net.minecraft.entity.item.ItemEntity
-import net.minecraft.entity.item.minecart.MinecartEntity
+import net.minecraft.world.entity.{Entity, LivingEntity, Pose}
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.Container
+import net.minecraft.world.{Container, InteractionHand}
 import net.minecraft.core.Direction
-import net.minecraft.util.Hand
 import net.minecraft.core.BlockPos
-import net.minecraft.world.phys.BlockHitResult
-import net.minecraft.util.math.EntityRayTraceResult
-import net.minecraft.util.math.RayTraceContext
-import net.minecraft.util.math.RayTraceResult
-import net.minecraft.world.phys.Vec3
+import net.minecraft.world.entity.item.ItemEntity
+import net.minecraft.world.entity.vehicle.Minecart
+import net.minecraft.world.level.ClipContext
+import net.minecraft.world.phys.{BlockHitResult, EntityHitResult, HitResult, Vec3}
 import net.minecraftforge.common.MinecraftForge
 
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -42,9 +36,12 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
 
   override def fakePlayer: Player = agent.player
 
-  protected def rotatedPlayer(facing: Direction = agent.facing, side: Direction = agent.facing): Player = {
-    val player = agent.player.asInstanceOf[Player]
-    Player.updatePositionAndRotation(player, facing, side)
+  protected def rotatedPlayer(facing: Direction = agent.facing, side: Direction = agent.facing): net.minecraft.world.entity.player.Player = {
+    val player = agent.player.asInstanceOf[net.minecraft.world.entity.player.Player]
+    //Player.updatePositionAndRotation(player, facing, side)
+    //TODO: Verify effects
+    player.setYRot(facing.toYRot)
+    player.setXRot(side.toYRot)
     // no need to set inventory, calling agent.Player already did that
     //Player.setPlayerInventoryItems(player)
     player
@@ -100,13 +97,13 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
     def triggerDelay(delay: Double = Settings.get.swingDelay) = {
       onLevelInteraction(context, delay)
     }
-    def attack(player: Player, entity: Entity) = {
+    def attack(player: net.minecraft.world.entity.player.Player, entity: Entity) = {
       beginConsumeDrops(entity)
       player.attack(entity)
       // Mine carts have to be hit quickly in succession to break, so we click
       // until it breaks. But avoid an infinite loop... you never know.
       entity match {
-        case _: MinecartEntity => for (_ <- 0 until 10 if entity.isAlive) {
+        case _: Minecart => for (_ <- 0 until 10 if entity.isAlive) {
           player.attack(entity)
         }
         case _ =>
@@ -115,7 +112,7 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
       triggerDelay()
       (true, "entity")
     }
-    def click(player: Player, pos: BlockPos, side: Direction) = {
+    def click(player: net.minecraft.world.entity.player.Player, pos: BlockPos, side: Direction) = {
       val breakTime = player.clickBlock(pos, side)
       val broke = breakTime > 0
       if (broke) {
@@ -127,17 +124,17 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
     var reason: Option[String] = None
     for (side <- sides) {
       val player = rotatedPlayer(facing, side)
-      player.setPose(if (sneaky) Pose.CROUCHING else Pose.STANDING)
+      player.(if (sneaky) Pose.CROUCHING else Pose.STANDING)
 
       val (success, what) = {
         val hit = pick(player, Settings.get.swingRange)
         (Option(hit) match {
           case Some(info) => info.getType
-          case _ => RayTraceResult.Type.MISS
+          case _ => HitResult.Type.MISS
         }) match {
-          case RayTraceResult.Type.ENTITY =>
-            attack(player, hit.asInstanceOf[EntityRayTraceResult].getEntity)
-          case RayTraceResult.Type.BLOCK =>
+          case HitResult.Type.ENTITY =>
+            attack(player, hit.asInstanceOf[EntityHitResult].getEntity)
+          case HitResult.Type.BLOCK =>
             val blockHit = hit.asInstanceOf[BlockHitResult]
             click(player, blockHit.getBlockPos, blockHit.getDirection)
           case _ =>
@@ -208,9 +205,9 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
           (true, "item_used")
         case _ => (false, "")
       }
-    def interact(player: Player, entity: Entity) = {
+    def interact(player: net.minecraft.world.entity.player.Player, entity: Entity) = {
       beginConsumeDrops(entity)
-      val result = player.interactOn(entity, Hand.MAIN_HAND)
+      val result = player.interactOn(entity,InteractionHand.MAIN_HAND)
       endConsumeDrops(player, entity)
       result
     }
@@ -220,13 +217,13 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
       player.setPose(if (sneaky) Pose.CROUCHING else Pose.STANDING)
 
       val (success, what) = Option(pick(player, Settings.get.useAndPlaceRange)) match {
-        case Some(hit) if hit.getType == RayTraceResult.Type.ENTITY && interact(player, hit.asInstanceOf[EntityRayTraceResult].getEntity).consumesAction =>
+        case Some(hit) if hit.getType == HitResult.Type.ENTITY && interact(player, hit.asInstanceOf[EntityHitResult].getEntity).consumesAction =>
           triggerDelay()
           (true, "item_interacted")
-        case Some(hit) if hit.getType == RayTraceResult.Type.BLOCK =>
+        case Some(hit) if hit.getType == HitResult.Type.BLOCK =>
           val blockHit = hit.asInstanceOf[BlockHitResult]
           val (blockPos, hx, hy, hz) = clickParamsFromHit(blockHit)
-          activationResult(player.activateBlockOrUseItem(blockPos, blockHit.getDirection, hx, hy, hz, duration))
+          activationResult(player.interactWith(blockPos, blockHit.getDirection, hx, hy, hz, duration))
         case _ =>
           (if (canPlaceInAir) {
             val (blockPos, hx, hy, hz) = clickParamsForPlace(facing)
@@ -317,7 +314,7 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
   }
 
 
-  protected def endConsumeDrops(player: Player, entity: Entity) {
+  protected def endConsumeDrops(player: net.minecraft.world.entity.player.Player, entity: Entity) {
     val captured = entity.captureDrops(null)
     // this inventory size check is a HACK to preserve old behavior that a agent can suck items out
     // of the capturedDrops. Ideally, we'd only pick up items off the ground. We could clear the
@@ -337,22 +334,22 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
 
   protected def checkSideForFace(args: Arguments, n: Int, facing: Direction): Direction = agent.toGlobal(args.checkSideForFace(n, agent.toLocal(facing)))
 
-  protected def pick(player: Player, range: Double): RayTraceResult = {
+  protected def pick(player: net.minecraft.world.entity.player.Player, range: Double): HitResult = {
     val origin = new Vec3(
-      player.getX + player.facing.getStepX * 0.5,
-      player.getY + player.facing.getStepY * 0.5,
-      player.getZ + player.facing.getStepZ * 0.5)
+      player.getX + player.getDirection.getStepX * 0.5,
+      player.getY + player.getDirection.getStepY * 0.5,
+      player.getZ + player.getDirection.getStepZ * 0.5)
     val blockCenter = origin.add(
-      player.facing.getStepX * 0.51,
-      player.facing.getStepY * 0.51,
-      player.facing.getStepZ * 0.51)
+      player.getDirection.getStepX * 0.51,
+      player.getDirection.getStepY * 0.51,
+      player.getDirection.getStepZ * 0.51)
     val target = blockCenter.add(
-      player.side.getStepX * range,
+      player..getStepX * range,
       player.side.getStepY * range,
       player.side.getStepZ * range)
-    val hit = world.clip(new RayTraceContext(origin, target, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.ANY, player))
+    val hit = world.clip(new ClipContext(origin, target, ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, player))
     player.closestEntity(classOf[Entity]) match {
-      case Some(entity@(_: LivingEntity | _: MinecartEntity | _: entity.Drone)) if hit.getType == RayTraceResult.Type.MISS || player.distanceToSqr(hit.getLocation) > player.distanceToSqr(entity) => new EntityRayTraceResult(entity)
+      case Some(entity@(_: LivingEntity | _: Minecart | _: entity.Drone)) if hit.getType == HitResult.Type.MISS || player.distanceToSqr(hit.getLocation) > player.distanceToSqr(entity) => new EntityHitResult(entity)
       case _ => hit
     }
   }

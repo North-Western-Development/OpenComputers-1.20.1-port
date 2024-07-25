@@ -1,9 +1,9 @@
 package li.cil.oc.common.entity;
 
 import li.cil.oc.OpenComputers;
-import net.minecraft.world.entity.EntityClassification;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -15,7 +15,7 @@ public final class EntityTypes {
 
     @SubscribeEvent
     public static void registerEntities(RegistryEvent.Register<EntityType<?>> e) {
-        register(e.getRegistry(), "drone", EntityType.Builder.of(Drone::new, EntityClassification.MISC)
+        register(e.getRegistry(), "drone", EntityType.Builder.of(Drone::new, MobCategory.MISC)
             .sized(12 / 16f, 6 / 16f).fireImmune());
     }
 

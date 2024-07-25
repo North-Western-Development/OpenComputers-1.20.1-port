@@ -3,14 +3,7 @@ package li.cil.oc.integration.appeng
 import java.util.Optional
 import javax.annotation.Nonnull
 
-import appeng.api._
 import appeng.api.networking.IGrid
-import appeng.api.networking.crafting.ICraftingGrid
-import appeng.api.networking.energy.IEnergyGrid
-import appeng.api.networking.storage.IStorageGrid
-import appeng.api.storage.channels.{IFluidStorageChannel, IItemStorageChannel}
-import appeng.api.storage.data.{IAEFluidStack, IAEItemStack}
-import appeng.api.storage.IStorageHelper
 import li.cil.oc.integration.Mods
 import net.minecraft.world.item.ItemStack
 import net.minecraftforge.fml.ModList

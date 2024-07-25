@@ -1,9 +1,6 @@
 package li.cil.oc.common
 
 import java.util.Calendar
-
-import appeng.api.networking.IGridBlock
-import appeng.api.util.AEPartLocation
 import li.cil.oc._
 import li.cil.oc.api.Network
 import li.cil.oc.api.detail.ItemInfo
@@ -36,34 +33,28 @@ import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.StackOption._
 import li.cil.oc.util._
+import net.minecraft.Util
+import net.minecraft.core.BlockPos
 import net.minecraft.world.entity.player.Player
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.util.SoundEvents
+import net.minecraft.server.level.{ChunkHolder, ChunkMap, ServerLevel, ServerPlayer}
+import net.minecraft.sounds.{SoundEvents, SoundSource}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.util.SoundCategory
-import net.minecraft.util.Util
-import net.minecraft.world.chunk.Chunk
-import net.minecraft.world.server.ChunkHolder
-import net.minecraft.world.server.ChunkManager
-import net.minecraft.world.server.ServerLevel
+import net.minecraft.world.level.chunk.ChunkAccess
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent
-import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.FakePlayer
 import net.minecraftforge.event.AttachCapabilitiesEvent
 import net.minecraftforge.event.TickEvent
 import net.minecraftforge.event.TickEvent.ClientTickEvent
 import net.minecraftforge.event.TickEvent.ServerTickEvent
-import net.minecraftforge.event.entity.EntityJoinLevelEvent
+import net.minecraftforge.event.entity.EntityJoinWorldEvent
 import net.minecraftforge.event.entity.player.PlayerEvent._
-import net.minecraftforge.event.world.BlockEvent
-import net.minecraftforge.event.world.ChunkEvent
-import net.minecraftforge.event.world.LevelEvent
+import net.minecraftforge.event.world.{BlockEvent, ChunkEvent, WorldEvent}
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper
-import net.minecraftforge.fml.server.ServerLifecycleHooks
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper
+import net.minecraftforge.server.ServerLifecycleHooks
 
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
@@ -292,7 +283,7 @@ object EventHandler {
 
   @SubscribeEvent
   def onBlockBreak(e: BlockEvent.BreakEvent): Unit = {
-    e.getLevel.getBlockEntity(e.getPos) match {
+    e.getWorld.getBlockEntity(e.getPos) match {
       case c: tileentity.Case =>
         if (c.isCreative && (!e.getPlayer.isCreative || !c.canInteract(e.getPlayer.getName.getString))) {
           e.setCanceled(true)
@@ -322,8 +313,8 @@ object EventHandler {
   }
 
   @SubscribeEvent
-  def onEntityJoinLevel(e: EntityJoinLevelEvent): Unit = {
-    if (Settings.get.giveManualToNewPlayers && !e.getLevel.isClientSide) e.getEntity match {
+  def onEntityJoinLevel(e: EntityJoinWorldEvent): Unit = {
+    if (Settings.get.giveManualToNewPlayers && !e.getWorld.isClientSide) e.getEntity match {
       case player: Player if !player.isInstanceOf[FakePlayer] =>
         val persistedData = PlayerUtils.persistedData(player)
         if (!persistedData.getBoolean(Settings.namespace + "receivedManual")) {
@@ -382,7 +373,7 @@ object EventHandler {
           e.getPlayer.getRandom.nextFloat() < Settings.get.presentChance && timeForPresents) {
           // Presents!
           val present = api.Items.get(Constants.ItemName.Present).createItemStack(1)
-          e.getPlayer.level.playSound(e.getPlayer, e.getPlayer.getX, e.getPlayer.getY, e.getPlayer.getZ, SoundEvents.NOTE_BLOCK_PLING, SoundCategory.MASTER, 0.2f, 1f)
+          e.getPlayer.level.playSound(e.getPlayer, e.getPlayer.getX, e.getPlayer.getY, e.getPlayer.getZ, SoundEvents.NOTE_BLOCK_PLING, SoundSource.MASTER, 0.2f, 1f)
           InventoryUtils.addToPlayerInventory(present, e.getPlayer)
         }
       case _ => // Nope.
@@ -436,7 +427,7 @@ object EventHandler {
     else false
   }
 
-  private val getChunks = ObfuscationReflectionHelper.findMethod(classOf[ChunkManager], "func_223491_f")
+  private val getChunks = ObfuscationReflectionHelper.findMethod(classOf[ChunkMap], "func_223491_f")
 
   private def getChunks(world: ServerLevel): Iterable[ChunkHolder] = try {
     getChunks.invoke(world.getChunkSource.chunkMap).asInstanceOf[java.lang.Iterable[ChunkHolder]]
@@ -451,18 +442,21 @@ object EventHandler {
   // synchronize what we're doing here to avoid race conditions (e.g. when
   // disposing networks, where this actually triggered an assert).
   @SubscribeEvent
-  def onLevelUnload(e: LevelEvent.Unload): Unit = this.synchronized {
-    if (!e.getLevel.isClientSide) {
-      val world = e.getLevel.asInstanceOf[ServerLevel]
-      world.blockEntityList.collect {
+  def onLevelUnload(e: WorldEvent.Unload): Unit = this.synchronized {
+    if (!e.getWorld.isClientSide) {
+      val world = e.getWorld.asInstanceOf[ServerLevel]
+      /*world..collect {
         case te: tileentity.traits.BlockEntity => te.dispose()
-      }
+      }*/
 
       getChunks(world).foreach(holder => {
         val chunk = holder.getTickingChunk
-        if (chunk != null) chunk.getEntitySections.foreach {
-          _.iterator.collect {
-            case host: MachineHost => host.machine.stop()
+        if (chunk != null) chunk.getBlockEntities.foreach {
+          c: (BlockPos, BlockEntity) => {
+            val ent = c._2
+            ent match {
+              case host: MachineHost => host.machine.stop()
+            }
           }
         }
       })
@@ -476,9 +470,9 @@ object EventHandler {
 
   @SubscribeEvent
   def onChunkUnloaded(e: ChunkEvent.Unload): Unit = {
-    if (!e.getLevel.isClientSide) e.getChunk match {
-      case chunk: Chunk => {
-        chunk.getEntitySections.foreach(_.collect {
+    if (!e.getWorld.isClientSide) e.getChunk match {
+      case chunk: ChunkAccess =>
+        chunk.getBlockEntitiesPos.foreach(e.getWorld.getBlockEntity(_) match {
           case host: MachineHost => host.machine match {
             case machine: Machine => scheduleClose(machine)
             case _ => // Dafuq?
@@ -488,7 +482,6 @@ object EventHandler {
               map(rack.getMountable).
               collect { case server: Server if server.machine != null => server.machine.stop() }
         })
-      }
       case _ =>
     }
   }

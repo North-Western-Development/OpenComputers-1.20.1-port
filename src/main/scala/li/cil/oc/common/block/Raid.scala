@@ -9,7 +9,7 @@ import li.cil.oc.common.item.data.RaidData
 import li.cil.oc.common.tileentity
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.Tooltip
-import net.minecraft.block.AbstractBlock.Properties
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.util.ITooltipFlag

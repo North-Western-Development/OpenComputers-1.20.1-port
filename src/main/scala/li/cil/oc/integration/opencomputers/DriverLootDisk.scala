@@ -1,17 +1,14 @@
 package li.cil.oc.integration.opencomputers
 
-import java.io
-
 import li.cil.oc.Constants
-import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.common.Slot
 import net.minecraft.world.item.ItemStack
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.world.storage.FolderName
-import net.minecraftforge.fml.server.ServerLifecycleHooks
+import net.minecraft.world.level.storage.LevelResource
+import net.minecraftforge.server.ServerLifecycleHooks
 
 // This is deprecated and kept for compatibility with old saves.
 // As of OC 1.5.10, loot disks are generated using normal floppies, and using
@@ -24,7 +21,7 @@ object DriverLootDisk extends Item {
   override def createEnvironment(stack: ItemStack, host: EnvironmentHost) =
     if (!host.world.isClientSide && stack.hasTag && ServerLifecycleHooks.getCurrentServer != null) {
       val lootPath = Settings.savePath + "loot/" + stack.getTag.getString(Settings.namespace + "lootPath")
-      val savePath = ServerLifecycleHooks.getCurrentServer.getLevelPath(new FolderName(lootPath)).toFile
+      val savePath = ServerLifecycleHooks.getCurrentServer.getWorldPath(new LevelResource(lootPath)).toFile
       val fs =
         if (savePath.exists && savePath.isDirectory) {
           api.FileSystem.fromSaveDirectory(lootPath, 0, false)

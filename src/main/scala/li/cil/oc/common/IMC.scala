@@ -2,7 +2,6 @@ package li.cil.oc.common
 
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
-
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api
@@ -16,10 +15,8 @@ import li.cil.oc.server.machine.ProgramLocations
 import li.cil.oc.util.ExtendedNBT._
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.StringTag
+import net.minecraft.nbt.{CompoundTag, StringTag, Tag}
 import net.minecraft.core.BlockPos
-import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.fml.InterModComms.IMCMessage
 
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -28,7 +25,7 @@ object IMC {
   def handleMessage(message: IMCMessage): Unit = {
     message.getMessageSupplier.get.asInstanceOf[AnyRef] match {
       case template: CompoundTag if message.getMethod == api.IMC.REGISTER_ASSEMBLER_TEMPLATE => {
-        if (template.contains("name", NBT.TAG_STRING))
+        if (template.contains("name", Tag.TAG_STRING))
           OpenComputers.log.debug(s"Registering new assembler template '${template.getString("name")}' from mod ${message.getSenderModId}.")
         else
           OpenComputers.log.debug(s"Registering new, unnamed assembler template from mod ${message.getSenderModId}.")
@@ -37,7 +34,7 @@ object IMC {
         }
       }
       case template: CompoundTag if message.getMethod == api.IMC.REGISTER_DISASSEMBLER_TEMPLATE => {
-        if (template.contains("name", NBT.TAG_STRING))
+        if (template.contains("name", Tag.TAG_STRING))
           OpenComputers.log.debug(s"Registering new disassembler template '${template.getString("name")}' from mod ${message.getSenderModId}.")
         else
           OpenComputers.log.debug(s"Registering new, unnamed disassembler template from mod ${message.getSenderModId}.")
@@ -98,7 +95,7 @@ object IMC {
       }
       case diskInfo: CompoundTag if message.getMethod == api.IMC.REGISTER_PROGRAM_DISK_LABEL => {
         OpenComputers.log.debug(s"Registering new program location mapping for program '${diskInfo.getString("program")}' being on disk '${diskInfo.getString("label")}' from mod ${message.getSenderModId}.")
-        ProgramLocations.addMapping(diskInfo.getString("program"), diskInfo.getString("label"), diskInfo.getList("architectures", NBT.TAG_STRING).map((tag: StringTag) => tag.getAsString()).toArray: _*)
+        ProgramLocations.addMapping(diskInfo.getString("program"), diskInfo.getString("label"), diskInfo.getList("architectures", Tag.TAG_STRING).map((tag: StringTag) => tag.getAsString()).toArray: _*)
       }
       case _ => OpenComputers.log.warn(s"Got an unrecognized or invalid IMC message '${message.getMethod}' from mod ${message.getSenderModId}.")
     }

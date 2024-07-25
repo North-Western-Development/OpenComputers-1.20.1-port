@@ -12,11 +12,11 @@ import li.cil.oc.util.ResultWrapper.result
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.item.ItemStack
-import net.minecraft.potion.Effect
-import net.minecraft.tileentity.BeaconBlockEntity
 import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
+import net.minecraft.world.effect.MobEffect
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.entity.BeaconBlockEntity
 
 object DriverBeacon extends DriverSidedBlockEntity {
   override def getBlockEntityClass: Class[_] = classOf[BeaconBlockEntity]
@@ -31,7 +31,7 @@ object DriverBeacon extends DriverSidedBlockEntity {
 
     @Callback(doc = "function():number -- Get the number of levels for this beacon.")
     def getLevels(context: Context, args: Arguments): Array[AnyRef] = {
-      result(tileEntity.getLevels)
+      result(tileEntity.levels)
     }
 
     @Callback(doc = "function():string -- Get the name of the active primary effect.")
@@ -44,7 +44,7 @@ object DriverBeacon extends DriverSidedBlockEntity {
       result(getEffectName(tileEntity.secondaryPower))
     }
 
-    private def getEffectName(effect: Effect): String = {
+    private def getEffectName(effect: MobEffect): String = {
       if (effect != null) effect.getRegistryName.toString else null
     }
   }

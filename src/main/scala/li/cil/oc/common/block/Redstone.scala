@@ -5,7 +5,7 @@ import java.util
 import li.cil.oc.common.tileentity
 import li.cil.oc.integration.Mods
 import li.cil.oc.util.Tooltip
-import net.minecraft.block.AbstractBlock.Properties
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack

@@ -3,28 +3,30 @@ package li.cil.oc.common.recipe
 import li.cil.oc.util.Color
 import li.cil.oc.util.ItemColorizer
 import li.cil.oc.util.StackOption
-import net.minecraft.inventory.CraftingInventory
-import net.minecraft.item.crafting.SpecialRecipe
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
-import net.minecraft.util.IItemProvider
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.Container
+import net.minecraft.world.inventory.CraftingContainer
+import net.minecraft.world.item.crafting.{Recipe, RecipeType}
 import net.minecraft.world.level.Level
 
 /**
   * @author asie, Vexatos
   */
-class ColorizeRecipe(id: ResourceLocation, target: IItemProvider) extends SpecialRecipe(id) {
+class ColorizeRecipe(id: ResourceLocation, target: Item) extends Recipe[CraftingContainer] {
   val targetItem: Item = target.asItem()
 
-  override def matches(crafting: CraftingInventory, world: Level): Boolean = {
+
+
+  override def matches(crafting: CraftingContainer, world: Level): Boolean = {
     val stacks = (0 until crafting.getContainerSize).flatMap(i => StackOption(crafting.getItem(i)))
     val targets = stacks.filter(stack => stack.getItem == targetItem)
     val other = stacks.filterNot(targets.contains(_))
     targets.size == 1 && other.nonEmpty && other.forall(Color.isDye)
   }
 
-  override def assemble(crafting: CraftingInventory): ItemStack = {
+  override def assemble(crafting: CraftingContainer): ItemStack = {
     var targetStack: ItemStack = ItemStack.EMPTY
     val color = Array[Int](0, 0, 0)
     var colorCount = 0
@@ -82,4 +84,10 @@ class ColorizeRecipe(id: ResourceLocation, target: IItemProvider) extends Specia
   override def canCraftInDimensions(width: Int, height: Int): Boolean = width * height >= 2
 
   override def getSerializer = RecipeSerializers.CRAFTING_COLORIZE
+
+  override def getId: ResourceLocation = id
+
+  override def getResultItem: ItemStack = new ItemStack(target)
+
+  override def getType: RecipeType[_] = RecipeType.CRAFTING
 }

@@ -15,6 +15,7 @@ import net.minecraft.tileentity.BrewingStandBlockEntity
 import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.entity.BrewingStandBlockEntity
 
 object DriverBrewingStand extends DriverSidedBlockEntity {
   override def getBlockEntityClass: Class[_] = classOf[BrewingStandBlockEntity]

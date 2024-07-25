@@ -1,10 +1,10 @@
 package li.cil.oc.integration.jei
 
+import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
 import mezz.jei.api.gui.ITickTimer
 import mezz.jei.api.gui.drawable.IDrawableAnimated
-import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.AbstractGui
+import net.minecraft.client.gui.screens.inventory.ContainerScreen
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -29,11 +29,12 @@ class DrawableAnimatedIcon(resourceLocation: ResourceLocation, u: Int, v: Int, w
     val uOffsetTotal = uOffset * animationValue
     val vOffsetTotal = vOffset * animationValue
 
-    Minecraft.getInstance.getTextureManager.bind(resourceLocation)
+    RenderSystem.setShaderTexture(0, resourceLocation)
     val x = xOffset + this.paddingLeft
     val y = yOffset + this.paddingTop
     val u = this.u + uOffsetTotal
     val v = this.v + vOffsetTotal
-    AbstractGui.blit(stack, x, y, u, v, width, height, textureWidth, textureHeight)
+    //TODO: FIX THIS
+    //ContainerScreen.blit(stack, x, y, u, v, width, height, textureWidth, textureHeight)
   }
 }

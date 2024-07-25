@@ -1,7 +1,6 @@
 package li.cil.oc.client.gui
 
 import java.text.DecimalFormat
-
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Localization
@@ -9,7 +8,7 @@ import li.cil.oc.client.Textures
 import li.cil.oc.common.container
 import net.minecraft.client.Minecraft
 import com.mojang.blaze3d.vertex.Tesselator
-import net.minecraft.client.renderer.Rectangle2d
+import net.minecraft.client.renderer.{Rect2i, Rectangle2d}
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.util.text.ITextComponent
@@ -20,7 +19,7 @@ class Relay(state: container.Relay, playerInventory: PlayerInventory, name: ITex
 
   private val format = new DecimalFormat("#.##hz")
 
-  val tabPosition = new Rectangle2d(imageWidth, 10, 23, 26)
+  val tabPosition = new Rect2i(imageWidth, 10, 23, 26)
 
   override protected def drawSecondaryBackgroundLayer(stack: PoseStack): Unit = {
     super.drawSecondaryBackgroundLayer(stack)

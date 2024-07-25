@@ -1,7 +1,6 @@
 package li.cil.oc.integration.jei
 
 import java.util
-
 import com.google.common.base.Strings
 import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.OpenComputers
@@ -9,20 +8,20 @@ import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.server.machine.Callbacks
 import mezz.jei.api.constants.VanillaTypes
-import mezz.jei.api.gui.RecipeLayout
+import mezz.jei.api.gui.builder.IRecipeLayoutBuilder
 import mezz.jei.api.gui.drawable.IDrawable
 import mezz.jei.api.gui.drawable.IDrawableAnimated.StartDirection
 import mezz.jei.api.helpers.IGuiHelper
 import mezz.jei.api.ingredients.IIngredients
-import mezz.jei.api.recipe.category.RecipeCategory
-import mezz.jei.api.registration.RecipeRegistration
+import mezz.jei.api.recipe.IFocusGroup
+import mezz.jei.api.recipe.category.IRecipeCategory
+import mezz.jei.api.registration.IRecipeRegistration
+import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
+import net.minecraft.client.StringSplitter.LinePosConsumer
+import net.minecraft.network.chat.{Style, TextComponent}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.util.ICharacterConsumer
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.text.CharacterManager.ISliceAcceptor
-import net.minecraft.util.text.Style
-import net.minecraft.util.text.TextFormatting
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -34,7 +33,7 @@ object CallbackDocHandler {
 
   private val VexPattern = """(?s)^function(\(.*?\).*?); (.*)$""".r
 
-  def getRecipes(registration: RecipeRegistration): util.List[CallbackDocRecipe] = registration.getIngredientManager.getAllIngredients(VanillaTypes.ITEM).collect {
+  def getRecipes(registration: IRecipeRegistration): util.List[CallbackDocRecipe] = registration.getIngredientManager.getAllIngredients(VanillaTypes.ITEM).collect {
     case stack: ItemStack =>
       val callbacks = api.Driver.environmentsFor(stack).flatMap(getCallbacks).toBuffer
 
@@ -70,8 +69,8 @@ object CallbackDocHandler {
             case VexPattern(head, tail) => (name + head, tail)
             case _ => (name, doc)
           }
-          wrap(signature, 160).map(TextFormatting.BLACK.toString + _).mkString("\n") +
-            TextFormatting.RESET + "\n" +
+          wrap(signature, 160).map(ChatFormatting.BLACK.toString + _).mkString("\n") +
+            ChatFormatting.RESET + "\n" +
             wrap(documentation, 152).map("  " + _).mkString("\n")
         }
     }
@@ -80,15 +79,13 @@ object CallbackDocHandler {
 
   protected def wrap(line: String, width: Int): util.List[String] = {
     val list = new util.ArrayList[String]
-    Minecraft.getInstance.font.getSplitter.splitLines(line, width, Style.EMPTY, true, new ISliceAcceptor {
-      override def accept(style: Style, start: Int, end: Int) = list.add(line.substring(start, end))
-    })
+    Minecraft.getInstance.font.getSplitter.splitLines(line, width, Style.EMPTY, true, (style: Style, start: Int, end: Int) => list.add(line.substring(start, end)))
     list
   }
 
   class CallbackDocRecipe(val stack: ItemStack, val page: String)
 
-  object CallbackDocRecipeCategory extends RecipeCategory[CallbackDocRecipe] {
+  object CallbackDocRecipeCategory extends IRecipeCategory[CallbackDocRecipe] {
     val recipeWidth: Int = 160
     val recipeHeight: Int = 125
     private var background: IDrawable = _
@@ -110,7 +107,7 @@ object CallbackDocHandler {
       ingredients.setInput(VanillaTypes.ITEM, recipeWrapper.stack)
     }
 
-    override def setRecipe(recipeLayout: RecipeLayout, recipeWrapper: CallbackDocRecipe, ingredients: IIngredients) {
+    override def setRecipe(recipeLayout: IRecipeLayoutBuilder, recipeWrapper: CallbackDocRecipe, ingredients: IFocusGroup) {
     }
 
     override def draw(recipeWrapper: CallbackDocRecipe, stack: PoseStack, mouseX: Double, mouseY: Double): Unit = {
@@ -121,7 +118,7 @@ object CallbackDocHandler {
     }
 
     @Deprecated
-    override def getTitle = "OpenComputers API"
+    override def getTitle = new TextComponent("OpenComputers API")
 
     override def getUid = new ResourceLocation(OpenComputers.ID, "part_api")
   }

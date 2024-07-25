@@ -22,7 +22,7 @@ import li.cil.oc.common.item.traits.SimpleItem
 import li.cil.oc.server.machine.luac.LuaStateFactory
 import net.minecraft.core.NonNullList
 import net.minecraft.world.level.block.Block
-import net.minecraft.world.item.{BlockItem, DyeColor, Item, ItemStack}
+import net.minecraft.world.item.{BlockItem, DyeColor, Item, ItemStack, PickaxeItem, Rarity}
 import net.minecraft.world.item.Item.Properties
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.registries.GameData
@@ -377,8 +377,6 @@ object Items extends ItemAPI {
     registerItem(new item.DiamondChip(defaultProps), Constants.ItemName.DiamondChip)
   }
 
-  val WrenchType: ToolType = ToolType.get("wrench")
-
   // All kinds of tools.
   private def initTools(): Unit = {
     registerItem(new item.Analyzer(defaultProps), Constants.ItemName.Analyzer)
@@ -386,7 +384,7 @@ object Items extends ItemAPI {
     registerItem(new item.Terminal(defaultProps.stacksTo(1)), Constants.ItemName.Terminal)
     registerItem(new item.TexturePicker(defaultProps), Constants.ItemName.TexturePicker)
     registerItem(new item.Manual(defaultProps), Constants.ItemName.Manual)
-    registerItem(new item.Wrench(defaultProps.stacksTo(1).addToolType(WrenchType, 1)), Constants.ItemName.Wrench)
+    registerItem(new item.Wrench(defaultProps.stacksTo(1)), Constants.ItemName.Wrench)
 
     // 1.5.11
     registerItem(new item.HoverBoots(defaultProps.stacksTo(1).rarity(Rarity.UNCOMMON).setNoRepair), Constants.ItemName.HoverBoots)

@@ -11,9 +11,7 @@ import li.cil.oc.api.network.ManagedEnvironment
 import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.ResultWrapper.result
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.Blocks
-import net.minecraft.block.NoteBlock
+import net.minecraft.world.level.block.{Block, Blocks, NoteBlock}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos

@@ -15,7 +15,7 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.item.ItemGroup
 import net.minecraft.world.item.ItemStack
-import net.minecraft.item.Rarity
+import net.minecraft.world.item.Rarity
 import net.minecraft.world.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.item.ItemEntity

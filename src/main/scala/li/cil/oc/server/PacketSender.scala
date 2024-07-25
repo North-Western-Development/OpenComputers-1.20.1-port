@@ -20,6 +20,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.core.BlockPos
 import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.sounds.SoundSource
+import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.level.Level
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.registries.ForgeRegistries
@@ -109,7 +110,7 @@ object PacketSender {
     pb.sendToPlayersNearBlockEntity(t)
   }
 
-  def sendContainerUpdate(c: Container, nbt: CompoundTag, player: ServerPlayer): Unit = {
+  def sendContainerUpdate(c: AbstractContainerMenu, nbt: CompoundTag, player: ServerPlayer): Unit = {
     if (!nbt.isEmpty) {
       val pb = new SimplePacketBuilder(PacketType.ContainerUpdate)
 

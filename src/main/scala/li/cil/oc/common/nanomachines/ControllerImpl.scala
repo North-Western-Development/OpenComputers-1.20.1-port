@@ -2,7 +2,6 @@ package li.cil.oc.common.nanomachines
 
 import java.lang
 import java.util.UUID
-
 import com.google.common.base.Charsets
 import com.google.common.base.Strings
 import li.cil.oc.Constants
@@ -21,6 +20,7 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.PlayerUtils
+import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.world.entity.player.Player
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.nbt.CompoundTag
@@ -29,6 +29,7 @@ import net.minecraft.potion.Effect
 import net.minecraft.potion.Effects
 import net.minecraft.potion.EffectInstance
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.effect.{MobEffectInstance, MobEffects}
 import net.minecraft.world.level.Level
 
 import scala.collection.convert.ImplicitConversionsToJava._
@@ -173,9 +174,9 @@ class ControllerImpl(val player: Player) extends Controller with WirelessEndpoin
 
       player match {
         case playerMP: ServerPlayer if playerMP.connection != null =>
-          player.addEffect(new EffectInstance(Effects.BLINDNESS, 100))
-          player.addEffect(new EffectInstance(Effects.POISON, 150))
-          player.addEffect(new EffectInstance(Effects.MOVEMENT_SLOWDOWN, 200))
+          player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 100))
+          player.addEffect(new MobEffectInstance(MobEffects.POISON, 150))
+          player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 200))
           changeBuffer(-Settings.get.nanomachineReconfigureCost)
 
           hasSentConfiguration = false
