@@ -7,8 +7,7 @@ import li.cil.oc.common.Tier
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.inventory.container.PlayerContainer
-import net.minecraft.client.renderer.texture.SimpleTexture
-import net.minecraft.client.renderer.texture.TextureAtlasSprite
+import net.minecraft.client.renderer.texture.{SimpleTexture, TextureAtlas, TextureAtlasSprite}
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.client.event.TextureStitchEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -532,7 +531,7 @@ object Textures {
 
     Screen.makeSureThisIsInitialized()
 
-    def bind(): Unit = Textures.bind(PlayerContainer.BLOCK_ATLAS)
+    def bind(): Unit = Textures.bind(TextureAtlas.LOCATION_BLOCKS)
 
     override protected def basePath = "blocks/%s"
 
@@ -546,17 +545,18 @@ object Textures {
   }
 
   def getSprite(location: ResourceLocation): TextureAtlasSprite =
-    Minecraft.getInstance.getModelManager.getAtlas(PlayerContainer.BLOCK_ATLAS).getSprite(location)
+    Minecraft.getInstance.getModelManager.getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(location)
 
   @SubscribeEvent
-  def onTextureStitchPre(e: TextureStitchEvent.Pre): Unit = {
-    if (e.getMap.location.equals(PlayerContainer.BLOCK_ATLAS)) {
-      Font.init(e)
-      GUI.init(e)
-      Icons.init(e)
-      Model.init(e)
-      Item.init(e)
-      Block.init(e)
+  def onTextureStitchPre(event: TextureStitchEvent.Pre): Unit = {
+    if (event.getAtlas.location == TextureAtlas.LOCATION_BLOCKS) {
+      // Initialize textures and models
+      Font.init(event)
+      GUI.init(event)
+      Icons.init(event)
+      Model.init(event)
+      Item.init(event)
+      Block.init(event)
     }
   }
 

@@ -16,7 +16,7 @@ object CaseRenderer extends Function[BlockEntityRendererProvider.Context, CaseRe
   override def apply(ctx: BlockEntityRendererProvider.Context) = new CaseRenderer(ctx)
 }
 
-class CaseRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Case](ctx) {
+class CaseRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Case] {
   override def render(computer: Case, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 

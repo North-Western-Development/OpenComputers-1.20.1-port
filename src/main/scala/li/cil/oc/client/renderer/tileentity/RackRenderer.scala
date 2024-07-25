@@ -7,8 +7,6 @@ import li.cil.oc.api.event.RackMountableRenderEvent
 import li.cil.oc.common.tileentity.Rack
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.tileentity.BlockEntityRenderer
-import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
 import net.minecraft.core.Direction
 import com.mojang.math.Vector3f
 import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
@@ -16,10 +14,10 @@ import net.minecraftforge.common.MinecraftForge
 import org.lwjgl.opengl.GL11
 
 object RackRenderer extends Function[BlockEntityRendererProvider.Context, RackRenderer] {
-  override def apply(dispatch: BlockEntityRendererProvider.Context) = new RackRenderer(dispatch)
+  override def apply(ctx: BlockEntityRendererProvider.Context) = new RackRenderer(ctx)
 }
 
-class RackRenderer(dispatch: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Rack](dispatch) {
+class RackRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Rack] {
   private final val vOffset = 2 / 16f
   private final val vSize = 3 / 16f
 

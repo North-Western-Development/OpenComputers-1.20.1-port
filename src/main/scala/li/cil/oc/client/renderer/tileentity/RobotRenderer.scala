@@ -31,7 +31,7 @@ import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 
 object RobotRenderer extends Function[BlockEntityRendererProvider.Context, RobotRenderer] {
-  override def apply(dispatch: BlockEntityRendererProvider.Context) = new RobotRenderer(dispatch)
+  override def apply(ctx: BlockEntityRendererProvider.Context) = new RobotRenderer(ctx)
 
   private val instance = new RobotRenderer(null)
 
@@ -39,7 +39,7 @@ object RobotRenderer extends Function[BlockEntityRendererProvider.Context, Robot
     instance.renderChassis(stack, buffer, light, null, offset, isRunningOverride)
 }
 
-class RobotRenderer(dispatch: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[tileentity.RobotProxy](dispatch) {
+class RobotRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[tileentity.RobotProxy] {
   private val mountPoints = new Array[RobotRenderEvent.MountPoint](7)
 
   private val slotNameMapping = Map(

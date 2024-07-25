@@ -16,7 +16,7 @@ object ChargerRenderer extends Function[BlockEntityRendererProvider.Context, Cha
   override def apply(ctx: BlockEntityRendererProvider.Context) = new ChargerRenderer(ctx)
 }
 
-class ChargerRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Charger](ctx) {
+class ChargerRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Charger] {
   override def render(charger: Charger, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 

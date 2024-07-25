@@ -21,10 +21,10 @@ import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEnti
 import net.minecraft.world.InteractionHand
 
 object ScreenRenderer extends Function[BlockEntityRendererProvider.Context, ScreenRenderer] {
-  override def apply(dispatch: BlockEntityRendererProvider.Context) = new ScreenRenderer(dispatch)
+  override def apply(ctx: BlockEntityRendererProvider.Context) = new ScreenRenderer(ctx)
 }
 
-class ScreenRenderer(dispatch: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Screen](dispatch) {
+class ScreenRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Screen] {
   private val maxRenderDistanceSq = Settings.get.maxScreenTextRenderDistance * Settings.get.maxScreenTextRenderDistance
 
   private val fadeDistanceSq = Settings.get.screenTextFadeStartDistance * Settings.get.screenTextFadeStartDistance

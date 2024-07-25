@@ -18,10 +18,10 @@ import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEnti
 import org.lwjgl.opengl.GL13
 
 object PrinterRenderer extends Function[BlockEntityRendererProvider.Context, PrinterRenderer] {
-  override def apply(dispatch: BlockEntityRendererProvider.Context) = new PrinterRenderer(dispatch)
+  override def apply(ctx: BlockEntityRendererProvider.Context) = new PrinterRenderer(ctx)
 }
 
-class PrinterRenderer(dispatch: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Printer](dispatch) {
+class PrinterRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Printer] {
   override def render(printer: Printer, dt: Float, matrix: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 

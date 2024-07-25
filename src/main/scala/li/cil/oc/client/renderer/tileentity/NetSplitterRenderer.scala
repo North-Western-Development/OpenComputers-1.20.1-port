@@ -16,10 +16,10 @@ import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
 import net.minecraft.core.Direction
 
 object NetSplitterRenderer extends Function[BlockEntityRendererProvider.Context, NetSplitterRenderer] {
-  override def apply(dispatch: BlockEntityRendererProvider.Context) = new NetSplitterRenderer(dispatch)
+  override def apply(ctx: BlockEntityRendererProvider.Context) = new NetSplitterRenderer(ctx)
 }
 
-class NetSplitterRenderer(dispatch: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[tileentity.NetSplitter](dispatch) {
+class NetSplitterRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[tileentity.NetSplitter] {
   override def render(splitter: tileentity.NetSplitter, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 

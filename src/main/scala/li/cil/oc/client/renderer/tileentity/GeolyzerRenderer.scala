@@ -14,7 +14,7 @@ object GeolyzerRenderer extends Function[BlockEntityRendererProvider.Context, Ge
   override def apply(ctx: BlockEntityRendererProvider.Context) = new GeolyzerRenderer(ctx)
 }
 
-class GeolyzerRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Geolyzer](ctx) {
+class GeolyzerRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Geolyzer] {
   override def render(geolyzer: Geolyzer, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 

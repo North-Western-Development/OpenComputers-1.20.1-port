@@ -11,10 +11,10 @@ import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 
 object TransposerRenderer extends Function[BlockEntityRendererProvider.Context, TransposerRenderer] {
-  override def apply(dispatch: BlockEntityRendererProvider.Context) = new TransposerRenderer(dispatch)
+  override def apply(ctx: BlockEntityRendererProvider.Context) = new TransposerRenderer(ctx)
 }
 
-class TransposerRenderer(dispatch: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[tileentity.Transposer](dispatch) {
+class TransposerRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[tileentity.Transposer] {
   override def render(transposer: tileentity.Transposer, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 

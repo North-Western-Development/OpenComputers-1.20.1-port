@@ -401,7 +401,7 @@ object HologramRenderer extends Function[BlockEntityRendererProvider.Context, Ho
   def onTick(e: ClientTickEvent) = cache.cleanUp()
 }
 
-class HologramRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Hologram](ctx) {
+class HologramRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Hologram] {
   override def render(hologram: Hologram, f: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     if (HologramRenderer.failed) {
       HologramRendererFallback.render(hologram, f, stack, buffer, light, overlay)

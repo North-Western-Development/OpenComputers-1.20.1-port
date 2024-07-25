@@ -11,10 +11,10 @@ import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 
 object RelayRenderer extends Function[BlockEntityRendererProvider.Context, RelayRenderer] {
-  override def apply(dispatch: BlockEntityRendererProvider.Context) = new RelayRenderer(dispatch)
+  override def apply(ctx: BlockEntityRendererProvider.Context) = new RelayRenderer(ctx)
 }
 
-class RelayRenderer(dispatch: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[tileentity.Relay](dispatch) {
+class RelayRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[tileentity.Relay] {
   override def render(switch: tileentity.Relay, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 

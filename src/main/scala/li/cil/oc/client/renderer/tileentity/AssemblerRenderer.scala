@@ -15,7 +15,7 @@ object AssemblerRenderer extends Function[BlockEntityRendererProvider.Context, A
   override def apply(ctx: BlockEntityRendererProvider.Context) = new AssemblerRenderer(ctx)
 }
 
-class AssemblerRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Assembler](ctx) {
+class AssemblerRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Assembler] {
   override def render(assembler: Assembler, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 

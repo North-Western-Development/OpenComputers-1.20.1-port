@@ -18,7 +18,7 @@ object DiskDriveRenderer extends Function[BlockEntityRendererProvider.Context, D
   override def apply(ctx: BlockEntityRendererProvider.Context) = new DiskDriveRenderer(ctx)
 }
 
-class DiskDriveRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[DiskDrive](ctx) {
+class DiskDriveRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[DiskDrive] {
   override def render(drive: DiskDrive, dt: Float, matrix: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 

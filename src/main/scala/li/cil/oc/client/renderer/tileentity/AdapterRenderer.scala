@@ -15,7 +15,7 @@ object AdapterRenderer extends Function[BlockEntityRendererProvider.Context, Ada
   override def apply(ctx: BlockEntityRendererProvider.Context) = new AdapterRenderer(ctx)
 }
 
-class AdapterRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[tileentity.Adapter](ctx) {
+class AdapterRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[tileentity.Adapter] {
   override def render(adapter: tileentity.Adapter, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 

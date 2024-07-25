@@ -1,7 +1,7 @@
 package li.cil.oc.client.renderer.tileentity
 
 import java.util.function.Function
-import com.mojang.blaze3d.vertex.{BufferBuilder, IVertexBuilder, PoseStack, VertexConsumer}
+import com.mojang.blaze3d.vertex.{PoseStack, VertexConsumer}
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
@@ -9,17 +9,15 @@ import li.cil.oc.common.tileentity.Raid
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
-import net.minecraft.client.renderer.tileentity.BlockEntityRenderer
-import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
 import net.minecraft.core.Direction
 import com.mojang.math.Vector3f
 import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 
 object RaidRenderer extends Function[BlockEntityRendererProvider.Context, RaidRenderer] {
-  override def apply(dispatch: BlockEntityRendererProvider.Context) = new RaidRenderer(dispatch)
+  override def apply(ctx: BlockEntityRendererProvider.Context) = new RaidRenderer(ctx)
 }
 
-class RaidRenderer(dispatch: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Raid](dispatch) {
+class RaidRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Raid] {
   override def render(raid: Raid, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 

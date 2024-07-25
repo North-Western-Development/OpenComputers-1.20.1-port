@@ -1,26 +1,16 @@
 package li.cil.oc.client
 
-import java.net.MalformedURLException
-import java.net.URL
-import java.net.URLConnection
-import java.net.URLStreamHandler
 import java.util.Timer
 import java.util.TimerTask
-import java.util.UUID
-
-import com.google.common.base.Charsets
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
-import net.minecraft.client.Minecraft
-import net.minecraft.client.audio.ITickableSound
-import net.minecraft.client.audio.LocatableSound
-import net.minecraft.client.audio.SoundEngine
+import net.minecraft.client.resources.sounds.{AbstractTickableSoundInstance, TickableSoundInstance}
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.SoundCategory
+import net.minecraft.sounds.{SoundEvent, SoundSource}
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.event.TickEvent.ClientTickEvent
-import net.minecraftforge.event.world.LevelEvent
+import net.minecraftforge.event.world.WorldEvent
 
 import scala.collection.mutable
 
@@ -85,9 +75,9 @@ object Sound {
   }
 
   @SubscribeEvent
-  def onLevelUnload(event: LevelEvent.Unload) {
+  def onLevelUnload(event: WorldEvent.Unload): Unit = {
     commandQueue.synchronized(commandQueue.clear())
-    sources.synchronized(try sources.foreach(_._2.stop()) catch {
+    sources.synchronized(try sources.foreach(_._2.doStop()) catch {
       case _: Throwable => // Ignore.
     })
     sources.clear()
@@ -104,7 +94,7 @@ object Sound {
       sources.synchronized {
         val current = sources.getOrElse(tileEntity, null)
         if (current == null || !current.getLocation.getPath.equals(name)) {
-          if (current != null) current.stop()
+          if (current != null) current.doStop()
           sources(tileEntity) = new PseudoLoopingStream(tileEntity, volume, name)
         }
       }
@@ -115,7 +105,7 @@ object Sound {
     override def apply() {
       sources.synchronized {
         sources.remove(tileEntity) match {
-          case Some(sound) => sound.stop()
+          case Some(sound) => sound.doStop()
           case _ =>
         }
       }
@@ -140,7 +130,7 @@ object Sound {
   }
 
   private class PseudoLoopingStream(val tileEntity: BlockEntity, val subVolume: Float, name: String)
-    extends LocatableSound(new ResourceLocation(OpenComputers.ID, name), SoundCategory.BLOCKS) with ITickableSound {
+    extends AbstractTickableSoundInstance(new SoundEvent(new ResourceLocation(OpenComputers.ID, name)), SoundSource.BLOCKS) {
 
     var stopped = false
     volume = subVolume * Settings.get.soundVolume
@@ -164,9 +154,10 @@ object Sound {
     // Required by ITickableSound, which is required to update position while playing
     override def tick() = ()
 
-    def stop() {
+    def doStop(): Unit = {
       stopped = true
       looping = false
+      stop()
     }
   }
 }

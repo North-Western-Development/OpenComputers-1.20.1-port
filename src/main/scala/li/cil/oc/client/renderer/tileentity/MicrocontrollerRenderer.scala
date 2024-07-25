@@ -14,10 +14,10 @@ import com.mojang.math.Vector3f
 import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 
 object MicrocontrollerRenderer extends Function[BlockEntityRendererProvider.Context, MicrocontrollerRenderer] {
-  override def apply(dispatch: BlockEntityRendererProvider.Context) = new MicrocontrollerRenderer(dispatch)
+  override def apply(ctx: BlockEntityRendererProvider.Context) = new MicrocontrollerRenderer(ctx)
 }
 
-class MicrocontrollerRenderer(dispatch: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Microcontroller](dispatch) {
+class MicrocontrollerRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[Microcontroller] {
   override def render(mcu: Microcontroller, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 

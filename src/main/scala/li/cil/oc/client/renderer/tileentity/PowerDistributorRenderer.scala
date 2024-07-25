@@ -11,10 +11,10 @@ import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 
 object PowerDistributorRenderer extends Function[BlockEntityRendererProvider.Context, PowerDistributorRenderer] {
-  override def apply(dispatch: BlockEntityRendererProvider.Context) = new PowerDistributorRenderer(dispatch)
+  override def apply(ctx: BlockEntityRendererProvider.Context) = new PowerDistributorRenderer(ctx)
 }
 
-class PowerDistributorRenderer(dispatch: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[tileentity.PowerDistributor](dispatch) {
+class PowerDistributorRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[tileentity.PowerDistributor] {
   override def render(distributor: tileentity.PowerDistributor, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 

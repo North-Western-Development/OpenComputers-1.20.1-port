@@ -14,7 +14,7 @@ object DisassemblerRenderer extends Function[BlockEntityRendererProvider.Context
   override def apply(ctx: BlockEntityRendererProvider.Context) = new DisassemblerRenderer(ctx)
 }
 
-class DisassemblerRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[tileentity.Disassembler](ctx) {
+class DisassemblerRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntityRenderer[tileentity.Disassembler] {
   override def render(disassembler: tileentity.Disassembler, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
