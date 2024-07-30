@@ -1,7 +1,8 @@
 package li.cil.oc.client.renderer.font
 
+import com.mojang.blaze3d.platform.TextureUtil
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.IVertexBuilder
+import com.mojang.blaze3d.vertex.VertexConsumer
 import li.cil.oc.Settings
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.client.renderer.font.DynamicFontRenderer.CharTexture
@@ -9,12 +10,9 @@ import li.cil.oc.util.FontUtils
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.RenderType
-import net.minecraft.client.renderer.texture.TextureUtil
-import net.minecraft.resources.IReloadableResourceManager
-import net.minecraft.resources.IResourceManager
-import net.minecraft.resources.IResourceManagerReloadListener
 import com.mojang.math.Matrix4f
 import com.mojang.math.Vector4f
+import net.minecraft.server.packs.resources.{ReloadableResourceManager, ResourceManager, ResourceManagerReloadListener}
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl._
 
@@ -24,7 +22,7 @@ import scala.collection.mutable
  * Font renderer that dynamically generates lookup textures by rendering a font
  * to it. It's pretty broken right now, and font rendering looks crappy as hell.
  */
-class DynamicFontRenderer extends TextureFontRenderer with IResourceManagerReloadListener {
+class DynamicFontRenderer extends TextureFontRenderer with ResourceManagerReloadListener {
   private val glyphProvider: IGlyphProvider = Settings.get.fontRenderer match {
     case _ => new FontParserHex()
   }
@@ -38,7 +36,7 @@ class DynamicFontRenderer extends TextureFontRenderer with IResourceManagerReloa
   initialize()
 
   Minecraft.getInstance.getResourceManager match {
-    case reloadable: IReloadableResourceManager => reloadable.registerReloadListener(this)
+    case reloadable: ReloadableResourceManager => reloadable.registerReloadListener(this)
     case _ =>
   }
 
@@ -54,7 +52,7 @@ class DynamicFontRenderer extends TextureFontRenderer with IResourceManagerReloa
     generateChars(basicChars.toCharArray)
   }
 
-  def onResourceManagerReload(manager: IResourceManager) {
+  def onResourceManagerReload(manager: ResourceManager) {
     initialize()
   }
 
@@ -86,7 +84,7 @@ class DynamicFontRenderer extends TextureFontRenderer with IResourceManagerReloa
     }
   }
 
-  override protected def drawChar(builder: IVertexBuilder, matrix: Matrix4f, color: Int, tx: Float, ty: Float, char: Int) {
+  override protected def drawChar(builder: VertexConsumer, matrix: Matrix4f, color: Int, tx: Float, ty: Float, char: Int) {
     charMap.get(char) match {
       case Some(icon) if icon.texture == activeTexture => icon.draw(builder, matrix, color, tx, ty)
       case _ =>
@@ -191,7 +189,7 @@ object DynamicFontRenderer {
       GL11.glVertex3f(vec.x, vec.y, vec.z)
     }
 
-    def draw(builder: IVertexBuilder, matrix: Matrix4f, color: Int, tx: Float, ty: Float) {
+    def draw(builder: VertexConsumer, matrix: Matrix4f, color: Int, tx: Float, ty: Float) {
       val r = ((color >> 16) & 0xFF) / 255f
       val g = ((color >> 8) & 0xFF) / 255f
       val b = (color & 0xFF) / 255f

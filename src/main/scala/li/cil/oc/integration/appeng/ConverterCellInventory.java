@@ -1,3 +1,4 @@
+/*
 package li.cil.oc.integration.appeng;
 
 import appeng.api.implementations.items.IStorageCell;
@@ -40,3 +41,4 @@ public final class ConverterCellInventory implements Converter {
         }
     }
 }
+*/

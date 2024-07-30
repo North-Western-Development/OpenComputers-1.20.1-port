@@ -3,16 +3,12 @@ package li.cil.oc.common.container
 import li.cil.oc.common.InventorySlots
 import li.cil.oc.common.Tier
 import li.cil.oc.common.tileentity
-import net.minecraft.world.entity.player.Player
-import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.Container
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.util.IntReferenceHolder
-import net.minecraft.util.text.ITextComponent
+import net.minecraft.world.inventory.{DataSlot, MenuType}
 
-class Case(selfType: ContainerType[_ <: Case], id: Int, playerInventory: PlayerInventory, computer: Container, tier: Int)
-  extends Player(selfType, id, playerInventory, computer) {
-
+class Case(selfType: MenuType[_ <: Case], id: Int, playerInventory: Inventory, computer: Container, tier: Int)
+  extends li.cil.oc.common.container.Player(selfType, id, playerInventory, computer) {
   override protected def getHostClass = classOf[tileentity.Case]
 
   for (i <- 0 to (if (tier >= Tier.Three) 2 else 1)) {
@@ -22,7 +18,7 @@ class Case(selfType: ContainerType[_ <: Case], id: Int, playerInventory: PlayerI
 
   for (i <- 0 to (if (tier == Tier.One) 0 else 1)) {
     val slot = InventorySlots.computer(tier)(getItems.size)
-    addSlotToContainer(120, 16 + (i + 1) * slotSize, slot.slot, slot.tier)
+    addSlotToContainer(120, 16 + (i + 1) * slots.size(), slot.slot, slot.tier)
   }
 
   for (i <- 0 to (if (tier == Tier.One) 0 else 1)) {
@@ -55,13 +51,13 @@ class Case(selfType: ContainerType[_ <: Case], id: Int, playerInventory: PlayerI
 
   private val runningData = computer match {
     case te: tileentity.Case => {
-      addDataSlot(new IntReferenceHolder {
+      addDataSlot(new DataSlot {
         override def get(): Int = if (te.isRunning) 1 else 0
 
         override def set(value: Int): Unit = te.setRunning(value != 0)
       })
     }
-    case _ => addDataSlot(IntReferenceHolder.standalone)
+    case _ => addDataSlot(DataSlot.standalone)
   }
   def isRunning = runningData.get != 0
 

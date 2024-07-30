@@ -3,16 +3,15 @@ package li.cil.oc.common.container
 import li.cil.oc.client.Textures
 import li.cil.oc.common
 import li.cil.oc.common.entity
-import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.world.Container
-import net.minecraft.inventory.container.ContainerType
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.util.IntReferenceHolder
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.{DataSlot, MenuType}
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-class Drone(selfType: ContainerType[_ <: Drone], id: Int, playerInventory: PlayerInventory, droneInv: Container, val mainInvSize: Int)
+class Drone(selfType: MenuType[_ <: Drone], id: Int, playerInventory: Inventory, droneInv: Container, val mainInvSize: Int)
   extends Player(selfType, id, playerInventory, droneInv) {
 
   val deltaY = 0
@@ -36,49 +35,49 @@ class Drone(selfType: ContainerType[_ <: Drone], id: Int, playerInventory: Playe
 
   private val globalBufferData = droneInv match {
     case droneInv: entity.DroneInventory => {
-      addDataSlot(new IntReferenceHolder {
+      addDataSlot(new DataSlot {
         override def get(): Int = droneInv.drone.globalBuffer / factor
 
         override def set(value: Int): Unit = droneInv.drone.globalBuffer = value * factor
       })
     }
-    case _ => addDataSlot(IntReferenceHolder.standalone)
+    case _ => addDataSlot(DataSlot.standalone)
   }
   def globalBuffer = globalBufferData.get * factor
 
   private val globalBufferSizeData = droneInv match {
     case droneInv: entity.DroneInventory => {
-      addDataSlot(new IntReferenceHolder {
+      addDataSlot(new DataSlot {
         override def get(): Int = droneInv.drone.globalBufferSize / factor
 
         override def set(value: Int): Unit = droneInv.drone.globalBufferSize = value * factor
       })
     }
-    case _ => addDataSlot(IntReferenceHolder.standalone)
+    case _ => addDataSlot(DataSlot.standalone)
   }
   def globalBufferSize = globalBufferSizeData.get * factor
 
   private val runningData = droneInv match {
     case droneInv: entity.DroneInventory => {
-      addDataSlot(new IntReferenceHolder {
+      addDataSlot(new DataSlot {
         override def get(): Int = if (droneInv.drone.isRunning) 1 else 0
 
         override def set(value: Int): Unit = droneInv.drone.setRunning(value != 0)
       })
     }
-    case _ => addDataSlot(IntReferenceHolder.standalone)
+    case _ => addDataSlot(DataSlot.standalone)
   }
   def isRunning = runningData.get != 0
 
   private val selectedSlotData = droneInv match {
     case droneInv: entity.DroneInventory => {
-      addDataSlot(new IntReferenceHolder {
+      addDataSlot(new DataSlot {
         override def get(): Int = droneInv.drone.selectedSlot
 
         override def set(value: Int): Unit = droneInv.drone.setSelectedSlot(value)
       })
     }
-    case _ => addDataSlot(IntReferenceHolder.standalone)
+    case _ => addDataSlot(DataSlot.standalone)
   }
   def selectedSlot = selectedSlotData.get
 

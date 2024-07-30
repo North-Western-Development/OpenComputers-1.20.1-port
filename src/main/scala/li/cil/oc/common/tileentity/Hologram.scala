@@ -1,7 +1,6 @@
 package li.cil.oc.common.tileentity
 
 import java.util
-
 import li.cil.oc._
 import li.cil.oc.api.driver.DeviceInfo
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
@@ -17,17 +16,17 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
-import net.minecraft.util.math.AxisAlignedBB
-import net.minecraft.world.phys.Vec3
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.phys.{AABB, Vec3}
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 
-class Hologram(selfType: BlockEntityType[_ <: Hologram], var tier: Int) extends BlockEntity(selfType) with traits.Environment with SidedEnvironment with Analyzable with traits.RotatableTile with traits.Tickable with DeviceInfo {
-  def this(selfType: BlockEntityType[_ <: Hologram]) = this(selfType, 0)
+class Hologram(selfType: BlockEntityType[_ <: Hologram], pos: BlockPos, state: BlockState, var tier: Int) extends BlockEntity(selfType, pos, state) with traits.Environment with SidedEnvironment with Analyzable with traits.RotatableTile with DeviceInfo {
+  def this(selfType: BlockEntityType[_ <: Hologram], pos: BlockPos, state: BlockState) = this(selfType, pos, state, 0)
 
   val node = api.Network.newNode(this, Visibility.Network).
     withComponent("hologram").
@@ -433,7 +432,7 @@ class Hologram(selfType: BlockEntityType[_ <: Hologram], var tier: Int) extends 
 
   // ----------------------------------------------------------------------- //
 
-  override def getViewDistance = scale / Settings.get.hologramMaxScaleByTier.max * Settings.get.hologramRenderDistance
+  //override def getViewDistance = scale / Settings.get.hologramMaxScaleByTier.max * Settings.get.hologramRenderDistance
 
   def getFadeStartDistanceSquared = scale / Settings.get.hologramMaxScaleByTier.max * Settings.get.hologramFadeStartDistance * Settings.get.hologramFadeStartDistance
 
@@ -446,7 +445,7 @@ class Hologram(selfType: BlockEntityType[_ <: Hologram], var tier: Int) extends 
     val sh = width / 16 * scale * Sqrt2
     // overscale to take into account 45 degree rotation
     val sv = height / 16 * scale * Sqrt2
-    new AxisAlignedBB(
+    new AABB(
       cx + (-0.5 + translation.x) * sh,
       cy + translation.y * sv,
       cz + (-0.5 + translation.z) * sh,

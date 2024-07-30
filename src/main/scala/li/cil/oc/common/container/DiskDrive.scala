@@ -2,11 +2,11 @@ package li.cil.oc.common.container
 
 import li.cil.oc.common.Slot
 import li.cil.oc.common.tileentity
-import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.world.Container
-import net.minecraft.inventory.container.ContainerType
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.MenuType
 
-class DiskDrive(selfType: ContainerType[_ <: DiskDrive], id: Int, playerInventory: PlayerInventory, drive: Container)
+class DiskDrive(selfType: MenuType[_ <: DiskDrive], id: Int, playerInventory: Inventory, drive: Container)
   extends Player(selfType, id, playerInventory, drive) {
 
   override protected def getHostClass = classOf[tileentity.DiskDrive]

@@ -1,7 +1,7 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.{DefaultVertexFormat, PoseStack, Tesselator, VertexFormat}
 import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.Localization
 import li.cil.oc.client.Textures
@@ -14,19 +14,16 @@ import li.cil.oc.integration.util.ItemSearch
 import li.cil.oc.util.RenderState
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
-import net.minecraft.client.gui.AbstractGui
-import com.mojang.blaze3d.vertex.Tesselator
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.Container
-import net.minecraft.inventory.container.Slot
-import net.minecraft.util.text.ITextComponent
+import net.minecraft.network.chat.TextComponent
+import net.minecraft.world.Container
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.{AbstractContainerMenu, Slot}
 import org.lwjgl.opengl.GL11
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 
-abstract class DynamicGuiContainer[C <: Container](container: C, inv: PlayerInventory, title: ITextComponent)
+abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv: Inventory, title: TextComponent)
   extends CustomGuiContainer(container, inv, title) {
 
   protected var hoveredStackNEI: StackOption = EmptyStack
@@ -55,13 +52,12 @@ abstract class DynamicGuiContainer[C <: Container](container: C, inv: PlayerInve
   protected def drawSecondaryBackgroundLayer(stack: PoseStack) {}
 
   override protected def renderBg(stack: PoseStack, dt: Float, mouseX: Int, mouseY: Int) {
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
     Textures.bind(Textures.GUI.Background)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
     drawSecondaryBackgroundLayer(stack)
 
     RenderState.makeItBlend()
-    RenderSystem.disableLighting()
 
     drawInventorySlots(stack)
   }
@@ -101,11 +97,11 @@ abstract class DynamicGuiContainer[C <: Container](container: C, inv: PlayerInve
             case component: ComponentSlot =>
               if (component.tierIcon != null) {
                 Textures.bind(component.tierIcon)
-                AbstractGui.blit(stack, slot.x, slot.y, getBlitOffset, 0, 0, 16, 16, 16, 16)
+                blit(stack, slot.x, slot.y, 0, 0, 16, 16)
               }
               if (component.hasBackground) {
                 Textures.bind(component.getBackgroundLocation)
-                AbstractGui.blit(stack, slot.x, slot.y, getBlitOffset, 0, 0, 16, 16, 16, 16)
+                blit(stack, slot.x, slot.y, 0, 0, 16, 16)
               }
             case _ =>
           }
@@ -116,7 +112,7 @@ abstract class DynamicGuiContainer[C <: Container](container: C, inv: PlayerInve
   }
 
   protected def drawSlotHighlight(matrix: PoseStack, slot: Slot) {
-    if (minecraft.player.inventory.getCarried.isEmpty) slot match {
+    if (minecraft.player.inventory.getSelected.isEmpty) slot match {
       case component: ComponentSlot if component.slot == common.Slot.None || component.tier == common.Tier.None => // Ignore.
       case _ =>
         val currentIsInPlayerInventory = isInPlayerInventory(slot)
@@ -148,17 +144,17 @@ abstract class DynamicGuiContainer[C <: Container](container: C, inv: PlayerInve
   }
 
   protected def drawDisabledSlot(stack: PoseStack, slot: ComponentSlot) {
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
     Textures.bind(slot.tierIcon)
-    AbstractGui.blit(stack, slot.x, slot.y, getBlitOffset, 0, 0, 16, 16, 16, 16)
+    blit(stack, slot.x, slot.y, 0, 0, 16, 16)
   }
 
   protected def drawSlotBackground(stack: PoseStack, x: Int, y: Int) {
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
     Textures.bind(Textures.GUI.Slot)
     val t = Tesselator.getInstance
     val r = t.getBuilder
-    r.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX)
+    r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
     r.vertex(stack.last.pose, x, y + 18, getBlitOffset + 1).uv(0, 1).endVertex()
     r.vertex(stack.last.pose, x + 18, y + 18, getBlitOffset + 1).uv(1, 1).endVertex()
     r.vertex(stack.last.pose, x + 18, y, getBlitOffset + 1).uv(1, 0).endVertex()

@@ -4,10 +4,8 @@ import li.cil.oc.Settings
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.StackOption
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.TranslationTextComponent
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.nbt.{CompoundTag, Tag}
+import net.minecraft.network.chat.TranslatableComponent
 
 trait Inventory extends SimpleInventory {
   def items: Array[ItemStack]
@@ -49,7 +47,7 @@ trait Inventory extends SimpleInventory {
     }
   }
 
-  override def getName: ITextComponent = new TranslationTextComponent(Settings.namespace + "container." + inventoryName)
+  override def getName: TranslatableComponent = new TranslatableComponent(Settings.namespace + "container." + inventoryName)
 
   protected def inventoryName: String = getClass.getSimpleName.toLowerCase
 
@@ -62,7 +60,7 @@ trait Inventory extends SimpleInventory {
   private final val ItemTag = "item"
 
   def loadData(nbt: CompoundTag) {
-    nbt.getList(ItemsTag, NBT.TAG_COMPOUND).foreach((tag: CompoundTag) => {
+    nbt.getList(ItemsTag, Tag.TAG_COMPOUND).foreach((tag: CompoundTag) => {
       if (tag.contains(SlotTag)) {
         val slot = tag.getByte(SlotTag)
         if (slot >= 0 && slot < items.length) {

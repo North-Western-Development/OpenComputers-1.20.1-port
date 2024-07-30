@@ -1,9 +1,7 @@
 package li.cil.oc.client.gui.widget
 
-import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.{DefaultVertexFormat, PoseStack, Tesselator, VertexFormat}
 import li.cil.oc.client.Textures
-import com.mojang.blaze3d.vertex.Tesselator
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import org.lwjgl.opengl.GL11
 
 class ProgressBar(val x: Int, val y: Int) extends Widget {
@@ -28,7 +26,7 @@ class ProgressBar(val x: Int, val y: Int) extends Widget {
       Textures.bind(barTexture)
       val t = Tesselator.getInstance
       val r = t.getBuilder
-      r.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX)
+      r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
       r.vertex(stack.last.pose, tx, ty, owner.windowZ).uv(u0, v0).endVertex()
       r.vertex(stack.last.pose, tx, ty + height, owner.windowZ).uv(u0, v1).endVertex()
       r.vertex(stack.last.pose, tx + w, ty + height, owner.windowZ).uv(u1, v1).endVertex()

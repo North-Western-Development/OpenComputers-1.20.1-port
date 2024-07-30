@@ -2,18 +2,16 @@ package li.cil.oc.util
 
 import java.util.Optional
 import java.util.function.Consumer
-
 import li.cil.oc.OpenComputers
 import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.StackOption._
 import net.minecraft.world.entity.Entity
-import net.minecraft.entity.item.ItemEntity
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.Container
-import net.minecraft.inventory.ISidedInventory
+import net.minecraft.world.{Container, WorldlyContainer}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.core.Direction
+import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.common.util.LazyOptional
 import net.minecraftforge.items.CapabilityItemHandler
@@ -27,7 +25,7 @@ import scala.collection.convert.ImplicitConversionsToScala._
 object InventoryUtils {
 
   def asItemHandler(inventory: Container, side: Direction): IItemHandlerModifiable = inventory match {
-    case inv: ISidedInventory if side != null => new SidedInvWrapper(inv, side)
+    case inv: WorldlyContainer if side != null => new SidedInvWrapper(inv, side)
     case _ => new InvWrapper(inventory)
   }
 

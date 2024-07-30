@@ -1,39 +1,36 @@
 package li.cil.oc.common.container;
 
 import li.cil.oc.OpenComputers;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.network.IContainerFactory;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.ObjectHolder;
 
 @ObjectHolder("opencomputers")
 public final class ContainerTypes {
-    public static final ContainerType<Adapter> ADAPTER = null;
-    public static final ContainerType<Assembler> ASSEMBLER = null;
-    public static final ContainerType<Case> CASE = null;
-    public static final ContainerType<Charger> CHARGER = null;
-    public static final ContainerType<Database> DATABASE = null;
-    public static final ContainerType<Disassembler> DISASSEMBLER = null;
-    public static final ContainerType<DiskDrive> DISK_DRIVE = null;
-    public static final ContainerType<Drone> DRONE = null;
-    public static final ContainerType<Printer> PRINTER = null;
-    public static final ContainerType<Rack> RACK = null;
-    public static final ContainerType<Raid> RAID = null;
-    public static final ContainerType<Relay> RELAY = null;
-    public static final ContainerType<Robot> ROBOT = null;
-    public static final ContainerType<Server> SERVER = null;
-    public static final ContainerType<Tablet> TABLET = null;
+    public static final MenuType<Adapter> ADAPTER = null;
+    public static final MenuType<Assembler> ASSEMBLER = null;
+    public static final MenuType<Case> CASE = null;
+    public static final MenuType<Charger> CHARGER = null;
+    public static final MenuType<Database> DATABASE = null;
+    public static final MenuType<Disassembler> DISASSEMBLER = null;
+    public static final MenuType<DiskDrive> DISK_DRIVE = null;
+    public static final MenuType<Drone> DRONE = null;
+    public static final MenuType<Printer> PRINTER = null;
+    public static final MenuType<Rack> RACK = null;
+    public static final MenuType<Raid> RAID = null;
+    public static final MenuType<Relay> RELAY = null;
+    public static final MenuType<Robot> ROBOT = null;
+    public static final MenuType<Server> SERVER = null;
+    public static final MenuType<Tablet> TABLET = null;
 
     @SubscribeEvent
-    public static void registerContainers(RegistryEvent.Register<ContainerType<?>> e) {
+    public static void registerContainers(RegistryEvent.Register<MenuType<?>> e) {
         register(e.getRegistry(), "adapter", (id, plr, buff) -> new Adapter(ADAPTER, id, plr, new Inventory(1)));
         register(e.getRegistry(), "assembler", (id, plr, buff) -> new Assembler(ASSEMBLER, id, plr, new Inventory(22)));
         register(e.getRegistry(), "case", (id, plr, buff) -> {
@@ -78,8 +75,8 @@ public final class ContainerTypes {
         });
     }
 
-    private static void register(IForgeRegistry<ContainerType<?>> registry, String name, IContainerFactory<?> factory) {
-        ContainerType<?> type = IForgeContainerType.create(factory);
+    private static void register(IForgeRegistry<MenuType<?>> registry, String name, IContainerFactory<?> factory) {
+        MenuType<?> type = IForgeContainerType.create(factory);
         type.setRegistryName(new ResourceLocation(OpenComputers.ID(), name));
         registry.register(type);
     }

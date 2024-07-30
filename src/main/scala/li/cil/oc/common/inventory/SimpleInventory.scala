@@ -1,7 +1,6 @@
 package li.cil.oc.common.inventory
 
-import li.cil.oc.Localization
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.{Container, Nameable}
 import net.minecraft.world.item.ItemStack

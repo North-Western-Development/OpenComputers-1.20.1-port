@@ -9,9 +9,10 @@ import li.cil.oc.util.ItemUtils
 import net.minecraft.world.entity.player.Player
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.container.INamedContainerProvider
+import net.minecraft.world.MenuProvider
 import net.minecraft.world.item.ItemStack
 
-trait ServerInventory extends ItemStackInventory with INamedContainerProvider {
+trait ServerInventory extends ItemStackInventory with MenuProvider {
   def rackSlot: Int
 
   def tier: Int = ItemUtils.caseTier(container) max 0
@@ -30,6 +31,6 @@ trait ServerInventory extends ItemStackInventory with INamedContainerProvider {
       driver.slot(stack) == provided.slot && driver.tier(stack) <= provided.tier
     })
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: Player) =
+  override def createMenu(id: Int, playerInventory: net.minecraft.world.entity.player.Inventory, player: Player) =
     new ServerContainer(ContainerTypes.SERVER, id, playerInventory, container, this, tier, rackSlot)
 }

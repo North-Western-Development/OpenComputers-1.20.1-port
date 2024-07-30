@@ -8,10 +8,8 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.SideTracker
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.network.NetworkManager
-import net.minecraft.network.play.server.SUpdateBlockEntityPacket
-import net.minecraft.core.BlockPos
-import net.minecraft.world.level.Level
+import net.minecraft.network.Connection
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
@@ -33,7 +31,7 @@ trait BlockEntity extends net.minecraft.world.level.block.entity.BlockEntity {
   // ----------------------------------------------------------------------- //
 
   def updateEntity() {
-    if (Settings.get.periodicallyForceLightUpdate && getLevel.getGameTime % 40 == 0 && getBlockState.getBlock.getLightValue(getLevel.getBlockState(getBlockPos), getLevel, getBlockPos) > 0) {
+    if (Settings.get.periodicallyForceLightUpdate && getLevel.getGameTime % 40 == 0 && getBlockState.getLightBlock(getLevel, getBlockPos) > 0) {
       getLevel.sendBlockUpdated(getBlockPos, getLevel.getBlockState(getBlockPos), getLevel.getBlockState(getBlockPos), 3)
     }
   }
@@ -71,7 +69,7 @@ trait BlockEntity extends net.minecraft.world.level.block.entity.BlockEntity {
 
   def saveForServer(nbt: CompoundTag): Unit = {
     nbt.putBoolean(IsServerDataTag, true)
-    super.save(nbt)
+    super.saveAdditional(nbt)
   }
 
   @OnlyIn(Dist.CLIENT)
@@ -83,8 +81,8 @@ trait BlockEntity extends net.minecraft.world.level.block.entity.BlockEntity {
 
   // ----------------------------------------------------------------------- //
 
-  override def load(state: BlockState, nbt: CompoundTag): Unit = {
-    super.load(state, nbt)
+  override def load(nbt: CompoundTag): Unit = {
+    super.load(nbt)
     if (isServer || nbt.getBoolean(IsServerDataTag)) {
       loadForServer(nbt)
     }
@@ -93,17 +91,16 @@ trait BlockEntity extends net.minecraft.world.level.block.entity.BlockEntity {
     }
   }
 
-  override def save(nbt: CompoundTag): CompoundTag = {
+  override def saveAdditional(nbt: CompoundTag): Unit = {
     if (isServer) {
       saveForServer(nbt)
     }
-    nbt
   }
 
-  override def getUpdatePacket: SUpdateBlockEntityPacket = {
+  override def getUpdatePacket: ClientboundBlockEntityDataPacket = {
     // Obfuscation workaround. If it works.
     val te = this.asInstanceOf[net.minecraft.world.level.block.entity.BlockEntity]
-    new SUpdateBlockEntityPacket(te.getBlockPos, 0, te.getUpdateTag)
+    ClientboundBlockEntityDataPacket.create(te)
   }
 
   override def getUpdateTag: CompoundTag = {
@@ -122,7 +119,7 @@ trait BlockEntity extends net.minecraft.world.level.block.entity.BlockEntity {
     nbt
   }
 
-  override def onDataPacket(manager: NetworkManager, packet: SUpdateBlockEntityPacket) {
+  override def onDataPacket(manager: Connection, packet: ClientboundBlockEntityDataPacket) {
     try loadForClient(packet.getTag) catch {
       case e: Throwable => OpenComputers.log.warn("There was a problem reading a BlockEntity description packet. Please report this if you see it!", e)
     }

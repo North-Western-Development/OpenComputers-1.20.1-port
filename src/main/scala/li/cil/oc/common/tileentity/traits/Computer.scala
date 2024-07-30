@@ -2,7 +2,6 @@ package li.cil.oc.common.tileentity.traits
 
 import java.lang
 import java.util
-
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.machine.Machine
@@ -15,17 +14,15 @@ import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.StringTag
+import net.minecraft.nbt.{CompoundTag, StringTag, Tag}
 import net.minecraft.core.Direction
-import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 
-trait Computer extends Environment with ComponentInventory with Rotatable with BundledRedstoneAware with api.network.Analyzable with api.machine.MachineHost with StateAware with Tickable {
+trait Computer extends Environment with ComponentInventory with Rotatable with BundledRedstoneAware with api.network.Analyzable with api.machine.MachineHost with StateAware {
   private lazy val _machine = if (isServer) api.Machine.create(this) else null
 
   def machine: Machine = _machine
@@ -171,7 +168,7 @@ trait Computer extends Environment with ComponentInventory with Rotatable with B
     hasErrored = nbt.getBoolean(HasErroredTag)
     setRunning(nbt.getBoolean(IsRunningTag))
     _users.clear()
-    _users ++= nbt.getList(UsersTag, NBT.TAG_STRING).map((tag: StringTag) => tag.getAsString)
+    _users ++= nbt.getList(UsersTag, Tag.TAG_STRING).map((tag: StringTag) => tag.getAsString)
     if (_isRunning) runSound.foreach(sound => Sound.startLoop(this, sound, 0.5f, 1000 + getLevel.random.nextInt(2000)))
   }
 

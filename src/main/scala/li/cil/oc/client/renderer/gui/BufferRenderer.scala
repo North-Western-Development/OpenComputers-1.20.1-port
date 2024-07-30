@@ -1,13 +1,10 @@
 package li.cil.oc.client.renderer.gui
 
-import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.IVertexBuilder
+import com.mojang.blaze3d.vertex.{DefaultVertexFormat, PoseStack, Tesselator, VertexConsumer, VertexFormat}
 import li.cil.oc.api
 import li.cil.oc.client.Textures
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
-import com.mojang.blaze3d.vertex.Tesselator
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.math.Matrix4f
 import org.lwjgl.opengl.GL11
 
@@ -25,7 +22,7 @@ object BufferRenderer {
     val t = Tesselator.getInstance
     val r = t.getBuilder
     Textures.bind(Textures.GUI.Borders)
-    r.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX);
+    r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 
     val margin = if (forRobot) 2 else 7
     val (c0, c1, c2, c3) = if (forRobot) (5, 7, 9, 11) else (0, 7, 9, 16)
@@ -68,7 +65,7 @@ object BufferRenderer {
     RenderState.checkError(getClass.getName + ".drawBackground: leaving")
   }
 
-  private def drawQuad(matrix: Matrix4f, builder: IVertexBuilder, x: Float, y: Float, w: Float, h: Float, u1: Float, v1: Float, u2: Float, v2: Float) = {
+  private def drawQuad(matrix: Matrix4f, builder: VertexConsumer, x: Float, y: Float, w: Float, h: Float, u1: Float, v1: Float, u2: Float, v2: Float) = {
     val u1f = u1 / 16f
     val u2f = u2 / 16f
     val v1f = v1 / 16f

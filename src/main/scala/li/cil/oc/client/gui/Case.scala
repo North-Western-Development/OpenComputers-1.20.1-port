@@ -6,14 +6,14 @@ import li.cil.oc.Localization
 import li.cil.oc.client.Textures
 import li.cil.oc.client.{PacketSender => ClientPacketSender}
 import li.cil.oc.common.container
-import net.minecraft.client.gui.widget.button.Button
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.util.text.ITextComponent
+import net.minecraft.client.gui.components.Button
+import net.minecraft.network.chat.TextComponent
+import net.minecraft.world.entity.player.Inventory
 
 import scala.collection.JavaConverters.asJavaCollection
 import scala.collection.convert.ImplicitConversionsToJava._
 
-class Case(state: container.Case, playerInventory: PlayerInventory, name: ITextComponent)
+class Case(state: container.Case, playerInventory: Inventory, name: TextComponent)
   extends DynamicGuiContainer(state, playerInventory, name) {
 
   protected var powerButton: ImageButton = _
@@ -25,10 +25,8 @@ class Case(state: container.Case, playerInventory: PlayerInventory, name: ITextC
 
   override protected def init() {
     super.init()
-    powerButton = new ImageButton(leftPos + 70, topPos + 33, 18, 18, new Button.IPressable {
-      override def onPress(b: Button) = ClientPacketSender.sendComputerPower(inventoryContainer, !inventoryContainer.isRunning)
-    }, Textures.GUI.ButtonPower, canToggle = true)
-    addButton(powerButton)
+    powerButton = new ImageButton(leftPos + 70, topPos + 33, 18, 18, (b: Button) => ClientPacketSender.sendComputerPower(inventoryContainer, !inventoryContainer.isRunning), Textures.GUI.ButtonPower, canToggle = true)
+    addRenderableWidget(powerButton)
   }
 
   override protected def drawSecondaryForegroundLayer(stack: PoseStack, mouseX: Int, mouseY: Int) = {
@@ -36,12 +34,12 @@ class Case(state: container.Case, playerInventory: PlayerInventory, name: ITextC
     if (powerButton.isMouseOver(mouseX, mouseY)) {
       val tooltip = new java.util.ArrayList[String]
       tooltip.addAll(asJavaCollection(if (inventoryContainer.isRunning) Localization.Computer.TurnOff.linesIterator.toIterable else Localization.Computer.TurnOn.linesIterator.toIterable))
-      copiedDrawHoveringText(stack, tooltip, mouseX - leftPos, mouseY - topPos, font)
+      this.renderTooltip(stack, tooltip, mouseX - leftPos, mouseY - topPos)
     }
   }
 
   override def drawSecondaryBackgroundLayer(stack: PoseStack) {
-    RenderSystem.color3f(1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
     Textures.bind(Textures.GUI.Computer)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
   }

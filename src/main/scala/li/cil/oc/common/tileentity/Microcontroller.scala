@@ -2,7 +2,6 @@ package li.cil.oc.common.tileentity
 
 import java.util
 import java.util.function.Consumer
-
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -23,10 +22,12 @@ import li.cil.oc.util.StackOption._
 import net.minecraft.world.entity.player.Player
 import net.minecraft.inventory.ISidedInventory
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.{CompoundTag, Tag}
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.world.WorldlyContainer
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -34,7 +35,7 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import scala.collection.JavaConverters.asJavaIterable
 import scala.collection.convert.ImplicitConversionsToJava._
 
-class Microcontroller(selfType: BlockEntityType[_ <: Microcontroller]) extends BlockEntity(selfType) with traits.PowerAcceptor with traits.Hub with traits.Computer with ISidedInventory with internal.Microcontroller with DeviceInfo {
+class Microcontroller(selfType: BlockEntityType[_ <: Microcontroller], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.PowerAcceptor with traits.Hub with traits.Computer with WorldlyContainer with internal.Microcontroller with DeviceInfo {
   val info = new MicrocontrollerData()
 
   override def node = null
@@ -214,7 +215,7 @@ class Microcontroller(selfType: BlockEntityType[_ <: Microcontroller]) extends B
     // to empty inventory.
     info.loadData(nbt.getCompound(InfoTag))
     nbt.getBooleanArray(OutputsTag)
-    nbt.getList(ComponentNodesTag, NBT.TAG_COMPOUND).toTagArray[CompoundTag].
+    nbt.getList(ComponentNodesTag, Tag.TAG_COMPOUND).toTagArray[CompoundTag].
       zipWithIndex.foreach {
       case (tag, index) => componentNodes(index).loadData(tag)
     }

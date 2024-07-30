@@ -7,11 +7,12 @@ import li.cil.oc.common.InventorySlots.InventorySlot
 import li.cil.oc.common.Tier
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.SideTracker
-import net.minecraft.world.entity.player.{Inventory, Player}
+import net.minecraft.world.entity.player.Inventory
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.world.inventory.{AbstractContainerMenu, ClickType, MenuType}
+import net.minecraft.nbt.{ByteArrayTag, CompoundTag, IntArrayTag, Tag}
+import net.minecraft.world.Container
+import net.minecraft.world.inventory.{AbstractContainerMenu, ClickType, ContainerListener, MenuType, Slot}
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.util.FakePlayer
@@ -19,7 +20,7 @@ import net.minecraftforge.common.util.FakePlayer
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 
-abstract class Player(selfType: MenuType[_ <: Player], id: Int, val playerInventory: Inventory, val otherInventory: AbstractContainerMenu) extends AbstractContainerMenu(selfType, id) {
+abstract class Player(selfType: MenuType[_ <: Player], id: Int, val playerInventory: Inventory, val otherInventory: Container) extends AbstractContainerMenu(selfType, id) {
   /** Number of player inventory slots to display horizontally. */
   protected val playerInventorySizeX = math.min(9, Inventory.getSelectionSize)
 
@@ -44,7 +45,7 @@ abstract class Player(selfType: MenuType[_ <: Player], id: Int, val playerInvent
     result
   }
 
-  override def quickMoveStack(player: Player, index: Int): ItemStack = {
+  override def quickMoveStack(player: net.minecraft.world.entity.player.Player, index: Int): ItemStack = {
     val slot = Option(slots.get(index)).orNull
     if (slot != null && slot.hasItem) {
       tryTransferStackInSlot(slot, slot.container == otherInventory)
@@ -156,7 +157,7 @@ abstract class Player(selfType: MenuType[_ <: Player], id: Int, val playerInvent
     }
   }
 
-  override def addSlotListener(listener: IContainerListener): Unit = {
+  override def addSlotListener(listener: ContainerListener): Unit = {
     listener match {
       case _: FakePlayer => // Nope
       case player: ServerPlayer => playerListeners += player
@@ -166,8 +167,11 @@ abstract class Player(selfType: MenuType[_ <: Player], id: Int, val playerInvent
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def removeSlotListener(listener: IContainerListener): Unit = {
-    if (listener.isInstanceOf[ServerPlayer]) playerListeners -= listener.asInstanceOf[ServerPlayer]
+  override def removeSlotListener(listener: ContainerListener): Unit = {
+    listener match {
+      case player: ServerPlayer => playerListeners -= player
+      case _ =>
+    }
     super.removeSlotListener(listener)
   }
 
@@ -213,7 +217,7 @@ abstract class Player(selfType: MenuType[_ <: Player], id: Int, val playerInvent
       }
     }
 
-    override def put(key: String, value: INBT): INBT = this.synchronized {
+    override def put(key: String, value: Tag): Tag = this.synchronized {
       if (!value.equals(get(key))) delta.put(key, value)
       super.put(key, value)
     }
@@ -255,7 +259,7 @@ abstract class Player(selfType: MenuType[_ <: Player], id: Int, val playerInvent
 
     override def putByteArray(key: String, value: Array[Byte]): Unit = this.synchronized {
       get(key) match {
-        case arr: ByteArrayNBT if !Arrays.equals(value, arr.getAsByteArray) => delta.putByteArray(key, value)
+        case arr: ByteArrayTag if !Arrays.equals(value, arr.getAsByteArray) => delta.putByteArray(key, value)
         case _ =>
       }
       super.putByteArray(key, value)
@@ -263,7 +267,7 @@ abstract class Player(selfType: MenuType[_ <: Player], id: Int, val playerInvent
 
     override def putIntArray(key: String, value: Array[Int]): Unit = this.synchronized {
       get(key) match {
-        case arr: IntArrayNBT if !Arrays.equals(value, arr.getAsIntArray) => delta.putIntArray(key, value)
+        case arr: IntArrayTag if !Arrays.equals(value, arr.getAsIntArray) => delta.putIntArray(key, value)
         case _ =>
       }
       super.putIntArray(key, value)

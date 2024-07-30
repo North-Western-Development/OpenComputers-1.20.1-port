@@ -1,7 +1,6 @@
 package li.cil.oc.common.tileentity
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.Localization
 import li.cil.oc.Settings
@@ -21,16 +20,16 @@ import li.cil.oc.integration.util.ItemCharge
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedLevel._
-import net.minecraft.world.entity.player.Player
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.INamedContainerProvider
+import net.minecraft.Util
+import net.minecraft.core.particles.ParticleTypes
+import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.particles.ParticleTypes
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
-import net.minecraft.util.Util
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.world.MenuProvider
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -39,8 +38,8 @@ import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 
-class Charger(selfType: BlockEntityType[_ <: Charger]) extends BlockEntity(selfType) with traits.Environment with traits.PowerAcceptor with traits.RedstoneAware
-  with traits.Rotatable with traits.ComponentInventory with traits.Tickable with Analyzable with traits.StateAware with DeviceInfo with INamedContainerProvider {
+class Charger(selfType: BlockEntityType[_ <: Charger], blockPosition: BlockPos, blockState: BlockState) extends BlockEntity(selfType, blockPosition, blockState) with traits.Environment with traits.PowerAcceptor with traits.RedstoneAware
+  with traits.Rotatable with traits.ComponentInventory with Analyzable with traits.StateAware with DeviceInfo with MenuProvider {
 
   val node: Connector = api.Network.newNode(this, Visibility.None).
     withConnector(Settings.get.bufferConverter).
@@ -231,7 +230,7 @@ class Charger(selfType: BlockEntityType[_ <: Charger]) extends BlockEntity(selfT
 
   // ----------------------------------------------------------------------- //
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: Player) =
+  override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
     new container.Charger(ContainerTypes.CHARGER, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //

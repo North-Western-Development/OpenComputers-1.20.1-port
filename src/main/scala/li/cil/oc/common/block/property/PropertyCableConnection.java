@@ -4,12 +4,12 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
-import net.minecraft.state.EnumProperty;
 import net.minecraft.core.Direction;
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 
 public final class PropertyCableConnection {
-    public static enum Shape implements IStringSerializable {
+    public static enum Shape implements StringRepresentable {
         NONE("none"),
         CABLE("cable"),
         DEVICE("device");

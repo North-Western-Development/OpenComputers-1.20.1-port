@@ -5,6 +5,7 @@ import li.cil.oc.client.Textures
 import li.cil.oc.common
 import net.minecraft.world.Container
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 

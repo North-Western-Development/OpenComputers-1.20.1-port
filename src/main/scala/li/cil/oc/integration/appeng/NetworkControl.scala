@@ -1,4 +1,4 @@
-package li.cil.oc.integration.appeng
+/*package li.cil.oc.integration.appeng
 
 import java.util
 
@@ -554,4 +554,4 @@ object NetworkControl {
       reason = NbtDataStream.getOptString(nbt, REASON_KEY, reason)
     }
   }
-}
+}*/

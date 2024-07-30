@@ -1,3 +1,4 @@
+/*
 package li.cil.oc.integration.appeng
 
 import java.util.Optional
@@ -74,3 +75,4 @@ object AEUtil {
 
   def getGridEnergy(@Nonnull grid: IGrid): IEnergyGrid = grid.getCache( classOf[IEnergyGrid] )
 }
+*/

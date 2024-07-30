@@ -4,17 +4,18 @@ import com.mojang.blaze3d.platform.InputConstants
 import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.Localization
 import li.cil.oc.api
+import li.cil.oc.client.renderer.TooltipUtils
 import li.cil.oc.client.{KeyBindings, Textures, Manual => ManualAPI}
 import li.cil.oc.client.renderer.markdown.Document
 import li.cil.oc.client.renderer.markdown.segment.{InteractiveSegment, Segment}
-import net.minecraft.client.{KeyMapping, Minecraft}
 import net.minecraft.client.gui.components.Button
+import net.minecraft.client.gui.components.Button.OnPress
+import net.minecraft.client.{KeyMapping, Minecraft}
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
 import net.minecraft.client.player.Input
 import net.minecraft.client.resources.language.I18n
-import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.network.chat.{Component, FormattedText, TextComponent}
 import org.lwjgl.glfw.GLFW
 
 import scala.collection.JavaConverters._
@@ -91,12 +92,12 @@ class Manual extends Screen(TextComponent.EMPTY) with traits.Window {
       val x = leftPos + tabPosX
       val y = topPos + tabPosY + i * (tabHeight - 1)
       //TODO: Needs a custom button implementation for textures
-      addRenderableWidget(new Button(x, y, tabWidth, tabHeight, new Button.OnPress {
+      addRenderableWidget(new ImageButton(x, y, tabWidth, tabHeight, new OnPress {
         override def onPress(b: Button) = api.Manual.navigate(tab.path)
       }, Textures.GUI.ManualTab))
     }
 
-    scrollButton = new Button(leftPos + scrollPosX, topPos + scrollPosY, 6, 13, new Button.OnPress {
+    scrollButton = new ImageButton(leftPos + scrollPosX, topPos + scrollPosY, 6, 13, new Button.OnPress {
       override def onPress(b: Button) = ()
     }, Textures.GUI.ButtonScroll)
     addRenderableWidget(scrollButton)
@@ -111,38 +112,44 @@ class Manual extends Screen(TextComponent.EMPTY) with traits.Window {
     scrollButton.isHovered = isScrolling
 
     for ((tab, i) <- ManualAPI.tabs.zipWithIndex if i < maxTabsPerSide) {
-      val button = buttons.get(i).asInstanceOf[Button]
-      stack.pushPose()
-      stack.translate(button.x + 5, button.y + 5, getBlitOffset)
-      tab.renderer.render(stack)
-      stack.popPose()
+      children().get(i) match {
+        case button: Button =>
+          stack.pushPose()
+          stack.translate(button.x + 5, button.y + 5, getBlitOffset)
+          tab.renderer.render(stack)
+          stack.popPose()
+        case _ =>
+      }
     }
 
     currentSegment = Document.render(stack, document, leftPos + 8, topPos + 8, documentMaxWidth, documentMaxHeight, offset, font, mouseX, mouseY)
-    def localizeAndWrap(text: String): java.util.List[Component] = {
+    def localizeAndWrap(text: String): List[FormattedText] = {
       val lines = Localization.localizeImmediately(text).linesIterator.map(new TextComponent(_))
-      lines.toList.asJava
+      lines.toList
     }
 
     if (!isScrolling) currentSegment match {
       case Some(segment) =>
         segment.tooltip match {
-          case Some(text) if text.nonEmpty => renderTooltip(stack, localizeAndWrap(text), mouseX, mouseY)
+          case Some(text) if text.nonEmpty => TooltipUtils.drawTooltip(stack, localizeAndWrap(text), mouseX, mouseY)
           case _ =>
         }
       case _ =>
     }
 
     if (!isScrolling) for ((tab, i) <- ManualAPI.tabs.zipWithIndex if i < maxTabsPerSide) {
-      val button = buttons.get(i).asInstanceOf[Button]
-      if (mouseX > button.x && mouseX < button.x + tabWidth && mouseY > button.y && mouseY < button.y + tabHeight) tab.tooltip.foreach(text => {
-        renderTooltip(stack, localizeAndWrap(text), mouseX, mouseY)
-      })
+      children().get(i) match {
+        case button: Button =>
+          if (mouseX > button.x && mouseX < button.x + tabWidth && mouseY > button.y && mouseY < button.y + tabHeight) tab.tooltip.foreach(text => {
+            TooltipUtils.drawTooltip(stack, localizeAndWrap(text), mouseX, mouseY)
+          })
+        case _ =>
+      }
     }
 
     if (canScroll && (isCoordinateOverScrollBar(mouseX - leftPos, mouseY - topPos) || isScrolling)) {
-      val lines = List(new TextComponent(s"${100 * offset / maxOffset}%")).asJava
-      renderTooltip(stack, lines, leftPos + scrollPosX + scrollWidth, scrollButton.y + scrollButton.getHeight + 1)
+      val lines = List(new TextComponent(s"${100 * offset / maxOffset}%"))
+      TooltipUtils.drawTooltip(stack, lines, leftPos + scrollPosX + scrollWidth, scrollButton.y + scrollButton.getHeight + 1)
     }
   }
 

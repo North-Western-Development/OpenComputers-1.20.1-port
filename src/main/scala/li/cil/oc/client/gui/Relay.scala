@@ -1,20 +1,16 @@
 package li.cil.oc.client.gui
 
 import java.text.DecimalFormat
-import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.{DefaultVertexFormat, PoseStack, Tesselator, VertexFormat}
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Localization
 import li.cil.oc.client.Textures
 import li.cil.oc.common.container
-import net.minecraft.client.Minecraft
-import com.mojang.blaze3d.vertex.Tesselator
-import net.minecraft.client.renderer.{Rect2i, Rectangle2d}
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.util.text.ITextComponent
-import org.lwjgl.opengl.GL11
+import net.minecraft.client.renderer.Rect2i
+import net.minecraft.network.chat.TextComponent
+import net.minecraft.world.entity.player.Inventory
 
-class Relay(state: container.Relay, playerInventory: PlayerInventory, name: ITextComponent)
+class Relay(state: container.Relay, playerInventory: Inventory, name: TextComponent)
   extends DynamicGuiContainer(state, playerInventory, name) {
 
   private val format = new DecimalFormat("#.##hz")
@@ -25,15 +21,15 @@ class Relay(state: container.Relay, playerInventory: PlayerInventory, name: ITex
     super.drawSecondaryBackgroundLayer(stack)
 
     // Tab background.
-    RenderSystem.color4f(1, 1, 1, 1)
-    Minecraft.getInstance.getTextureManager.bind(Textures.GUI.UpgradeTab)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
+    Textures.bind(Textures.GUI.UpgradeTab)
     val x = windowX + tabPosition.getX
     val y = windowY + tabPosition.getY
     val w = tabPosition.getWidth
     val h = tabPosition.getHeight
     val t = Tesselator.getInstance
     val r = t.getBuilder
-    r.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX)
+    r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
     r.vertex(stack.last.pose, x, y + h, getBlitOffset).uv(0, 1).endVertex()
     r.vertex(stack.last.pose, x + w, y + h, getBlitOffset).uv(1, 1).endVertex()
     r.vertex(stack.last.pose, x + w, y, getBlitOffset).uv(1, 0).endVertex()

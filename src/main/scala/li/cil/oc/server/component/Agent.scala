@@ -124,7 +124,7 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
     var reason: Option[String] = None
     for (side <- sides) {
       val player = rotatedPlayer(facing, side)
-      player.(if (sneaky) Pose.CROUCHING else Pose.STANDING)
+      player.interactAt(if (sneaky) Pose.CROUCHING else Pose.STANDING)
 
       val (success, what) = {
         val hit = pick(player, Settings.get.swingRange)
@@ -274,7 +274,7 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
       val player = rotatedPlayer(facing, side)
       player.setPose(if (sneaky) Pose.CROUCHING else Pose.STANDING)
       val success = Option(pick(player, Settings.get.useAndPlaceRange)) match {
-        case Some(hit) if hit.getType == RayTraceResult.Type.BLOCK =>
+        case Some(hit) if hit.getType == HitResult.Type.BLOCK =>
           val blockHit = hit.asInstanceOf[BlockHitResult]
           val (blockPos, hx, hy, hz) = clickParamsFromHit(blockHit)
           player.placeBlock(agent.selectedSlot, blockPos, blockHit.getDirection, hx, hy, hz)
@@ -344,9 +344,9 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
       player.getDirection.getStepY * 0.51,
       player.getDirection.getStepZ * 0.51)
     val target = blockCenter.add(
-      player..getStepX * range,
-      player.side.getStepY * range,
-      player.side.getStepZ * range)
+      player.getDirection.getStepX * range,
+      player.getDirection.getStepY * range,
+      player.getDirection.getStepZ * range)
     val hit = world.clip(new ClipContext(origin, target, ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, player))
     player.closestEntity(classOf[Entity]) match {
       case Some(entity@(_: LivingEntity | _: Minecart | _: entity.Drone)) if hit.getType == HitResult.Type.MISS || player.distanceToSqr(hit.getLocation) > player.distanceToSqr(entity) => new EntityHitResult(entity)

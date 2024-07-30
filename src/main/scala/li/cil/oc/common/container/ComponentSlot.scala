@@ -3,18 +3,18 @@ package li.cil.oc.common.container
 import li.cil.oc.api.Driver
 import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.common
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.Container
-import net.minecraft.inventory.container.Slot
-import net.minecraft.world.item.ItemStack
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.Container
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.Slot
+import net.minecraft.world.item.ItemStack
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
 abstract class ComponentSlot(inventory: Container, index: Int, x: Int, y: Int, host: Class[_ <: EnvironmentHost]) extends Slot(inventory, index, x, y) {
-  def agentContainer: Player
+  def agentContainer: li.cil.oc.common.container.Player
 
   def slot: String
 
@@ -52,7 +52,7 @@ abstract class ComponentSlot(inventory: Container, index: Int, x: Int, y: Int, h
     }
   }
 
-  override def onTake(player: Player, stack: ItemStack) = {
+  override def onTake(player: net.minecraft.world.entity.player.Player, stack: ItemStack) = {
     for (slot <- agentContainer.slots) slot match {
       case dynamic: ComponentSlot => dynamic.clearIfInvalid(player)
       case _ =>
@@ -78,5 +78,5 @@ abstract class ComponentSlot(inventory: Container, index: Int, x: Int, y: Int, h
     changeListener.foreach(_(this))
   }
 
-  protected def clearIfInvalid(player: Player) {}
+  protected def clearIfInvalid(player: net.minecraft.world.entity.player.Player) {}
 }

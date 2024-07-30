@@ -1,8 +1,7 @@
 package li.cil.oc.client.renderer.font
 
-import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.{PoseStack, VertexConsumer}
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.IVertexBuilder
 import li.cil.oc.Settings
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.util.{ExtendedUnicodeHelper, PackedColor, RenderState, TextBuffer}
@@ -52,7 +51,7 @@ abstract class TextureFontRenderer {
 
     // Background first. We try to merge adjacent backgrounds of the same
     // color to reduce the number of quads we have to draw.
-    var quadBuilder: IVertexBuilder = null
+    var quadBuilder: VertexConsumer = null
     for (y <- 0 until (viewportHeight min buffer.height)) {
       val color = buffer.color(y)
       var cbg = 0x000000
@@ -124,7 +123,7 @@ abstract class TextureFontRenderer {
 
     RenderState.popAttrib()
     stack.popPose()
-    RenderSystem.color3f(1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
   }
 
   protected def charWidth: Int
@@ -141,9 +140,9 @@ abstract class TextureFontRenderer {
 
   protected def drawChar(matrix: Matrix4f, tx: Float, ty: Float, char: Int): Unit
 
-  protected def drawChar(builder: IVertexBuilder, matrix: Matrix4f, color: Int, tx: Float, ty: Float, char: Int): Unit
+  protected def drawChar(builder: VertexConsumer, matrix: Matrix4f, color: Int, tx: Float, ty: Float, char: Int): Unit
 
-  private def drawQuad(builder: IVertexBuilder, matrix: Matrix4f, color: Int, x: Int, y: Int, width: Int) = if (color != 0 && width > 0) {
+  private def drawQuad(builder: VertexConsumer, matrix: Matrix4f, color: Int, x: Int, y: Int, width: Int) = if (color != 0 && width > 0) {
     val x0 = x * charWidth
     val x1 = (x + width) * charWidth
     val y0 = y * charHeight

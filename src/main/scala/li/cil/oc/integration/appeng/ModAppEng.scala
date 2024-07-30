@@ -1,3 +1,4 @@
+/*
 package li.cil.oc.integration.appeng
 
 import li.cil.oc.api
@@ -30,3 +31,4 @@ object ModAppEng extends ModProxy {
     Driver.add(DriverBlockInterface.Provider)
   }
 }
+*/

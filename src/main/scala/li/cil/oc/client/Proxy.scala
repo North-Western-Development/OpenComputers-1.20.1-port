@@ -5,7 +5,7 @@ import li.cil.oc.OpenComputers
 import li.cil.oc.api
 import li.cil.oc.client
 import li.cil.oc.client.gui.GuiTypes
-import li.cil.oc.client.renderer.HighlightRenderer
+//import li.cil.oc.client.renderer.HighlightRenderer
 import li.cil.oc.client.renderer.MFUTargetRenderer
 import li.cil.oc.client.renderer.PetRenderer
 import li.cil.oc.client.renderer.TextBufferRenderCache
@@ -82,7 +82,7 @@ private[oc] class Proxy extends CommonProxy {
       ClientRegistry.registerKeyBinding(KeyBindings.analyzeCopyAddr)
       ClientRegistry.registerKeyBinding(KeyBindings.clipboardPaste)
 
-      MinecraftForge.EVENT_BUS.register(HighlightRenderer)
+      //MinecraftForge.EVENT_BUS.register(HighlightRenderer) SEE: HighlightRenderer.scala for reason
       MinecraftForge.EVENT_BUS.register(NanomachinesHandler.Client)
       MinecraftForge.EVENT_BUS.register(PetRenderer)
       MinecraftForge.EVENT_BUS.register(RackMountableRenderHandler)

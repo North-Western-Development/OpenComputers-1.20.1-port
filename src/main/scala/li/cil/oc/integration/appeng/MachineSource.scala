@@ -1,4 +1,4 @@
-package li.cil.oc.integration.appeng
+/*package li.cil.oc.integration.appeng
 
 import java.util.Optional
 
@@ -11,4 +11,4 @@ class MachineSource(val via: IActionHost) extends IActionSource {
   def machine: Optional[IActionHost] = Optional.of(this.via)
 
   def context[T](key: Class[T]): Optional[T] = Optional.empty[T]
-}
+}*/

@@ -2,7 +2,6 @@ package li.cil.oc.common.tileentity
 
 import java.util.UUID
 import java.util.function.Consumer
-
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.Driver
@@ -17,18 +16,18 @@ import li.cil.oc.common.item.data.NodeData
 import li.cil.oc.server.component.FileSystem
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.world.entity.player.Player
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.INamedContainerProvider
+import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.world.MenuProvider
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-class Raid(selfType: BlockEntityType[_ <: Raid]) extends BlockEntity(selfType) with traits.Environment with traits.Inventory with traits.Rotatable with Analyzable with INamedContainerProvider {
+class Raid(selfType: BlockEntityType[_ <: Raid], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Environment with traits.Inventory with traits.Rotatable with Analyzable with MenuProvider {
   val node = api.Network.newNode(this, Visibility.None).create()
 
   var filesystem: Option[FileSystem] = None
@@ -115,7 +114,7 @@ class Raid(selfType: BlockEntityType[_ <: Raid]) extends BlockEntity(selfType) w
     }
   }
 
-  private def wipeDisksAndComputeSpace = items.foldLeft(0L) {
+  private def wipeDisksAndComputeSpace: Long = items.foldLeft(0L) {
     case (acc, hdd) if !hdd.isEmpty => acc + (Option(api.Driver.driverFor(hdd)) match {
       case Some(driver) => driver.createEnvironment(hdd, this) match {
         case fs: FileSystem =>
@@ -134,7 +133,7 @@ class Raid(selfType: BlockEntityType[_ <: Raid]) extends BlockEntity(selfType) w
 
   // ----------------------------------------------------------------------- //
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: Player) =
+  override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
     new container.Raid(ContainerTypes.RAID, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //

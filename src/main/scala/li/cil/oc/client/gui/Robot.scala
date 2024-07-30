@@ -1,11 +1,9 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.{DefaultVertexFormat, PoseStack, Tesselator, VertexFormat}
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.Localization
 import li.cil.oc.Settings
-import li.cil.oc.api
 import li.cil.oc.api.internal.TextBuffer
 import li.cil.oc.client.ComponentTracker
 import li.cil.oc.client.Textures
@@ -15,21 +13,19 @@ import li.cil.oc.client.renderer.gui.BufferRenderer
 import li.cil.oc.client.{PacketSender => ClientPacketSender}
 import li.cil.oc.common.container
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.INestedGuiEventHandler
-import net.minecraft.client.gui.widget.button.Button
-import com.mojang.blaze3d.vertex.Tesselator
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.util.text.ITextComponent
+import net.minecraft.client.gui.components.Button
+import net.minecraft.client.gui.components.Button.OnPress
+import net.minecraft.network.chat.TextComponent
+import net.minecraft.world.entity.player.Inventory
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11
 
 import scala.collection.JavaConverters.asJavaCollection
 import scala.collection.convert.ImplicitConversionsToJava._
 
-class Robot(state: container.Robot, playerInventory: PlayerInventory, name: ITextComponent)
+class Robot(state: container.Robot, playerInventory: Inventory, name: TextComponent)
   extends DynamicGuiContainer(state, playerInventory, name)
-  with traits.InputBuffer with INestedGuiEventHandler {
+  with traits.InputBuffer {
 
   override protected val buffer: TextBuffer = inventoryContainer.info.screenBuffer
     .flatMap(ComponentTracker.get(Minecraft.getInstance.level, _))
@@ -98,14 +94,10 @@ class Robot(state: container.Robot, playerInventory: PlayerInventory, name: ITex
 
   override protected def init() {
     super.init()
-    powerButton = new ImageButton(leftPos + 5, topPos + 153 - deltaY, 18, 18, new Button.IPressable {
-      override def onPress(b: Button) = ClientPacketSender.sendRobotPower(inventoryContainer, !inventoryContainer.isRunning)
-    }, Textures.GUI.ButtonPower, canToggle = true)
-    scrollButton = new ImageButton(leftPos + scrollX + 1, topPos + scrollY + 1, 6, 13, new Button.IPressable {
-      override def onPress(b: Button) = ()
-    }, Textures.GUI.ButtonScroll)
-    addButton(powerButton)
-    addButton(scrollButton)
+    powerButton = new ImageButton(leftPos + 5, topPos + 153 - deltaY, 18, 18, (b: Button) => ClientPacketSender.sendRobotPower(inventoryContainer, !inventoryContainer.isRunning), Textures.GUI.ButtonPower, canToggle = true)
+    scrollButton = new ImageButton(leftPos + scrollX + 1, topPos + scrollY + 1, 6, 13, (b: Button) => (), Textures.GUI.ButtonScroll)
+    addRenderableWidget(powerButton)
+    addRenderableWidget(scrollButton)
   }
 
   override def drawBuffer(stack: PoseStack) {
@@ -113,7 +105,7 @@ class Robot(state: container.Robot, playerInventory: PlayerInventory, name: ITex
       stack.translate(bufferX, bufferY, 0)
       stack.pushPose()
       stack.translate(-3, -3, 0)
-      RenderSystem.color4f(1, 1, 1, 1)
+      RenderSystem.setShaderColor(1, 1, 1, 1)
       BufferRenderer.drawBackground(stack, bufferRenderWidth.toInt, bufferRenderHeight.toInt, forRobot = true)
       stack.popPose()
       val scaleX = bufferRenderWidth / buffer.renderWidth
@@ -147,17 +139,17 @@ class Robot(state: container.Robot, playerInventory: PlayerInventory, name: ITex
       tooltip.add(format.format(
         100 * inventoryContainer.globalBuffer / inventoryContainer.globalBufferSize,
         inventoryContainer.globalBuffer, inventoryContainer.globalBufferSize))
-      copiedDrawHoveringText(stack, tooltip, mouseX - leftPos, mouseY - topPos, font)
+      renderTooltip(stack, tooltip, mouseX - leftPos, mouseY - topPos)
     }
     if (powerButton.isMouseOver(mouseX, mouseY)) {
       val tooltip = new java.util.ArrayList[String]
       tooltip.addAll(asJavaCollection(if (inventoryContainer.isRunning) Localization.Computer.TurnOff.linesIterator.toIterable else Localization.Computer.TurnOn.linesIterator.toIterable))
-      copiedDrawHoveringText(stack, tooltip, mouseX - leftPos, mouseY - topPos, font)
+      renderTooltip(stack, tooltip, mouseX - leftPos, mouseY - topPos)
     }
   }
 
   override protected def renderBg(stack: PoseStack, dt: Float, mouseX: Int, mouseY: Int) {
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
     if (buffer != null) Textures.bind(Textures.GUI.Robot)
     else Textures.bind(Textures.GUI.RobotNoScreen)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
@@ -258,7 +250,7 @@ class Robot(state: container.Robot, playerInventory: PlayerInventory, name: ITex
 
       val t = Tesselator.getInstance
       val r = t.getBuilder
-      r.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX)
+      r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
       r.vertex(stack.last.pose, x, y, getBlitOffset).uv(0, offsetV).endVertex()
       r.vertex(stack.last.pose, x, y + selectionSize, getBlitOffset).uv(0, offsetV + selectionStepV).endVertex()
       r.vertex(stack.last.pose, x + selectionSize, y + selectionSize, getBlitOffset).uv(1, offsetV + selectionStepV).endVertex()

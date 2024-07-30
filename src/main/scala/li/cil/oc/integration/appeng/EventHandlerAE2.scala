@@ -1,3 +1,4 @@
+/*
 package li.cil.oc.integration.appeng
 
 import appeng.api.implementations.items.IAEWrench
@@ -16,3 +17,4 @@ object EventHandlerAE2 {
 
   def isWrench(stack: ItemStack): Boolean = stack.getItem.isInstanceOf[IAEWrench]
 }
+*/

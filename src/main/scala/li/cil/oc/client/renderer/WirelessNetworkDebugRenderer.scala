@@ -24,9 +24,9 @@ object WirelessNetworkDebugRenderer {
       WirelessNetwork.dimensions.get(world.dimension) match {
         case Some(tree) =>
           val player = Minecraft.getInstance.player
-          val px = player.xOld + (player.getX - player.xOld) * e.getPartialTicks
-          val py = player.yOld + (player.getY - player.yOld) * e.getPartialTicks
-          val pz = player.zOld + (player.getZ - player.zOld) * e.getPartialTicks
+          val px = player.xOld + (player.getX - player.xOld) * e.getPartialTick
+          val py = player.yOld + (player.getY - player.yOld) * e.getPartialTick
+          val pz = player.zOld + (player.getZ - player.zOld) * e.getPartialTick
 
           val stack = e.getPoseStack
           RenderState.pushAttrib()

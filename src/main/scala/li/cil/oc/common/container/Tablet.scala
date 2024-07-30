@@ -2,14 +2,13 @@ package li.cil.oc.common.container
 
 import li.cil.oc.common.item.TabletWrapper
 import li.cil.oc.integration.opencomputers.DriverScreen
-import net.minecraft.world.entity.player.Player
-import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.Container
-import net.minecraft.inventory.container.ContainerType
+import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.ItemStack
 
-class Tablet(selfType: ContainerType[_ <: Tablet], id: Int, playerInventory: PlayerInventory, val stack: ItemStack, tablet: Container, slot1: String, tier1: Int)
-  extends Player(selfType, id, playerInventory, tablet) {
+class Tablet(selfType: MenuType[_ <: Tablet], id: Int, playerInventory: Inventory, val stack: ItemStack, tablet: Container, slot1: String, tier1: Int)
+  extends li.cil.oc.common.container.Player(selfType, id, playerInventory, tablet) {
 
   override protected def getHostClass = classOf[TabletWrapper]
 

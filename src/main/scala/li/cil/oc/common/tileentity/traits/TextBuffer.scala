@@ -9,7 +9,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-trait TextBuffer extends Environment with Tickable {
+trait TextBuffer extends Environment {
   lazy val buffer: internal.TextBuffer = {
     val screenItem = api.Items.get(Constants.BlockName.ScreenTier1).createItemStack(1)
     val buffer = api.Driver.driverFor(screenItem, getClass).createEnvironment(screenItem, this).asInstanceOf[api.internal.TextBuffer]

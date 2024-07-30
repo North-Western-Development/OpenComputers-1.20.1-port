@@ -4,14 +4,13 @@ import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
 import li.cil.oc.common.item.data.PrintData
 import li.cil.oc.common.tileentity
-import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.Container
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.inventory.container.{Slot => BaseSlot}
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.{MenuType, Slot => BaseSlot}
 
-class Printer(selfType: ContainerType[_ <: Printer], id: Int, playerInventory: PlayerInventory, val printer: Container)
+class Printer(selfType: MenuType[_ <: Printer], id: Int, playerInventory: Inventory, val printer: Container)
   extends Player(selfType, id, playerInventory, printer) {
 
   override protected def getHostClass = classOf[tileentity.Printer]

@@ -3,21 +3,15 @@ package li.cil.oc.common.container
 import li.cil.oc.api
 import li.cil.oc.client.Textures
 import li.cil.oc.common
-import li.cil.oc.common.ComponentTracker
 import li.cil.oc.common.tileentity
 import li.cil.oc.integration.opencomputers.DriverKeyboard
 import li.cil.oc.integration.opencomputers.DriverScreen
-import li.cil.oc.util.SideTracker
-import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.world.Container
-import net.minecraft.inventory.container.ContainerType
 import net.minecraft.world.item.ItemStack
 import net.minecraft.network.FriendlyByteBuf
-import net.minecraft.world.level.Level
-import net.minecraft.util.IntReferenceHolder
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Inventory
-import net.minecraft.world.inventory.{AbstractContainerMenu, MenuType}
+import net.minecraft.world.inventory.{AbstractContainerMenu, DataSlot, MenuType}
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
@@ -72,7 +66,7 @@ class RobotInfo(val mainInvSize: Int, val slot1: String, val tier1: Int,
     RobotInfo.getScreenBuffer(robot), RobotInfo.hasKeyboard(robot))
 }
 
-class Robot(selfType: MenuType[_ <: Robot], id: Int, playerInventory: Inventory, robot: AbstractContainerMenu, val info: RobotInfo)
+class Robot(selfType: MenuType[_ <: Robot], id: Int, playerInventory: Inventory, robot: Container, val info: RobotInfo)
   extends Player(selfType, id, playerInventory, robot) {
 
   private val withScreenHeight = 256
@@ -124,49 +118,49 @@ class Robot(selfType: MenuType[_ <: Robot], id: Int, playerInventory: Inventory,
 
   private val globalBufferData = robot match {
     case te: tileentity.Robot => {
-      addDataSlot(new IntReferenceHolder {
+      addDataSlot(new DataSlot {
         override def get(): Int = te.globalBuffer.toInt / factor
 
         override def set(value: Int): Unit = te.globalBuffer = value * factor
       })
     }
-    case _ => addDataSlot(IntReferenceHolder.standalone)
+    case _ => addDataSlot(DataSlot.standalone)
   }
   def globalBuffer = globalBufferData.get * factor
 
   private val globalBufferSizeData = robot match {
     case te: tileentity.Robot => {
-      addDataSlot(new IntReferenceHolder {
+      addDataSlot(new DataSlot {
         override def get(): Int = te.globalBufferSize.toInt / factor
 
         override def set(value: Int): Unit = te.globalBufferSize = value * factor
       })
     }
-    case _ => addDataSlot(IntReferenceHolder.standalone)
+    case _ => addDataSlot(DataSlot.standalone)
   }
   def globalBufferSize = globalBufferSizeData.get * factor
 
   private val runningData = robot match {
     case te: tileentity.Robot => {
-      addDataSlot(new IntReferenceHolder {
+      addDataSlot(new DataSlot {
         override def get(): Int = if (te.isRunning) 1 else 0
 
         override def set(value: Int): Unit = te.setRunning(value != 0)
       })
     }
-    case _ => addDataSlot(IntReferenceHolder.standalone)
+    case _ => addDataSlot(DataSlot.standalone)
   }
   def isRunning = runningData.get != 0
 
   private val selectedSlotData = robot match {
     case te: tileentity.Robot => {
-      addDataSlot(new IntReferenceHolder {
+      addDataSlot(new DataSlot {
         override def get(): Int = te.selectedSlot
 
         override def set(value: Int): Unit = te.setSelectedSlot(value)
       })
     }
-    case _ => addDataSlot(IntReferenceHolder.standalone)
+    case _ => addDataSlot(DataSlot.standalone)
   }
   def selectedSlot = selectedSlotData.get
 

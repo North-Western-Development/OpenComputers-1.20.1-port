@@ -5,12 +5,11 @@ import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.container.{Database => DatabaseContainer}
 import li.cil.oc.integration.opencomputers.DriverUpgradeDatabase
 import net.minecraft.world.entity.player.Player
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.INamedContainerProvider
+import net.minecraft.network.chat.TextComponent
 import net.minecraft.world.item.ItemStack
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.world.MenuProvider
 
-trait DatabaseInventory extends ItemStackInventory with INamedContainerProvider {
+trait DatabaseInventory extends ItemStackInventory with MenuProvider {
   def tier: Int = DriverUpgradeDatabase.tier(container)
 
   override def getContainerSize = Settings.get.databaseEntriesPerTier(tier)
@@ -23,8 +22,8 @@ trait DatabaseInventory extends ItemStackInventory with INamedContainerProvider 
 
   override def canPlaceItem(slot: Int, stack: ItemStack) = stack != container
 
-  override def getDisplayName = StringTextComponent.EMPTY
+  override def getDisplayName = TextComponent.EMPTY
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: Player) =
+  override def createMenu(id: Int, playerInventory: net.minecraft.world.entity.player.Inventory, player: Player) =
     new DatabaseContainer(ContainerTypes.DATABASE, id, playerInventory, container, this, tier)
 }

@@ -1,3 +1,6 @@
+// TODO: FIND SUITABLE WORK AROUND; DrawHighlightEvent has been removed
+
+/*
 package li.cil.oc.client.renderer
 
 import com.mojang.blaze3d.vertex.PoseStack
@@ -88,3 +91,4 @@ object HighlightRenderer {
     }
   }
 }
+*/

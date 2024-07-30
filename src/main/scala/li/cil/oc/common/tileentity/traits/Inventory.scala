@@ -1,7 +1,6 @@
 package li.cil.oc.common.tileentity.traits
 
 import java.util.function.Consumer
-
 import li.cil.oc.common.inventory
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.InventoryUtils
@@ -9,7 +8,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.core.Direction
-import net.minecraft.util.text.ITextComponent
+import net.minecraft.network.chat.Component
 
 trait Inventory extends BlockEntity with inventory.Inventory {
   private lazy val inventory = Array.fill[ItemStack](getContainerSize)(ItemStack.EMPTY)
@@ -18,7 +17,7 @@ trait Inventory extends BlockEntity with inventory.Inventory {
 
   // ----------------------------------------------------------------------- //
 
-  override def getDisplayName: ITextComponent = super[Inventory].getDisplayName
+  override def getDisplayName: Component = super[Inventory].getDisplayName
 
   override def loadForServer(nbt: CompoundTag) {
     super.loadForServer(nbt)

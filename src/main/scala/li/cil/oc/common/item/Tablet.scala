@@ -16,9 +16,7 @@ import li.cil.oc.api.Machine
 import li.cil.oc.api.driver.item.Container
 import li.cil.oc.api.internal
 import li.cil.oc.api.machine.MachineHost
-import li.cil.oc.api.network.Connector
-import li.cil.oc.api.network.Message
-import li.cil.oc.api.network.Node
+import li.cil.oc.api.network.{Component, Connector, Message, Node}
 import li.cil.oc.{client, server}
 import li.cil.oc.client.KeyBindings
 import li.cil.oc.client.gui
@@ -35,24 +33,26 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.RotationHelper
 import li.cil.oc.util.Tooltip
+import net.minecraft.Util
 import net.minecraft.client.Minecraft
 import net.minecraft.client.resources.model.ModelResourceLocation
 import net.minecraft.client.server.IntegratedServer
-import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.{Entity, LivingEntity}
 import net.minecraft.world.item.{CreativeModeTab, Item, ItemStack, Rarity}
 import net.minecraft.world.item.Item.Properties
 import net.minecraft.nbt.{CompoundTag, Tag}
 import net.minecraft.core.{BlockPos, Direction, NonNullList}
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.network.chat.{TextComponent, TranslatableComponent}
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.{InteractionHand, InteractionResult, InteractionResultHolder}
-import net.minecraft.world.entity.player.Player
+import net.minecraft.world.{InteractionHand, InteractionResult, InteractionResultHolder, MenuProvider}
+import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.level.Level
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.extensions.IForgeItem
 import net.minecraftforge.event.TickEvent.ClientTickEvent
 import net.minecraftforge.event.TickEvent.ServerTickEvent
+import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.server.ServerLifecycleHooks
 
@@ -251,7 +251,7 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
   }
 }
 
-class TabletWrapper(var stack: ItemStack, var player: Player) extends ComponentInventory with MachineHost with internal.Tablet with INamedContainerProvider {
+class TabletWrapper(var stack: ItemStack, var player: Player) extends ComponentInventory with MachineHost with internal.Tablet with MenuProvider {
   // Remember our *original* world, so we know which tablets to clear on dimension
   // changes of players holding tablets - since the player entity instance may be
   // kept the same and components are not required to properly handle world changes.
@@ -281,7 +281,7 @@ class TabletWrapper(var stack: ItemStack, var player: Player) extends ComponentI
 
   def items: Array[ItemStack] = data.items
 
-  override def facing: Direction = RotationHelper.fromYaw(player.yRot)
+  override def facing: Direction = RotationHelper.fromYaw(player.getYRot)
 
   override def toLocal(value: Direction): Direction =
     RotationHelper.toLocal(Direction.NORTH, facing, value)
@@ -328,9 +328,9 @@ class TabletWrapper(var stack: ItemStack, var player: Player) extends ComponentI
 
   // ----------------------------------------------------------------------- //
 
-  override def getDisplayName = getName
+  override def getDisplayName: TranslatableComponent = getName
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: Player) =
+  override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
     new container.Tablet(ContainerTypes.TABLET, id, playerInventory, stack, this, containerSlotType, containerSlotTier)
 
   // ----------------------------------------------------------------------- //
@@ -518,14 +518,14 @@ object Tablet {
   }
 
   @SubscribeEvent
-  def onLevelSave(e: LevelEvent.Save) {
-    Server.saveAll(e.getLevel.asInstanceOf[Level])
+  def onLevelSave(e: WorldEvent.Save) {
+    Server.saveAll(e.getWorld.asInstanceOf[Level])
   }
 
   @SubscribeEvent
-  def onLevelUnload(e: LevelEvent.Unload) {
-    Client.clear(e.getLevel.asInstanceOf[Level])
-    Server.clear(e.getLevel.asInstanceOf[Level])
+  def onLevelUnload(e: WorldEvent.Unload) {
+    Client.clear(e.getWorld.asInstanceOf[Level])
+    Server.clear(e.getWorld.asInstanceOf[Level])
   }
 
   @SubscribeEvent

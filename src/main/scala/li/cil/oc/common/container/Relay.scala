@@ -6,13 +6,13 @@ import li.cil.oc.api.detail.ItemInfo
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
 import li.cil.oc.common.tileentity
-import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.Container
-import net.minecraft.inventory.container.ContainerType
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.MenuType
 
-class Relay(selfType: ContainerType[_ <: Relay], id: Int, playerInventory: PlayerInventory, relay: Container)
+class Relay(selfType: MenuType[_ <: Relay], id: Int, playerInventory: Inventory, relay: Container)
   extends Player(selfType, id, playerInventory, relay) {
 
   lazy final val WirelessNetworkCardTier1: ItemInfo = api.Items.get(Constants.ItemName.WirelessNetworkCardTier1)

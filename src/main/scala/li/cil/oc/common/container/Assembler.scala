@@ -6,14 +6,14 @@ import li.cil.oc.common.InventorySlots.InventorySlot
 import li.cil.oc.common.template.AssemblerTemplates
 import li.cil.oc.common.tileentity
 import net.minecraft.world.item.ItemStack
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.world.Container
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.MenuType
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-class Assembler(selfType: ContainerType[_ <: Assembler], id: Int, playerInventory: PlayerInventory, val assembler: Container)
+class Assembler(selfType: MenuType[_ <: Assembler], id: Int, playerInventory: Inventory, val assembler: Container)
   extends Player(selfType, id, playerInventory, assembler) {
 
   override protected def getHostClass = classOf[tileentity.Assembler]

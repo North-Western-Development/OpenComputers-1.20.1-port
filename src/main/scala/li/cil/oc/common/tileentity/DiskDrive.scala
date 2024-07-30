@@ -1,7 +1,6 @@
 package li.cil.oc.common.tileentity
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -23,21 +22,21 @@ import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.InventoryUtils
-import net.minecraft.world.entity.player.Player
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.INamedContainerProvider
+import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.world.MenuProvider
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.convert.ImplicitConversionsToJava._
 
-class DiskDrive(selfType: BlockEntityType[_ <: DiskDrive]) extends BlockEntity(selfType) with traits.Environment
-  with traits.ComponentInventory with traits.Rotatable with Analyzable with DeviceInfo with INamedContainerProvider {
+class DiskDrive(selfType: BlockEntityType[_ <: DiskDrive], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Environment
+  with traits.ComponentInventory with traits.Rotatable with Analyzable with DeviceInfo with MenuProvider {
 
   // Used on client side to check whether to render disk activity indicators.
   var lastAccess = 0L
@@ -111,7 +110,7 @@ class DiskDrive(selfType: BlockEntityType[_ <: DiskDrive]) extends BlockEntity(s
   // ----------------------------------------------------------------------- //
   // INamedContainerProvider
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: Player) =
+  override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
     new container.DiskDrive(ContainerTypes.DISK_DRIVE, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //

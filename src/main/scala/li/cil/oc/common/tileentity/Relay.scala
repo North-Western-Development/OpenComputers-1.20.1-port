@@ -31,21 +31,20 @@ import li.cil.oc.integration.Mods
 import li.cil.oc.integration.opencomputers.DriverLinkedCard
 import li.cil.oc.server.network.QuantumNetwork
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.world.entity.player.Player
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.INamedContainerProvider
+import net.minecraft.Util
+import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.{CompoundTag, Tag}
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
-import net.minecraft.util.Util
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.world.MenuProvider
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-class Relay(selfType: BlockEntityType[_ <: Relay]) extends BlockEntity(selfType) with traits.Hub with traits.ComponentInventory
-  with traits.PowerAcceptor with Analyzable with WirelessEndpoint with QuantumNetwork.QuantumNode with INamedContainerProvider {
+class Relay(selfType: BlockEntityType[_ <: Relay], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Hub with traits.ComponentInventory
+  with traits.PowerAcceptor with Analyzable with WirelessEndpoint with QuantumNetwork.QuantumNode with MenuProvider {
 
   lazy final val WirelessNetworkCardTier1: ItemInfo = api.Items.get(Constants.ItemName.WirelessNetworkCardTier1)
   lazy final val WirelessNetworkCardTier2: ItemInfo = api.Items.get(Constants.ItemName.WirelessNetworkCardTier2)
@@ -290,7 +289,7 @@ class Relay(selfType: BlockEntityType[_ <: Relay]) extends BlockEntity(selfType)
 
   // ----------------------------------------------------------------------- //
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: Player) =
+  override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
     new container.Relay(ContainerTypes.RELAY, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
@@ -311,7 +310,7 @@ class Relay(selfType: BlockEntityType[_ <: Relay]) extends BlockEntity(selfType)
     if (nbt.contains(IsRepeaterTag)) {
       isRepeater = nbt.getBoolean(IsRepeaterTag)
     }
-    nbt.getList(ComponentNodesTag, NBT.TAG_COMPOUND).toTagArray[CompoundTag].
+    nbt.getList(ComponentNodesTag, Tag.TAG_COMPOUND).toTagArray[CompoundTag].
       zipWithIndex.foreach {
       case (tag, index) => componentNodes(index).loadData(tag)
     }

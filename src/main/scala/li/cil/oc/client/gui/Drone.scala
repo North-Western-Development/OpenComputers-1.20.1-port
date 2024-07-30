@@ -1,6 +1,6 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.{DefaultVertexFormat, PoseStack, Tesselator, VertexFormat}
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Localization
 import li.cil.oc.client.Textures
@@ -12,17 +12,16 @@ import li.cil.oc.common.container
 import li.cil.oc.util.PackedColor
 import li.cil.oc.util.RenderState
 import li.cil.oc.util.TextBuffer
-import net.minecraft.client.gui.widget.button.Button
-import com.mojang.blaze3d.vertex.Tesselator
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.util.text.ITextComponent
+import net.minecraft.client.gui.components.Button
+import net.minecraft.client.gui.components.Button.OnPress
+import net.minecraft.network.chat.TextComponent
+import net.minecraft.world.entity.player.Inventory
 import org.lwjgl.opengl.GL11
 
 import scala.collection.JavaConverters.asJavaCollection
 import scala.collection.convert.ImplicitConversionsToJava._
 
-class Drone(state: container.Drone, playerInventory: PlayerInventory, name: ITextComponent)
+class Drone(state: container.Drone, playerInventory: Inventory, name: TextComponent)
   extends DynamicGuiContainer(state, playerInventory, name)
   with traits.DisplayBuffer {
 
@@ -68,10 +67,8 @@ class Drone(state: container.Drone, playerInventory: PlayerInventory, name: ITex
 
   override protected def init() {
     super.init()
-    powerButton = new ImageButton(leftPos + 7, topPos + 45, 18, 18, new Button.IPressable {
-      override def onPress(b: Button) = ClientPacketSender.sendDronePower(inventoryContainer, !inventoryContainer.isRunning)
-    }, Textures.GUI.ButtonPower, canToggle = true)
-    addButton(powerButton)
+    powerButton = new ImageButton(leftPos + 7, topPos + 45, 18, 18, (b: Button) => ClientPacketSender.sendDronePower(inventoryContainer, !inventoryContainer.isRunning), Textures.GUI.ButtonPower, canToggle = true)
+    addRenderableWidget(powerButton)
   }
 
   override protected def drawBuffer(stack: PoseStack) {
@@ -81,7 +78,7 @@ class Drone(state: container.Drone, playerInventory: PlayerInventory, name: ITex
     stack.scale(scale.toFloat, scale.toFloat, 1)
     RenderState.pushAttrib()
     RenderSystem.depthMask(false)
-    RenderSystem.color3f(0.5f, 0.5f, 1f)
+    RenderSystem.setShaderColor(0.5f, 0.5f, 1f, 1)
     TextBufferRenderCache.render(stack, bufferRenderer)
     RenderState.popAttrib()
   }
@@ -100,18 +97,18 @@ class Drone(state: container.Drone, playerInventory: PlayerInventory, name: ITex
       tooltip.add(format.format(
         inventoryContainer.globalBuffer * 100 / math.max(inventoryContainer.globalBufferSize, 1),
         inventoryContainer.globalBuffer, inventoryContainer.globalBufferSize))
-      copiedDrawHoveringText(stack, tooltip, mouseX - leftPos, mouseY - topPos, font)
+      this.renderTooltip(stack, tooltip, mouseX - leftPos, mouseY - topPos)
     }
     if (powerButton.isMouseOver(mouseX, mouseY)) {
       val tooltip = new java.util.ArrayList[String]
       tooltip.addAll(asJavaCollection(if (inventoryContainer.isRunning) Localization.Computer.TurnOff.linesIterator.toIterable else Localization.Computer.TurnOn.linesIterator.toIterable))
-      copiedDrawHoveringText(stack, tooltip, mouseX - leftPos, mouseY - topPos, font)
+      this.renderTooltip(stack, tooltip, mouseX - leftPos, mouseY - topPos)
     }
     RenderState.popAttrib()
   }
 
   override protected def renderBg(stack: PoseStack, dt: Float, mouseX: Int, mouseY: Int) {
-    RenderSystem.color3f(1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
     Textures.bind(Textures.GUI.Drone)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
     power.level = inventoryContainer.globalBuffer.toFloat / math.max(inventoryContainer.globalBufferSize.toFloat, 1.0f)
@@ -137,7 +134,7 @@ class Drone(state: container.Drone, playerInventory: PlayerInventory, name: ITex
 
       val t = Tesselator.getInstance
       val r = t.getBuilder
-      r.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX)
+      r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
       r.vertex(stack.last.pose, x, y, getBlitOffset).uv(0, offsetV).endVertex()
       r.vertex(stack.last.pose, x, y + selectionSize, getBlitOffset).uv(0, offsetV + selectionStepV).endVertex()
       r.vertex(stack.last.pose, x + selectionSize, y + selectionSize, getBlitOffset).uv(1, offsetV + selectionStepV).endVertex()

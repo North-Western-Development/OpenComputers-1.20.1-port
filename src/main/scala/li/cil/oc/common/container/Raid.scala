@@ -3,11 +3,11 @@ package li.cil.oc.common.container
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
 import li.cil.oc.common.tileentity
-import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.world.Container
-import net.minecraft.inventory.container.ContainerType
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.MenuType
 
-class Raid(selfType: ContainerType[_ <: Raid], id: Int, playerInventory: PlayerInventory, raid: Container)
+class Raid(selfType: MenuType[_ <: Raid], id: Int, playerInventory: Inventory, raid: Container)
   extends Player(selfType, id, playerInventory, raid) {
 
   override protected def getHostClass = classOf[tileentity.Raid]

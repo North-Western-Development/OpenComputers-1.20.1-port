@@ -10,9 +10,7 @@ import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
-import net.minecraft.client.renderer.texture.{AtlasTexture, TextureAtlas}
-import net.minecraft.client.renderer.tileentity.BlockEntityRenderer
-import net.minecraft.client.renderer.tileentity.BlockEntityRendererDispatcher
+import net.minecraft.client.renderer.texture.{TextureAtlas}
 import net.minecraft.core.Direction
 
 object NetSplitterRenderer extends Function[BlockEntityRendererProvider.Context, NetSplitterRenderer] {

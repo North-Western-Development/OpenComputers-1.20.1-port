@@ -5,20 +5,19 @@ import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.PacketSender
 import li.cil.oc.client.Textures
 import li.cil.oc.common.tileentity
-import net.minecraft.client.gui.screen
-import net.minecraft.client.gui.widget.TextFieldWidget
-import net.minecraft.client.settings.KeyBinding
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.client.KeyMapping
+import net.minecraft.client.gui.components.EditBox
+import net.minecraft.network.chat.TextComponent
 import org.lwjgl.glfw.GLFW
 
-class Waypoint(val waypoint: tileentity.Waypoint) extends screen.Screen(StringTextComponent.EMPTY) {
+class Waypoint(val waypoint: tileentity.Waypoint) extends net.minecraft.client.gui.screens.Screen(TextComponent.EMPTY) {
   val imageWidth = 176
   val imageHeight = 24
   var leftPos = 0
   var topPos = 0
   passEvents = false
 
-  var textField: TextFieldWidget = _
+  var textField: EditBox = _
 
   override def tick(): Unit = {
     super.tick()
@@ -33,11 +32,11 @@ class Waypoint(val waypoint: tileentity.Waypoint) extends screen.Screen(StringTe
   override protected def init(): Unit = {
     super.init()
     minecraft.mouseHandler.releaseMouse()
-    KeyBinding.releaseAll()
+    KeyMapping.releaseAll()
     leftPos = (width - imageWidth) / 2
     topPos = (height - imageHeight) / 2
 
-    textField = new TextFieldWidget(font, leftPos + 7, topPos + 8, 164 - 12, 12, StringTextComponent.EMPTY) {
+    textField = new EditBox(font, leftPos + 7, topPos + 8, 164 - 12, 12, TextComponent.EMPTY) {
       override def keyPressed(keyCode: Int, scanCode: Int, mods: Int): Boolean = {
         if (keyCode == GLFW.GLFW_KEY_ENTER) {
           val label = textField.getValue.take(32)
@@ -69,8 +68,8 @@ class Waypoint(val waypoint: tileentity.Waypoint) extends screen.Screen(StringTe
 
   override def render(stack: PoseStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
     super.render(stack, mouseX, mouseY, dt)
-    RenderSystem.color3f(1, 1, 1) // Required under Linux.
-    minecraft.getTextureManager.bind(Textures.GUI.Waypoint)
+    RenderSystem.setShaderColor(1, 1, 1, 1) // Required under Linux.
+    Textures.bind(Textures.GUI.Waypoint)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
     textField.render(stack, mouseX, mouseY, dt)
   }

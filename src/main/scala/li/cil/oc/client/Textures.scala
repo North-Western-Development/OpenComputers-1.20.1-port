@@ -1,12 +1,10 @@
 package li.cil.oc.client
 
 import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
-import net.minecraft.inventory.container.PlayerContainer
 import net.minecraft.client.renderer.texture.{SimpleTexture, TextureAtlas, TextureAtlasSprite}
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.client.event.TextureStitchEvent

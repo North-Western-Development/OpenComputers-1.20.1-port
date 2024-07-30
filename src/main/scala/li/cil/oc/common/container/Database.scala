@@ -1,16 +1,12 @@
 package li.cil.oc.common.container
 
-import li.cil.oc.common.inventory.DatabaseInventory
-import net.minecraft.world.entity.player.Player
-import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.Container
-import net.minecraft.inventory.container.ClickType
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.inventory.container.Slot
+import net.minecraft.world.inventory.{ClickType, MenuType, Slot}
 import net.minecraft.world.item.ItemStack
 
-class Database(selfType: ContainerType[_ <: Database], id: Int, playerInventory: PlayerInventory, val container: ItemStack, databaseInventory: Container, val tier: Int)
-  extends Player(selfType, id, playerInventory, databaseInventory) {
+class Database(selfType: MenuType[_ <: Database], id: Int, playerInventory: Inventory, val container: ItemStack, databaseInventory: Container, val tier: Int)
+  extends li.cil.oc.common.container.Player(selfType, id, playerInventory, databaseInventory) {
 
   override protected def getHostClass = null
 
@@ -26,7 +22,7 @@ class Database(selfType: ContainerType[_ <: Database], id: Int, playerInventory:
 
   override def stillValid(player: Player) = player == playerInventory.player
 
-  override def clicked(slot: Int, dragType: Int, clickType: ClickType, player: Player): ItemStack = {
+  override def clicked(slot: Int, dragType: Int, clickType: ClickType, player: Player): Unit = {
     if (slot >= databaseInventory.getContainerSize() || slot < 0) {
       // if the slot interaction is with the user inventory use
       // default behavior
@@ -36,7 +32,7 @@ class Database(selfType: ContainerType[_ <: Database], id: Int, playerInventory:
     val ghostSlot = this.slots.get(slot);
     if (ghostSlot != null) {
       val inventoryPlayer = player.inventory
-      val hand = inventoryPlayer.getCarried()
+      val hand = inventoryPlayer.getSelected()
       var itemToAdd = ItemStack.EMPTY
       // if the player is holding an item, place a copy
       if (!hand.isEmpty()) {

@@ -1,7 +1,6 @@
 package li.cil.oc.common.tileentity
 
 import java.util
-
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.Driver
@@ -23,23 +22,19 @@ import li.cil.oc.integration.opencomputers.DriverRedstoneCard
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedInventory._
 import li.cil.oc.util.ExtendedNBT._
-import li.cil.oc.util.RotationHelper
-import net.minecraft.world.entity.player.Player
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.world.Container
-import net.minecraft.inventory.container.INamedContainerProvider
+import net.minecraft.world.entity.player.{Inventory, Player}
+import net.minecraft.world.{Container, MenuProvider}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.IntArrayNBT
+import net.minecraft.nbt.{CompoundTag, IntArrayTag, Tag}
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-class Rack(selfType: BlockEntityType[_ <: Rack]) extends BlockEntity(selfType) with traits.PowerAcceptor with traits.Hub with traits.PowerBalancer
-  with traits.ComponentInventory with traits.Rotatable with traits.BundledRedstoneAware with Analyzable with internal.Rack with traits.StateAware with INamedContainerProvider {
+class Rack(selfType: BlockEntityType[_ <: Rack], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.PowerAcceptor with traits.Hub with traits.PowerBalancer
+  with traits.ComponentInventory with traits.Rotatable with traits.BundledRedstoneAware with Analyzable with internal.Rack with traits.StateAware with MenuProvider {
 
   var isRelayEnabled = false
   val lastData = new Array[CompoundTag](getContainerSize)
@@ -346,7 +341,7 @@ class Rack(selfType: BlockEntityType[_ <: Rack]) extends BlockEntity(selfType) w
   // ----------------------------------------------------------------------- //
   // INamedContainerProvider
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: Player) =
+  override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
     new container.Rack(ContainerTypes.RACK, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
@@ -428,7 +423,7 @@ class Rack(selfType: BlockEntityType[_ <: Rack]) extends BlockEntity(selfType) w
     super.loadForServer(nbt)
 
     isRelayEnabled = nbt.getBoolean(IsRelayEnabledTag)
-    nbt.getList(NodeMappingTag, NBT.TAG_INT_ARRAY).map((buses: IntArrayNBT) =>
+    nbt.getList(NodeMappingTag, Tag.TAG_INT_ARRAY).map((buses: IntArrayTag) =>
       buses.getAsIntArray.map(id => if (id < 0 || id == Direction.SOUTH.ordinal()) None else Option(Direction.from3DDataValue(id)))).
       copyToArray(nodeMapping)
 
@@ -448,7 +443,7 @@ class Rack(selfType: BlockEntityType[_ <: Rack]) extends BlockEntity(selfType) w
   def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
 
-    val data = nbt.getList(LastDataTag, NBT.TAG_COMPOUND).
+    val data = nbt.getList(LastDataTag, Tag.TAG_COMPOUND).
       toTagArray[CompoundTag]
     data.copyToArray(lastData)
     loadData(nbt.getCompound(RackDataTag))

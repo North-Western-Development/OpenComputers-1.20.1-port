@@ -1,18 +1,15 @@
 package li.cil.oc.common.item.data
 
 import java.lang.reflect.Method
-
 import li.cil.oc.Constants
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.common.IMC
 import li.cil.oc.common.item.data.PrintData.Shape
-import li.cil.oc.util.ExtendedAABB._
 import li.cil.oc.util.ExtendedNBT._
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.util.math.AxisAlignedBB
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.nbt.{CompoundTag, Tag}
+import net.minecraft.world.phys.AABB
 
 import scala.collection.mutable
 
@@ -81,9 +78,9 @@ class PrintData extends ItemData(Constants.BlockName.Print) {
     if (nbt.getBoolean(RedstoneLevelTagCompat)) redstoneLevel = 15
     pressurePlate = nbt.getBoolean(PressurePlateTag)
     stateOff.clear()
-    stateOff ++= nbt.getList(StateOffTag, NBT.TAG_COMPOUND).map(PrintData.nbtToShape)
+    stateOff ++= nbt.getList(StateOffTag, Tag.TAG_COMPOUND).map(PrintData.nbtToShape)
     stateOn.clear()
-    stateOn ++= nbt.getList(StateOnTag, NBT.TAG_COMPOUND).map(PrintData.nbtToShape)
+    stateOn ++= nbt.getList(StateOnTag, Tag.TAG_COMPOUND).map(PrintData.nbtToShape)
     isBeaconBase = nbt.getBoolean(IsBeaconBaseTag)
     lightLevel = (nbt.getByte(LightLevelTag) & 0xFF) max 0 min 15
     noclipOff = nbt.getBoolean(NoclipOffTag)
@@ -150,7 +147,7 @@ object PrintData {
   def computeApproximateOpacity(shapes: Iterable[PrintData.Shape]): Float = {
     var volume = 1f
     if (shapes.nonEmpty) for (x <- 0 until 16 / stepping; y <- 0 until 16 / stepping; z <- 0 until 16 / stepping) {
-      val bounds = new AxisAlignedBB(
+      val bounds = new AABB(
         x * step, y * step, z * step,
         (x + 1) * step, (y + 1) * step, (z + 1) * step)
       if (!shapes.exists(_.bounds.intersects(bounds))) {
@@ -161,8 +158,8 @@ object PrintData {
   }
 
   def computeCosts(data: PrintData): Option[(Int, Int)] = {
-    val totalVolume = data.stateOn.foldLeft(0)((acc, shape) => acc + shape.bounds.volume) + data.stateOff.foldLeft(0)((acc, shape) => acc + shape.bounds.volume)
-    val totalSurface = data.stateOn.foldLeft(0)((acc, shape) => acc + shape.bounds.surface) + data.stateOff.foldLeft(0)((acc, shape) => acc + shape.bounds.surface)
+    val totalVolume = data.stateOn.foldLeft(0)((acc, shape) => acc + getVolume(shape.bounds)) + data.stateOff.foldLeft(0)((acc, shape) => acc + getVolume(shape.bounds))
+    val totalSurface = data.stateOn.foldLeft(0)((acc, shape) => acc + getSurface(shape.bounds)) + data.stateOff.foldLeft(0)((acc, shape) => acc + getSurface(shape.bounds))
     val multiplier = if (data.noclipOff || data.noclipOn) Settings.get.noclipMultiplier else 1
 
     if (totalVolume > 0) {
@@ -202,6 +199,17 @@ object PrintData {
     0
   }
 
+  private def getVolume(bounds: AABB): Int = {
+    (bounds.getXsize * bounds.getYsize * bounds.getZsize).asInstanceOf[Int]
+  }
+
+  private def getSurface(bounds: AABB): Int = {
+    val width = bounds.getXsize
+    val height = bounds.getYsize
+    val depth = bounds.getZsize
+    (2 * (width * height + width * depth + height * depth)).asInstanceOf[Int]
+  }
+
   def nbtToShape(nbt: CompoundTag): Shape = {
     val aabb =
       if (nbt.contains("minX")) {
@@ -212,7 +220,7 @@ object PrintData {
         val maxX = nbt.getByte("maxX") / 16f
         val maxY = nbt.getByte("maxY") / 16f
         val maxZ = nbt.getByte("maxZ") / 16f
-        new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ)
+        new AABB(minX, minY, minZ, maxX, maxY, maxZ)
       }
       else {
         val bounds = nbt.getByteArray("bounds").padTo(6, 0.toByte)
@@ -222,7 +230,7 @@ object PrintData {
         val maxX = bounds(3) / 16f
         val maxY = bounds(4) / 16f
         val maxZ = bounds(5) / 16f
-        new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ)
+        new AABB(minX, minY, minZ, maxX, maxY, maxZ)
       }
     val texture = nbt.getString("texture")
     val tint = if (nbt.contains("tint")) Option(nbt.getInt("tint")) else None
@@ -244,6 +252,6 @@ object PrintData {
     nbt
   }
 
-  class Shape(val bounds: AxisAlignedBB, val texture: String, val tint: Option[Int])
+  class Shape(val bounds: AABB, val texture: String, val tint: Option[Int])
 
 }

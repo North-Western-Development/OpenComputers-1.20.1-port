@@ -1,7 +1,6 @@
 package li.cil.oc.common.tileentity
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -19,22 +18,22 @@ import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
-import net.minecraft.world.entity.player.Player
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.INamedContainerProvider
+import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.network.chat.TextComponent
+import net.minecraft.world.MenuProvider
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.convert.ImplicitConversionsToJava._
 
-class Assembler(selfType: BlockEntityType[_ <: Assembler]) extends BlockEntity(selfType) with traits.Environment with traits.PowerAcceptor
-  with traits.Inventory with SidedEnvironment with traits.StateAware with traits.Tickable with DeviceInfo with INamedContainerProvider {
+class Assembler(selfType: BlockEntityType[_ <: Assembler], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Environment with traits.PowerAcceptor
+  with traits.Inventory with SidedEnvironment with traits.StateAware with DeviceInfo with MenuProvider {
 
   val node = api.Network.newNode(this, Visibility.Network).
     withComponent("assembler").
@@ -208,8 +207,8 @@ class Assembler(selfType: BlockEntityType[_ <: Assembler]) extends BlockEntity(s
 
   // ----------------------------------------------------------------------- //
 
-  override def getDisplayName = StringTextComponent.EMPTY
+  override def getDisplayName = TextComponent.EMPTY
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: Player) =
+  override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
     new container.Assembler(ContainerTypes.ASSEMBLER, id, playerInventory, this)
 }

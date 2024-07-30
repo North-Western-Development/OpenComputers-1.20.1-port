@@ -1,7 +1,6 @@
 package li.cil.oc.common.tileentity
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -20,23 +19,22 @@ import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
-import net.minecraft.world.entity.player.Player
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.ISidedInventory
-import net.minecraft.inventory.container.INamedContainerProvider
+import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
-import net.minecraft.util.math.AxisAlignedBB
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.world.{Container, MenuProvider, WorldlyContainer}
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.phys.AABB
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.convert.ImplicitConversionsToJava._
 
-class Printer(selfType: BlockEntityType[_ <: Printer]) extends BlockEntity(selfType) with traits.Environment with traits.Inventory with traits.Rotatable
-  with SidedEnvironment with traits.StateAware with traits.Tickable with ISidedInventory with DeviceInfo with INamedContainerProvider {
+class Printer(selfType: BlockEntityType[_ <: Printer], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Environment with traits.Inventory with traits.Rotatable
+  with SidedEnvironment with traits.StateAware with WorldlyContainer with DeviceInfo with MenuProvider {
 
   val node: ComponentConnector = api.Network.newNode(this, Visibility.Network).
     withComponent("printer3d").
@@ -196,7 +194,7 @@ class Printer(selfType: BlockEntityType[_ <: Printer]) extends BlockEntity(selfT
     if (minZ == maxZ) throw new IllegalArgumentException("empty block")
 
     val list = if (state) data.stateOn else data.stateOff
-    list += new PrintData.Shape(new AxisAlignedBB(
+    list += new PrintData.Shape(new AABB(
       math.min(minX, maxX),
       math.min(minY, maxY),
       math.min(minZ, maxZ),
@@ -377,7 +375,7 @@ class Printer(selfType: BlockEntityType[_ <: Printer]) extends BlockEntity(selfT
 
   // ----------------------------------------------------------------------- //
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: Player) =
+  override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
     new container.Printer(ContainerTypes.PRINTER, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //

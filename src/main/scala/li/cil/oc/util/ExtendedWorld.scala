@@ -33,7 +33,7 @@ object ExtendedLevel {
 
     def isAirBlock(position: BlockPosition) = {
       val state = world.getBlockState(position.toBlockPos)
-      state.getBlock.isAir(state, world, position.toBlockPos)
+      state.is(Blocks.AIR)
     }
   }
 
@@ -56,9 +56,11 @@ object ExtendedLevel {
 
     def getBlockHardness(position: BlockPosition) = world.getBlockState(position.toBlockPos).getDestroySpeed(world, position.toBlockPos)
 
-    def getBlockHarvestLevel(position: BlockPosition) = getBlock(position).getHarvestLevel(getBlockMetadata(position))
+    // TODO: Harvest level and tool configuration has changed
 
-    def getBlockHarvestTool(position: BlockPosition) = getBlock(position).getHarvestTool(getBlockMetadata(position))
+    //def getBlockHarvestLevel(position: BlockPosition) = getBlock(position).getHarvestLevel(getBlockMetadata(position))
+
+    //def getBlockHarvestTool(position: BlockPosition) = getBlock(position).getHarvestTool(getBlockMetadata(position))
 
     def computeRedstoneSignal(position: BlockPosition, side: Direction) = math.max(world.isBlockProvidingPowerTo(position.offset(side), side), world.getIndirectPowerLevelTo(position.offset(side), side))
 

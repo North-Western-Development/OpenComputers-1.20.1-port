@@ -3,7 +3,6 @@ package li.cil.oc.common.entity
 import java.lang
 import java.lang.Iterable
 import java.util.UUID
-
 import li.cil.oc.Constants
 import li.cil.oc.Localization
 import li.cil.oc.OpenComputers
@@ -32,51 +31,39 @@ import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.InventoryUtils
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.level.material.Material
-import net.minecraft.world.entity.Entity
-import net.minecraft.world.entity.EntitySize
-import net.minecraft.world.entity.EntityType
-import net.minecraft.entity.MoverType
-import net.minecraft.entity.Pose
-import net.minecraft.entity.item.ItemEntity
+import net.minecraft.world.entity.{Entity, EntityType, MoverType}
 import net.minecraft.world.entity.player.Player
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.inventory.container.INamedContainerProvider
+import net.minecraft.server.level.{ServerLevel, ServerPlayer}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.network.datasync.DataParameter
-import net.minecraft.network.datasync.DataSerializers
-import net.minecraft.network.datasync.EntityDataManager
-import net.minecraft.tags.FluidTags
-import net.minecraft.util.ActionResultType
+import net.minecraft.network.syncher.{EntityDataAccessor, EntityDataSerializers, SynchedEntityData}
 import net.minecraft.core.Direction
-import net.minecraft.util.Hand
 import net.minecraft.core.BlockPos
+import net.minecraft.network.chat.{MutableComponent, TextComponent}
+import net.minecraft.world.entity.Entity.RemovalReason
+import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.phys.Vec3
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.world.{InteractionHand, InteractionResult, MenuProvider}
 import net.minecraft.world.level.Level
-import net.minecraft.world.server.ServerLevel
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.fluids.IFluidTank
-import net.minecraftforge.fml.network.NetworkHooks
+import net.minecraftforge.network.NetworkHooks
 
 import scala.collection.JavaConverters.asJavaIterable
 
 object Drone {
-  val DataRunning: DataParameter[lang.Boolean] = EntityDataManager.defineId(classOf[Drone], DataSerializers.BOOLEAN)
-  val DataTargetX: DataParameter[lang.Float] = EntityDataManager.defineId(classOf[Drone], DataSerializers.FLOAT)
-  val DataTargetY: DataParameter[lang.Float] = EntityDataManager.defineId(classOf[Drone], DataSerializers.FLOAT)
-  val DataTargetZ: DataParameter[lang.Float] = EntityDataManager.defineId(classOf[Drone], DataSerializers.FLOAT)
-  val DataMaxAcceleration: DataParameter[lang.Float] = EntityDataManager.defineId(classOf[Drone], DataSerializers.FLOAT)
-  val DataSelectedSlot: DataParameter[Integer] = EntityDataManager.defineId(classOf[Drone], DataSerializers.INT)
-  val DataCurrentEnergy: DataParameter[Integer] = EntityDataManager.defineId(classOf[Drone], DataSerializers.INT)
-  val DataMaxEnergy: DataParameter[Integer] = EntityDataManager.defineId(classOf[Drone], DataSerializers.INT)
-  val DataStatusText: DataParameter[String] = EntityDataManager.defineId(classOf[Drone], DataSerializers.STRING)
-  val DataInventorySize: DataParameter[Integer] = EntityDataManager.defineId(classOf[Drone], DataSerializers.INT)
-  val DataLightColor: DataParameter[Integer] = EntityDataManager.defineId(classOf[Drone], DataSerializers.INT)
+  val DataRunning: EntityDataAccessor[lang.Boolean] = SynchedEntityData.defineId(classOf[Drone], EntityDataSerializers.BOOLEAN)
+  val DataTargetX: EntityDataAccessor[lang.Float] = SynchedEntityData.defineId(classOf[Drone], EntityDataSerializers.FLOAT)
+  val DataTargetY: EntityDataAccessor[lang.Float] = SynchedEntityData.defineId(classOf[Drone], EntityDataSerializers.FLOAT)
+  val DataTargetZ: EntityDataAccessor[lang.Float] = SynchedEntityData.defineId(classOf[Drone], EntityDataSerializers.FLOAT)
+  val DataMaxAcceleration: EntityDataAccessor[lang.Float] = SynchedEntityData.defineId(classOf[Drone], EntityDataSerializers.FLOAT)
+  val DataSelectedSlot: EntityDataAccessor[Integer] = SynchedEntityData.defineId(classOf[Drone], EntityDataSerializers.INT)
+  val DataCurrentEnergy: EntityDataAccessor[Integer] = SynchedEntityData.defineId(classOf[Drone], EntityDataSerializers.INT)
+  val DataMaxEnergy: EntityDataAccessor[Integer] = SynchedEntityData.defineId(classOf[Drone], EntityDataSerializers.INT)
+  val DataStatusText: EntityDataAccessor[String] = SynchedEntityData.defineId(classOf[Drone], EntityDataSerializers.STRING)
+  val DataInventorySize: EntityDataAccessor[Integer] = SynchedEntityData.defineId(classOf[Drone], EntityDataSerializers.INT)
+  val DataLightColor: EntityDataAccessor[Integer] = SynchedEntityData.defineId(classOf[Drone], EntityDataSerializers.INT)
 }
 
 abstract class DroneInventory(val drone: Drone) extends Inventory
@@ -492,19 +479,19 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
   }
 
   // Not implemented in Drone itself because spectators would open this via vanilla Player.openMenu (without extra data).
-  val containerProvider = new INamedContainerProvider {
-    override def getDisplayName = StringTextComponent.EMPTY
+  val containerProvider = new MenuProvider {
+    override def getDisplayName = TextComponent.EMPTY
 
-    override def createMenu(id: Int, playerInventory: PlayerInventory, player: Player) =
+    override def createMenu(id: Int, playerInventory: net.minecraft.world.entity.player.Inventory, player: Player) =
       new container.Drone(ContainerTypes.DRONE, id, playerInventory, mainInventory, mainInventory.getContainerSize)
   }
 
-  override def interact(player: Player, hand: Hand): ActionResultType = {
-    if (!isAlive) return ActionResultType.PASS
+  override def interact(player: Player, hand: InteractionHand): InteractionResult = {
+    if (!isAlive) return InteractionResult.PASS
     if (player.isCrouching) {
-      if (Wrench.isWrench(player.getItemInHand(Hand.MAIN_HAND))) {
+      if (Wrench.isWrench(player.getItemInHand(InteractionHand.MAIN_HAND))) {
         if(!world.isClientSide) {
-          outOfLevel()
+          outOfWorld()
         }
       }
       else if (!world.isClientSide && !machine.isRunning) {
@@ -515,7 +502,7 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
       case srvPlr: ServerPlayer if !world.isClientSide => ContainerTypes.openDroneGui(srvPlr, this)
       case _ =>
     }
-    ActionResultType.sidedSuccess(world.isClientSide)
+    InteractionResult.sidedSuccess(world.isClientSide)
   }
 
   // No step sounds. Except on that one day.
@@ -561,8 +548,8 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
     }
   }
 
-  override def remove() {
-    super.remove()
+  override def remove(reason: RemovalReason): Unit = {
+    super.remove(reason)
     if (!world.isClientSide && !isChangingDimension) {
       machine.stop()
       machine.node.remove()
@@ -571,9 +558,9 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
     }
   }
 
-  override def outOfLevel(): Unit = {
+  override def outOfWorld(): Unit = {
     if (!isAlive) return
-    super.outOfLevel()
+    super.outOfWorld()
     if (!world.isClientSide) {
       val stack = api.Items.get(Constants.ItemName.Drone).createItemStack(1)
       info.storedEnergy = control.node.localBuffer.toInt
@@ -585,7 +572,7 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
     }
   }
 
-  override def getName: ITextComponent = Localization.localizeLater("entity.oc.Drone.name")
+  override def getName: MutableComponent = Localization.localizeLater("entity.oc.Drone.name")
 
   override protected def getAddEntityPacket = NetworkHooks.getEntitySpawningPacket(this)
 

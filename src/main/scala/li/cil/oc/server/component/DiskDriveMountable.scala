@@ -1,7 +1,6 @@
 package li.cil.oc.server.component
 
 import java.util
-
 import li.cil.oc.{Constants, OpenComputers, api}
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -27,19 +26,21 @@ import li.cil.oc.common.inventory.ItemStackInventory
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.InventoryUtils
-import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.inventory.container.INamedContainerProvider
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.core.Direction
+import net.minecraft.network.chat.TextComponent
 import net.minecraft.util.Hand
 import net.minecraft.util.text.StringTextComponent
+import net.minecraft.world.{InteractionHand, MenuProvider}
 
 import scala.collection.convert.ImplicitConversionsToJava._
 
-class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) extends AbstractManagedEnvironment with ItemStackInventory with ComponentInventory with RackMountable with Analyzable with DeviceInfo with INamedContainerProvider {
+class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) extends AbstractManagedEnvironment with ItemStackInventory with ComponentInventory with RackMountable with Analyzable with DeviceInfo with MenuProvider {
   // Stored for filling data packet when queried.
   var lastAccess = 0L
 
@@ -179,7 +180,7 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) extends Abs
 
   override def getConnectableAt(index: Int): RackBusConnectable = null
 
-  override def onActivate(player: Player, hand: Hand, heldItem: ItemStack, hitX: Float, hitY: Float): Boolean = {
+  override def onActivate(player: Player, hand: InteractionHand, heldItem: ItemStack, hitX: Float, hitY: Float): Boolean = {
     if (player.isCrouching) {
       val isDiskInDrive = !getItem(0).isEmpty
       val isHoldingDisk = canPlaceItem(0, heldItem)
@@ -206,9 +207,9 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) extends Abs
   // ----------------------------------------------------------------------- //
   // INamedContainerProvider
 
-  override def getDisplayName = StringTextComponent.EMPTY
+  override def getDisplayName = TextComponent.EMPTY
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: Player) =
+  override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
     new DiskDriveContainer(ContainerTypes.DISK_DRIVE, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //

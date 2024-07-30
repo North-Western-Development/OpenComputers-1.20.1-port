@@ -4,7 +4,6 @@ import com.google.common.hash.Hashing
 import li.cil.oc.api.network.EnvironmentHost
 import net.minecraft.world.entity.Entity
 import net.minecraft.core.Direction
-import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.core.BlockPos
 import net.minecraft.world.phys.{AABB, Vec3}
 import net.minecraft.world.level.Level

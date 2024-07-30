@@ -1,3 +1,4 @@
+/*
 package li.cil.oc.integration.appeng
 
 import appeng.api.networking.IGridHost
@@ -40,3 +41,4 @@ object DriverController extends DriverSidedBlockEntity {
   }
 
 }
+*/

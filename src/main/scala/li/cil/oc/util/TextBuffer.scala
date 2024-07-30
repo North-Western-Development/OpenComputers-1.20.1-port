@@ -3,7 +3,6 @@ package li.cil.oc.util
 import li.cil.oc.Settings
 import li.cil.oc.api
 import net.minecraft.nbt._
-import net.minecraftforge.common.util.Constants.NBT
 
 import java.lang
 
@@ -265,7 +264,7 @@ class TextBuffer(var width: Int, var height: Int, initialFormat: PackedColor.Col
     val h = nbt.getInt("height") min maxResolution max 1
     size = (w, h)
 
-    val b = nbt.getList("buffer", NBT.TAG_STRING)
+    val b = nbt.getList("buffer", Tag.TAG_STRING)
     for (i <- 0 until math.min(h, b.size)) {
       val value = b.getString(i)
       val valueIt = value.codePoints.iterator()

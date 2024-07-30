@@ -1,4 +1,4 @@
-package li.cil.oc.integration.appeng
+/*package li.cil.oc.integration.appeng
 
 import appeng.api.implementations.tiles.ISegmentedInventory
 import appeng.api.networking.IGridHost
@@ -80,4 +80,4 @@ object DriverBlockInterface extends DriverSidedBlockEntity {
       else null
   }
 
-}
+}*/

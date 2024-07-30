@@ -2,26 +2,23 @@ package li.cil.oc.client.gui
 
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.{DefaultVertexFormat, PoseStack, Tesselator, VertexFormat}
 import li.cil.oc.client.Textures
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.AbstractGui
-import net.minecraft.client.gui.widget.button.Button
-import net.minecraft.client.gui.widget.button.Button.IPressable
-import com.mojang.blaze3d.vertex.Tesselator
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
+import net.minecraft.client.gui.GuiComponent.{drawCenteredString, drawString}
+import net.minecraft.client.gui.components.Button
+import net.minecraft.client.gui.components.Button.OnPress
+import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.lwjgl.opengl.GL11
 
 @OnlyIn(Dist.CLIENT)
 class ImageButton(xPos: Int, yPos: Int, w: Int, h: Int,
-                  handler: IPressable,
+                  handler: OnPress,
                   val image: ResourceLocation = null,
-                  text: ITextComponent = StringTextComponent.EMPTY,
+                  text: Component = TextComponent.EMPTY,
                   val canToggle: Boolean = false,
                   val textColor: Int = 0xE0E0E0,
                   val textDisabledColor: Int = 0xA0A0A0,
@@ -35,7 +32,7 @@ class ImageButton(xPos: Int, yPos: Int, w: Int, h: Int,
   override def renderButton(stack: PoseStack, mouseX: Int, mouseY: Int, partialTicks: Float) {
     if (visible) {
       Textures.bind(image)
-      RenderSystem.color4f(1, 1, 1, 1)
+      RenderSystem.setShaderColor(1, 1, 1, 1)
       isHovered = isMouseOver(mouseX, mouseY)
 
       val x0 = x
@@ -53,7 +50,7 @@ class ImageButton(xPos: Int, yPos: Int, w: Int, h: Int,
         val v0 = if (drawHover) 0.5f else 0
         val v1 = v0 + 0.5f
 
-        r.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_TEX)
+        r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
         r.vertex(stack.last.pose, x0, y1, getBlitOffset).uv(u0, v1).endVertex()
         r.vertex(stack.last.pose, x1, y1, getBlitOffset).uv(u1, v1).endVertex()
         r.vertex(stack.last.pose, x1, y0, getBlitOffset).uv(u1, v0).endVertex()
@@ -64,7 +61,7 @@ class ImageButton(xPos: Int, yPos: Int, w: Int, h: Int,
         RenderSystem.enableBlend()
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA)
         val alpha = if (drawHover) 0.8f else 0.4f
-        r.begin(GL11.GL_QUADS, DefaultVertexFormat.POSITION_COLOR)
+        r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR)
         r.vertex(stack.last.pose, x0, y1, getBlitOffset).color(1, 1, 1, alpha).endVertex()
         r.vertex(stack.last.pose, x1, y1, getBlitOffset).color(1, 1, 1, alpha).endVertex()
         r.vertex(stack.last.pose, x1, y0, getBlitOffset).color(1, 1, 1, alpha).endVertex()
@@ -73,14 +70,14 @@ class ImageButton(xPos: Int, yPos: Int, w: Int, h: Int,
         RenderSystem.disableBlend()
       }
 
-      if (getMessage != StringTextComponent.EMPTY) {
+      if (getMessage != TextComponent.EMPTY) {
         val color =
           if (!active) textDisabledColor
           else if (hoverOverride || isHovered) textHoverColor
           else textColor
         val mc = Minecraft.getInstance
-        if (textIndent >= 0) AbstractGui.drawString(stack, mc.font, getMessage, textIndent + x, y + (height - 8) / 2, color)
-        else AbstractGui.drawCenteredString(stack, mc.font, getMessage, x + width / 2, y + (height - 8) / 2, color)
+        if (textIndent >= 0) drawString(stack, mc.font, getMessage, textIndent + x, y + (height - 8) / 2, color)
+        else drawCenteredString(stack, mc.font, getMessage, x + width / 2, y + (height - 8) / 2, color)
       }
     }
   }

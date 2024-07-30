@@ -8,15 +8,9 @@ import li.cil.oc.api
 import li.cil.oc.common.item.CustomModel
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.BlockModelShapes
-import net.minecraft.client.renderer.model.IBakedModel
-import net.minecraft.client.renderer.model.ItemOverrideList
-import net.minecraft.client.renderer.model.ModelResourceLocation
-import net.minecraft.client.world.ClientLevel
-import net.minecraft.entity.LivingEntity
+import net.minecraft.client.resources.model.ModelResourceLocation
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
-import net.minecraft.util.IItemProvider
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.client.event.{ModelBakeEvent, ModelRegistryEvent}
