@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.RemovalListener
 import com.google.common.cache.RemovalNotification
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Settings
 import li.cil.oc.client.Textures
@@ -19,8 +19,8 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.IRenderTypeBuffer
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.Direction
 import net.minecraft.util.math.vector.Vector3f
 import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.event.TickEvent.ClientTickEvent
@@ -83,7 +83,7 @@ object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramR
   def onRenderWorldLast(e: RenderWorldLastEvent): Unit = {
     RenderState.checkError(getClass.getName + ".onRenderWorldLastEvent: entering (aka: wasntme)")
 
-    val stack = e.getMatrixStack
+    val stack = e.getPoseStack
     val camPos = Minecraft.getInstance.gameRenderer.getMainCamera.getPosition
     val buffer = Minecraft.getInstance.renderBuffers.bufferSource
 
@@ -99,7 +99,7 @@ object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramR
     RenderState.checkError(getClass.getName + ".onRenderWorldLastEvent: leaving")
   }
 
-  private def doRender(hologram: Hologram, f: Float, stack: MatrixStack) {
+  private def doRender(hologram: Hologram, f: Float, stack: PoseStack) {
     HologramRenderer.hologram = hologram
     GL11.glPushClientAttrib(GL11.GL_CLIENT_ALL_ATTRIB_BITS)
     RenderState.makeItBlend()
@@ -404,7 +404,7 @@ object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramR
 }
 
 class HologramRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Hologram](dispatch) {
-  override def render(hologram: Hologram, f: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+  override def render(hologram: Hologram, f: Float, stack: PoseStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
     if (HologramRenderer.failed) {
       HologramRendererFallback.render(hologram, f, stack, buffer, light, overlay)
       return

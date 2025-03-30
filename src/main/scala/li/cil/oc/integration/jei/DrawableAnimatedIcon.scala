@@ -1,11 +1,11 @@
 package li.cil.oc.integration.jei
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import mezz.jei.api.gui.ITickTimer
 import mezz.jei.api.gui.drawable.IDrawableAnimated
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.AbstractGui
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
@@ -23,7 +23,7 @@ class DrawableAnimatedIcon(resourceLocation: ResourceLocation, u: Int, v: Int, w
   override def getHeight: Int = height + paddingTop + paddingBottom
 
   @OnlyIn(Dist.CLIENT)
-  override def draw(stack: MatrixStack, xOffset: Int, yOffset: Int) {
+  override def draw(stack: PoseStack, xOffset: Int, yOffset: Int) {
     val animationValue = tickTimer.getValue
 
     val uOffsetTotal = uOffset * animationValue

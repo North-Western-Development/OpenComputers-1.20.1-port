@@ -2,7 +2,7 @@ package li.cil.oc.client.renderer.tileentity
 
 import java.util.function.Function
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
@@ -11,7 +11,7 @@ import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.IRenderTypeBuffer
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 import net.minecraft.util.math.vector.Vector3f
 
 object ChargerRenderer extends Function[TileEntityRendererDispatcher, ChargerRenderer] {
@@ -19,7 +19,7 @@ object ChargerRenderer extends Function[TileEntityRendererDispatcher, ChargerRen
 }
 
 class ChargerRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Charger](dispatch) {
-  override def render(charger: Charger, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+  override def render(charger: Charger, dt: Float, stack: PoseStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     RenderSystem.color4f(1, 1, 1, 1)

@@ -1,7 +1,7 @@
 package li.cil.oc.common
 
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 
 //placeholder
 
@@ -9,11 +9,11 @@ object Achievement {
   def init() {
   }
 
-  def onAssemble(stack: ItemStack, player: PlayerEntity): Unit = {
+  def onAssemble(stack: ItemStack, player: Player): Unit = {
 
   }
 
-  def onCraft(stack: ItemStack, player: PlayerEntity): Unit = {
+  def onCraft(stack: ItemStack, player: Player): Unit = {
 
   }
 }
@@ -25,8 +25,8 @@ import li.cil.oc.OpenComputers
 import li.cil.oc.api.detail.ItemInfo
 import li.cil.oc.common.init.Items
 import li.cil.oc.util.StackOption
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 import net.minecraft.stats.StatBase
 import net.minecraft.stats.{Achievement => MCAchievement}
 import net.minecraftforge.common.AchievementPage
@@ -249,11 +249,11 @@ object Achievement {
     AchievementPage.registerAchievementPage(new AchievementPage(OpenComputers.Name, All: _*))
   }
 
-  def onAssemble(stack: ItemStack, player: PlayerEntity): Unit = {
+  def onAssemble(stack: ItemStack, player: Player): Unit = {
     AssemblingMap.get(Items.get(stack)).foreach(player.addStat(_, 1))
   }
 
-  def onCraft(stack: ItemStack, player: PlayerEntity): Unit = {
+  def onCraft(stack: ItemStack, player: Player): Unit = {
     CraftingMap.get(Items.get(stack)).foreach(player.addStat(_, 1))
     CustomCraftingMap.find(entry => ItemStack.matches(stack, entry._1)).foreach(entry => player.addStat(entry._2, 1))
   }

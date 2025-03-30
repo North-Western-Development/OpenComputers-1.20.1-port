@@ -9,18 +9,18 @@ import li.cil.oc.api.network.ManagedEnvironment
 import li.cil.oc.api.prefab.DriverSidedTileEntity
 import li.cil.oc.integration.ManagedTileEntityEnvironment
 import li.cil.oc.util.ResultWrapper.result
-import net.minecraft.block.Block
-import net.minecraft.block.Blocks
-import net.minecraft.item.ItemStack
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.item.ItemStack
 import net.minecraft.tileentity.FurnaceTileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.core.Direction
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.Level
 
 object DriverFurnace extends DriverSidedTileEntity {
   override def getTileEntityClass: Class[_] = classOf[FurnaceTileEntity]
 
-  override def createEnvironment(world: World, pos: BlockPos, side: Direction): ManagedEnvironment =
+  override def createEnvironment(world: Level, pos: BlockPos, side: Direction): ManagedEnvironment =
     new Environment(world.getBlockEntity(pos).asInstanceOf[FurnaceTileEntity])
 
   final class Environment(tileEntity: FurnaceTileEntity) extends ManagedTileEntityEnvironment[FurnaceTileEntity](tileEntity, "furnace") with NamedBlock {

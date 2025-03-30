@@ -20,9 +20,9 @@ import li.cil.oc.common.EventHandler
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.entity.Entity
+import net.minecraft.world.entity.Entity
 import net.minecraft.entity.MobEntity
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.StringNBT
 import net.minecraftforge.common.util.Constants.NBT
 
@@ -92,7 +92,7 @@ class UpgradeLeash(val host: Entity) extends AbstractManagedEnvironment with tra
 
   private final val LeashedEntitiesTag = "leashedEntities"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundTag) {
     super.loadData(nbt)
     leashedEntities ++= nbt.getList(LeashedEntitiesTag, NBT.TAG_STRING).
       map((s: StringNBT) => UUID.fromString(s.getAsString))
@@ -114,7 +114,7 @@ class UpgradeLeash(val host: Entity) extends AbstractManagedEnvironment with tra
     })
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundTag) {
     super.saveData(nbt)
     nbt.setNewTagList(LeashedEntitiesTag, leashedEntities.map(_.toString))
   }

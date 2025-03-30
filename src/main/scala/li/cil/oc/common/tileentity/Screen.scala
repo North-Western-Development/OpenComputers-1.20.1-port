@@ -10,22 +10,27 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.Color
 import li.cil.oc.util.ExtendedWorld._
 import net.minecraft.client.Minecraft
-import net.minecraft.entity.Entity
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.player.Player
 import net.minecraft.entity.projectile.ArrowEntity
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
-import net.minecraft.util.math.AxisAlignedBB
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.core.Direction
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.projectile.Arrow
+import net.minecraft.world.phys.AABB
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.phys.AABB
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.mutable
 import scala.language.postfixOps
 
-class Screen(selfType: TileEntityType[_ <: Screen], var tier: Int) extends TileEntity(selfType) with traits.TextBuffer with SidedEnvironment with traits.Rotatable with traits.RedstoneAware with traits.Colored with Analyzable with Ordered[Screen] {
-  def this(selfType: TileEntityType[_ <: Screen]) = this(selfType, 0)
+class Screen(selfType: BlockEntityType[_ <: Screen], var tier: Int) extends BlockEntity(selfType) with traits.TextBuffer with SidedEnvironment with traits.Rotatable with traits.RedstoneAware with traits.Colored with Analyzable with Ordered[Screen] {
+  def this(selfType: BlockEntityType[_ <: Screen]) = this(selfType, 0)
 
   // Enable redstone functionality.
   _isOutputEnabled = true
@@ -55,11 +60,11 @@ class Screen(selfType: TileEntityType[_ <: Screen], var tier: Int) extends TileE
 
   var hadRedstoneInput = false
 
-  var cachedBounds: Option[AxisAlignedBB] = None
+  var cachedBounds: Option[AABB] = None
 
   var invertTouchMode = false
 
-  private val arrows = mutable.Set.empty[ArrowEntity]
+  private val arrows = mutable.Set.empty[Arrow]
 
   private val lastWalked = mutable.WeakHashMap.empty[Entity, (Int, Int)]
 
@@ -172,7 +177,7 @@ class Screen(selfType: TileEntityType[_ <: Screen], var tier: Int) extends TileE
     origin.lastWalked.put(entity, localPosition) match {
       case Some((oldX, oldY)) if oldX == x && oldY == y => // Ignore
       case _ => entity match {
-        case player: PlayerEntity if Settings.get.inputUsername =>
+        case player: Player if Settings.get.inputUsername =>
           origin.node.sendToReachable("computer.signal", "walk", Int.box(x + 1), Int.box(height - y), player.getName.getString)
         case _ =>
           origin.node.sendToReachable("computer.signal", "walk", Int.box(x + 1), Int.box(height - y))
@@ -180,7 +185,7 @@ class Screen(selfType: TileEntityType[_ <: Screen], var tier: Int) extends TileE
     }
   }
 
-  def shot(arrow: ArrowEntity) {
+  def shot(arrow: Arrow) {
     arrows.add(arrow)
   }
 
@@ -252,7 +257,7 @@ class Screen(selfType: TileEntityType[_ <: Screen], var tier: Int) extends TileE
         val hitY = arrow.getY - y
         val hitZ = arrow.getZ - z
         arrow.getOwner match {
-          case player: PlayerEntity if player == Minecraft.getInstance.player => click(hitX, hitY, hitZ)
+          case player: Player if player == Minecraft.getInstance.player => click(hitX, hitY, hitZ)
           case _ =>
         }
       }
@@ -297,7 +302,7 @@ class Screen(selfType: TileEntityType[_ <: Screen], var tier: Int) extends TileE
   private final val HadRedstoneInputTag = Settings.namespace + "hadRedstoneInput"
   private final val InvertTouchModeTag = Settings.namespace + "invertTouchMode"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundTag) {
     tier = nbt.getByte(TierTag) max 0 min 2
     setColor(Color.rgbValues(Color.byTier(tier)))
     super.loadForServer(nbt)
@@ -305,7 +310,7 @@ class Screen(selfType: TileEntityType[_ <: Screen], var tier: Int) extends TileE
     invertTouchMode = nbt.getBoolean(InvertTouchModeTag)
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundTag) {
     nbt.putByte(TierTag, tier.toByte)
     super.saveForServer(nbt)
     nbt.putBoolean(HadRedstoneInputTag, hadRedstoneInput)
@@ -313,13 +318,13 @@ class Screen(selfType: TileEntityType[_ <: Screen], var tier: Int) extends TileE
   }
 
   @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundNBT) {
+  def loadForClient(nbt: CompoundTag) {
     tier = nbt.getByte(TierTag) max 0 min 2
     super.loadForClient(nbt)
     invertTouchMode = nbt.getBoolean(InvertTouchModeTag)
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundTag) {
     nbt.putByte(TierTag, tier.toByte)
     super.saveForClient(nbt)
     nbt.putBoolean(InvertTouchModeTag, invertTouchMode)
@@ -337,20 +342,21 @@ class Screen(selfType: TileEntityType[_ <: Screen], var tier: Int) extends TileE
         val ox = x + (if (spos.x < 0) 1 else 0)
         val oy = y + (if (spos.y < 0) 1 else 0)
         val oz = z + (if (spos.z < 0) 1 else 0)
-        val btmp = new AxisAlignedBB(ox, oy, oz, ox + spos.x, oy + spos.y, oz + spos.z)
-        val b = new AxisAlignedBB(
+        val btmp = new AABB(ox, oy, oz, ox + spos.x, oy + spos.y, oz + spos.z)
+        val b = new AABB(
           math.min(btmp.minX, btmp.maxX), math.min(btmp.minY, btmp.maxY), math.min(btmp.minZ, btmp.maxZ),
           math.max(btmp.minX, btmp.maxX), math.max(btmp.minY, btmp.maxY), math.max(btmp.minZ, btmp.maxZ))
         cachedBounds = Some(b)
         b
     }
 
+
   @OnlyIn(Dist.CLIENT)
   override def getViewDistance = if (isOrigin) super.getViewDistance else 0
 
   // ----------------------------------------------------------------------- //
 
-  override def onAnalyze(player: PlayerEntity, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = Array(origin.node)
+  override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = Array(origin.node)
 
   override protected def onRedstoneInputChanged(args: RedstoneChangedEventArgs) {
     super.onRedstoneInputChanged(args)

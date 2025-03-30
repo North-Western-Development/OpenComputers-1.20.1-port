@@ -1,11 +1,11 @@
 package li.cil.oc.integration.computercraft
 
-import java.nio.channels.Channels
-
-import dan200.computercraft.api.filesystem.IMount
+import dan200.computercraft.api.filesystem.Mount
 import li.cil.oc.server.fs.InputStreamFileSystem
 
-class ComputerCraftFileSystem(val mount: IMount) extends InputStreamFileSystem {
+import java.nio.channels.Channels
+
+class ComputerCraftFileSystem(val mount: Mount) extends InputStreamFileSystem {
   override def spaceTotal = 0
 
   override def spaceUsed = 0

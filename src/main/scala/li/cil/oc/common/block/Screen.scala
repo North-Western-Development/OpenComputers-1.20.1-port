@@ -1,60 +1,49 @@
 package li.cil.oc.common.block
 
-import java.util
-
-import li.cil.oc.Constants
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, Settings, api}
 import li.cil.oc.client.gui
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
 import li.cil.oc.integration.util.Wrench
-import li.cil.oc.util.PackedColor
-import li.cil.oc.util.RotationHelper
-import li.cil.oc.util.Tooltip
-import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
+import li.cil.oc.util.{PackedColor, Tooltip}
 import net.minecraft.client.Minecraft
-import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.entity.Entity
-import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.projectile.ArrowEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.state.StateContainer
-import net.minecraft.util.Direction
-import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.{IBlockReader, World}
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.network.chat.Component
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.{Entity, LivingEntity}
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.projectile.Arrow
+import net.minecraft.world.item.{ItemStack, TooltipFlag}
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
+import net.minecraft.world.level.{BlockGetter, Level}
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToScala._
 
 class Screen(props: Properties, val tier: Int) extends RedstoneAware(props) {
-  protected override def createBlockStateDefinition(builder: StateContainer.Builder[Block, BlockState]) =
+  protected override def createBlockStateDefinition(builder: StateDefinition.Builder[Block, BlockState]) =
     builder.add(PropertyRotatable.Pitch, PropertyRotatable.Yaw)
 
   // ----------------------------------------------------------------------- //
 
-  override protected def tooltipBody(stack: ItemStack, world: IBlockReader, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) {
+  override protected def tooltipBody(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], advanced: TooltipFlag) {
     val (w, h) = Settings.screenResolutionsByTier(tier)
     val depth = PackedColor.Depth.bits(Settings.screenDepthsByTier(tier))
     for (curr <- Tooltip.get(getClass.getSimpleName.toLowerCase, w, h, depth)) {
-      tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(world: IBlockReader) = new tileentity.Screen(tileentity.TileEntityTypes.SCREEN, tier)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Screen(tileentity.TileEntityTypes.SCREEN, tier)
 
   // ----------------------------------------------------------------------- //
 
-  override def setPlacedBy(world: World, pos: BlockPos, state: BlockState, placer: LivingEntity, stack: ItemStack) {
+  override def setPlacedBy(world: Level, pos: BlockPos, state: BlockState, placer: LivingEntity, stack: ItemStack) {
     super.setPlacedBy(world, pos, state, placer, stack)
     world.getBlockEntity(pos) match {
       case screen: tileentity.Screen => screen.delayUntilCheckForMultiBlock = 0
@@ -62,9 +51,9 @@ class Screen(props: Properties, val tier: Int) extends RedstoneAware(props) {
     }
   }
 
-  override def localOnBlockActivated(world: World, pos: BlockPos, player: PlayerEntity, hand: Hand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = rightClick(world, pos, player, hand, heldItem, side, hitX, hitY, hitZ, force = false)
+  override def localOnBlockActivated(world: Level, pos: BlockPos, player: Player, hand: InteractionHand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = rightClick(world, pos, player, hand, heldItem, side, hitX, hitY, hitZ, force = false)
 
-  def rightClick(world: World, pos: BlockPos, player: PlayerEntity, hand: Hand, heldItem: ItemStack,
+  def rightClick(world: Level, pos: BlockPos, player: Player, hand: InteractionHand, heldItem: ItemStack,
                  side: Direction, hitX: Float, hitY: Float, hitZ: Float, force: Boolean) = {
     if (Wrench.holdsApplicableWrench(player, pos) && getValidRotations(world, pos).contains(side) && !force) false
     else if (api.Items.get(heldItem) == api.Items.get(Constants.ItemName.Analyzer)) false
@@ -89,15 +78,15 @@ class Screen(props: Properties, val tier: Int) extends RedstoneAware(props) {
     Minecraft.getInstance.pushGuiLayer(new gui.Screen(screen.origin.buffer, screen.tier > 0, () => screen.origin.hasKeyboard, () => screen.origin.buffer.isRenderingEnabled))
   }
 
-  override def stepOn(world: World, pos: BlockPos, entity: Entity): Unit =
+  override def stepOn(world: Level, pos: BlockPos, state: BlockState, entity: Entity): Unit =
     if (!world.isClientSide) world.getBlockEntity(pos) match {
       case screen: tileentity.Screen if screen.tier > 0 && screen.facing == Direction.UP => screen.walk(entity)
-      case _ => super.stepOn(world, pos, entity)
+      case _ => super.stepOn(world, pos, state, entity)
     }
 
-  override def entityInside(state: BlockState, world: World, pos: BlockPos, entity: Entity): Unit =
+  override def entityInside(state: BlockState, world: Level, pos: BlockPos, entity: Entity): Unit =
     if (world.isClientSide) (entity, world.getBlockEntity(pos)) match {
-      case (arrow: ArrowEntity, screen: tileentity.Screen) if screen.tier > 0 =>
+      case (arrow: Arrow, screen: tileentity.Screen) if screen.tier > 0 =>
         val hitX = math.max(0, math.min(1, arrow.getX - pos.getX))
         val hitY = math.max(0, math.min(1, arrow.getY - pos.getY))
         val hitZ = math.max(0, math.min(1, arrow.getZ - pos.getZ))
@@ -124,7 +113,7 @@ class Screen(props: Properties, val tier: Int) extends RedstoneAware(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def getValidRotations(world: World, pos: BlockPos) =
+  override def getValidRotations(world: Level, pos: BlockPos) =
     world.getBlockEntity(pos) match {
       case screen: tileentity.Screen =>
         if (screen.facing == Direction.UP || screen.facing == Direction.DOWN) Direction.values

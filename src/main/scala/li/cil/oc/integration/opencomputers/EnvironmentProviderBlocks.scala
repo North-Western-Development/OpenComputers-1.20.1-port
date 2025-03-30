@@ -9,9 +9,9 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.integration.util.BundledRedstone
 import li.cil.oc.server.component
 import li.cil.oc.server.machine.Machine
-import net.minecraft.block.Block
+import net.minecraft.world.level.block.Block
 import net.minecraft.item.BlockItem
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 /**
  * Provide static environment lookup for blocks that are components.

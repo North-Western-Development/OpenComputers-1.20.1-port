@@ -8,15 +8,15 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedWorld._
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.Direction
-import net.minecraft.util.Hand
-import net.minecraft.world.World
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.entity.player.Player
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.core.Direction
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.level.Level
 import net.minecraft.world.storage.IServerWorldInfo
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.FakePlayer
@@ -26,11 +26,11 @@ import net.minecraftforge.eventbus.api.Event
 import scala.collection.mutable
 
 object DisintegrationProvider extends ScalaProvider("c4e7e3c2-8069-4fbb-b08e-74b1bddcdfe7") {
-  override def createScalaBehaviors(player: PlayerEntity) = Iterable(new DisintegrationBehavior(player))
+  override def createScalaBehaviors(player: Player) = Iterable(new DisintegrationBehavior(player))
 
-  override def readBehaviorFromNBT(player: PlayerEntity, nbt: CompoundNBT) = new DisintegrationBehavior(player)
+  override def readBehaviorFromNBT(player: Player, nbt: CompoundTag) = new DisintegrationBehavior(player)
 
-  class DisintegrationBehavior(p: PlayerEntity) extends AbstractBehavior(p) {
+  class DisintegrationBehavior(p: Player) extends AbstractBehavior(p) {
     var breakingMap = mutable.Map.empty[BlockPosition, SlowBreakInfo]
     var breakingMapNew = mutable.Map.empty[BlockPosition, SlowBreakInfo]
 
@@ -48,7 +48,7 @@ object DisintegrationProvider extends ScalaProvider("c4e7e3c2-8069-4fbb-b08e-74b
       val world = player.level
       if (!world.isClientSide) player match {
         case _: FakePlayer => // Nope
-        case playerMP: ServerPlayerEntity =>
+        case playerMP: ServerPlayer =>
           val now = world.getGameTime
 
           // Check blocks in range.
@@ -110,7 +110,7 @@ object DisintegrationProvider extends ScalaProvider("c4e7e3c2-8069-4fbb-b08e-74b
   class SlowBreakInfo(val timeStarted: Long, val timeBroken: Long, val pos: BlockPosition, val originalTool: StackOption, val blockState: BlockState) {
     var lastDamageSent = 0
 
-    def checkTool(player: PlayerEntity): Boolean = {
+    def checkTool(player: Player): Boolean = {
       val currentTool = StackOption(player.getItemInHand(Hand.MAIN_HAND)).map(_.copy())
       (currentTool, originalTool) match {
         case (SomeStack(stackA), SomeStack(stackB)) => stackA.getItem == stackB.getItem && (stackA.isDamageableItem || stackA.getDamageValue == stackB.getDamageValue)
@@ -119,7 +119,7 @@ object DisintegrationProvider extends ScalaProvider("c4e7e3c2-8069-4fbb-b08e-74b
       }
     }
 
-    def update(world: World, player: PlayerEntity, now: Long): Unit = {
+    def update(world: Level, player: Player, now: Long): Unit = {
       val timeTotal = timeBroken - timeStarted
       if (timeTotal > 0) {
         val timeTaken = now - timeStarted
@@ -131,7 +131,7 @@ object DisintegrationProvider extends ScalaProvider("c4e7e3c2-8069-4fbb-b08e-74b
       }
     }
 
-    def finish(world: World, player: ServerPlayerEntity): Unit = {
+    def finish(world: Level, player: ServerPlayer): Unit = {
       val sameBlock = world.getBlockState(pos.toBlockPos) == blockState
       if (sameBlock) {
         world.destroyBlockInWorldPartially(pos.hashCode(), pos, -1)

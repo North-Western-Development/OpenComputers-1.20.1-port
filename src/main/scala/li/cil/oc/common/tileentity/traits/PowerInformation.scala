@@ -2,7 +2,7 @@ package li.cil.oc.common.tileentity.traits
 
 import li.cil.oc.Settings
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
@@ -44,13 +44,13 @@ trait PowerInformation extends TileEntity {
   private final val GlobalBufferSizeTag = Settings.namespace + "globalBufferSize"
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT) {
+  override def loadForClient(nbt: CompoundTag) {
     super.loadForClient(nbt)
     globalBuffer = nbt.getDouble(GlobalBufferTag)
     globalBufferSize = nbt.getDouble(GlobalBufferSizeTag)
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundTag) {
     super.saveForClient(nbt)
     lastSentRatio = if (globalBufferSize > 0) globalBuffer / globalBufferSize else 0
     nbt.putDouble(GlobalBufferTag, globalBuffer)

@@ -9,7 +9,7 @@ import li.cil.oc.api.network.Component
 import li.cil.oc.api.network.ManagedEnvironment
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.ResultWrapper.result
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 import scala.reflect.ClassTag
 

@@ -9,8 +9,8 @@ import li.cil.oc.common.Tier
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
 import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.util.text.ITextComponent
+import net.minecraft.world.item.ItemStack
+import net.minecraft.network.chat.Component
 import org.apache.commons.lang3.tuple
 
 import scala.collection.mutable
@@ -48,7 +48,7 @@ abstract class Template {
       else if (!hasRAM && requiresRAM) Localization.Assembler.InsertRAM
       else Localization.Assembler.Complexity(complexity, maxComplexity)
 
-    val warnings = mutable.ArrayBuffer.empty[ITextComponent]
+    val warnings = mutable.ArrayBuffer.empty[Component]
     for ((name, check) <- suggestedComponents) {
       if (!check(inventory)) {
         warnings += Localization.Assembler.Warning(name)

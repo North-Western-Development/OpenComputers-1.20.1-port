@@ -1,6 +1,6 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Localization
 import li.cil.oc.client.Textures
@@ -10,15 +10,15 @@ import li.cil.oc.util.RenderState
 import net.minecraft.client.gui.widget.button.Button
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.util.Direction
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.core.Direction
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.Component
 import org.lwjgl.opengl.GL11
 
 import scala.collection.JavaConverters.asJavaCollection
 
-class Rack(state: container.Rack, playerInventory: PlayerInventory, name: ITextComponent)
+class Rack(state: container.Rack, playerInventory:Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name) {
 
   imageHeight = 210
@@ -103,7 +103,7 @@ class Rack(state: container.Rack, playerInventory: PlayerInventory, name: ITextC
     }
   }
 
-  override def render(stack: MatrixStack, mouseX: Int, mouseY: Int, dt: Float) {
+  override def render(stack: PoseStack, mouseX: Int, mouseY: Int, dt: Float) {
     for (bus <- 0 until 5) {
       for (mountable <- 0 until inventoryContainer.otherInventory.getContainerSize) {
         val presence = inventoryContainer.nodePresence(mountable)
@@ -113,7 +113,7 @@ class Rack(state: container.Rack, playerInventory: PlayerInventory, name: ITextC
       }
     }
     val relayMessage = if (inventoryContainer.isRelayEnabled) Localization.Rack.RelayEnabled else Localization.Rack.RelayDisabled
-    relayButton.setMessage(new StringTextComponent(relayMessage))
+    relayButton.setMessage(Component.literal(relayMessage))
     super.render(stack, mouseX, mouseY, dt)
   }
 
@@ -122,7 +122,7 @@ class Rack(state: container.Rack, playerInventory: PlayerInventory, name: ITextC
 
     relayButton = new ImageButton(leftPos + 101, topPos + 96, 65, 18, new Button.IPressable {
       override def onPress(b: Button) = ClientPacketSender.sendRackRelayState(inventoryContainer, !inventoryContainer.isRelayEnabled)
-    }, Textures.GUI.ButtonRelay, new StringTextComponent(Localization.Rack.RelayDisabled), textIndent = 18)
+    }, Textures.GUI.ButtonRelay, Component.literal(Localization.Rack.RelayDisabled), textIndent = 18)
     addButton(relayButton)
 
     val (mw, mh) = hoverMasterSize
@@ -153,7 +153,7 @@ class Rack(state: container.Rack, playerInventory: PlayerInventory, name: ITextC
     }
   }
 
-  override def drawSecondaryForegroundLayer(stack: MatrixStack, mouseX: Int, mouseY: Int) = {
+  override def drawSecondaryForegroundLayer(stack: PoseStack, mouseX: Int, mouseY: Int) = {
     super.drawSecondaryForegroundLayer(stack, mouseX, mouseY)
     RenderState.pushAttrib() // Prevents NEI render glitch.
 
@@ -251,13 +251,13 @@ class Rack(state: container.Rack, playerInventory: PlayerInventory, name: ITextC
     RenderState.popAttrib()
   }
 
-  override def drawSecondaryBackgroundLayer(stack: MatrixStack) {
+  override def drawSecondaryBackgroundLayer(stack: PoseStack) {
     RenderSystem.color3f(1, 1, 1) // Required under Linux.
     minecraft.getTextureManager.bind(Textures.GUI.Rack)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
   }
 
-  private def drawRect(stack: MatrixStack, x: Int, y: Int, w: Int, h: Int, u: Int, v: Int): Unit = {
+  private def drawRect(stack: PoseStack, x: Int, y: Int, w: Int, h: Int, u: Int, v: Int): Unit = {
     val u0 = u / 256f
     val v0 = v / 256f
     val u1 = u0 + w / 256f

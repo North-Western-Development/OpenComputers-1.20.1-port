@@ -6,7 +6,7 @@ import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.api.driver.item.HostAware
 import li.cil.oc.api.driver.item.Inventory
 import li.cil.oc.common.Slot
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 object DriverUpgradeInventory extends Item with Inventory with HostAware {
   override def worksWith(stack: ItemStack) = isOneOf(stack,

@@ -2,50 +2,31 @@ package li.cil.oc.common.tileentity
 
 import com.google.common.base.Charsets
 import dan200.computercraft.api.peripheral.IComputerAccess
-import li.cil.oc.api.detail.ItemInfo
-import li.cil.oc.api.network.Component
-import li.cil.oc.server.PacketSender
-
-import scala.collection.mutable
-import li.cil.oc.Constants
-import li.cil.oc.Localization
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, Localization, Settings, api}
 import li.cil.oc.api.Driver
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network.Analyzable
-import li.cil.oc.api.network.Connector
-import li.cil.oc.api.network.Node
-import li.cil.oc.api.network.Packet
-import li.cil.oc.api.network.Visibility
-import li.cil.oc.api.network.WirelessEndpoint
-import li.cil.oc.common.InventorySlots
-import li.cil.oc.common.Slot
-import li.cil.oc.common.Tier
-import li.cil.oc.common.container
+import li.cil.oc.api.detail.ItemInfo
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
+import li.cil.oc.api.network._
 import li.cil.oc.common.container.ContainerTypes
-import li.cil.oc.common.item
+import li.cil.oc.common._
 import li.cil.oc.integration.Mods
 import li.cil.oc.integration.opencomputers.DriverLinkedCard
+import li.cil.oc.server.PacketSender
 import li.cil.oc.server.network.QuantumNetwork
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
-import net.minecraft.util.Util
-import net.minecraftforge.common.util.Constants.NBT
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.Util
+import net.minecraft.core.Direction
+import net.minecraft.nbt.{CompoundTag, Tag}
+import net.minecraft.world.MenuProvider
+import net.minecraft.world.entity.player.{Inventory, Player}
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
-class Relay(selfType: TileEntityType[_ <: Relay]) extends TileEntity(selfType) with traits.Hub with traits.ComponentInventory
-  with traits.PowerAcceptor with Analyzable with WirelessEndpoint with QuantumNetwork.QuantumNode with INamedContainerProvider {
+import scala.collection.mutable
+
+class Relay(selfType: BlockEntityType[_ <: Relay]) extends BlockEntity(selfType) with traits.Hub with traits.ComponentInventory
+  with traits.PowerAcceptor with Analyzable with WirelessEndpoint with QuantumNetwork.QuantumNode with MenuProvider {
 
   lazy final val WirelessNetworkCardTier1: ItemInfo = api.Items.get(Constants.ItemName.WirelessNetworkCardTier1)
   lazy final val WirelessNetworkCardTier2: ItemInfo = api.Items.get(Constants.ItemName.WirelessNetworkCardTier2)
@@ -99,7 +80,7 @@ class Relay(selfType: TileEntityType[_ <: Relay]) extends TileEntity(selfType) w
 
   // ----------------------------------------------------------------------- //
 
-  override def onAnalyze(player: PlayerEntity, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
+  override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
     if (isWirelessEnabled) {
       player.sendMessage(Localization.Analyzer.WirelessStrength(strength), Util.NIL_UUID)
       Array(componentNodes(side.get3DDataValue))
@@ -290,7 +271,7 @@ class Relay(selfType: TileEntityType[_ <: Relay]) extends TileEntity(selfType) w
 
   // ----------------------------------------------------------------------- //
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
+  override def createMenu(id: Int, playerInventory:Inventory, player: Player) =
     new container.Relay(ContainerTypes.RELAY, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
@@ -299,7 +280,7 @@ class Relay(selfType: TileEntityType[_ <: Relay]) extends TileEntity(selfType) w
   private final val IsRepeaterTag = Settings.namespace + "isRepeater"
   private final val ComponentNodesTag = Settings.namespace + "componentNodes"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundTag) {
     super.loadForServer(nbt)
     for (slot <- items.indices) if (!items(slot).isEmpty) {
       updateLimits(slot, items(slot))
@@ -311,22 +292,22 @@ class Relay(selfType: TileEntityType[_ <: Relay]) extends TileEntity(selfType) w
     if (nbt.contains(IsRepeaterTag)) {
       isRepeater = nbt.getBoolean(IsRepeaterTag)
     }
-    nbt.getList(ComponentNodesTag, NBT.TAG_COMPOUND).toTagArray[CompoundNBT].
+    nbt.getList(ComponentNodesTag, Tag.TAG_COMPOUND).toTagArray[CompoundTag].
       zipWithIndex.foreach {
       case (tag, index) => componentNodes(index).loadData(tag)
     }
   }
 
-  override def saveForServer(nbt: CompoundNBT): Unit = {
+  override def saveForServer(nbt: CompoundTag): Unit = {
     super.saveForServer(nbt)
     nbt.putDouble(StrengthTag, strength)
     nbt.putBoolean(IsRepeaterTag, isRepeater)
     nbt.setNewTagList(ComponentNodesTag, componentNodes.map {
       case node: Node =>
-        val tag = new CompoundNBT()
+        val tag = new CompoundTag()
         node.saveData(tag)
         tag
-      case _ => new CompoundNBT()
+      case _ => new CompoundTag()
     })
   }
 }

@@ -1,20 +1,15 @@
 package li.cil.oc.integration.minecraftforge
 
 import li.cil.oc.api.Network
-import li.cil.oc.api.driver.DriverBlock
-import li.cil.oc.api.driver.NamedBlock
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network.ManagedEnvironment
-import li.cil.oc.api.network.Visibility
+import li.cil.oc.api.driver.{DriverBlock, NamedBlock}
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
+import li.cil.oc.api.network.{ManagedEnvironment, Visibility}
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.ResultWrapper.result
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
-import net.minecraftforge.energy.CapabilityEnergy
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraftforge.common.capabilities.ForgeCapabilities
 import net.minecraftforge.energy.IEnergyStorage
 
 /**
@@ -22,13 +17,13 @@ import net.minecraftforge.energy.IEnergyStorage
   */
 object DriverEnergyStorage extends DriverBlock {
 
-  override def worksWith(world: World, pos: BlockPos, side: Direction): Boolean = world.getBlockEntity(pos) match {
-    case tile: TileEntity if tile.getCapability(CapabilityEnergy.ENERGY, side).isPresent => true
+  override def worksWith(world: Level, pos: BlockPos, side: Direction): Boolean = world.getBlockEntity(pos) match {
+    case tile: BlockEntity if tile.getCapability(ForgeCapabilities.ENERGY, side).isPresent => true
     case _ => false
   }
 
-  override def createEnvironment(world: World, pos: BlockPos, side: Direction): ManagedEnvironment = world.getBlockEntity(pos) match {
-    case tile: TileEntity if tile.getCapability(CapabilityEnergy.ENERGY, side).isPresent => new Environment(tile.getCapability(CapabilityEnergy.ENERGY, side).orElse(null))
+  override def createEnvironment(world: Level, pos: BlockPos, side: Direction): ManagedEnvironment = world.getBlockEntity(pos) match {
+    case tile: BlockEntity if tile.getCapability(ForgeCapabilities.ENERGY, side).isPresent => new Environment(tile.getCapability(ForgeCapabilities.ENERGY, side).orElse(null))
     case _ => null
   }
 

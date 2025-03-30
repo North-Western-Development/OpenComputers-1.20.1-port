@@ -1,14 +1,14 @@
 package li.cil.oc.integration.computercraft;
 
-import dan200.computercraft.api.filesystem.IMount;
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.Mount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.ILuaTask;
+import dan200.computercraft.api.lua.LuaTask;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.MethodResult;
 import dan200.computercraft.api.lua.ObjectArguments;
 import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.api.peripheral.IWorkMonitor;
+import dan200.computercraft.api.peripheral.WorkMonitor;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.apis.PeripheralAPI;
 import dan200.computercraft.core.asm.PeripheralMethod;
@@ -24,10 +24,10 @@ import li.cil.oc.api.network.ManagedEnvironment;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.Visibility;
 import li.cil.oc.util.Reflection;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.Direction;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -62,7 +62,7 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
         return false;
     }
 
-    private IPeripheral findPeripheral(final World world, final BlockPos pos, final Direction side) {
+    private IPeripheral findPeripheral(final Level world, final BlockPos pos, final Direction side) {
         try {
             final IPeripheral p = dan200.computercraft.shared.Peripherals.getPeripheral(world, pos, side, cap -> {});
             if (!isBlacklisted(p)) {
@@ -75,8 +75,8 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
     }
 
     @Override
-    public boolean worksWith(final World world, final BlockPos pos, final Direction side) {
-        final TileEntity tileEntity = world.getBlockEntity(pos);
+    public boolean worksWith(final Level world, final BlockPos pos, final Direction side) {
+        final BlockEntity tileEntity = world.getBlockEntity(pos);
         return tileEntity != null
                 // This ensures we don't get duplicate components, in case the
                 // tile entity is natively compatible with OpenComputers.
@@ -89,7 +89,7 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
     }
 
     @Override
-    public ManagedEnvironment createEnvironment(final World world, final BlockPos pos, final Direction side) {
+    public ManagedEnvironment createEnvironment(final Level world, final BlockPos pos, final Direction side) {
         return new Environment(findPeripheral(world, pos, side));
     }
 
@@ -187,7 +187,7 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
             }
 
             @Override
-            public String mount(final String desiredLocation, final IMount mount) {
+            public String mount(final String desiredLocation, final Mount mount) {
                 if (fileSystems.containsKey(desiredLocation)) {
                     return null;
                 }
@@ -195,7 +195,7 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
             }
 
             @Override
-            public String mount(String desiredLocation, IMount mount, String driveName) {
+            public String mount(String desiredLocation, Mount mount, String driveName) {
                 if (fileSystems.containsKey(desiredLocation)) {
                     return null;
                 }
@@ -203,7 +203,7 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
             }
 
             @Override
-            public String mountWritable(final String desiredLocation, final IWritableMount mount) {
+            public String mountWritable(final String desiredLocation, final WritableMount mount) {
                 if (fileSystems.containsKey(desiredLocation)) {
                     return null;
                 }
@@ -211,7 +211,7 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
             }
 
             @Override
-            public String mountWritable(String desiredLocation, IWritableMount mount, String driveName) {
+            public String mountWritable(String desiredLocation, WritableMount mount, String driveName) {
                 if (fileSystems.containsKey(desiredLocation)) {
                     return null;
                 }
@@ -258,7 +258,7 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
             }
 
             @Override
-            public IWorkMonitor getMainThreadMonitor() {
+            public WorkMonitor getMainThreadMonitor() {
                 throw new UnsupportedOperationException();
             }
         }
@@ -278,12 +278,12 @@ public final class DriverPeripheral implements li.cil.oc.api.driver.DriverBlock 
             }
 
             @Override
-            public long issueMainThreadTask(ILuaTask task) throws LuaException {
+            public long issueMainThreadTask(LuaTask task) throws LuaException {
                 throw new UnsupportedOperationException();
             }
 
             @Override
-            public MethodResult executeMainThreadTask(ILuaTask task) throws LuaException {
+            public MethodResult executeMainThreadTask(LuaTask task) throws LuaException {
                 throw new UnsupportedOperationException();
             }
         }

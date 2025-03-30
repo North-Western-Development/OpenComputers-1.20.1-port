@@ -16,7 +16,7 @@ import li.cil.oc.api.network._
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.InventoryUtils
 import net.minecraft.item.crafting.IRecipeType
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.entity.player.Player
 import net.minecraft.inventory
 import net.minecraft.inventory.{CraftResultInventory, IInventory}
 import net.minecraft.inventory.container.Container
@@ -45,11 +45,11 @@ class UpgradeCrafting(val host: EnvironmentHost with internal.Robot) extends Abs
   }
 
   private object CraftingInventory extends inventory.CraftingInventory(new Container(null, 0) {
-    override def stillValid(player: PlayerEntity) = true
+    override def stillValid(player: Player) = true
   }, 3, 3) {
     def craft(wantedCount: Int): Seq[_] = {
       val player = host.player
-      copyItemsFromHost(player.inventory)
+      copyItemsFromHost(player.getInventory)
       var countCrafted = 0
       val manager = host.world.getRecipeManager
       val initialCraft = manager.getRecipeFor(IRecipeType.CRAFTING, CraftingInventory: inventory.CraftingInventory, host.world)
@@ -70,11 +70,11 @@ class UpgradeCrafting(val host: EnvironmentHost with internal.Robot) extends Abs
           val stack = craftingSlot.remove(1)
           countCrafted += stack.getCount max 1
           val taken = craftingSlot.onTake(player, stack)
-          copyItemsToHost(player.inventory)
+          copyItemsToHost(player.getInventory)
           if (taken.getCount > 0) {
             InventoryUtils.addToPlayerInventory(taken, player)
           }
-          copyItemsFromHost(player.inventory)
+          copyItemsFromHost(player.getInventory)
           true
         }
         while (countCrafted < wantedCount && tryCraft()) {

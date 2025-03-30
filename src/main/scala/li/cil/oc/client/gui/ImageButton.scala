@@ -1,6 +1,6 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.Textures
@@ -10,9 +10,9 @@ import net.minecraft.client.gui.widget.button.Button
 import net.minecraft.client.gui.widget.button.Button.IPressable
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.Component
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import org.lwjgl.opengl.GL11
@@ -21,7 +21,7 @@ import org.lwjgl.opengl.GL11
 class ImageButton(xPos: Int, yPos: Int, w: Int, h: Int,
                   handler: IPressable,
                   val image: ResourceLocation = null,
-                  text: ITextComponent = StringTextComponent.EMPTY,
+                  text: Component = StringTextComponent.EMPTY,
                   val canToggle: Boolean = false,
                   val textColor: Int = 0xE0E0E0,
                   val textDisabledColor: Int = 0xA0A0A0,
@@ -32,7 +32,7 @@ class ImageButton(xPos: Int, yPos: Int, w: Int, h: Int,
 
   var hoverOverride = false
 
-  override def renderButton(stack: MatrixStack, mouseX: Int, mouseY: Int, partialTicks: Float) {
+  override def renderButton(stack: PoseStack, mouseX: Int, mouseY: Int, partialTicks: Float) {
     if (visible) {
       Textures.bind(image)
       RenderSystem.color4f(1, 1, 1, 1)

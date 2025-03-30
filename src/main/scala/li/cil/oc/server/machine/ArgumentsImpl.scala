@@ -6,10 +6,10 @@ import com.google.common.base.Charsets
 import li.cil.oc.api.machine.Arguments
 import li.cil.oc.util.ItemUtils
 import li.cil.oc.util.ResultWrapper
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.ResourceLocation
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.registries.ForgeRegistries
 
 import scala.collection.convert.ImplicitConversionsToJava._
@@ -338,7 +338,7 @@ class ArgumentsImpl(val args: Seq[AnyRef]) extends Arguments {
     case _ => value.getClass.getSimpleName
   }
 
-  private def makeStack(name: String, damage: Int, tag: Option[CompoundNBT]) = {
+  private def makeStack(name: String, damage: Int, tag: Option[CompoundTag]) = {
     ForgeRegistries.ITEMS.getValue(new ResourceLocation(name)) match {
       case item: Item =>
         val stack = new ItemStack(item, 1)

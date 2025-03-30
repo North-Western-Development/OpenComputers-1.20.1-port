@@ -4,12 +4,12 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import li.cil.oc.api.internal.Colored;
 import li.cil.oc.util.ItemColorizer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.loot.LootContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.loot.LootFunction;
 import net.minecraft.loot.LootFunctionType;
-import net.minecraft.loot.LootParameters;
+import net.minecraft.loot.LootContextParams;
 import net.minecraft.loot.functions.ILootFunction;
 import net.minecraft.loot.conditions.ILootCondition;
 
@@ -42,7 +42,7 @@ public final class CopyColor extends LootFunction {
     @Override
     public ItemStack run(ItemStack stack, LootContext ctx) {
         if (stack.isEmpty()) return stack;
-        TileEntity te = ctx.getParamOrNull(LootParameters.BLOCK_ENTITY);
+        TileEntity te = ctx.getParamOrNull(LootContextParams.BLOCK_ENTITY);
         if (te != null && te instanceof Colored) {
             // Can't use capability because it's already invalid - block breaks before drops are calculated.
             ItemColorizer.setColor(stack, ((Colored) te).getColor());

@@ -2,7 +2,7 @@ package li.cil.oc.client.gui
 
 import java.text.DecimalFormat
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Localization
 import li.cil.oc.client.Textures
@@ -11,18 +11,18 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.Rectangle2d
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.util.text.ITextComponent
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.network.chat.Component
 import org.lwjgl.opengl.GL11
 
-class Relay(state: container.Relay, playerInventory: PlayerInventory, name: ITextComponent)
+class Relay(state: container.Relay, playerInventory:Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name) {
 
   private val format = new DecimalFormat("#.##hz")
 
   val tabPosition = new Rectangle2d(imageWidth, 10, 23, 26)
 
-  override protected def drawSecondaryBackgroundLayer(stack: MatrixStack): Unit = {
+  override protected def drawSecondaryBackgroundLayer(stack: PoseStack): Unit = {
     super.drawSecondaryBackgroundLayer(stack)
 
     // Tab background.
@@ -66,7 +66,7 @@ class Relay(state: container.Relay, playerInventory: PlayerInventory, name: ITex
     }
   }
 
-  override def drawSecondaryForegroundLayer(stack: MatrixStack, mouseX: Int, mouseY: Int): Unit = {
+  override def drawSecondaryForegroundLayer(stack: PoseStack, mouseX: Int, mouseY: Int): Unit = {
     super.drawSecondaryForegroundLayer(stack, mouseX, mouseY)
 
     font.draw(stack,

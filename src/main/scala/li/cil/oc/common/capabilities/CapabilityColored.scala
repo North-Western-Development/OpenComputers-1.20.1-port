@@ -4,9 +4,9 @@ import li.cil.oc.api.internal.Colored
 import li.cil.oc.integration.Mods
 import net.minecraft.nbt.INBT
 import net.minecraft.nbt.IntNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.ResourceLocation
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.ICapabilityProvider
 import net.minecraftforge.common.util.LazyOptional

@@ -1,15 +1,12 @@
 package li.cil.oc.common.container
 
-import li.cil.oc.common.inventory.DatabaseInventory
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.IInventory
-import net.minecraft.inventory.container.ClickType
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.inventory.container.Slot
-import net.minecraft.item.ItemStack
+import net.minecraft.world.Container
+import net.minecraft.world.entity.player
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.{ClickType, MenuType, Slot}
+import net.minecraft.world.item.ItemStack
 
-class Database(selfType: ContainerType[_ <: Database], id: Int, playerInventory: PlayerInventory, val container: ItemStack, databaseInventory: IInventory, val tier: Int)
+class Database(selfType: MenuType[_ <: Database], id: Int, playerInventory:Inventory, val container: ItemStack, databaseInventory: Container, val tier: Int)
   extends Player(selfType, id, playerInventory, databaseInventory) {
 
   override protected def getHostClass = null
@@ -24,19 +21,19 @@ class Database(selfType: ContainerType[_ <: Database], id: Int, playerInventory:
   // Show the player's inventory.
   addPlayerInventorySlots(8, 174)
 
-  override def stillValid(player: PlayerEntity) = player == playerInventory.player
+  override def stillValid(player: player.Player) = player == playerInventory.player
 
-  override def clicked(slot: Int, dragType: Int, clickType: ClickType, player: PlayerEntity): ItemStack = {
+  override def clicked(slot: Int, dragType: Int, clickType: ClickType, player: player.Player): Unit = {
     if (slot >= databaseInventory.getContainerSize() || slot < 0) {
       // if the slot interaction is with the user inventory use
       // default behavior
-      return super.clicked(slot, dragType, clickType, player)
+      super.clicked(slot, dragType, clickType, player)
     }
     // remove the ghost item
     val ghostSlot = this.slots.get(slot);
     if (ghostSlot != null) {
-      val inventoryPlayer = player.inventory
-      val hand = inventoryPlayer.getCarried()
+      val inventoryPlayer = player.getInventory
+      val hand = inventoryPlayer.getSelected
       var itemToAdd = ItemStack.EMPTY
       // if the player is holding an item, place a copy
       if (!hand.isEmpty()) {

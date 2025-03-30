@@ -1,34 +1,20 @@
 package li.cil.oc.server.component
 
-import java.io.FileNotFoundException
-import java.io.IOException
-import java.util
-
-import li.cil.oc.Constants
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
-import li.cil.oc.Settings
+import li.cil.oc.{Constants, Settings}
 import li.cil.oc.api.Network
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.fs.Label
-import li.cil.oc.api.fs.Mode
-import li.cil.oc.api.fs.{FileSystem => IFileSystem}
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network.EnvironmentHost
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
+import li.cil.oc.api.fs.{Label, Mode, FileSystem => IFileSystem}
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
 import li.cil.oc.api.network._
-import li.cil.oc.api.prefab
-import li.cil.oc.api.prefab.AbstractManagedEnvironment
-import li.cil.oc.api.prefab.AbstractValue
+import li.cil.oc.api.prefab.{AbstractManagedEnvironment, AbstractValue}
 import li.cil.oc.common.SaveHandler
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.IntArrayNBT
-import net.minecraft.nbt.ListNBT
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.nbt.{CompoundTag, IntArrayTag, ListTag, Tag}
 
+import java.io.{FileNotFoundException, IOException}
+import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 
@@ -303,10 +289,10 @@ class FileSystem(val fileSystem: IFileSystem, var label: Label, val host: Option
 
   // ----------------------------------------------------------------------- //
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundTag) {
     super.loadData(nbt)
 
-    nbt.getList("owners", NBT.TAG_COMPOUND).foreach((ownerNbt: CompoundNBT) => {
+    nbt.getList("owners", Tag.TAG_COMPOUND).foreach((ownerNbt: CompoundTag) => {
       val address = ownerNbt.getString("address")
       if (address != "") {
         owners += address -> ownerNbt.getIntArray("handles").to(mutable.Set)
@@ -319,7 +305,7 @@ class FileSystem(val fileSystem: IFileSystem, var label: Label, val host: Option
     fileSystem.loadData(nbt.getCompound("fs"))
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = fileSystem.synchronized {
+  override def saveData(nbt: CompoundTag): Unit = fileSystem.synchronized {
     super.saveData(nbt)
 
     if (label != null) {
@@ -327,11 +313,11 @@ class FileSystem(val fileSystem: IFileSystem, var label: Label, val host: Option
     }
 
     if (!SaveHandler.savingForClients) {
-      val ownersNbt = new ListNBT()
+      val ownersNbt = new ListTag()
       for ((address, handles) <- owners) {
-        val ownerNbt = new CompoundNBT()
+        val ownerNbt = new CompoundTag()
         ownerNbt.putString("address", address)
-        ownerNbt.put("handles", new IntArrayNBT(handles.toArray))
+        ownerNbt.put("handles", new IntArrayTag(handles.toArray))
         ownersNbt.add(ownerNbt)
       }
       nbt.put("owners", ownersNbt)
@@ -395,13 +381,13 @@ final class HandleValue extends AbstractValue {
   private val OwnerTag = "owner"
   private val HandleTag = "handle"
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     super.loadData(nbt)
     owner = nbt.getString(OwnerTag)
     handle = nbt.getInt(HandleTag)
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     super.saveData(nbt)
     nbt.putString(OwnerTag, owner)
     nbt.putInt(HandleTag, handle)

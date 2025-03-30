@@ -1,8 +1,7 @@
 package li.cil.oc.integration.jei
 
 import java.util
-
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.Localization
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
@@ -15,9 +14,9 @@ import mezz.jei.api.ingredients.IIngredients
 import mezz.jei.api.recipe.category.IRecipeCategory
 import mezz.jei.api.registration.IRecipeRegistration
 import net.minecraft.client.Minecraft
-import net.minecraft.item.ItemStack
-import net.minecraft.util.ResourceLocation
-import net.minecraft.client.gui.widget.button.Button
+import net.minecraft.client.gui.components.Button
+import net.minecraft.world.item.ItemStack
+import net.minecraft.resources.ResourceLocation
 import org.lwjgl.glfw.GLFW
 
 import scala.collection.convert.ImplicitConversionsToJava._
@@ -61,7 +60,7 @@ object ManualUsageHandler {
     override def setRecipe(recipeLayout: IRecipeLayout, recipeWrapper: ManualUsageRecipe, ingredients: IIngredients) {
     }
 
-    override def draw(recipeWrapper: ManualUsageRecipe, stack: MatrixStack, mouseX: Double, mouseY: Double) {
+    override def draw(recipeWrapper: ManualUsageRecipe, stack: PoseStack, mouseX: Double, mouseY: Double) {
       button.render(stack, mouseX.toInt, mouseY.toInt, 0)
     }
 

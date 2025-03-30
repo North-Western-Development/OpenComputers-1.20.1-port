@@ -1,6 +1,6 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Localization
 import li.cil.oc.client.Textures
@@ -11,14 +11,14 @@ import li.cil.oc.common.container.ComponentSlot
 import li.cil.oc.common.template.AssemblerTemplates
 import li.cil.oc.util.RenderState
 import net.minecraft.client.gui.widget.button.Button
-import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.world.entity.player.Inventory
 import net.minecraft.inventory.container.Slot
-import net.minecraft.util.text.ITextComponent
+import net.minecraft.network.chat.Component
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 
-class Assembler(state: container.Assembler, playerInventory: PlayerInventory, name: ITextComponent)
+class Assembler(state: container.Assembler, playerInventory:Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name) {
 
   imageWidth = 176
@@ -35,7 +35,7 @@ class Assembler(state: container.Assembler, playerInventory: PlayerInventory, na
     info = validate
   }
 
-  var info: Option[(Boolean, ITextComponent, Array[ITextComponent])] = None
+  var info: Option[(Boolean, Component, Array[Component])] = None
 
   protected var runButton: ImageButton = _
 
@@ -53,7 +53,7 @@ class Assembler(state: container.Assembler, playerInventory: PlayerInventory, na
     addButton(runButton)
   }
 
-  override protected def renderLabels(stack: MatrixStack, mouseX: Int, mouseY: Int) {
+  override protected def renderLabels(stack: PoseStack, mouseX: Int, mouseY: Int) {
     drawSecondaryForegroundLayer(stack, mouseX, mouseY)
 
     for (slot <- 0 until menu.slots.size()) {
@@ -61,7 +61,7 @@ class Assembler(state: container.Assembler, playerInventory: PlayerInventory, na
     }
   }
 
-  override def drawSecondaryForegroundLayer(stack: MatrixStack, mouseX: Int, mouseY: Int): Unit = {
+  override def drawSecondaryForegroundLayer(stack: PoseStack, mouseX: Int, mouseY: Int): Unit = {
     RenderState.pushAttrib()
     if (!inventoryContainer.isAssembling) {
       val message =
@@ -100,7 +100,7 @@ class Assembler(state: container.Assembler, playerInventory: PlayerInventory, na
     else f"${seconds / 60}:${seconds % 60}%02d"
   }
 
-  override protected def renderBg(stack: MatrixStack, dt: Float, mouseX: Int, mouseY: Int) {
+  override protected def renderBg(stack: PoseStack, dt: Float, mouseX: Int, mouseY: Int) {
     RenderSystem.color3f(1, 1, 1) // Required under Linux.
     Textures.bind(Textures.GUI.RobotAssembler)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
@@ -110,5 +110,5 @@ class Assembler(state: container.Assembler, playerInventory: PlayerInventory, na
     drawInventorySlots(stack)
   }
 
-  override protected def drawDisabledSlot(stack: MatrixStack, slot: ComponentSlot) {}
+  override protected def drawDisabledSlot(stack: PoseStack, slot: ComponentSlot) {}
 }

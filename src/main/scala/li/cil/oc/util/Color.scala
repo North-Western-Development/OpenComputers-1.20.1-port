@@ -1,9 +1,6 @@
 package li.cil.oc.util
 
-import net.minecraft.item.DyeColor
-import net.minecraft.item.ItemStack
-
-import scala.collection.convert.ImplicitConversionsToScala._
+import net.minecraft.world.item.{DyeColor, ItemStack}
 
 object Color {
   val rgbValues = Map(
@@ -27,7 +24,7 @@ object Color {
 
   val byName = DyeColor.values.map(col => (col.getName, col)).toMap
 
-  val byTag = DyeColor.values.map(col => (col.getTag.getName, col)).toMap
+  val byTag = DyeColor.values.map(col => (col.getTag.location().getPath, col)).toMap
 
   val byTier = Array(DyeColor.LIGHT_GRAY, DyeColor.YELLOW, DyeColor.CYAN, DyeColor.MAGENTA)
 

@@ -1,27 +1,27 @@
 package li.cil.oc.client.renderer.tileentity
 
 import java.util.function.Function
-
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.{IVertexBuilder, PoseStack, VertexConsumer}
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.IVertexBuilder
+import com.mojang.math.Axis
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity.Microcontroller
 import li.cil.oc.util.RenderState
-import net.minecraft.client.renderer.IRenderTypeBuffer
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
+import net.minecraft.client.renderer.{IRenderTypeBuffer, MultiBufferSource}
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
-import net.minecraft.util.Direction
-import net.minecraft.util.ResourceLocation
+import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.math.vector.Vector3f
 
 object MicrocontrollerRenderer extends Function[TileEntityRendererDispatcher, MicrocontrollerRenderer] {
   override def apply(dispatch: TileEntityRendererDispatcher) = new MicrocontrollerRenderer(dispatch)
 }
 
-class MicrocontrollerRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Microcontroller](dispatch) {
-  override def render(mcu: Microcontroller, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+class MicrocontrollerRenderer(dispatch: TileEntityRendererDispatcher) extends BlockEntityRenderer[Microcontroller](dispatch) {
+  override def render(mcu: Microcontroller, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     RenderSystem.color4f(1, 1, 1, 1)
@@ -31,9 +31,9 @@ class MicrocontrollerRenderer(dispatch: TileEntityRendererDispatcher) extends Ti
     stack.translate(0.5, 0.5, 0.5)
 
     mcu.yaw match {
-      case Direction.WEST => stack.mulPose(Vector3f.YP.rotationDegrees(-90))
-      case Direction.NORTH => stack.mulPose(Vector3f.YP.rotationDegrees(180))
-      case Direction.EAST => stack.mulPose(Vector3f.YP.rotationDegrees(90))
+      case Direction.WEST => stack.mulPose(Axis.YP.rotationDegrees(-90))
+      case Direction.NORTH => stack.mulPose(Axis.YP.rotationDegrees(180))
+      case Direction.EAST => stack.mulPose(Axis.YP.rotationDegrees(90))
       case _ => // No yaw.
     }
 
@@ -56,7 +56,7 @@ class MicrocontrollerRenderer(dispatch: TileEntityRendererDispatcher) extends Ti
     RenderState.checkError(getClass.getName + ".render: leaving")
   }
 
-  private def renderFrontOverlay(stack: MatrixStack, texture: ResourceLocation, r: IVertexBuilder): Unit = {
+  private def renderFrontOverlay(stack: PoseStack, texture: ResourceLocation, r: VertexConsumer): Unit = {
     val icon = Textures.getSprite(texture)
     r.vertex(stack.last.pose, 0, 1, 0).uv(icon.getU0, icon.getV1).endVertex()
     r.vertex(stack.last.pose, 1, 1, 0).uv(icon.getU1, icon.getV1).endVertex()

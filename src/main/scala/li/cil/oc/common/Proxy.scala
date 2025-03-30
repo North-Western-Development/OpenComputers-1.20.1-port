@@ -1,7 +1,6 @@
 package li.cil.oc.common
 
 import java.util.function.Supplier
-
 import com.google.common.base.Strings
 import li.cil.oc._
 import li.cil.oc.common.{PacketHandler => CommonPacketHandler}
@@ -19,36 +18,42 @@ import li.cil.oc.server._
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.server.machine.luac.{LuaStateFactory, NativeLua52Architecture, NativeLua53Architecture, NativeLua54Architecture}
 import li.cil.oc.server.machine.luaj.LuaJLuaArchitecture
-import net.minecraft.block.Block
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.entity.player.ServerPlayerEntity
+import net.minecraft.world.level.block.Block
+import net.minecraft.core.registries.Registries
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.inventory.container.Container
 import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.network.PacketBuffer
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.network.{FriendlyByteBuf, PacketBuffer}
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.ItemTags
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.World
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.Component
+import net.minecraft.world.level.Level
+import net.minecraft.world.item.Item
+import net.minecraft.world.level.block.Block
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.FakePlayer
 import net.minecraftforge.event.RegistryEvent.MissingMappings
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
 import net.minecraftforge.fml.network.NetworkEvent
 import net.minecraftforge.fml.network.NetworkRegistry
-import net.minecraftforge.registries.ForgeRegistries
+import net.minecraftforge.network.{NetworkEvent, NetworkRegistry}
+import net.minecraftforge.registries.{ForgeRegistries, MissingMappingsEvent}
 import net.minecraftforge.scorge.lang.ScorgeModLoadingContext
 
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 
 class Proxy {
-  protected val modBus = ScorgeModLoadingContext.get.getModEventBus
+  protected val modBus = FMLJavaModLoadingContext.get().getModEventBus
   modBus.register(classOf[ContainerTypes])
   modBus.register(classOf[EntityTypes])
   modBus.register(classOf[TileEntityTypes])
@@ -93,7 +98,7 @@ class Proxy {
     e.enqueueWork((() => {
       OpenComputers.channel = NetworkRegistry.newSimpleChannel(new ResourceLocation(OpenComputers.ID, "net_main"), () => "", "".equals(_), "".equals(_))
       OpenComputers.channel.registerMessage(0, classOf[Array[Byte]],
-        (msg: Array[Byte], buff: PacketBuffer) => buff.writeByteArray(msg), _.readByteArray(),
+        (msg: Array[Byte], buff: FriendlyByteBuf) => buff.writeByteArray(msg), _.readByteArray(),
         (msg: Array[Byte], ctx: Supplier[NetworkEvent.Context]) => {
           val context = ctx.get
           context.enqueueWork(() => CommonPacketHandler.handlePacket(context.getDirection, msg, context.getSender))
@@ -141,9 +146,9 @@ class Proxy {
   )
 
   @SubscribeEvent
-  def missingBlockMappings(e: MissingMappings[Block]) {
-    for (missing <- e.getMappings(OpenComputers.ID).asScala) {
-        blockRenames.get(missing.key.getPath) match {
+  def missingBlockMappings(e: MissingMappingsEvent) {
+    for (missing <- e.getMappings(Registries.BLOCK, OpenComputers.ID).asScala) {
+        blockRenames.get(missing.getKey.getPath) match {
           case Some(name) =>
             if (Strings.isNullOrEmpty(name)) missing.ignore()
             else missing.remap(ForgeRegistries.BLOCKS.getValue(new ResourceLocation(OpenComputers.ID, name)))
@@ -153,9 +158,9 @@ class Proxy {
   }
 
   @SubscribeEvent
-  def missingItemMappings(e: MissingMappings[Item]) {
-    for (missing <- e.getMappings(OpenComputers.ID).asScala) {
-        itemRenames.get(missing.key.getPath) match {
+  def missingItemMappings(e: MissingMappingsEvent) {
+    for (missing <- e.getMappings(Registries.ITEM,OpenComputers.ID).asScala) {
+        itemRenames.get(missing.getKey.getPath) match {
           case Some(name) =>
             if (Strings.isNullOrEmpty(name)) missing.ignore()
             else missing.remap(ForgeRegistries.ITEMS.getValue(new ResourceLocation(OpenComputers.ID, name)))

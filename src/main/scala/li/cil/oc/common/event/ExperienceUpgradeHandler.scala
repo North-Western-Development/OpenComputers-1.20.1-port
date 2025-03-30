@@ -8,7 +8,7 @@ import li.cil.oc.api.internal.Agent
 import li.cil.oc.api.internal.Robot
 import li.cil.oc.api.network.Node
 import li.cil.oc.server.component
-import net.minecraft.util.Util
+import net.minecraft.Util
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
 import scala.collection.convert.ImplicitConversionsToScala._

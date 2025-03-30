@@ -1,20 +1,18 @@
 package li.cil.oc.server.component
 
-import java.util
-import li.cil.oc.{Constants, Localization, Settings, api}
 import li.cil.oc.api.Network
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
 import li.cil.oc.api.machine.{Arguments, Callback, Context, LimitReachedException}
 import li.cil.oc.api.network._
-import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
-import li.cil.oc.util.{ExtendedUnicodeHelper, PackedColor}
-import net.minecraft.nbt.{CompoundNBT, ListNBT}
 import li.cil.oc.common.component
 import li.cil.oc.common.component.GpuTextBuffer
+import li.cil.oc.util.{ExtendedUnicodeHelper, PackedColor}
+import li.cil.oc.{Constants, Localization, Settings, api}
+import net.minecraft.nbt.{CompoundTag, ListTag}
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.util.matching.Regex
 
@@ -448,7 +446,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
 //    if (bufferIndex != RESERVED_SCREEN_INDEX && args.count() == 0) {
 //      return screen {
 //        case ram: GpuTextBuffer => {
-//          val nbt = new CompoundNBT
+//          val nbt = new CompoundTag
 //          ram.data.saveData(nbt)
 //          result(nbt)
 //        }
@@ -614,9 +612,9 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
   private final val NBT_PAGES: String = "pages"
   private final val NBT_PAGE_IDX: String = "page_idx"
   private final val NBT_PAGE_DATA: String = "page_data"
-  private val COMPOUND_ID = (new CompoundNBT).getId
+  private val COMPOUND_ID = (new CompoundTag).getId
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundTag) {
     super.loadData(nbt)
 
     if (nbt.contains(SCREEN_KEY)) {
@@ -644,7 +642,7 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
     }
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundTag) {
     super.saveData(nbt)
 
     if (screenAddress.isDefined) {
@@ -653,16 +651,16 @@ class GraphicsCard(val tier: Int) extends AbstractManagedEnvironment with Device
 
     nbt.putInt(BUFFER_INDEX_KEY, bufferIndex)
 
-    val videoRamNbt = new CompoundNBT
-    val nbtPages = new ListNBT
+    val videoRamNbt = new CompoundTag
+    val nbtPages = new ListTag
 
     val indexes = bufferIndexes()
     for (idx: Int <- indexes) {
       getBuffer(idx) match {
         case Some(page) => {
-          val nbtPage = new CompoundNBT
+          val nbtPage = new CompoundTag
           nbtPage.putInt(NBT_PAGE_IDX, idx)
-          val data = new CompoundNBT
+          val data = new CompoundTag
           page.data.saveData(data)
           nbtPage.put(NBT_PAGE_DATA, data)
           nbtPages.add(nbtPage)

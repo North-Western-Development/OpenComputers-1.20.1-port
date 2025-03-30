@@ -1,7 +1,6 @@
 package li.cil.oc.common.item
 
 import java.util
-
 import com.google.common.base.Strings
 import li.cil.oc.Constants
 import li.cil.oc.Localization
@@ -15,17 +14,20 @@ import li.cil.oc.util.Tooltip
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.model.ModelBakery
 import net.minecraft.client.renderer.model.ModelResourceLocation
-import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.item.Item.Properties
-import net.minecraft.item.ItemStack
+import net.minecraft.client.resources.model.ModelResourceLocation
+import net.minecraft.world.item.TooltipFlag
+import net.minecraft.world.entity.player.Player
+import net.minecraft.network.chat.Component
+import net.minecraft.world.item.{Item, ItemStack, TooltipFlag}
+import net.minecraft.world.item.Item.Properties
 import net.minecraft.util.ActionResult
-import net.minecraft.util.Hand
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.World
+import net.minecraft.world.InteractionHand
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.Component
+import net.minecraft.world.{InteractionHand, InteractionResultHolder, World}
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.level.Level
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.model.ModelLoader
@@ -35,11 +37,11 @@ class Terminal(props: Properties) extends Item(props) with IForgeItem with trait
   def hasServer(stack: ItemStack) = stack.hasTag && stack.getTag.contains(Settings.namespace + "server")
 
   @OnlyIn(Dist.CLIENT)
-  override def appendHoverText(stack: ItemStack, world: World, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
+  override def appendHoverText(stack: ItemStack, world: Level, tooltip: util.List[Component], flag: TooltipFlag) {
     super.appendHoverText(stack, world, tooltip, flag)
     if (hasServer(stack)) {
       val server = stack.getTag.getString(Settings.namespace + "server")
-      tooltip.add(new StringTextComponent("§8" + server.substring(0, 13) + "...§7"))
+      tooltip.add(Component.literal( "§8" + server.substring(0, 13) + "...§7"))
     }
   }
 
@@ -60,7 +62,7 @@ class Terminal(props: Properties) extends Item(props) with IForgeItem with trait
     }
   }
 
-  override def use(stack: ItemStack, world: World, player: PlayerEntity): ActionResult[ItemStack] = {
+  override def use(stack: ItemStack, world: Level, player: Player): InteractionResultHolder[ItemStack] = {
     if (!player.isCrouching && stack.hasTag) {
       val key = stack.getTag.getString(Settings.namespace + "key")
       val server = stack.getTag.getString(Settings.namespace + "server")
@@ -87,7 +89,7 @@ class Terminal(props: Properties) extends Item(props) with IForgeItem with trait
             }
           }
         }
-        player.swing(Hand.MAIN_HAND)
+        player.swing(InteractionHand.MAIN_HAND)
       }
     }
     super.use(stack, world, player)

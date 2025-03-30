@@ -3,7 +3,7 @@ package li.cil.oc.common
 import li.cil.oc.Settings
 import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.server.PacketSender
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SoundCategory
 
 import scala.collection.mutable

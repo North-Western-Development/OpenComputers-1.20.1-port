@@ -7,12 +7,12 @@ import li.cil.oc.common.Loot
 import li.cil.oc.integration.util.Wrench
 import li.cil.oc.util.StackOption
 import net.minecraft.inventory.CraftingInventory
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import net.minecraft.item.crafting.Ingredient
 import net.minecraft.item.crafting.ICraftingRecipe
-import net.minecraft.util.NonNullList
-import net.minecraft.util.ResourceLocation
-import net.minecraft.world.World
+import net.minecraft.core.NonNullList
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.level.Level
 
 import scala.collection.JavaConverters
 import scala.collection.immutable
@@ -22,7 +22,7 @@ class LootDiskCyclingRecipe(val getId: ResourceLocation) extends ICraftingRecipe
   ingredients.add(Ingredient.of(Loot.disksForCycling.toArray: _*))
   ingredients.add(Ingredient.of(api.Items.get(Constants.ItemName.Wrench).createItemStack(1)))
 
-  override def matches(crafting: CraftingInventory, world: World): Boolean = {
+  override def matches(crafting: CraftingInventory, world: Level): Boolean = {
     val stacks = collectStacks(crafting).toArray
     stacks.length == 2 && stacks.exists(Loot.isLootDisk) && stacks.exists(Wrench.isWrench)
   }

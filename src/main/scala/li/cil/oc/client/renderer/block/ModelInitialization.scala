@@ -1,43 +1,44 @@
 package li.cil.oc.client.renderer.block
 
 import java.util.Random
-
 import li.cil.oc.Constants
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.common.item.CustomModel
-import net.minecraft.block.BlockState
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.BlockModelShapes
-import net.minecraft.client.renderer.model.IBakedModel
-import net.minecraft.client.renderer.model.ItemOverrideList
+import net.minecraft.client.renderer.{BlockModelShapes, RenderType}
+import net.minecraft.client.resources.model.{BakedModel, ModelResourceLocation}
+import net.minecraft.client.renderer.block.model.ItemOverrides
 import net.minecraft.client.renderer.model.ModelResourceLocation
-import net.minecraft.client.world.ClientWorld
-import net.minecraft.entity.LivingEntity
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.util.IItemProvider
-import net.minecraft.util.Direction
+import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.util.{IItemProvider, RandomSource}
+import net.minecraft.core.Direction
+import net.minecraftforge.client.event.ModelEvent.ModifyBakingResult
 import net.minecraftforge.client.event.{ModelBakeEvent, ModelRegistryEvent}
+import net.minecraftforge.client.model.IDynamicBakedModel
 import net.minecraftforge.client.model.data.IDynamicBakedModel
-import net.minecraftforge.client.model.data.IModelData
+import net.minecraftforge.client.model.data.ModelData
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 
 object ModelInitialization {
-  final val CableBlockLocation = new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.BlockName.Cable, "")
-  final val CableItemLocation = new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.BlockName.Cable, "inventory")
-  final val NetSplitterBlockLocation = new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.BlockName.NetSplitter, "")
-  final val NetSplitterItemLocation = new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.BlockName.NetSplitter, "inventory")
-  final val PrintBlockLocation = new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.BlockName.Print, "")
-  final val PrintItemLocation = new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.BlockName.Print, "inventory")
-  final val RobotBlockLocation = new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.BlockName.Robot, "")
-  final val RobotItemLocation = new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.BlockName.Robot, "inventory")
-  final val RobotAfterimageBlockLocation = new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.BlockName.RobotAfterimage, "")
-  final val RackBlockLocation = new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.BlockName.Rack, "")
+  final val CableBlockLocation = new ModelResourceLocation(Settings.resourceDomain, Constants.BlockName.Cable, "")
+  final val CableItemLocation = new ModelResourceLocation(Settings.resourceDomain, Constants.BlockName.Cable, "inventory")
+  final val NetSplitterBlockLocation = new ModelResourceLocation(Settings.resourceDomain, Constants.BlockName.NetSplitter, "")
+  final val NetSplitterItemLocation = new ModelResourceLocation(Settings.resourceDomain, Constants.BlockName.NetSplitter, "inventory")
+  final val PrintBlockLocation = new ModelResourceLocation(Settings.resourceDomain, Constants.BlockName.Print, "")
+  final val PrintItemLocation = new ModelResourceLocation(Settings.resourceDomain, Constants.BlockName.Print, "inventory")
+  final val RobotBlockLocation = new ModelResourceLocation(Settings.resourceDomain, Constants.BlockName.Robot, "")
+  final val RobotItemLocation = new ModelResourceLocation(Settings.resourceDomain, Constants.BlockName.Robot, "inventory")
+  final val RobotAfterimageBlockLocation = new ModelResourceLocation(Settings.resourceDomain, Constants.BlockName.RobotAfterimage, "")
+  final val RackBlockLocation = new ModelResourceLocation(Settings.resourceDomain, Constants.BlockName.Rack, "")
 
   private val meshableItems = mutable.ArrayBuffer.empty[Item]
   private val modelRemappings = mutable.Map.empty[ModelResourceLocation, ModelResourceLocation]
@@ -59,8 +60,7 @@ object ModelInitialization {
         case _ => {
           Option(api.Items.get(new ItemStack(item))) match {
             case Some(descriptor) =>
-              val location = Settings.resourceDomain + ":" + descriptor.name()
-              shaper.register(item, new ModelResourceLocation(location, "inventory"))
+              shaper.register(item, new ModelResourceLocation(Settings.resourceDomain, descriptor.name(), "inventory"))
             case _ =>
           }
         }
@@ -114,14 +114,14 @@ object ModelInitialization {
         custom.bakeModels(e)
         val originalLocation = new ModelResourceLocation(custom.getRegistryName, "inventory")
         registry.get(originalLocation) match {
-          case original: IBakedModel => {
-            val overrides = new ItemOverrideList {
-              override def resolve(base: IBakedModel, stack: ItemStack, world: ClientWorld, holder: LivingEntity) =
+          case original: BakedModel => {
+            val overrides = new ItemOverrides {
+              override def resolve(base: BakedModel, stack: ItemStack, world: ClientLevel, holder: LivingEntity, entity_id: Int) =
                 Option(custom.getModelLocation(stack)).map(registry).getOrElse(original)
             }
             val fake = new IDynamicBakedModel {
               @Deprecated
-              override def getQuads(state: BlockState, dir: Direction, rand: Random, data: IModelData) = original.getQuads(state, dir, rand, data)
+              override def getQuads(state: BlockState, dir: Direction, rand: RandomSource, data: ModelData, renderType: RenderType) = original.getQuads(state, dir, rand, data, renderType)
         
               override def useAmbientOcclusion() = original.useAmbientOcclusion
         
@@ -148,7 +148,7 @@ object ModelInitialization {
     }
     meshableItems.clear()
 
-    val modelOverrides = Map[String, IBakedModel => IBakedModel](
+    val modelOverrides = Map[String, BakedModel => BakedModel](
       Constants.BlockName.ScreenTier1 -> (_ => ScreenModel),
       Constants.BlockName.ScreenTier2 -> (_ => ScreenModel),
       Constants.BlockName.ScreenTier3 -> (_ => ScreenModel),

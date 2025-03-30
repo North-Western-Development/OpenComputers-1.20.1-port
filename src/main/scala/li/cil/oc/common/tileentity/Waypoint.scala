@@ -1,22 +1,17 @@
 package li.cil.oc.common.tileentity
 
-import li.cil.oc.Settings
-import li.cil.oc.api
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
+import li.cil.oc.{Settings, api}
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
 import li.cil.oc.api.network.Visibility
 import li.cil.oc.common.EventHandler
 import li.cil.oc.server.network.Waypoints
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.particles.ParticleTypes
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.core.Direction
+import net.minecraft.core.particles.ParticleTypes
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
-class Waypoint(selfType: TileEntityType[_ <: Waypoint]) extends TileEntity(selfType) with traits.Environment with traits.Rotatable with traits.RedstoneAware with traits.Tickable {
+class Waypoint(selfType: BlockEntityType[_ <: Waypoint]) extends BlockEntity(selfType) with traits.Environment with traits.Rotatable with traits.RedstoneAware with traits.Tickable {
   val node = api.Network.newNode(this, Visibility.Network).
     withComponent("waypoint").
     create()
@@ -67,23 +62,23 @@ class Waypoint(selfType: TileEntityType[_ <: Waypoint]) extends TileEntity(selfT
 
   private final val LabelTag = Settings.namespace + "label"
 
-  override def loadForServer(nbt: CompoundNBT): Unit = {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     super.loadForServer(nbt)
     label = nbt.getString(LabelTag)
   }
 
-  override def saveForServer(nbt: CompoundNBT): Unit = {
+  override def saveForServer(nbt: CompoundTag): Unit = {
     super.saveForServer(nbt)
     nbt.putString(LabelTag, label)
   }
 
   @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundNBT): Unit = {
+  def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
     label = nbt.getString(LabelTag)
   }
 
-  override def saveForClient(nbt: CompoundNBT): Unit = {
+  override def saveForClient(nbt: CompoundTag): Unit = {
     super.saveForClient(nbt)
     nbt.putString(LabelTag, label)
   }

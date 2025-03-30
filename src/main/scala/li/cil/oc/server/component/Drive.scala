@@ -24,9 +24,9 @@ import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.storage.FolderName
-import net.minecraftforge.fml.server.ServerLifecycleHooks
+import net.minecraftforge.server.ServerLifecycleHooks
 
 import scala.collection.convert.ImplicitConversionsToJava._
 
@@ -138,7 +138,7 @@ class Drive(val capacity: Int, val platterCount: Int, val label: Label, host: Op
 
   private final val HeadPosTag = "headPos"
 
-  override def loadData(nbt: CompoundNBT): Unit = this.synchronized {
+  override def loadData(nbt: CompoundTag): Unit = this.synchronized {
     super.loadData(nbt)
 
     if (node.address != null) try {
@@ -165,7 +165,7 @@ class Drive(val capacity: Int, val platterCount: Int, val label: Label, host: Op
     }
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = this.synchronized {
+  override def saveData(nbt: CompoundTag): Unit = this.synchronized {
     super.saveData(nbt)
 
     if (node.address != null) try {

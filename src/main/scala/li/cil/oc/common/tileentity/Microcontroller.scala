@@ -20,13 +20,13 @@ import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.entity.player.Player
 import net.minecraft.inventory.ISidedInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.core.Direction
 import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -34,7 +34,7 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import scala.collection.JavaConverters.asJavaIterable
 import scala.collection.convert.ImplicitConversionsToJava._
 
-class Microcontroller(selfType: TileEntityType[_ <: Microcontroller]) extends TileEntity(selfType) with traits.PowerAcceptor with traits.Hub with traits.Computer with ISidedInventory with internal.Microcontroller with DeviceInfo {
+class Microcontroller(selfType: BlockEntityType[_ <: Microcontroller]) extends BlockEntity(selfType) with traits.PowerAcceptor with traits.Hub with traits.Computer with ISidedInventory with internal.Microcontroller with DeviceInfo {
   val info = new MicrocontrollerData()
 
   override def node = null
@@ -85,7 +85,7 @@ class Microcontroller(selfType: TileEntityType[_ <: Microcontroller]) extends Ti
 
   // ----------------------------------------------------------------------- //
 
-  override def onAnalyze(player: PlayerEntity, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
+  override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
     super.onAnalyze(player, side, hitX, hitY, hitZ)
     if (side != facing)
       Array(componentNodes(side.get3DDataValue))
@@ -209,12 +209,12 @@ class Microcontroller(selfType: TileEntityType[_ <: Microcontroller]) extends Ti
   private final val ComponentNodesTag = Settings.namespace + "componentNodes"
   private final val SnooperTag = Settings.namespace + "snooper"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundTag) {
     // Load info before inventory and such, to avoid initializing components
     // to empty inventory.
     info.loadData(nbt.getCompound(InfoTag))
     nbt.getBooleanArray(OutputsTag)
-    nbt.getList(ComponentNodesTag, NBT.TAG_COMPOUND).toTagArray[CompoundNBT].
+    nbt.getList(ComponentNodesTag, NBT.TAG_COMPOUND).toTagArray[CompoundTag].
       zipWithIndex.foreach {
       case (tag, index) => componentNodes(index).loadData(tag)
     }
@@ -224,27 +224,27 @@ class Microcontroller(selfType: TileEntityType[_ <: Microcontroller]) extends Ti
     machine.node.connect(snooperNode)
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundTag) {
     super.saveForServer(nbt)
     nbt.setNewCompoundTag(InfoTag, info.saveData)
     nbt.setBooleanArray(OutputsTag, outputSides)
     nbt.setNewTagList(ComponentNodesTag, componentNodes.map {
       case node: Node =>
-        val tag = new CompoundNBT()
+        val tag = new CompoundTag()
         node.saveData(tag)
         tag
-      case _ => new CompoundNBT()
+      case _ => new CompoundTag()
     })
     nbt.setNewCompoundTag(SnooperTag, snooperNode.saveData)
   }
 
   @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundNBT) {
+  def loadForClient(nbt: CompoundTag) {
     info.loadData(nbt.getCompound(InfoTag))
     super.loadForClient(nbt)
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundTag) {
     super.saveForClient(nbt)
     nbt.setNewCompoundTag(InfoTag, info.saveData)
   }

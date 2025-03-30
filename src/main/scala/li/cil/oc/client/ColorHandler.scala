@@ -1,24 +1,17 @@
 package li.cil.oc.client
 
-import li.cil.oc.Constants
-import li.cil.oc.api
+import li.cil.oc.{Constants, api}
 import li.cil.oc.api.internal.Colored
 import li.cil.oc.common.block
-import li.cil.oc.util.Color
-import li.cil.oc.util.ItemColorizer
-import li.cil.oc.util.ItemUtils
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
+import li.cil.oc.util.{Color, ItemColorizer, ItemUtils}
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.color.IBlockColor
-import net.minecraft.client.renderer.color.IItemColor
-import net.minecraft.item.DyeColor
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.util.IItemProvider
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.IBlockDisplayReader
-import net.minecraft.world.IBlockReader
+import net.minecraft.client.color.block.BlockColor
+import net.minecraft.client.color.item.ItemColor
+import net.minecraft.core.BlockPos
+import net.minecraft.world.item.{DyeColor, ItemStack}
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.{BlockAndTintGetter, BlockGetter, ItemLike}
 
 object ColorHandler {
   def init(): Unit = {
@@ -80,14 +73,14 @@ object ColorHandler {
       api.Items.get(Constants.ItemName.HoverBoots).item())
   }
 
-  def register(handler: (BlockState, IBlockReader, BlockPos, Int) => Int, blocks: Block*): Unit = {
-    Minecraft.getInstance.getBlockColors.register(new IBlockColor {
-      override def getColor(state: BlockState, world: IBlockDisplayReader, pos: BlockPos, tintIndex: Int): Int = handler(state, world, pos, tintIndex)
+  def register(handler: (BlockState, BlockGetter, BlockPos, Int) => Int, blocks: Block*): Unit = {
+    Minecraft.getInstance.getBlockColors.register(new BlockColor {
+      override def getColor(state: BlockState, world: BlockAndTintGetter, pos: BlockPos, tintIndex: Int): Int = handler(state, world, pos, tintIndex)
     }, blocks: _*)
   }
 
-  def register(handler: (ItemStack, Int) => Int, items: IItemProvider*): Unit = {
-    Minecraft.getInstance.getItemColors.register(new IItemColor {
+  def register(handler: (ItemStack, Int) => Int, items: ItemLike*): Unit = {
+    Minecraft.getInstance.getItemColors.register(new ItemColor {
       override def getColor(stack: ItemStack, tintIndex: Int): Int = handler(stack, tintIndex)
     }, items: _*)
   }

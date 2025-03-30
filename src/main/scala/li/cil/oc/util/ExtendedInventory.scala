@@ -1,7 +1,8 @@
 package li.cil.oc.util
 
 import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 import scala.collection.mutable
 import scala.language.implicitConversions

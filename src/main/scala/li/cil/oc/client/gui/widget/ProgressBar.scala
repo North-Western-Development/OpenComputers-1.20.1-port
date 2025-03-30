@@ -1,6 +1,6 @@
 package li.cil.oc.client.gui.widget
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.client.Textures
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
@@ -15,7 +15,7 @@ class ProgressBar(val x: Int, val y: Int) extends Widget {
 
   var level = 0.0
 
-  def draw(stack: MatrixStack) {
+  def draw(stack: PoseStack) {
     if (level > 0) {
       val u0 = 0
       val u1 = level.toFloat

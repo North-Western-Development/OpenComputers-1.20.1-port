@@ -3,7 +3,7 @@ package li.cil.oc.client.renderer
 import java.util.concurrent.TimeUnit
 
 import com.google.common.cache.CacheBuilder
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.Settings
 import li.cil.oc.client.renderer.font.TextBufferRenderData
 import li.cil.oc.util.RenderState
@@ -23,7 +23,7 @@ object TextBufferRenderCache {
   // Rendering
   // ----------------------------------------------------------------------- //
 
-  def render(stack: MatrixStack, buffer: TextBufferRenderData) {
+  def render(stack: PoseStack, buffer: TextBufferRenderData) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     val cached = cache.get(buffer, () => new RenderCache)
@@ -35,7 +35,7 @@ object TextBufferRenderCache {
       buffer.dirty = false
 
       cached.clear()
-      renderer.drawBuffer(new MatrixStack(), cached, buffer.data, buffer.viewport._1, buffer.viewport._2)
+      renderer.drawBuffer(new PoseStack(), cached, buffer.data, buffer.viewport._1, buffer.viewport._2)
       cached.finish()
 
       RenderState.checkError(getClass.getName + ".render: compiled buffer")

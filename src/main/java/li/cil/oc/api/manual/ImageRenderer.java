@@ -1,6 +1,6 @@
 package li.cil.oc.api.manual;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 
 /**

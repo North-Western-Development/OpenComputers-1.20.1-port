@@ -8,7 +8,7 @@ import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.RenderType
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.math.vector.Matrix4f
 import net.minecraft.util.math.vector.Vector4f
 import org.lwjgl.opengl.GL11

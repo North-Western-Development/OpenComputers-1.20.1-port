@@ -1,23 +1,21 @@
 package li.cil.oc.client.renderer.block
 
-import java.util
-import java.util.Collections
-
 import li.cil.oc.client.Textures
-import net.minecraft.block.BlockState
-import net.minecraft.client.world.ClientWorld
-import net.minecraft.client.renderer.model.BakedQuad
-import net.minecraft.client.renderer.model.IBakedModel
-import net.minecraft.client.renderer.model.ItemOverrideList
-import net.minecraft.entity.LivingEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
+import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.client.renderer.block.model.{BakedQuad, ItemOverrides}
+import net.minecraft.client.resources.model.BakedModel
+import net.minecraft.core.Direction
+import net.minecraft.util.RandomSource
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.state.BlockState
 
+import java.util
 import scala.collection.JavaConverters.bufferAsJavaList
 import scala.collection.mutable
 
 object RobotModel extends SmartBlockModelBase {
-  override def getOverrides: ItemOverrideList = ItemOverride
+  override def getOverrides: ItemOverrides = ItemOverride
 
   object ItemModel extends SmartBlockModelBase {
     private val size = 0.4f
@@ -60,7 +58,7 @@ object RobotModel extends SmartBlockModelBase {
       }.toArray
     }
 
-    override def getQuads(state: BlockState, side: Direction, rand: util.Random): util.List[BakedQuad] = {
+    override def getQuads(state: BlockState, side: Direction, rand: RandomSource): util.List[BakedQuad] = {
       val faces = mutable.ArrayBuffer.empty[BakedQuad]
 
       faces += new BakedQuad(quad(top, top1, top2), tint, Direction.NORTH, robotTexture, true)
@@ -77,8 +75,8 @@ object RobotModel extends SmartBlockModelBase {
     }
   }
 
-  object ItemOverride extends ItemOverrideList {
-    override def resolve(originalModel: IBakedModel, stack: ItemStack, world: ClientWorld, entity: LivingEntity): IBakedModel = ItemModel
+  object ItemOverride extends ItemOverrides {
+    override def resolve(originalModel: BakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity, entity_id: Int): BakedModel = ItemModel
   }
 
 }

@@ -1,6 +1,6 @@
 package li.cil.oc.client.renderer.entity
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.client.Textures
 import li.cil.oc.common.entity.Drone
 import net.minecraft.client.Minecraft
@@ -14,7 +14,7 @@ import net.minecraft.util.math.MathHelper
 class DroneRenderer(manager: EntityRendererManager) extends EntityRenderer[Drone](manager) {
   private val model = new ModelQuadcopter()
 
-  override def render(entity: Drone, yaw: Float, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int): Unit = {
+  override def render(entity: Drone, yaw: Float, dt: Float, stack: PoseStack, buffer: IRenderTypeBuffer, light: Int): Unit = {
     val renderType = getRenderType(entity)
     if (renderType != null) {
       stack.pushPose()

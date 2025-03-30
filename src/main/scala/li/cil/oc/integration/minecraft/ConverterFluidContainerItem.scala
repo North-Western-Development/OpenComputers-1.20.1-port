@@ -2,7 +2,7 @@ package li.cil.oc.integration.minecraft
 
 import li.cil.oc.api
 import li.cil.oc.util.ExtendedArguments.TankProperties
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import net.minecraftforge.fluids.capability.{CapabilityFluidHandler, IFluidHandlerItem}
 
 import java.util

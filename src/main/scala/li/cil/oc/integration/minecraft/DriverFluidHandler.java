@@ -7,26 +7,26 @@ import li.cil.oc.api.machine.Context;
 import li.cil.oc.api.network.ManagedEnvironment;
 import li.cil.oc.integration.ManagedTileEntityEnvironment;
 import li.cil.oc.util.ExtendedArguments.TankProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
 public final class DriverFluidHandler implements DriverBlock {
     @Override
-    public boolean worksWith(final World world, final BlockPos pos, final Direction side) {
-        final TileEntity tileEntity = world.getBlockEntity(pos);
+    public boolean worksWith(final Level world, final BlockPos pos, final Direction side) {
+        final BlockEntity tileEntity = world.getBlockEntity(pos);
         if (tileEntity == null) {
             return false;
         }
-        return tileEntity.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side).isPresent();
+        return tileEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, side).isPresent();
     }
 
     @Override
-    public ManagedEnvironment createEnvironment(final World world, final BlockPos pos, final Direction side) {
-        return new Environment(world.getBlockEntity(pos).getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, side).orElse(null));
+    public ManagedEnvironment createEnvironment(final Level world, final BlockPos pos, final Direction side) {
+        return new Environment(world.getBlockEntity(pos).getCapability(ForgeCapabilities.FLUID_HANDLER, side).orElse(null));
     }
 
     public static final class Environment extends ManagedTileEntityEnvironment<IFluidHandler> {

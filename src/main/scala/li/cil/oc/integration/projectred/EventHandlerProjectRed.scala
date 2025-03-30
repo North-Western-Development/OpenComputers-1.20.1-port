@@ -1,13 +1,13 @@
 package li.cil.oc.integration.projectred
 
 import mrtjp.projectred.api.IScrewdriver
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.InteractionHand
+import net.minecraft.core.BlockPos
 
 object EventHandlerProjectRed {
-  def useWrench(player: PlayerEntity, pos: BlockPos, changeDurability: Boolean): Boolean = {
+  def useWrench(player: Player, pos: BlockPos, changeDurability: Boolean): Boolean = {
     val stack = player.getItemInHand(Hand.MAIN_HAND)
     stack.getItem match {
       case wrench: IScrewdriver =>

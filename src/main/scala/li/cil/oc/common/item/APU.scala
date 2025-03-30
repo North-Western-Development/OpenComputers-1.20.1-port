@@ -1,9 +1,9 @@
 package li.cil.oc.common.item
 
 import li.cil.oc.common.Tier
-import net.minecraft.item.Item
-import net.minecraft.item.Item.Properties
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.ItemStack
 import net.minecraftforge.common.extensions.IForgeItem
 
 import scala.language.existentials

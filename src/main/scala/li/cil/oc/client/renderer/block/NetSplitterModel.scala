@@ -2,36 +2,41 @@ package li.cil.oc.client.renderer.block
 
 import java.util
 import java.util.Collections
-
 import li.cil.oc.OpenComputers
 import li.cil.oc.client.Textures
 import li.cil.oc.common.block
 import li.cil.oc.common.item.data.PrintData
 import li.cil.oc.common.tileentity
-import net.minecraft.block.BlockState
-import net.minecraft.client.world.ClientWorld
-import net.minecraft.client.renderer.model.BakedQuad
-import net.minecraft.client.renderer.model.IBakedModel
-import net.minecraft.client.renderer.model.ItemOverrideList
+import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.client.renderer.block.model.BakedQuad
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.client.renderer.block.model.BakedQuad
+import net.minecraft.client.resources.model.BakedModel
+import net.minecraft.client.renderer.block.model.ItemOverrides
 import net.minecraft.client.renderer.texture.AtlasTexture
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
-import net.minecraft.entity.LivingEntity
-import net.minecraft.item.ItemStack
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.item.ItemStack
 import net.minecraft.inventory.container.PlayerContainer
-import net.minecraft.util.Direction
-import net.minecraft.util.ResourceLocation
+import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.util.RandomSource
 import net.minecraft.util.math.vector.Vector3d
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.client.event.TextureStitchEvent
-import net.minecraftforge.client.model.data.IModelData
+import net.minecraftforge.client.model.data.ModelData
 import net.minecraftforge.eventbus.api.SubscribeEvent
+import org.joml.Vector3d
 
 import scala.collection.JavaConverters.bufferAsJavaList
 import scala.collection.mutable
 
 object NetSplitterModel extends SmartBlockModelBase {
-  override def getOverrides: ItemOverrideList = ItemOverride
+  override def getOverrides: ItemOverrides = ItemOverride
 
-  override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] =
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData): util.List[BakedQuad] =
     data match {
       case t: tileentity.NetSplitter =>
         val faces = mutable.ArrayBuffer.empty[BakedQuad]
@@ -107,7 +112,7 @@ object NetSplitterModel extends SmartBlockModelBase {
   }
 
   object ItemModel extends SmartBlockModelBase {
-    override def getQuads(state: BlockState, side: Direction, rand: util.Random): util.List[BakedQuad] = {
+    override def getQuads(state: BlockState, side: Direction, rand: RandomSource): util.List[BakedQuad] = {
       val faces = mutable.ArrayBuffer.empty[BakedQuad]
 
       faces ++= BaseModel
@@ -117,8 +122,8 @@ object NetSplitterModel extends SmartBlockModelBase {
     }
   }
 
-  object ItemOverride extends ItemOverrideList {
-    override def resolve(originalModel: IBakedModel, stack: ItemStack, world: ClientWorld, entity: LivingEntity): IBakedModel = ItemModel
+  object ItemOverride extends ItemOverrides {
+    override def resolve(originalModel: BakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity, entity_id: Int): BakedModel = ItemModel
   }
 
 }

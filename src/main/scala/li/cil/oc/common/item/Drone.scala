@@ -13,15 +13,15 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.Rarity
 import li.cil.oc.util.Tooltip
 import net.minecraft.client.renderer.model.ModelResourceLocation
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.item.Item.Properties
-import net.minecraft.item.ItemGroup
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
-import net.minecraft.util.NonNullList
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.ItemGroup
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
+import net.minecraft.core.NonNullList
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.Component
 import net.minecraftforge.client.event.ModelBakeEvent
 import net.minecraftforge.common.extensions.IForgeItem
 import net.minecraftforge.api.distmarker.Dist
@@ -36,11 +36,11 @@ class Drone(props: Properties) extends Item(props) with IForgeItem with traits.S
     bakeEvent.getModelRegistry.put(getModelLocation(createItemStack()), DroneModel)
   }
 
-  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[ITextComponent]): Unit = {
+  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[Component]): Unit = {
     if (KeyBindings.showExtendedTooltips) {
       val info = new DroneData(stack)
       for (component <- info.components if !component.isEmpty) {
-        tooltip.add(new StringTextComponent("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
+        tooltip.add(Component.literal("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
       }
     }
   }
@@ -53,7 +53,7 @@ class Drone(props: Properties) extends Item(props) with IForgeItem with traits.S
   // Must be assembled to be usable so we hide it in the item list.
   override def fillItemCategory(tab: ItemGroup, list: NonNullList[ItemStack]) {}
 
-  override def onItemUse(stack: ItemStack, player: PlayerEntity, position: BlockPosition, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = {
+  override def onItemUse(stack: ItemStack, player: Player, position: BlockPosition, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = {
     val world = position.world.get
     if (!world.isClientSide) {
       val drone = entity.EntityTypes.DRONE.create(world)

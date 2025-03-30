@@ -1,46 +1,36 @@
 package li.cil.oc.common.tileentity
 
-import java.util
-
-import li.cil.oc.Constants
-import li.cil.oc.Localization
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, Localization, Settings, api}
 import li.cil.oc.api.Driver
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
 import li.cil.oc.api.nanomachines.Controller
 import li.cil.oc.api.network._
 import li.cil.oc.api.util.StateAware
-import li.cil.oc.common.Slot
-import li.cil.oc.common.container
+import li.cil.oc.common.{Slot, container}
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.entity.Drone
 import li.cil.oc.integration.util.ItemCharge
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedWorld._
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.particles.ParticleTypes
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
-import net.minecraft.util.Util
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.core.Direction
+import net.minecraft.core.particles.ParticleTypes
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.MenuProvider
+import net.minecraft.world.entity.player.{Inventory, Player}
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.phys.Vec3
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 
-class Charger(selfType: TileEntityType[_ <: Charger]) extends TileEntity(selfType) with traits.Environment with traits.PowerAcceptor with traits.RedstoneAware
-  with traits.Rotatable with traits.ComponentInventory with traits.Tickable with Analyzable with traits.StateAware with DeviceInfo with INamedContainerProvider {
+class Charger(selfType: BlockEntityType[_ <: Charger]) extends BlockEntity(selfType) with traits.Environment with traits.PowerAcceptor with traits.RedstoneAware
+  with traits.Rotatable with traits.ComponentInventory with traits.Tickable with Analyzable with traits.StateAware with DeviceInfo with MenuProvider {
 
   val node: Connector = api.Network.newNode(this, Visibility.None).
     withConnector(Settings.get.bufferConverter).
@@ -82,7 +72,7 @@ class Charger(selfType: TileEntityType[_ <: Charger]) extends TileEntity(selfTyp
     else util.EnumSet.noneOf(classOf[api.util.StateAware.State])
   }
 
-  override def onAnalyze(player: PlayerEntity, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Null = {
+  override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Null = {
     player.sendMessage(Localization.Analyzer.ChargerSpeed(chargeSpeed), Util.NIL_UUID)
     null
   }
@@ -178,7 +168,7 @@ class Charger(selfType: TileEntityType[_ <: Charger]) extends TileEntity(selfTyp
   private final val InvertSignalTag = Settings.namespace + "invertSignal"
   private final val InvertSignalTagCompat = "invertSignal"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundTag) {
     super.loadForServer(nbt)
     if (nbt.contains(ChargeSpeedTagCompat))
       chargeSpeed = nbt.getDouble(ChargeSpeedTagCompat) max 0 min 1
@@ -194,7 +184,7 @@ class Charger(selfType: TileEntityType[_ <: Charger]) extends TileEntity(selfTyp
       invertSignal = nbt.getBoolean(InvertSignalTag)
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundTag) {
     super.saveForServer(nbt)
     nbt.putDouble(ChargeSpeedTag, chargeSpeed)
     nbt.putBoolean(HasPowerTag, hasPower)
@@ -202,13 +192,13 @@ class Charger(selfType: TileEntityType[_ <: Charger]) extends TileEntity(selfTyp
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT) {
+  override def loadForClient(nbt: CompoundTag) {
     super.loadForClient(nbt)
     chargeSpeed = nbt.getDouble(ChargeSpeedTag)
     hasPower = nbt.getBoolean(HasPowerTag)
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundTag) {
     super.saveForClient(nbt)
     nbt.putDouble(ChargeSpeedTag, chargeSpeed)
     nbt.putBoolean(HasPowerTag, hasPower)
@@ -231,7 +221,7 @@ class Charger(selfType: TileEntityType[_ <: Charger]) extends TileEntity(selfTyp
 
   // ----------------------------------------------------------------------- //
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
+  override def createMenu(id: Int, playerInventory:Inventory, player: Player) =
     new container.Charger(ContainerTypes.CHARGER, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
@@ -265,8 +255,8 @@ class Charger(selfType: TileEntityType[_ <: Charger]) extends TileEntity(selfTyp
       case drone: Drone => new DroneChargeable(drone)
     }
 
-    val players = getLevel.getEntitiesOfClass(classOf[PlayerEntity], bounds).collect {
-      case player: PlayerEntity => player
+    val players = getLevel.getEntitiesOfClass(classOf[Player], bounds).collect {
+      case player: Player => player
     }
 
     val chargeablePlayers = players.collect {
@@ -285,7 +275,7 @@ class Charger(selfType: TileEntityType[_ <: Charger]) extends TileEntity(selfTyp
     // scan players for chargeable equipment
     equipment.clear()
     players.foreach {
-      player => player.inventory.items.foreach {
+      player => player.getInventory.items.foreach {
         stack: ItemStack =>
           if (Option(Driver.driverFor(stack, getClass)) match {
             case Some(driver) if driver.slot(stack) == Slot.Tablet => true
@@ -298,7 +288,7 @@ class Charger(selfType: TileEntityType[_ <: Charger]) extends TileEntity(selfTyp
   }
 
   trait Chargeable {
-    def pos: Vector3d
+    def pos: Vec3
 
     def changeBuffer(delta: Double): Double
   }
@@ -313,7 +303,7 @@ class Charger(selfType: TileEntityType[_ <: Charger]) extends TileEntity(selfTyp
   }
 
   class RobotChargeable(val robot: Robot) extends ConnectorChargeable(robot.node.asInstanceOf[Connector]) {
-    override def pos: Vector3d = BlockPosition(robot).toVec3
+    override def pos: Vec3 = BlockPosition(robot).toVec3
 
     override def equals(obj: scala.Any): Boolean = obj match {
       case chargeable: RobotChargeable => chargeable.robot == robot
@@ -324,7 +314,7 @@ class Charger(selfType: TileEntityType[_ <: Charger]) extends TileEntity(selfTyp
   }
 
   class DroneChargeable(val drone: Drone) extends ConnectorChargeable(drone.components.node.asInstanceOf[Connector]) {
-    override def pos: Vector3d = new Vector3d(drone.getX, drone.getY, drone.getZ)
+    override def pos: Vec3 = new Vec3(drone.getX, drone.getY, drone.getZ)
 
     override def equals(obj: scala.Any): Boolean = obj match {
       case chargeable: DroneChargeable => chargeable.drone == drone
@@ -334,8 +324,8 @@ class Charger(selfType: TileEntityType[_ <: Charger]) extends TileEntity(selfTyp
     override def hashCode(): Int = drone.hashCode()
   }
 
-  class PlayerChargeable(val player: PlayerEntity) extends Chargeable {
-    override def pos: Vector3d = new Vector3d(player.getX, player.getY, player.getZ)
+  class PlayerChargeable(val player: Player) extends Chargeable {
+    override def pos: Vec3 = new Vec3(player.getX, player.getY, player.getZ)
 
     override def changeBuffer(delta: Double): Double = {
       api.Nanomachines.getController(player) match {

@@ -17,9 +17,9 @@ import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.driver.DriverBlock
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.Direction
 import net.minecraft.util.math.vector.Vector3d
 
 import scala.collection.convert.ImplicitConversionsToJava._
@@ -101,7 +101,7 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
                     val environment = newDriver.createEnvironment(world, coord.toBlockPos, dir)
                     if (environment != null) {
                       otherDrv = Some((environment, newDriver))
-                      blockData = Some(new BlockData(environment.getClass.getName, new CompoundNBT()))
+                      blockData = Some(new BlockData(environment.getClass.getName, new CompoundTag()))
                       node.connect(environment.node)
                     }
                   } // else: the more things change, the more they stay the same.
@@ -115,7 +115,7 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
                         environment.loadData(data.data)
                       case _ =>
                     }
-                    blockData = Some(new BlockData(environment.getClass.getName, new CompoundNBT()))
+                    blockData = Some(new BlockData(environment.getClass.getName, new CompoundTag()))
                     node.connect(environment.node)
                   }
               }
@@ -191,10 +191,10 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
     }
   }
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundTag) {
     super.loadData(nbt)
     Option(nbt.getCompound(Settings.namespace + "adapter.block")) match {
-      case Some(blockNbt: CompoundNBT) =>
+      case Some(blockNbt: CompoundTag) =>
         if (blockNbt.contains("name") && blockNbt.contains("data")) {
           blockData = Some(new BlockData(blockNbt.getString("name"), blockNbt.getCompound("data")))
         }
@@ -202,9 +202,9 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
     }
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundTag) {
     super.saveData(nbt)
-    val blockNbt = new CompoundNBT()
+    val blockNbt = new CompoundTag()
     blockData.foreach({ data =>
       otherDrv.foreach(_._1.saveData(data.data))
       blockNbt.putString("name", data.name)
@@ -215,6 +215,6 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
 
   // ----------------------------------------------------------------------- //
 
-  private class BlockData(val name: String, val data: CompoundNBT)
+  private class BlockData(val name: String, val data: CompoundTag)
 
 }

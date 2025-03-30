@@ -10,14 +10,14 @@ import li.cil.oc.api.driver.{EnvironmentProvider, NamedBlock}
 import li.cil.oc.api.machine.{Arguments, Callback}
 import li.cil.oc.api.machine.Context
 import li.cil.oc.integration.ManagedTileEntityEnvironment
-import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.Direction
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.Level
 
 object DriverPartInterface extends driver.DriverBlock {
-  override def worksWith(world: World, pos: BlockPos, side: Direction): Boolean =
+  override def worksWith(world: Level, pos: BlockPos, side: Direction): Boolean =
     world.getBlockEntity(pos) match {
       case container: IPartHost => {
         Direction.values.map(container.getPart).filter(p => p != null).map(_.getItemStack(PartItemStack.PICK)).exists(AEUtil.isPartInterface)
@@ -25,7 +25,7 @@ object DriverPartInterface extends driver.DriverBlock {
       case _ => false
     }
 
-  override def createEnvironment(world: World, pos: BlockPos, side: Direction): DriverPartInterface.Environment = {
+  override def createEnvironment(world: Level, pos: BlockPos, side: Direction): DriverPartInterface.Environment = {
     val host: IPartHost = world.getBlockEntity(pos).asInstanceOf[IPartHost]
     val tile = host.asInstanceOf[TileEntity with IPartHost with ISegmentedInventory with IActionHost with IGridHost]
     val aePos: AEPartLocation = side match {

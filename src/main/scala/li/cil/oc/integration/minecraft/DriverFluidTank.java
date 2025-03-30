@@ -7,9 +7,9 @@ import li.cil.oc.api.network.ManagedEnvironment;
 import li.cil.oc.api.prefab.DriverSidedTileEntity;
 import li.cil.oc.integration.ManagedTileEntityEnvironment;
 import li.cil.oc.util.ExtendedArguments.TankProperties;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fluids.IFluidTank;
 
 public final class DriverFluidTank extends DriverSidedTileEntity {
@@ -19,7 +19,7 @@ public final class DriverFluidTank extends DriverSidedTileEntity {
     }
 
     @Override
-    public ManagedEnvironment createEnvironment(final World world, final BlockPos pos, final Direction side) {
+    public ManagedEnvironment createEnvironment(final Level world, final BlockPos pos, final Direction side) {
         return new Environment((IFluidTank) world.getBlockEntity(pos));
     }
 

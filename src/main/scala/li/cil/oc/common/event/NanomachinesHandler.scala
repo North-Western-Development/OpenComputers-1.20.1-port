@@ -3,7 +3,7 @@ package li.cil.oc.common.event
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.IVertexBuilder
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
@@ -17,9 +17,9 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.IRenderTypeBuffer
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.entity.player.Player
 import net.minecraft.nbt.CompressedStreamTools
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 import net.minecraftforge.event.entity.living.LivingEvent
 import net.minecraftforge.event.entity.player.PlayerEvent
@@ -39,7 +39,7 @@ object NanomachinesHandler {
         val mc = Minecraft.getInstance
         api.Nanomachines.getController(mc.player) match {
           case controller: Controller =>
-            val stack = e.getMatrixStack
+            val stack = e.getPoseStack
             val window = mc.getWindow
             val sizeX = 8
             val sizeY = 12
@@ -66,7 +66,7 @@ object NanomachinesHandler {
       }
     }
 
-    private def drawRect(stack: MatrixStack, r: IVertexBuilder, x: Int, y: Int, w: Int, h: Int, tw: Int, th: Int, fill: Float = 1) {
+    private def drawRect(stack: PoseStack, r: IVertexBuilder, x: Int, y: Int, w: Int, h: Int, tw: Int, th: Int, fill: Float = 1) {
       val sx = 1f / tw
       val sy = 1f / th
       r.vertex(stack.last.pose, x, y + h, 0).uv(0, h * sy).endVertex()
@@ -88,14 +88,14 @@ object NanomachinesHandler {
     @SubscribeEvent
     def onLivingUpdate(e: LivingEvent.LivingUpdateEvent): Unit = {
       e.getEntity match {
-        case player: PlayerEntity => api.Nanomachines.getController(player) match {
+        case player: Player => api.Nanomachines.getController(player) match {
           case controller: ControllerImpl =>
             if (controller.player eq player) {
               controller.update()
             }
             else {
               // Player entity instance changed (e.g. respawn), recreate the controller.
-              val nbt = new CompoundNBT()
+              val nbt = new CompoundTag()
               controller.saveData(nbt)
               api.Nanomachines.uninstallController(controller.player)
               api.Nanomachines.installController(player) match {
@@ -117,7 +117,7 @@ object NanomachinesHandler {
       api.Nanomachines.getController(e.getPlayer) match {
         case controller: ControllerImpl =>
           try {
-            val nbt = new CompoundNBT()
+            val nbt = new CompoundTag()
             controller.saveData(nbt)
             val fos = new FileOutputStream(file)
             try CompressedStreamTools.writeCompressed(nbt, fos) catch {

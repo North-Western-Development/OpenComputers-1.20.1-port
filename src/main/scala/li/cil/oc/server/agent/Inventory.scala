@@ -7,20 +7,20 @@ import li.cil.oc.util.ExtendedInventory._
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.Inventory
 import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListNBT
 import net.minecraft.util.DamageSource
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.block.BlockState
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.Component
+import net.minecraft.world.level.block.state.BlockState
 
 import scala.collection.immutable
 
-class Inventory(playerEntity: PlayerEntity, val agent: internal.Agent) extends PlayerInventory(playerEntity) {
+class Inventory(playerEntity: Player, val agent: internal.Agent) extendsInventory(playerEntity) {
 
   private def selectedItemStack: ItemStack = agent.mainInventory.getItem(agent.selectedSlot)
 
@@ -67,7 +67,7 @@ class Inventory(playerEntity: PlayerEntity, val agent: internal.Agent) extends P
 
   override def contains(stack: ItemStack): Boolean = (0 until getContainerSize).map(getItem).filter(!_.isEmpty).exists(_.sameItem(stack))
 
-  override def replaceWith(from: PlayerInventory) {}
+  override def replaceWith(from:Inventory) {}
 
   // IInventory
 
@@ -92,13 +92,13 @@ class Inventory(playerEntity: PlayerEntity, val agent: internal.Agent) extends P
     else agent.mainInventory.setItem(slot, stack)
   }
 
-  override def getName: ITextComponent = new StringTextComponent(agent.name)
+  override def getName: Component = Component.literal(agent.name)
 
   override def getMaxStackSize: Int = agent.mainInventory.getMaxStackSize
 
   override def setChanged(): Unit = agent.mainInventory.setChanged()
 
-  override def stillValid(player: PlayerEntity): Boolean = agent.mainInventory.stillValid(player)
+  override def stillValid(player: Player): Boolean = agent.mainInventory.stillValid(player)
 
   override def canPlaceItem(slot: Int, stack: ItemStack): Boolean =
     if (slot < 0) agent.equipmentInventory.canPlaceItem(~slot, stack)

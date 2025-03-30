@@ -39,11 +39,11 @@ import li.cil.oc.server.machine.luac.NativeLua53Architecture
 import li.cil.oc.server.network.Waypoints
 import li.cil.oc.server.network.WirelessNetwork
 import li.cil.oc.util.Color
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.InteractionHand
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.Level
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.MinecraftForge
@@ -335,7 +335,7 @@ object ModOpenComputers extends ModProxy {
 
   protected[oc] var hasRedstoneCardT2 = false
 
-  def useWrench(player: PlayerEntity, pos: BlockPos, changeDurability: Boolean): Boolean = {
+  def useWrench(player: Player, pos: BlockPos, changeDurability: Boolean): Boolean = {
     player.getItemInHand(Hand.MAIN_HAND).getItem match {
       case wrench: Wrench => wrench.useWrenchOnBlock(player, player.level, pos, !changeDurability)
       case _ => false
@@ -390,7 +390,7 @@ object ModOpenComputers extends ModProxy {
       case _ => null
     }
 
-    override def pathFor(world: World, pos: BlockPos): String = world.getBlockState(pos).getBlock match {
+    override def pathFor(world: Level, pos: BlockPos): String = world.getBlockState(pos).getBlock match {
       case block: SimpleBlock => checkBlacklisted(api.Items.get(new ItemStack(block)))
       case _ => null
     }

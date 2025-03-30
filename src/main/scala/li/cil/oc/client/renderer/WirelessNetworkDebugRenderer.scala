@@ -7,7 +7,7 @@ import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.util.math.vector.Vector4f
 import net.minecraft.util.math.vector.Matrix4f
-import net.minecraft.world.World
+import net.minecraft.world.level.Level
 import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import org.lwjgl.opengl.GL11
@@ -28,7 +28,7 @@ object WirelessNetworkDebugRenderer {
           val py = player.yOld + (player.getY - player.yOld) * e.getPartialTicks
           val pz = player.zOld + (player.getZ - player.zOld) * e.getPartialTicks
 
-          val stack = e.getMatrixStack
+          val stack = e.getPoseStack
           RenderState.pushAttrib()
           stack.pushPose()
           stack.translate(-px, -py, -pz)

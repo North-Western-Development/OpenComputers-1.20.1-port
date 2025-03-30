@@ -1,7 +1,8 @@
 package li.cil.oc.client.renderer.font
 
+import com.mojang.blaze3d.platform.TextureUtil
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.IVertexBuilder
+import com.mojang.blaze3d.vertex.{IVertexBuilder, VertexConsumer}
 import li.cil.oc.Settings
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.client.renderer.font.DynamicFontRenderer.CharTexture
@@ -15,6 +16,7 @@ import net.minecraft.resources.IResourceManager
 import net.minecraft.resources.IResourceManagerReloadListener
 import net.minecraft.util.math.vector.Matrix4f
 import net.minecraft.util.math.vector.Vector4f
+import org.joml.{Matrix4f, Vector4f}
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl._
 
@@ -86,7 +88,7 @@ class DynamicFontRenderer extends TextureFontRenderer with IResourceManagerReloa
     }
   }
 
-  override protected def drawChar(builder: IVertexBuilder, matrix: Matrix4f, color: Int, tx: Float, ty: Float, char: Int) {
+  override protected def drawChar(builder: VertexConsumer, matrix: Matrix4f, color: Int, tx: Float, ty: Float, char: Int) {
     charMap.get(char) match {
       case Some(icon) if icon.texture == activeTexture => icon.draw(builder, matrix, color, tx, ty)
       case _ =>
@@ -175,23 +177,23 @@ object DynamicFontRenderer {
     def draw(matrix: Matrix4f, tx: Float, ty: Float) {
       GL11.glTexCoord2f(u1, v2)
       val vec = new Vector4f(tx, ty + h, 0, 1)
-      vec.transform(matrix)
+      vec.mul(matrix)
       GL11.glVertex3f(vec.x, vec.y, vec.z)
       GL11.glTexCoord2f(u2, v2)
       vec.set(tx + w, ty + h, 0, 1)
-      vec.transform(matrix)
+      vec.mul(matrix)
       GL11.glVertex3f(vec.x, vec.y, vec.z)
       GL11.glTexCoord2f(u2, v1)
       vec.set(tx + w, ty, 0, 1)
-      vec.transform(matrix)
+      vec.mul(matrix)
       GL11.glVertex3f(vec.x, vec.y, vec.z)
       GL11.glTexCoord2f(u1, v1)
       vec.set(tx, ty, 0, 1)
-      vec.transform(matrix)
+      vec.mul(matrix)
       GL11.glVertex3f(vec.x, vec.y, vec.z)
     }
 
-    def draw(builder: IVertexBuilder, matrix: Matrix4f, color: Int, tx: Float, ty: Float) {
+    def draw(builder: VertexConsumer, matrix: Matrix4f, color: Int, tx: Float, ty: Float) {
       val r = ((color >> 16) & 0xFF) / 255f
       val g = ((color >> 8) & 0xFF) / 255f
       val b = (color & 0xFF) / 255f

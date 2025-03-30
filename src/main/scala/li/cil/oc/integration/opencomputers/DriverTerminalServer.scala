@@ -8,7 +8,7 @@ import li.cil.oc.api.network.ManagedEnvironment
 import li.cil.oc.common.Slot
 import li.cil.oc.common.component.TerminalServer
 import li.cil.oc.util.ExtendedInventory._
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 object DriverTerminalServer extends Item with HostAware {
   override def worksWith(stack: ItemStack): Boolean = isOneOf(stack,

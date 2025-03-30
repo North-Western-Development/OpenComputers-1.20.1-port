@@ -4,9 +4,9 @@ import li.cil.oc.Constants
 import li.cil.oc.Settings
 import li.cil.oc.util.ExtendedNBT._
 import net.minecraft.item.FilledMapItem
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.world.World
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.Level
 
 class NavigationUpgradeData extends ItemData(Constants.ItemName.NavigationUpgrade) {
   def this(stack: ItemStack) {
@@ -16,11 +16,11 @@ class NavigationUpgradeData extends ItemData(Constants.ItemName.NavigationUpgrad
 
   var map = new ItemStack(net.minecraft.item.Items.FILLED_MAP)
 
-  def mapData(world: World) = try FilledMapItem.getSavedData(map, world) catch {
+  def mapData(world: Level) = try FilledMapItem.getSavedData(map, world) catch {
     case _: Throwable => throw new Exception("invalid map")
   }
 
-  def getSize(world: World) = {
+  def getSize(world: Level) = {
     val info = mapData(world)
     128 * (1 << info.scale)
   }
@@ -38,13 +38,13 @@ class NavigationUpgradeData extends ItemData(Constants.ItemName.NavigationUpgrad
     saveData(stack.getOrCreateTagElement(DataTag))
   }
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundTag) {
     if (nbt.contains(MapTag)) {
       map = ItemStack.of(nbt.getCompound(MapTag))
     }
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundTag) {
     if (map != null) {
       nbt.setNewCompoundTag(MapTag, map.save)
     }

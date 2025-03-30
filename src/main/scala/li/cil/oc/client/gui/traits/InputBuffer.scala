@@ -2,7 +2,7 @@ package li.cil.oc.client.gui.traits
 
 import java.util.Arrays
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.api
 import li.cil.oc.client.KeyBindings
 import li.cil.oc.client.Textures
@@ -83,7 +83,7 @@ trait InputBuffer extends DisplayBuffer {
     Minecraft.getInstance.keyboardHandler.setSendRepeatsToGui(true)
   }
 
-  override protected def drawBufferLayer(stack: MatrixStack) {
+  override protected def drawBufferLayer(stack: PoseStack) {
     super.drawBufferLayer(stack)
 
     if (System.currentTimeMillis() - showKeyboardMissing < 1000) {

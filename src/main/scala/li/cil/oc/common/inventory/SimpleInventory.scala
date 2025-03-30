@@ -1,25 +1,23 @@
 package li.cil.oc.common.inventory
 
-import li.cil.oc.Localization
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.util.INameable
-import net.minecraft.util.text.ITextComponent
+import net.minecraft.network.chat.Component
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.{Container, Nameable}
 
-trait SimpleInventory extends IInventory with INameable {
+trait SimpleInventory extends Container with Nameable {
   override def hasCustomName = false
 
-  override def getDisplayName: ITextComponent = getName
+  override def getDisplayName: Component = getName
 
   override def getMaxStackSize = 64
 
   // Items required in a slot before it's set to null (for ghost stacks).
   def getInventoryStackRequired = 1
 
-  override def startOpen(player: PlayerEntity): Unit = {}
+  override def startOpen(player: Player): Unit = {}
 
-  override def stopOpen(player: PlayerEntity): Unit = {}
+  override def stopOpen(player: Player): Unit = {}
 
   override def removeItem(slot: Int, amount: Int): ItemStack = {
     if (slot >= 0 && slot < getContainerSize) {

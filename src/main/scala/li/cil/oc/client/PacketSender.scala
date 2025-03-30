@@ -1,21 +1,14 @@
 package li.cil.oc.client
 
 import li.cil.oc.Settings
-import li.cil.oc.common.CompressedPacketBuilder
-import li.cil.oc.common.PacketType
-import li.cil.oc.common.SimplePacketBuilder
-import li.cil.oc.common.container
-import li.cil.oc.common.entity.Drone
+import li.cil.oc.common.{CompressedPacketBuilder, PacketType, SimplePacketBuilder, container}
 import li.cil.oc.common.tileentity._
-import li.cil.oc.common.tileentity.traits.Computer
 import net.minecraft.client.Minecraft
-import net.minecraft.client.audio.SimpleSound
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.util.SoundEvents
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.SoundCategory
+import net.minecraft.client.resources.sounds.SimpleSoundInstance
+import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.sounds.SoundEvents
+import net.minecraft.world.item.ItemStack
 
 object PacketSender {
   // Timestamp after which the next clipboard message may be sent. Used to
@@ -96,7 +89,7 @@ object PacketSender {
     if (value != null && !value.isEmpty) {
       if (value.length > 64 * 1024 || System.currentTimeMillis() < clipboardCooldown) {
         val handler = Minecraft.getInstance.getSoundManager
-        handler.play(SimpleSound.forUI(SoundEvents.NOTE_BLOCK_HARP, 1, 1))
+        handler.play(SimpleSoundInstance.forUI(SoundEvents.NOTE_BLOCK_HARP.value(), 1.0F, 1.0F))
       }
       else {
         clipboardCooldown = System.currentTimeMillis() + value.length / 10

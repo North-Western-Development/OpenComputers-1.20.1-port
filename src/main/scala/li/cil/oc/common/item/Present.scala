@@ -1,42 +1,31 @@
 package li.cil.oc.common.item
 
-import java.util.Random
-
-import li.cil.oc.Constants
-import li.cil.oc.OpenComputers
-import li.cil.oc.api
-import li.cil.oc.util.InventoryUtils
-import li.cil.oc.util.ItemUtils
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.item.Item.Properties
-import net.minecraft.item.ItemGroup
-import net.minecraft.item.ItemStack
-import net.minecraft.item.crafting.RecipeManager
-import net.minecraft.util.ActionResult
-import net.minecraft.util.ActionResultType
-import net.minecraft.util.NonNullList
-import net.minecraft.util.SoundCategory
-import net.minecraft.util.SoundEvents
-import net.minecraft.world.World
+import li.cil.oc.{Constants, OpenComputers, api}
+import li.cil.oc.util.{InventoryUtils, ItemUtils}
+import net.minecraft.sounds.{SoundEvents, SoundSource}
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.crafting.RecipeManager
+import net.minecraft.world.item.{Item, ItemStack}
+import net.minecraft.world.level.Level
+import net.minecraft.world.{InteractionResult, InteractionResultHolder}
 import net.minecraftforge.common.extensions.IForgeItem
 
+import java.util.Random
 import scala.collection.mutable
 
 class Present(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem {
-  override def fillItemCategory(tab: ItemGroup, list: NonNullList[ItemStack]) {}
-
-  override def use(stack: ItemStack, world: World, player: PlayerEntity): ActionResult[ItemStack] = {
+  override def use(stack: ItemStack, world: Level, player: Player): InteractionResultHolder[ItemStack] = {
     if (stack.getCount > 0) {
       stack.shrink(1)
       if (!world.isClientSide) {
-        world.playSound(player, player.getX, player.getY, player.getZ, SoundEvents.PLAYER_LEVELUP, SoundCategory.MASTER, 0.2f, 1f)
+        world.playSound(player, player.getX, player.getY, player.getZ, SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.2f, 1f)
         Present.recipeManager = world.getRecipeManager
         val present = Present.nextPresent()
         InventoryUtils.addToPlayerInventory(present, player)
       }
     }
-    new ActionResult(ActionResultType.sidedSuccess(world.isClientSide), stack)
+    new InteractionResultHolder(InteractionResult.sidedSuccess(world.isClientSide), stack)
   }
 }
 

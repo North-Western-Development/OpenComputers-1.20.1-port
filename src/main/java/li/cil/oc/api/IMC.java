@@ -249,7 +249,7 @@ public final class IMC {
      * <br>
      * Signature of callbacks must be:
      * <pre>
-     * boolean callback(PlayerEntity player, BlockPos pos, boolean changeDurability)
+     * boolean callback(Player player, BlockPos pos, boolean changeDurability)
      * </pre>
      * <br>
      * Callbacks must be declared as <tt>packagePath.className.methodName</tt>.

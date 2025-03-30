@@ -1,13 +1,13 @@
 package li.cil.oc.integration.util
 
 import net.minecraft.client.resources.I18n
-import net.minecraft.entity.LivingEntity
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.util.DamageSource
-import net.minecraft.util.text.ITextComponent
+import net.minecraft.network.chat.Component
 import net.minecraft.util.text.TranslationTextComponent
 
 class DamageSourceWithRandomCause(name: String, numCauses: Int) extends DamageSource(name) {
-  override def getLocalizedDeathMessage(damagee: LivingEntity): ITextComponent = {
+  override def getLocalizedDeathMessage(damagee: LivingEntity): Component = {
     val damager = damagee.getKillCredit
     val format = "death.attack." + msgId + "." + (damagee.level.random.nextInt(numCauses) + 1)
     val withCauseFormat = format + ".player"

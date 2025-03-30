@@ -3,7 +3,7 @@ package li.cil.oc.common.template
 import li.cil.oc.Constants
 import li.cil.oc.api
 import li.cil.oc.common.item.data.NavigationUpgradeData
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 import scala.language.postfixOps
 

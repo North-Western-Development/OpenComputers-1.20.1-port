@@ -4,7 +4,7 @@ import li.cil.oc.common.EventHandler
 import mezz.jei.api.constants.VanillaTypes
 import mezz.jei.api.runtime.IIngredientManager
 import mezz.jei.api.runtime.IJeiRuntime
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 import scala.collection.JavaConverters.seqAsJavaList
 import scala.collection.mutable

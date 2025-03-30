@@ -3,8 +3,10 @@ package li.cil.oc.util
 import li.cil.oc.Localization
 import li.cil.oc.Settings
 import li.cil.oc.client.KeyBindings
+import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.FontRenderer
+import net.minecraft.network.chat.Style
 import net.minecraft.util.text.CharacterManager.ISliceAcceptor
 import net.minecraft.util.text.Style
 import net.minecraft.util.text.TextFormatting
@@ -17,7 +19,7 @@ object Tooltip {
 
   private def font = Minecraft.getInstance.font
 
-  val DefaultStyle = Style.EMPTY.applyFormat(TextFormatting.GRAY)
+  val DefaultStyle = Style.EMPTY.applyFormat(ChatFormatting.GRAY)
 
   def get(name: String, args: Any*): java.util.List[String] = {
     if (!Localization.canLocalize(Settings.namespace + "tooltip." + name)) return Seq.empty[String]

@@ -8,14 +8,15 @@ import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.ResultWrapper.result
 import li.cil.oc.util.StackOption._
-import net.minecraft.entity.item.ItemEntity
+import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.item.BlockItem
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
+import net.minecraft.world.item.{BlockItem, ItemStack}
+import net.minecraft.core.Direction
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.entity.item.ItemTossEvent
 import net.minecraftforge.eventbus.api.Event.Result
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToScala._
 
 trait InventoryWorldControl extends InventoryAware with WorldAware with SideRestricted {
@@ -119,7 +120,7 @@ trait InventoryWorldControl extends InventoryAware with WorldAware with SideRest
     }
   }
 
-  protected def suckableItems(side: Direction) = entitiesOnSide(classOf[ItemEntity], side)
+  protected def suckableItems(side: Direction): util.List[ItemEntity] = entitiesOnSide(classOf[ItemEntity], side)
 
   protected def onSuckCollect(entity: ItemEntity): Unit = entity.playerTouch(fakePlayer)
 }

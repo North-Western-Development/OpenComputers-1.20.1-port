@@ -12,7 +12,7 @@ import appeng.api.storage.channels.{IFluidStorageChannel, IItemStorageChannel}
 import appeng.api.storage.data.{IAEFluidStack, IAEItemStack}
 import appeng.api.storage.IStorageHelper
 import li.cil.oc.integration.Mods
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import net.minecraftforge.fml.ModList
 import net.minecraftforge.forgespi.language.MavenVersionAdapter
 import org.apache.maven.artifact.versioning.VersionRange

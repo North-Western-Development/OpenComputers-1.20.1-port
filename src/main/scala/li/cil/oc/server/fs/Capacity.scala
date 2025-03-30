@@ -4,7 +4,7 @@ import java.io
 
 import li.cil.oc.Settings
 import li.cil.oc.api.fs.Mode
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 
 trait Capacity extends OutputStreamFileSystem {
   private var used = computeSize("/")
@@ -65,7 +65,7 @@ trait Capacity extends OutputStreamFileSystem {
 
   // ----------------------------------------------------------------------- //
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundTag) {
     try {
       ignoreCapacity = true
       super.loadData(nbt)
@@ -76,7 +76,7 @@ trait Capacity extends OutputStreamFileSystem {
     used = computeSize("/")
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundTag) {
     super.saveData(nbt)
 
     // For the tooltip.

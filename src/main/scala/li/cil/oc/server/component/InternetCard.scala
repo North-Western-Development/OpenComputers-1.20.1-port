@@ -1,39 +1,23 @@
 package li.cil.oc.server.component
 
 import com.google.common.net.InetAddresses
+import li.cil.oc.{Constants, OpenComputers, Settings}
+import li.cil.oc.api.Network
+import li.cil.oc.api.driver.DeviceInfo
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
+import li.cil.oc.api.network._
+import li.cil.oc.api.prefab.{AbstractManagedEnvironment, AbstractValue}
+import li.cil.oc.util.ThreadPoolFactory
+import net.minecraftforge.server.ServerLifecycleHooks
 
-import java.io.BufferedWriter
-import java.io.FileNotFoundException
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStreamWriter
+import java.io._
 import java.net._
 import java.nio.ByteBuffer
-import java.nio.channels.SelectionKey
-import java.nio.channels.Selector
-import java.nio.channels.SocketChannel
+import java.nio.channels.{SelectionKey, Selector, SocketChannel}
 import java.util
 import java.util.UUID
 import java.util.concurrent._
-import li.cil.oc.Constants
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api.Network
-import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
-import li.cil.oc.api.Network
-import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network._
-import li.cil.oc.api.prefab
-import li.cil.oc.api.prefab.AbstractManagedEnvironment
-import li.cil.oc.api.prefab.AbstractValue
-import li.cil.oc.util.ThreadPoolFactory
-import net.minecraftforge.fml.server.ServerLifecycleHooks
-
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
@@ -511,7 +495,7 @@ object InternetCard {
     private class RequestSender(val url: URL, val post: Option[String], val headers: Map[String, String], val method: Option[String]) extends Callable[InputStream] {
       override def call() = try {
         checkLists(InetAddress.getByName(url.getHost), url.getHost)
-        val proxy = ServerLifecycleHooks.getCurrentServer.proxy
+        val proxy = ServerLifecycleHooks.getCurrentServer.getProxy
         url.openConnection(proxy) match {
           case http: HttpURLConnection => try {
             http.setDoInput(true)

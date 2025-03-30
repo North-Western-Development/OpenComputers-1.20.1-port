@@ -22,10 +22,10 @@ import mezz.jei.api.registration.ISubtypeRegistration
 import mezz.jei.api.runtime.IIngredientManager
 import mezz.jei.api.runtime.IJeiRuntime
 import net.minecraft.client.gui.screen.inventory.ContainerScreen
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.ResourceLocation
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.resources.ResourceLocation
 
 import scala.collection.JavaConverters._
 

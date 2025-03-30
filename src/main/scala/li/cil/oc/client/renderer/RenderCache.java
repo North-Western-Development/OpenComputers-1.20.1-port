@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.mojang.datafixers.util.Pair;
@@ -94,7 +94,7 @@ public class RenderCache implements IRenderTypeBuffer {
         if (activeType != null) flush(activeType);
     }
 
-    public void render(MatrixStack stack) {
+    public void render(PoseStack stack) {
         // Apply transform globally so we don't have to update stored vertices.
         RenderSystem.pushMatrix();
         RenderSystem.multMatrix(stack.last().pose());

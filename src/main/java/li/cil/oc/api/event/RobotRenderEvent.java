@@ -5,6 +5,7 @@ import li.cil.oc.api.internal.Agent;
 import li.cil.oc.api.internal.Robot;
 import net.minecraftforge.eventbus.api.Cancelable;
 import org.joml.Math;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
@@ -111,7 +112,7 @@ public class RobotRenderEvent extends RobotEvent {
          * <br>
          * Note that the rotation is applied <em>before</em> the translation.
          */
-        public final Vector4f rotation = new Vector4f(0, 0, 0, 0);
+        public final Quaternionf rotation = new Quaternionf(0, 0, 0, 0);
 
         /**
          * The mount point's reference name.

@@ -8,7 +8,7 @@ import li.cil.oc.common.tileentity.DiskDrive
 import li.cil.oc.common.tileentity.Raid
 import li.cil.oc.server.component.DiskDriveMountable
 import li.cil.oc.server.component.Server
-import net.minecraft.util.ResourceLocation
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SoundCategory
 import net.minecraft.util.SoundEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent

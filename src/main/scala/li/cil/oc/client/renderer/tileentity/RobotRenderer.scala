@@ -1,10 +1,10 @@
 package li.cil.oc.client.renderer.tileentity
 
 import java.util.function.Function
-
 import com.google.common.base.Strings
-import com.mojang.blaze3d.matrix.MatrixStack
-import com.mojang.blaze3d.vertex.IVertexBuilder
+import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.{IVertexBuilder, PoseStack, VertexConsumer}
+import com.mojang.math.Axis
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api.driver.item.UpgradeRenderer
@@ -18,20 +18,22 @@ import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer._
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.item.Items
+import net.minecraft.world.item.Items
 import net.minecraft.item.BlockItem
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
+import net.minecraft.world.item.{BlockItem, ItemDisplayContext, ItemStack, Items}
+import net.minecraft.core.Direction
 import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.util.math.vector.Vector3f
 import net.minecraft.util.math.vector.Matrix3f
 import net.minecraft.util.text.TextFormatting
 import net.minecraftforge.client.ForgeHooksClient
 import net.minecraftforge.common.MinecraftForge
+import org.joml.{Matrix3f, Vector3d, Vector3f}
 
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
@@ -42,11 +44,11 @@ object RobotRenderer extends Function[TileEntityRendererDispatcher, RobotRendere
 
   private val instance = new RobotRenderer(null)
 
-  def renderChassis(stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, offset: Double = 0, isRunningOverride: Boolean = false) =
+  def renderChassis(stack: PoseStack, buffer: MultiBufferSource, light: Int, offset: Double = 0, isRunningOverride: Boolean = false) =
     instance.renderChassis(stack, buffer, light, null, offset, isRunningOverride)
 }
 
-class RobotRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[tileentity.RobotProxy](dispatch) {
+class RobotRenderer(dispatch: TileEntityRendererDispatcher) extends BlockEntityRenderer[tileentity.RobotProxy](dispatch) {
   private val mountPoints = new Array[RobotRenderEvent.MountPoint](7)
 
   private val slotNameMapping = Map(
@@ -70,16 +72,16 @@ class RobotRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRe
   private val gt = 0.5f + gap
   private val gb = 0.5f - gap
 
-  private implicit def extendWorldRenderer(self: IVertexBuilder): ExtendedWorldRenderer = new ExtendedWorldRenderer(self)
+  private implicit def extendWorldRenderer(self: VertexConsumer): ExtendedWorldRenderer = new ExtendedWorldRenderer(self)
 
-  private class ExtendedWorldRenderer(val buffer: IVertexBuilder) {
-    def normal(matrix: Matrix3f, normal: Vector3d): IVertexBuilder = {
+  private class ExtendedWorldRenderer(val buffer: VertexConsumer) {
+    def normal(matrix: Matrix3f, normal: Vector3d): VertexConsumer = {
       val normalized = normal.normalize()
       buffer.normal(matrix, normalized.x.toFloat, normalized.y.toFloat, normalized.z.toFloat)
     }
   }
 
-  private def drawTop(stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, red: Int, green: Int, blue: Int): Unit = {
+  private def drawTop(stack: PoseStack, buffer: MultiBufferSource, light: Int, red: Int, green: Int, blue: Int): Unit = {
     val r = buffer.getBuffer(RenderTypes.ROBOT_CHASSIS)
 
     r.vertex(stack.last.pose, 0.5f, 1, 0.5f).color(red, green, blue, 0xFF).uv(0.25f, 0.25f).uv2(light).normal(stack.last.normal, new Vector3d(0, 0.2, 1)).endVertex()
@@ -107,7 +109,7 @@ class RobotRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRe
     r.vertex(stack.last.pose, h, gt, h).color(red, green, blue, 0xFF).uv(0.5f, 1).uv2(light).normal(stack.last.normal, 0, -1, 0).endVertex()
   }
 
-  private def drawBottom(stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, red: Int, green: Int, blue: Int): Unit = {
+  private def drawBottom(stack: PoseStack, buffer: MultiBufferSource, light: Int, red: Int, green: Int, blue: Int): Unit = {
     val r = buffer.getBuffer(RenderTypes.ROBOT_CHASSIS)
 
     r.vertex(stack.last.pose, 0.5f, 0.03f, 0.5f).color(red, green, blue, 0xFF).uv(0.75f, 0.25f).uv2(light).normal(stack.last.normal, new Vector3d(0, -0.2, 1)).endVertex()
@@ -139,70 +141,35 @@ class RobotRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRe
     val offset = if (running) 0 else -0.06f
 
     // Left top.
-    mountPoints(0).offset.setX(0)
-    mountPoints(0).offset.setY(0.2f)
-    mountPoints(0).offset.setZ(0.24f)
-    mountPoints(0).rotation.setX(0)
-    mountPoints(0).rotation.setY(1)
-    mountPoints(0).rotation.setZ(0)
-    mountPoints(0).rotation.setW(90)
+    mountPoints(0).offset.set(0, 0.2f, 0.24f)
+    mountPoints(0).rotation.set(0, 1, 0, 90)
 
     // Right top.
-    mountPoints(1).offset.setX(0)
-    mountPoints(1).offset.setY(0.2f)
-    mountPoints(1).offset.setZ(0.24f)
-    mountPoints(1).rotation.setX(0)
-    mountPoints(1).rotation.setY(1)
-    mountPoints(1).rotation.setZ(0)
-    mountPoints(1).rotation.setW(-90)
+    mountPoints(1).offset.set(0, 0.2f, 0.24f)
+    mountPoints(1).rotation.set(0, 1, 0, -90)
 
     // Back top.
-    mountPoints(2).offset.setX(0)
-    mountPoints(2).offset.setY(0.2f)
-    mountPoints(2).offset.setZ(0.24f)
-    mountPoints(2).rotation.setX(0)
-    mountPoints(2).rotation.setY(1)
-    mountPoints(2).rotation.setZ(0)
-    mountPoints(2).rotation.setW(180)
+    mountPoints(2).offset.set(0, 0.2f, 0.24f)
+    mountPoints(2).rotation.set(0, 1, 0, 180)
 
     // Left bottom.
-    mountPoints(3).offset.setX(0)
-    mountPoints(3).offset.setY(-0.2f - offset)
-    mountPoints(3).offset.setZ(0.24f)
-    mountPoints(3).rotation.setX(0)
-    mountPoints(3).rotation.setY(1)
-    mountPoints(3).rotation.setZ(0)
-    mountPoints(3).rotation.setW(90)
+    mountPoints(3).offset.set(0, -0.2f - offset, 0.24f)
+    mountPoints(3).rotation.set(0, 1, 0, 90)
 
     // Right bottom.
-    mountPoints(4).offset.setX(0)
-    mountPoints(4).offset.setY(-0.2f - offset)
-    mountPoints(4).offset.setZ(0.24f)
-    mountPoints(4).rotation.setX(0)
-    mountPoints(4).rotation.setY(1)
-    mountPoints(4).rotation.setZ(0)
-    mountPoints(4).rotation.setW(-90)
+    mountPoints(4).offset.set(0, -0.2f - offset, 0.24f)
+    mountPoints(4).rotation.set(0, 1, 0, -90)
 
     // Back bottom.
-    mountPoints(5).offset.setX(0)
-    mountPoints(5).offset.setY(-0.2f - offset)
-    mountPoints(5).offset.setZ(0.24f)
-    mountPoints(5).rotation.setX(0)
-    mountPoints(5).rotation.setY(1)
-    mountPoints(5).rotation.setZ(0)
-    mountPoints(5).rotation.setW(180)
+    mountPoints(5).offset.set(0, -0.2f - offset, 0.24f)
+    mountPoints(5).rotation.set(0, 1, 0, 180)
 
     // Front bottom.
-    mountPoints(6).offset.setX(0)
-    mountPoints(6).offset.setY(-0.2f - offset)
-    mountPoints(6).offset.setZ(0.24f)
-    mountPoints(6).rotation.setX(0)
-    mountPoints(6).rotation.setY(1)
-    mountPoints(6).rotation.setZ(0)
-    mountPoints(6).rotation.setW(0)
+    mountPoints(6).offset.set(0, -0.2f - offset, 0.24f)
+    mountPoints(6).rotation.set(0, 1, 0, 0)
   }
 
-  def renderChassis(stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, robot: tileentity.Robot = null, offset: Double = 0, isRunningOverride: Boolean = false) {
+  def renderChassis(stack: PoseStack, buffer: MultiBufferSource, light: Int, robot: tileentity.Robot = null, offset: Double = 0, isRunningOverride: Boolean = false) {
     val isRunning = if (robot == null) isRunningOverride else robot.isRunning
 
     val size = 0.3f
@@ -266,7 +233,7 @@ class RobotRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRe
     }
   }
 
-  override def render(proxy: tileentity.RobotProxy, f: Float, matrix: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+  override def render(proxy: tileentity.RobotProxy, f: Float, matrix: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     val robot = proxy.robot
@@ -299,14 +266,14 @@ class RobotRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRe
 
     if (robot.isAnimatingTurn) {
       val remaining = (robot.animationTicksLeft - f) / robot.animationTicksTotal.toFloat
-      val axis = if (robot.turnAxis < 0) Vector3f.YN else Vector3f.YP
+      val axis = if (robot.turnAxis < 0) Axis.YN else Axis.YP
       matrix.mulPose(axis.rotationDegrees(90 * remaining))
     }
 
     robot.yaw match {
-      case Direction.WEST => matrix.mulPose(Vector3f.YP.rotationDegrees(-90))
-      case Direction.NORTH => matrix.mulPose(Vector3f.YP.rotationDegrees(180))
-      case Direction.EAST => matrix.mulPose(Vector3f.YP.rotationDegrees(90))
+      case Direction.WEST => matrix.mulPose(Axis.YP.rotationDegrees(-90))
+      case Direction.NORTH => matrix.mulPose(Axis.YP.rotationDegrees(180))
+      case Direction.EAST => matrix.mulPose(Axis.YP.rotationDegrees(90))
       case _ => // No yaw.
     }
 
@@ -335,19 +302,19 @@ class RobotRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRe
               val cycles = math.max(robot.animationTicksTotal / wantedTicksPerCycle, 1)
               val ticksPerCycle = robot.animationTicksTotal / cycles
               val remaining = (robot.animationTicksLeft - f) / ticksPerCycle.toDouble
-              matrix.mulPose(Vector3f.XP.rotationDegrees((Math.sin((remaining - remaining.toInt) * Math.PI) * 45).toFloat))
+              matrix.mulPose(Axis.XP.rotationDegrees((Math.sin((remaining - remaining.toInt) * Math.PI) * 45).toFloat))
             }
 
             val item = stack.getItem
             if (item.isInstanceOf[BlockItem]) {
-              matrix.mulPose(Vector3f.XP.rotationDegrees(180.0F))
-              matrix.mulPose(Vector3f.YP.rotationDegrees(90.0F))
+              matrix.mulPose(Axis.XP.rotationDegrees(180.0F))
+              matrix.mulPose(Axis.YP.rotationDegrees(90.0F))
               val scale = 0.625F
               matrix.scale(scale, scale, scale)
             }
             else if (item == Items.BOW) {
               matrix.translate(0, -3f/16f, -0.125F)
-              matrix.mulPose(Vector3f.ZP.rotationDegrees(170.0F))
+              matrix.mulPose(Axis.ZP.rotationDegrees(170.0F))
               val scale = 0.625F
               matrix.scale(scale, scale, scale)
             }
@@ -355,10 +322,19 @@ class RobotRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRe
               matrix.translate(1f/16f, 1f/16f, -2f/16f)
               val scale = 0.625F
               matrix.scale(scale, scale, scale)
-              matrix.mulPose(Vector3f.ZP.rotationDegrees(180.0F))
+              matrix.mulPose(Axis.ZP.rotationDegrees(180.0F))
             }
 
-            itemRenderer.renderStatic(Minecraft.getInstance.player, stack, TransformType.THIRD_PERSON_RIGHT_HAND, false, matrix, buffer, proxy.getLevel, light, overlay)
+            itemRenderer.renderStatic(Minecraft.getInstance.player,
+              stack,
+              ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,
+              false,
+              matrix,
+              buffer,
+              proxy.getLevel,
+              light,
+              overlay,
+              Minecraft.getInstance().player.getId)
           }
           catch {
             case e: Throwable =>

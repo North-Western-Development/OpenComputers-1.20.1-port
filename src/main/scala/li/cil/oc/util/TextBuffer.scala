@@ -3,7 +3,6 @@ package li.cil.oc.util
 import li.cil.oc.Settings
 import li.cil.oc.api
 import net.minecraft.nbt._
-import net.minecraftforge.common.util.Constants.NBT
 
 import java.lang
 
@@ -259,13 +258,13 @@ class TextBuffer(var width: Int, var height: Int, initialFormat: PackedColor.Col
     }
   }
 
-  def loadData(nbt: CompoundNBT): Unit = {
+  def loadData(nbt: CompoundTag): Unit = {
     val maxResolution = math.max(Settings.screenResolutionsByTier.last._1, Settings.screenResolutionsByTier.last._2)
     val w = nbt.getInt("width") min maxResolution max 1
     val h = nbt.getInt("height") min maxResolution max 1
     size = (w, h)
 
-    val b = nbt.getList("buffer", NBT.TAG_STRING)
+    val b = nbt.getList("buffer", Tag.TAG_STRING)
     for (i <- 0 until math.min(h, b.size)) {
       val value = b.getString(i)
       val valueIt = value.codePoints.iterator()
@@ -287,13 +286,13 @@ class TextBuffer(var width: Int, var height: Int, initialFormat: PackedColor.Col
     }
   }
 
-  def saveData(nbt: CompoundNBT): Unit = {
+  def saveData(nbt: CompoundTag): Unit = {
     nbt.putInt("width", width)
     nbt.putInt("height", height)
 
-    val b = new ListNBT()
+    val b = new ListTag()
     for (i <- 0 until height) {
-      b.add(StringNBT.valueOf(lineToString(i)))
+      b.add(StringTag.valueOf(lineToString(i)))
     }
     nbt.put("buffer", b)
 

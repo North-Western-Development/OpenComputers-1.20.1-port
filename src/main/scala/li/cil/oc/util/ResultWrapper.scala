@@ -1,6 +1,6 @@
 package li.cil.oc.util
 
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 import scala.math.ScalaNumber
 

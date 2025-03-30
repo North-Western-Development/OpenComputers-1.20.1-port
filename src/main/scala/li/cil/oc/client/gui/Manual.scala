@@ -1,6 +1,6 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Localization
 import li.cil.oc.api
@@ -15,7 +15,7 @@ import net.minecraft.client.gui.widget.button.Button
 import net.minecraft.client.util.InputMappings
 import net.minecraft.client.settings.KeyBinding
 import net.minecraft.util.text.ITextProperties
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.network.chat.Component
 import org.lwjgl.glfw.GLFW
 
 import scala.collection.JavaConverters.{asJavaIterable, seqAsJavaList}
@@ -105,7 +105,7 @@ class Manual extends screen.Screen(StringTextComponent.EMPTY) with traits.Window
     refreshPage()
   }
 
-  override def render(stack: MatrixStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
+  override def render(stack: PoseStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
     super.render(stack, mouseX, mouseY, dt)
 
     scrollButton.active = canScroll
@@ -121,7 +121,7 @@ class Manual extends screen.Screen(StringTextComponent.EMPTY) with traits.Window
 
     currentSegment = Document.render(stack, document, leftPos + 8, topPos + 8, documentMaxWidth, documentMaxHeight, offset, font, mouseX, mouseY)
     def localizeAndWrap(text: String): java.util.List[_ <: ITextProperties] = {
-      val lines = Localization.localizeImmediately(text).linesIterator.map(new StringTextComponent(_))
+      val lines = Localization.localizeImmediately(text).linesIterator.map(Component.literal(_))
       seqAsJavaList(lines.toSeq)
     }
 
@@ -142,7 +142,7 @@ class Manual extends screen.Screen(StringTextComponent.EMPTY) with traits.Window
     }
 
     if (canScroll && (isCoordinateOverScrollBar(mouseX - leftPos, mouseY - topPos) || isScrolling)) {
-      val lines = seqAsJavaList(Seq(new StringTextComponent(s"${100 * offset / maxOffset}%")))
+      val lines = seqAsJavaList(Seq(Component.literal(s"${100 * offset / maxOffset}%")))
       renderWrappedToolTip(stack, lines, leftPos + scrollPosX + scrollWidth, scrollButton.y + scrollButton.getHeight + 1, font)
     }
   }

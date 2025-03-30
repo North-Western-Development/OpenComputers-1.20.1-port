@@ -1,8 +1,9 @@
 package li.cil.oc.client.renderer.entity
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.IVertexBuilder
 import li.cil.oc.common.entity.Drone
+import net.minecraft.client.model.EntityModel
 import net.minecraft.client.renderer.LightTexture
 import net.minecraft.client.renderer.entity.model.EntityModel
 import net.minecraft.client.renderer.model.ModelRenderer
@@ -43,7 +44,7 @@ final class ModelQuadcopter extends EntityModel[Drone] {
 
   private val up = new Vector3d(0, 1, 0)
 
-  private def doRender(drone: Drone, dt: Float, stack: MatrixStack, builder: IVertexBuilder, light: Int, overlay: Int, r: Float, g: Float, b: Float, a: Float) {
+  private def doRender(drone: Drone, dt: Float, stack: PoseStack, builder: IVertexBuilder, light: Int, overlay: Int, r: Float, g: Float, b: Float, a: Float) {
     stack.pushPose()
     if (drone.isRunning) {
       val timeJitter = drone.hashCode() ^ 0xFF
@@ -109,7 +110,7 @@ final class ModelQuadcopter extends EntityModel[Drone] {
     cachedDt = dt
   }
 
-  override def renderToBuffer(stack: MatrixStack, builder: IVertexBuilder, light: Int, overlay: Int, r: Float, g: Float, b: Float, a: Float): Unit = {
+  override def renderToBuffer(stack: PoseStack, builder: IVertexBuilder, light: Int, overlay: Int, r: Float, g: Float, b: Float, a: Float): Unit = {
     doRender(cachedEntity, cachedDt, stack, builder, light: Int, overlay: Int, r: Float, g: Float, b: Float, a: Float)
   }
 }

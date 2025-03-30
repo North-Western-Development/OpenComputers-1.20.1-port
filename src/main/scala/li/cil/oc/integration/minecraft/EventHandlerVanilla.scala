@@ -4,13 +4,13 @@ import li.cil.oc.Settings
 import li.cil.oc.api.event.GeolyzerEvent
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedWorld._
-import net.minecraft.block.Block
+import net.minecraft.world.level.block.Block
 import net.minecraft.block.CropsBlock
 import net.minecraft.block.FlowingFluidBlock
 import net.minecraft.block.StemBlock
 import net.minecraft.state.IntegerProperty
-import net.minecraft.block.BlockState
-import net.minecraft.block.Blocks
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.Blocks
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fluids.IFluidBlock
 

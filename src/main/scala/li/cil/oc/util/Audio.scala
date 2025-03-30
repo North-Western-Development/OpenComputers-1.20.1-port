@@ -1,17 +1,16 @@
 package li.cil.oc.util
 
 import java.nio.ByteBuffer
-
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import net.minecraft.client.Minecraft
 import net.minecraft.client.audio.SimpleSound
-import net.minecraft.util.SoundEvents
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.SoundCategory
+import net.minecraft.sounds.{SoundEvents, SoundSource}
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SoundEvent
-import net.minecraft.util.math.BlockPos
+import net.minecraft.core.BlockPos
 import net.minecraft.util.math.vector.Vector3d
+import net.minecraft.world.phys.Vec3
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.event.TickEvent.ClientTickEvent
 import org.lwjgl.BufferUtils
@@ -35,7 +34,7 @@ object Audio {
 
   private val sources = mutable.Set.empty[Source]
 
-  private def volume = Minecraft.getInstance.options.getSoundSourceVolume(SoundCategory.BLOCKS)
+  private def volume = Minecraft.getInstance.options.getSoundSourceVolume(SoundSource.BLOCKS)
 
   private var disableAudio = false
 
@@ -45,7 +44,7 @@ object Audio {
 
   def play(x: Float, y: Float, z: Float, pattern: String, frequencyInHz: Int = 1000, durationInMilliseconds: Int = 200): Unit = {
     val mc = Minecraft.getInstance
-    val distanceBasedGain = math.max(0, 1 - mc.player.position.distanceTo(new Vector3d(x, y, z)) / maxDistance).toFloat
+    val distanceBasedGain = math.max(0, 1 - mc.player.position.distanceTo(new Vec3(x, y, z)) / maxDistance).toFloat
     val gain = distanceBasedGain * volume
     if (gain <= 0 || amplitude <= 0) return
 
@@ -59,7 +58,7 @@ object Audio {
       val clampedFrequency = ((frequencyInHz - 20) max 0 min 1980) / 1980f + 0.5f
       var delay = 0
       for (ch <- pattern) {
-        val record = new SimpleSound(SoundEvents.NOTE_BLOCK_HARP, SoundCategory.BLOCKS, gain, clampedFrequency, new BlockPos(x, y, z))
+        val record = new SimpleSound(SoundEvents.NOTE_BLOCK_HARP, SoundSource.BLOCKS, gain, clampedFrequency, new BlockPos(x, y, z))
         if (delay == 0) mc.getSoundManager.play(record)
         else mc.getSoundManager.playDelayed(record, delay)
         delay += ((if (ch == '.') durationInMilliseconds else 2 * durationInMilliseconds) * 20 / 1000) max 1

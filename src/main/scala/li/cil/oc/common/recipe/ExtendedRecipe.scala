@@ -1,7 +1,6 @@
 package li.cil.oc.common.recipe
 
 import java.util.UUID
-
 import li.cil.oc.Constants
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
@@ -15,15 +14,17 @@ import li.cil.oc.common.item.data.TabletData
 import li.cil.oc.server.machine.luac.LuaStateFactory
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.SideTracker
-import net.minecraft.block.Blocks
-import net.minecraft.inventory.CraftingInventory
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.inventory.CraftingContainer
 import net.minecraft.item.DyeColor
-import net.minecraft.item.Items
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.Items
+import net.minecraft.world.item.ItemStack
 import net.minecraft.item.crafting.IRecipe
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.StringNBT
+import net.minecraft.nbt.{CompoundTag, StringNBT, StringTag}
 import net.minecraft.tags.ItemTags
+import net.minecraft.world.inventory.CraftingContainer
+import net.minecraft.world.item.crafting.Recipe
+import net.minecraft.world.level.block.Blocks
 
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.util.control.Breaks._
@@ -53,7 +54,7 @@ object ExtendedRecipe {
   private lazy val print = api.Items.get(Constants.BlockName.Print)
   private val beaconBlocks = ItemTags.bind("forge:beacon_base_blocks")
 
-  def patchRecipe[R <: IRecipe[_]](recipe: R): R = {
+  def patchRecipe[R <: Recipe[_]](recipe: R): R = {
     val resultStack = recipe.getResultItem
     val resultItemName = api.Items.get(resultStack)
 
@@ -64,16 +65,16 @@ object ExtendedRecipe {
       val nbt = resultStack.getTag.getCompound(Settings.namespace + "data")
       // Load EEPROM code (if it's a string)
       val codeNbt = nbt.get(Settings.namespace + "eeprom")
-      if (codeNbt != null && codeNbt.getType == StringNBT.TYPE) {
-        val codePath = codeNbt.asInstanceOf[StringNBT].getAsString
+      if (codeNbt != null && codeNbt.getType == StringTag.TYPE) {
+        val codePath = codeNbt.asInstanceOf[StringTag].getAsString
         val code = new Array[Byte](Settings.get.eepromSize)
         val count = OpenComputers.getClass.getResourceAsStream(Settings.scriptPath + codePath).read(code)
         nbt.putByteArray(Settings.namespace + "eeprom", code.take(count))
       }
       // Load EEPROM data (if it's a string)
       val dataNbt = nbt.get(Settings.namespace + "userdata")
-      if (dataNbt != null && dataNbt.getType == StringNBT.TYPE) {
-        val dataPath = dataNbt.asInstanceOf[StringNBT].getAsString
+      if (dataNbt != null && dataNbt.getType == StringTag.TYPE) {
+        val dataPath = dataNbt.asInstanceOf[StringTag].getAsString
         val data = new Array[Byte](Settings.get.eepromDataSize)
         val count = OpenComputers.getClass.getResourceAsStream(Settings.scriptPath + dataPath).read(data)
         nbt.putByteArray(Settings.namespace + "userdata", data.take(count))
@@ -83,7 +84,7 @@ object ExtendedRecipe {
     recipe
   }
 
-  def addNBTToResult(recipe: IRecipe[_], craftedStack: ItemStack, inventory: CraftingInventory): ItemStack = {
+  def addNBTToResult(recipe: Recipe[_], craftedStack: ItemStack, inventory: CraftingContainer): ItemStack = {
     val craftedItemName = api.Items.get(craftedStack)
 
     if (craftedItemName == navigationUpgrade) {
@@ -188,7 +189,7 @@ object ExtendedRecipe {
       recipe.getIngredients.size == 2) breakable {
       for (stack <- getItems(inventory)) {
         if (api.Items.get(stack) == eeprom && stack.hasTag) {
-          val copy = stack.getTag.copy.asInstanceOf[CompoundNBT]
+          val copy = stack.getTag.copy.asInstanceOf[CompoundTag]
           // Erase node address, just in case.
           copy.getCompound(Settings.namespace + "data").getCompound("node").remove("address")
           craftedStack.setTag(copy)
@@ -206,9 +207,9 @@ object ExtendedRecipe {
     craftedStack
   }
 
-  private def getItems(inventory: CraftingInventory) = (0 until inventory.getContainerSize).map(inventory.getItem).filter(!_.isEmpty)
+  private def getItems(inventory: CraftingContainer) = (0 until inventory.getContainerSize).map(inventory.getItem).filter(!_.isEmpty)
 
-  private def recraft(craftedStack: ItemStack, inventory: CraftingInventory, descriptor: ItemInfo, dataFactory: (ItemStack) => ItemDataWrapper) {
+  private def recraft(craftedStack: ItemStack, inventory: CraftingContainer, descriptor: ItemInfo, dataFactory: (ItemStack) => ItemDataWrapper) {
     if (api.Items.get(craftedStack) == descriptor) {
       // Find old Microcontroller.
       getItems(inventory).find(api.Items.get(_) == descriptor) match {

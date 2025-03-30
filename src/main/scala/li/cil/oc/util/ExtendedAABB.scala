@@ -1,20 +1,18 @@
 package li.cil.oc.util
 
-import net.minecraft.util.Direction
-import net.minecraft.util.math.AxisAlignedBB
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.vector.Vector3d
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.world.phys.{AABB, Vec3}
 
 import scala.language.implicitConversions
 
 object ExtendedAABB {
-  implicit def extendedAABB(bounds: AxisAlignedBB): ExtendedAABB = new ExtendedAABB(bounds)
+  implicit def extendedAABB(bounds: AABB): ExtendedAABB = new ExtendedAABB(bounds)
 
-  def unitBounds = new AxisAlignedBB(0, 0, 0, 1, 1, 1)
+  def unitBounds = new AABB(0, 0, 0, 1, 1, 1)
 
-  class ExtendedAABB(val bounds: AxisAlignedBB) {
+  class ExtendedAABB(val bounds: AABB) {
     def offset(pos: BlockPos) = {
-      new AxisAlignedBB(
+      new AABB(
         bounds.minX + pos.getX,
         bounds.minY + pos.getY,
         bounds.minZ + pos.getZ,
@@ -23,9 +21,9 @@ object ExtendedAABB {
         bounds.maxZ + pos.getZ)
     }
 
-    def minVec = new Vector3d(bounds.minX, bounds.minY, bounds.minZ)
+    def minVec = new Vec3(bounds.minX, bounds.minY, bounds.minZ)
 
-    def maxVec = new Vector3d(bounds.maxX, bounds.maxY, bounds.maxZ)
+    def maxVec = new Vec3(bounds.maxX, bounds.maxY, bounds.maxZ)
 
     def volume: Int = {
       val sx = ((bounds.maxX - bounds.minX) * 16).round.toInt
@@ -48,12 +46,12 @@ object ExtendedAABB {
       case _ => 0
     })
 
-    def rotateY(count: Int): AxisAlignedBB = {
-      var min = new Vector3d(bounds.minX - 0.5, bounds.minY - 0.5, bounds.minZ - 0.5)
-      var max = new Vector3d(bounds.maxX - 0.5, bounds.maxY - 0.5, bounds.maxZ - 0.5)
+    def rotateY(count: Int): AABB = {
+      var min = new Vec3(bounds.minX - 0.5, bounds.minY - 0.5, bounds.minZ - 0.5)
+      var max = new Vec3(bounds.maxX - 0.5, bounds.maxY - 0.5, bounds.maxZ - 0.5)
       min = min.yRot(count * Math.PI.toFloat * 0.5f)
       max = max.yRot(count * Math.PI.toFloat * 0.5f)
-      new AxisAlignedBB(
+      new AABB(
         (math.min(min.x + 0.5, max.x + 0.5) * 32).round / 32f,
         (math.min(min.y + 0.5, max.y + 0.5) * 32).round / 32f,
         (math.min(min.z + 0.5, max.z + 0.5) * 32).round / 32f,

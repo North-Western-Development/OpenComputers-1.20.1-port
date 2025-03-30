@@ -17,12 +17,12 @@ import li.cil.oc.util.ResultWrapper
 import li.cil.oc.util.SideTracker
 import net.minecraft.item.DyeColor
 import net.minecraft.nbt._
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.Direction
 import net.minecraft.util.RegistryKey
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.World
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.BlockGetter
+import net.minecraft.world.level.Level
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -448,7 +448,7 @@ private class Network private(private val data: mutable.Map[String, Network.Vert
 }
 
 object Network extends api.detail.NetworkAPI {
-  override def joinOrCreateNetwork(world: IBlockReader, pos: BlockPos): Unit = {
+  override def joinOrCreateNetwork(world: BlockGetter, pos: BlockPos): Unit = {
     val tileEntity = world.getBlockEntity(pos)
     if (tileEntity != null && !tileEntity.isRemoved && tileEntity.getLevel != null && !tileEntity.getLevel.isClientSide) {
       for (side <- Direction.values) {
@@ -545,7 +545,7 @@ object Network extends api.detail.NetworkAPI {
     WirelessNetwork.remove(endpoint)
   }
 
-  override def leaveWirelessNetwork(endpoint: WirelessEndpoint, dimension: RegistryKey[World]) {
+  override def leaveWirelessNetwork(endpoint: WirelessEndpoint, dimension: RegistryKey[Level]) {
     WirelessNetwork.remove(endpoint, dimension)
   }
 
@@ -571,7 +571,7 @@ object Network extends api.detail.NetworkAPI {
     packet
   }
 
-  override def newPacket(nbt: CompoundNBT) = {
+  override def newPacket(nbt: CompoundTag) = {
     val source = nbt.getString("source")
     val destination =
       if (nbt.contains("dest")) null
@@ -732,7 +732,7 @@ object Network extends api.detail.NetworkAPI {
 
     override def hop() = new Packet(source, destination, port, data, ttl - 1)
 
-    override def saveData(nbt: CompoundNBT) {
+    override def saveData(nbt: CompoundTag) {
       nbt.putString("source", source)
       if (destination != null && !destination.isEmpty) {
         nbt.putString("dest", destination)

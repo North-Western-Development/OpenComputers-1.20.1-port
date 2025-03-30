@@ -8,8 +8,8 @@ import li.cil.oc.common.Tier
 import li.cil.oc.common.inventory.DatabaseInventory
 import li.cil.oc.common.item
 import li.cil.oc.server.component
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 
 object DriverUpgradeDatabase extends Item with api.driver.item.HostAware {
   override def worksWith(stack: ItemStack) = isOneOf(stack,
@@ -22,7 +22,7 @@ object DriverUpgradeDatabase extends Item with api.driver.item.HostAware {
     else new component.UpgradeDatabase(new DatabaseInventory {
       override def container = stack
 
-      override def stillValid(player: PlayerEntity) = false
+      override def stillValid(player: Player) = false
     })
 
   override def slot(stack: ItemStack) = Slot.Upgrade

@@ -1,11 +1,11 @@
 package li.cil.oc.common.tileentity
 
 import li.cil.oc.server.component
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
 
-class Transposer(selfType: TileEntityType[_ <: Transposer]) extends TileEntity(selfType) with traits.Environment {
+class Transposer(selfType: BlockEntityType[_ <: Transposer]) extends BlockEntity(selfType) with traits.Environment {
   val transposer = new component.Transposer.Block(this)
 
   def node = transposer.node
@@ -13,12 +13,12 @@ class Transposer(selfType: TileEntityType[_ <: Transposer]) extends TileEntity(s
   // Used on client side to check whether to render activity indicators.
   var lastOperation = 0L
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundTag) {
     super.loadForServer(nbt)
     transposer.loadData(nbt)
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundTag) {
     super.saveForServer(nbt)
     transposer.saveData(nbt)
   }

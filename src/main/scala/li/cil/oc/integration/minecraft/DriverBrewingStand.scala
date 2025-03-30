@@ -9,17 +9,17 @@ import li.cil.oc.api.network.ManagedEnvironment
 import li.cil.oc.api.prefab.DriverSidedTileEntity
 import li.cil.oc.integration.ManagedTileEntityEnvironment
 import li.cil.oc.util.ResultWrapper.result
-import net.minecraft.item.Items
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.Items
+import net.minecraft.world.item.ItemStack
 import net.minecraft.tileentity.BrewingStandTileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.core.Direction
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.Level
 
 object DriverBrewingStand extends DriverSidedTileEntity {
   override def getTileEntityClass: Class[_] = classOf[BrewingStandTileEntity]
 
-  override def createEnvironment(world: World, pos: BlockPos, side: Direction): ManagedEnvironment =
+  override def createEnvironment(world: Level, pos: BlockPos, side: Direction): ManagedEnvironment =
     new Environment(world.getBlockEntity(pos).asInstanceOf[BrewingStandTileEntity])
 
   final class Environment(tileEntity: BrewingStandTileEntity) extends ManagedTileEntityEnvironment[BrewingStandTileEntity](tileEntity, "brewing_stand") with NamedBlock {

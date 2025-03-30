@@ -9,9 +9,9 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.RenderType
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Hand
-import net.minecraft.util.ResourceLocation
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.InteractionHand
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.math.vector.Vector4f
 import net.minecraft.util.math.vector.Matrix4f
 import net.minecraftforge.client.event.RenderWorldLastEvent
@@ -41,7 +41,7 @@ object MFUTargetRenderer {
 
           RenderState.checkError(getClass.getName + ".onRenderWorldLastEvent: entering (aka: wasntme)")
 
-          val matrix = e.getMatrixStack
+          val matrix = e.getPoseStack
           matrix.pushPose()
           val camPos = Minecraft.getInstance.gameRenderer.getMainCamera.getPosition
           matrix.translate(-camPos.x, -camPos.y, -camPos.z)

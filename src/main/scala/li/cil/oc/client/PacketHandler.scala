@@ -1,8 +1,9 @@
 package li.cil.oc.client
 
+import com.mojang.blaze3d.pipeline.RenderCall
+
 import java.io.EOFException
 import java.io.InputStream
-
 import com.mojang.blaze3d.systems.IRenderCall
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Localization
@@ -25,24 +26,29 @@ import li.cil.oc.integration.Mods
 import li.cil.oc.integration.jei.ModJEI
 import li.cil.oc.util.Audio
 import li.cil.oc.util.ExtendedWorld._
+import net.minecraft.Util
 import net.minecraft.client.Minecraft
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompressedStreamTools
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.{CompressedStreamTools, NbtIo}
 import net.minecraft.particles.IParticleData
-import net.minecraft.util.Direction
-import net.minecraft.util.Util
-import net.minecraft.util.ResourceLocation
+import net.minecraft.core.Direction
+import net.minecraft.core.particles.{ItemParticleOption, ParticleOptions}
+import net.minecraft.network.chat.ChatType
+import net.minecraft.Util
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.sounds.{SoundEvent, SoundSource}
 import net.minecraft.util.SoundCategory
 import net.minecraft.util.SoundEvent
 import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.util.text.ChatType
-import net.minecraft.world.World
+import net.minecraft.world.level.Level
+import net.minecraft.world.phys.Vec3
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.registries.ForgeRegistries
 
 object PacketHandler extends CommonPacketHandler {
-  protected override def world(player: PlayerEntity, dimension: ResourceLocation): Option[World] = {
+  protected override def world(player: Player, dimension: ResourceLocation): Option[Level] = {
     val world = player.level
     if (world.dimension.location.equals(dimension)) Some(world)
     else None
@@ -121,7 +127,7 @@ object PacketHandler extends CommonPacketHandler {
   def onAnalyze(p: PacketParser) {
     val address = p.readUTF()
     if (KeyBindings.isAnalyzeCopyingAddress) {
-      RenderSystem.recordRenderCall(new IRenderCall {
+      RenderSystem.recordRenderCall(new RenderCall {
         override def execute = {
           val mc = Minecraft.getInstance
           mc.keyboardHandler.setClipboard(address)
@@ -146,7 +152,7 @@ object PacketHandler extends CommonPacketHandler {
 
   def onClipboard(p: PacketParser) {
     val contents = p.readUTF()
-    RenderSystem.recordRenderCall(new IRenderCall {
+    RenderSystem.recordRenderCall(new RenderCall {
       override def execute = Minecraft.getInstance.keyboardHandler.setClipboard(contents)
     })
   }
@@ -202,8 +208,8 @@ object PacketHandler extends CommonPacketHandler {
 
   def onFileSystemActivity(p: PacketParser): AnyVal = {
     val sound = p.readUTF()
-    val data = CompressedStreamTools.read(p)
-    if (p.readBoolean()) p.readBlockEntity[net.minecraft.tileentity.TileEntity]() match {
+    val data = NbtIo.readCompressed(p)
+    if (p.readBoolean()) p.readBlockEntity[net.minecraft.world.level.block.entity.BlockEntity]() match {
       case Some(t) =>
         MinecraftForge.EVENT_BUS.post(new FileSystemAccessEvent.Client(sound, t, data))
       case _ => // Invalid packet.
@@ -219,8 +225,8 @@ object PacketHandler extends CommonPacketHandler {
   }
 
   def onNetworkActivity(p: PacketParser): AnyVal = {
-    val data = CompressedStreamTools.read(p)
-    if (p.readBoolean()) p.readBlockEntity[net.minecraft.tileentity.TileEntity]() match {
+    val data = NbtIo.readCompressed(p)
+    if (p.readBoolean()) p.readBlockEntity[net.minecraft.world.level.block.entity.BlockEntity]() match {
       case Some(t) =>
         MinecraftForge.EVENT_BUS.post(new NetworkActivityEvent.Client(t, data))
       case _ => // Invalid packet.
@@ -310,7 +316,7 @@ object PacketHandler extends CommonPacketHandler {
         val x = p.readDouble()
         val y = p.readDouble()
         val z = p.readDouble()
-        t.translation = new Vector3d(x, y, z)
+        t.translation = new Vec3(x, y, z)
       case _ => // Invalid packet.
     }
 
@@ -352,7 +358,7 @@ object PacketHandler extends CommonPacketHandler {
   }
 
   def onNanomachinesConfiguration(p: PacketParser): Unit = {
-    p.readEntity[PlayerEntity]() match {
+    p.readEntity[Player]() match {
       case Some(player) =>
         val hasController = p.readBoolean()
         if (hasController) {
@@ -369,7 +375,7 @@ object PacketHandler extends CommonPacketHandler {
   }
 
   def onNanomachinesInputs(p: PacketParser): Unit = {
-    p.readEntity[PlayerEntity]() match {
+    p.readEntity[Player]() match {
       case Some(player) => api.Nanomachines.getController(player) match {
         case controller: ControllerImpl =>
           val inputs = new Array[Byte](p.readInt())
@@ -387,7 +393,7 @@ object PacketHandler extends CommonPacketHandler {
   }
 
   def onNanomachinesPower(p: PacketParser): Unit = {
-    p.readEntity[PlayerEntity]() match {
+    p.readEntity[Player]() match {
       case Some(player) => api.Nanomachines.getController(player) match {
         case controller: ControllerImpl => controller.storedEnergy = p.readDouble()
         case _ => // Wat.
@@ -414,8 +420,8 @@ object PacketHandler extends CommonPacketHandler {
         val velocity = p.readDouble()
         val direction = p.readDirection()
         val particleType = p.readRegistryEntry(ForgeRegistries.PARTICLE_TYPES)
-        if (particleType.isInstanceOf[IParticleData]) {
-          val particle = particleType.asInstanceOf[IParticleData]
+        if (particleType.isInstanceOf[ParticleOptions]) {
+          val particle = particleType.asInstanceOf[ParticleOptions]
           val count = p.readUnsignedByte() / (1 << Minecraft.getInstance.options.particles.getId())
 
           for (i <- 0 until count) {
@@ -828,7 +834,7 @@ object PacketHandler extends CommonPacketHandler {
         val y = p.readDouble()
         val z = p.readDouble()
         val sound = p.readUTF()
-        val category = SoundCategory.values()(p.readByte())
+        val category = SoundSource.values()(p.readByte())
         val range = p.readFloat()
         world.playSound(p.player, x, y, z, new SoundEvent(new ResourceLocation(sound)), category, range / 15 + 0.5F, 1.0F)
       case _ => // Invalid packet.
@@ -868,5 +874,5 @@ object PacketHandler extends CommonPacketHandler {
       case _ => // Invalid packet.
     }
 
-  protected override def createParser(stream: InputStream, player: PlayerEntity) = new PacketParser(stream, Minecraft.getInstance.player)
+  protected override def createParser(stream: InputStream, player: Player) = new PacketParser(stream, Minecraft.getInstance.player)
 }

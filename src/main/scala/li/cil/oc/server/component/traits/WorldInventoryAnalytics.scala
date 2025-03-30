@@ -9,9 +9,10 @@ import li.cil.oc.server.component.result
 import li.cil.oc.util.{BlockInventorySource, BlockPosition, DatabaseAccess, EntityInventorySource, InventorySource, InventoryUtils, StackOption}
 import li.cil.oc.util.ExtendedWorld._
 import li.cil.oc.util.ExtendedArguments._
-import net.minecraft.block.Block
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
+import net.minecraft.world.level.block.Block
 import net.minecraftforge.items.IItemHandler
 
 import scala.collection.convert.ImplicitConversionsToScala._
