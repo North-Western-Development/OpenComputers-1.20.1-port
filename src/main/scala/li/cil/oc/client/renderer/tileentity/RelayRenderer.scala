@@ -8,19 +8,19 @@ import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.RenderState
-import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
+import net.minecraft.client.renderer.block.BlockRenderDispatcher
 
-object RelayRenderer extends Function[TileEntityRendererDispatcher, RelayRenderer] {
-  override def apply(dispatch: TileEntityRendererDispatcher) = new RelayRenderer(dispatch)
+object RelayRenderer extends Function[BlockRenderDispatcher, RelayRenderer] {
+  override def apply(dispatch: BlockRenderDispatcher) = new RelayRenderer(dispatch)
 }
 
-class RelayRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[tileentity.Relay](dispatch) {
-  override def render(switch: tileentity.Relay, dt: Float, stack: PoseStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+class RelayRenderer(dispatch: BlockRenderDispatcher) extends BlockEntityRenderer[tileentity.Relay](dispatch) {
+  override def render(switch: tileentity.Relay, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
 
     val activity = math.max(0, 1 - (System.currentTimeMillis() - switch.lastMessage) / 1000.0)
     if (activity > 0) {

@@ -1,8 +1,5 @@
 package li.cil.oc.common.tileentity
 
-import java.util
-
-import li.cil.oc.{Constants, Settings, api}
 import li.cil.oc.api.driver.DeviceInfo
 import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
 import li.cil.oc.api.machine.{Arguments, Callback, Context}
@@ -10,16 +7,14 @@ import li.cil.oc.api.network.{Node, Visibility}
 import li.cil.oc.common.EventHandler
 import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import li.cil.oc.util.RotationHelper
-import net.minecraft.sounds.SoundEvents
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.level.block.entity.BlockEntityType
+import li.cil.oc.{Constants, Settings, api}
 import net.minecraft.core.Direction
-import net.minecraft.util.SoundCategory
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.sounds.SoundEvents
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 

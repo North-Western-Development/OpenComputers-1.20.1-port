@@ -22,7 +22,7 @@ import net.minecraft.util.ICharacterConsumer
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.text.CharacterManager.ISliceAcceptor
 import net.minecraft.util.text.Style
-import net.minecraft.util.text.TextFormatting
+import net.minecraft.ChatFormatting
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -70,8 +70,8 @@ object CallbackDocHandler {
             case VexPattern(head, tail) => (name + head, tail)
             case _ => (name, doc)
           }
-          wrap(signature, 160).map(TextFormatting.BLACK.toString + _).mkString("\n") +
-            TextFormatting.RESET + "\n" +
+          wrap(signature, 160).map(ChatFormatting.BLACK.toString + _).mkString("\n") +
+            ChatFormatting.RESET + "\n" +
             wrap(documentation, 152).map("  " + _).mkString("\n")
         }
     }

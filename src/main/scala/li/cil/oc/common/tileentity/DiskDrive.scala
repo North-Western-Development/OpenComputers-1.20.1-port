@@ -1,43 +1,25 @@
 package li.cil.oc.common.tileentity
 
-import java.util
-import li.cil.oc.Constants
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, Settings, api}
 import li.cil.oc.api.Driver
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network.Analyzable
-import li.cil.oc.api.network.Component
-import li.cil.oc.api.network.Node
-import li.cil.oc.api.network.Visibility
-import li.cil.oc.common.Slot
-import li.cil.oc.common.Sound
-import li.cil.oc.common.container
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
+import li.cil.oc.api.network.{Analyzable, Component, Node, Visibility}
+import li.cil.oc.common.{Slot, Sound, container}
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.InventoryUtils
 import net.minecraft.core.Direction
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.player.Inventory
-import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
 import net.minecraft.world.MenuProvider
-import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 
 class DiskDrive(selfType: BlockEntityType[_ <: DiskDrive]) extends BlockEntity(selfType) with traits.Environment

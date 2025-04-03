@@ -2,12 +2,12 @@ package li.cil.oc.integration.appeng
 
 import appeng.api.config.{Actionable, FuzzyMode, Settings, Upgrades}
 import appeng.api.implementations.IUpgradeableHost
-import appeng.api.implementations.tiles.ISegmentedInventory
+import appeng.api.inventories.ISegmentedInventory
 import appeng.api.networking.IGridHost
 import appeng.api.networking.security.IActionHost
 import appeng.api.parts.{IPartHost, PartItemStack}
 import appeng.api.storage.IMEMonitor
-import appeng.api.storage.data.IAEItemStack
+import appeng.api.stacks.AEKey
 import appeng.api.util.{AEPartLocation, IConfigurableObject}
 import li.cil.oc.api.driver
 import li.cil.oc.api.driver.EnvironmentProvider
@@ -46,7 +46,7 @@ object DriverExportBus extends driver.DriverBlock {
     @Callback(doc = "function(side:number[, slot:number][, database:address, entry:number):boolean -- Configure the export bus pointing in the specified direction to export item stacks matching the specified descriptor.")
     def setExportConfiguration(context: Context, args: Arguments): Array[AnyRef] = setPartConfig[ISegmentedInventory](context, args)
 
-    def doExport(itemStorage: IMEMonitor[IAEItemStack], ais: IAEItemStack, inventory: IItemHandler, targetSlot: Option[Int], count: Int, source: MachineSource, simulate: Boolean): Boolean = {
+    def doExport(itemStorage: IMEMonitor[AEKey], ais: AEKey, inventory: IItemHandler, targetSlot: Option[Int], count: Int, source: MachineSource, simulate: Boolean): Boolean = {
       val limit = ais.getStackSize.toInt min count
       ais.setStackSize(limit)
       val itemStack = ais.createItemStack
@@ -63,7 +63,7 @@ object DriverExportBus extends driver.DriverBlock {
         ais.setStackSize(limit - itemStack.getCount)
       }
 
-      val extracted: IAEItemStack = itemStorage.extractItems(ais, if (simulate) Actionable.SIMULATE else Actionable.MODULATE, source)
+      val extracted: AEKey = itemStorage.extractItems(ais, if (simulate) Actionable.SIMULATE else Actionable.MODULATE, source)
 
       extracted != null
     }
@@ -110,7 +110,7 @@ object DriverExportBus extends driver.DriverBlock {
           else
             Seq(itemStorage.getStorageList.findPrecise(filter))
 
-        for (ais <- stacks.filter(_ != null).map(_.asInstanceOf[IAEItemStack].copy) if count > 0 && ais.getStackSize > 0) {
+        for (ais <- stacks.filter(_ != null).map(_.asInstanceOf[AEKey].copy) if count > 0 && ais.getStackSize > 0) {
           if (doExport(itemStorage, ais, inventory, targetSlot, count, source, simulate = true)) {
             if (doExport(itemStorage, ais, inventory, targetSlot, count, source, simulate = false)) {
               count = (count - ais.getStackSize.toInt) max 0

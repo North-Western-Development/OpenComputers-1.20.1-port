@@ -3,7 +3,7 @@ package li.cil.oc.client.renderer.tileentity
 import java.util.function.Function
 import com.google.common.base.Strings
 import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.{IVertexBuilder, PoseStack, VertexConsumer}
+import com.mojang.blaze3d.vertex.{VertexConsumer, PoseStack, VertexConsumer}
 import com.mojang.math.Axis
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
@@ -20,9 +20,9 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer._
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
+import net.minecraft.client.renderer.block.BlockRenderDispatcher
+import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import net.minecraft.world.item.Items
 import net.minecraft.item.BlockItem
 import net.minecraft.world.item.{BlockItem, ItemDisplayContext, ItemStack, Items}
@@ -30,7 +30,7 @@ import net.minecraft.core.Direction
 import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.util.math.vector.Vector3f
 import net.minecraft.util.math.vector.Matrix3f
-import net.minecraft.util.text.TextFormatting
+import net.minecraft.ChatFormatting
 import net.minecraftforge.client.ForgeHooksClient
 import net.minecraftforge.common.MinecraftForge
 import org.joml.{Matrix3f, Vector3d, Vector3f}
@@ -39,8 +39,8 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 
-object RobotRenderer extends Function[TileEntityRendererDispatcher, RobotRenderer] {
-  override def apply(dispatch: TileEntityRendererDispatcher) = new RobotRenderer(dispatch)
+object RobotRenderer extends Function[BlockRenderDispatcher, RobotRenderer] {
+  override def apply(dispatch: BlockRenderDispatcher) = new RobotRenderer(dispatch)
 
   private val instance = new RobotRenderer(null)
 
@@ -48,7 +48,7 @@ object RobotRenderer extends Function[TileEntityRendererDispatcher, RobotRendere
     instance.renderChassis(stack, buffer, light, null, offset, isRunningOverride)
 }
 
-class RobotRenderer(dispatch: TileEntityRendererDispatcher) extends BlockEntityRenderer[tileentity.RobotProxy](dispatch) {
+class RobotRenderer(dispatch: BlockRenderDispatcher) extends BlockEntityRenderer[tileentity.RobotProxy](dispatch) {
   private val mountPoints = new Array[RobotRenderEvent.MountPoint](7)
 
   private val slotNameMapping = Map(
@@ -396,7 +396,7 @@ class RobotRenderer(dispatch: TileEntityRendererDispatcher) extends BlockEntityR
       matrix.mulPose(Minecraft.getInstance.getEntityRenderDispatcher.cameraOrientation)
       matrix.scale(-scale, -scale, scale)
 
-      f.drawInBatch((if (EventHandler.isItTime) TextFormatting.OBFUSCATED.toString else "") + name,
+      f.drawInBatch((if (EventHandler.isItTime) ChatFormatting.OBFUSCATED.toString else "") + name,
         -halfWidth, 0, -1, false, matrix.last.pose, buffer, false, bgColor, light)
     }
 

@@ -38,7 +38,7 @@ object ManualUsageHandler {
     val recipeHeight: Int = 125
     private var background: IDrawable = _
     private var icon: IDrawable = _
-    private val button = new Button((160 - 100) / 2, 10, 100, 20, Localization.localizeLater("nei.usage.oc.Manual"), new Button.IPressable {
+    private val button = new Button((160 - 100) / 2, 10, 100, 20, Localization.localizeLater("nei.usage.oc.Manual"), new Button.OnPress {
       override def onPress(b: Button) = ()
     })
 

@@ -10,6 +10,7 @@ import li.cil.oc.common.Tier
 import li.cil.oc.common.item.data.MicrocontrollerData
 import li.cil.oc.util.ItemUtils
 import net.minecraft.inventory.IInventory
+import net.minecraft.world.Container
 import net.minecraft.world.item.ItemStack
 
 import scala.collection.JavaConverters.asJavaIterable
@@ -27,9 +28,9 @@ object MicrocontrollerTemplate extends Template {
 
   def selectTierCreative(stack: ItemStack): Boolean = api.Items.get(stack) == api.Items.get(Constants.ItemName.MicrocontrollerCaseCreative)
 
-  def validate(inventory: IInventory): Array[AnyRef] = validateComputer(inventory)
+  def validate(inventory: Container): Array[AnyRef] = validateComputer(inventory)
 
-  def assemble(inventory: IInventory): Array[Object] = {
+  def assemble(inventory: Container): Array[Object] = {
     val items = (0 until inventory.getContainerSize).map(inventory.getItem)
     val data = new MicrocontrollerData()
     data.tier = caseTier(inventory)
@@ -134,5 +135,5 @@ object MicrocontrollerTemplate extends Template {
     else if (caseTier(inventory) == Tier.Four) 9001 // Creative
     else 4
 
-  override protected def caseTier(inventory: IInventory): Int = ItemUtils.caseTier(inventory.getItem(0))
+  override protected def caseTier(inventory: Container): Int = ItemUtils.caseTier(inventory.getItem(0))
 }

@@ -5,31 +5,29 @@ import li.cil.oc.client.renderer.item.HoverBootRenderer
 import li.cil.oc.common.init.Items
 import li.cil.oc.common.item.data.HoverBootsData
 import li.cil.oc.util.ItemColorizer
-import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.{Blocks, CauldronBlock, LayeredCauldronBlock}
 import net.minecraft.block.CauldronBlock
 import net.minecraft.client.renderer.entity.model.BipedModel
 import net.minecraft.inventory.EquipmentSlotType
 import net.minecraft.item.ArmorItem
 import net.minecraft.item.ArmorMaterial
-import net.minecraft.world.item.Item
+import net.minecraft.world.item.{ArmorItem, ArmorMaterial, ArmorMaterials, Item, ItemGroup, ItemStack}
 import net.minecraft.world.item.Item.Properties
-import net.minecraft.world.item.ItemGroup
-import net.minecraft.world.item.ItemStack
 import net.minecraft.item.Rarity
-import net.minecraft.world.entity.Entity
-import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.{Entity, EquipmentSlot, LivingEntity}
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.potion.Effect
 import net.minecraft.potion.Effects
 import net.minecraft.potion.EffectInstance
 import net.minecraft.core.NonNullList
+import net.minecraft.world.effect.{MobEffect, MobEffectInstance, MobEffects}
 import net.minecraft.world.level.Level
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.common.extensions.IForgeItem
 
-class HoverBoots(props: Properties) extends ArmorItem(ArmorMaterial.DIAMOND, EquipmentSlotType.FEET, props) with IForgeItem with traits.SimpleItem with traits.Chargeable {
+class HoverBoots(props: Properties) extends ArmorItem(ArmorMaterials.DIAMOND, ArmorItem.Type.BOOTS, props) with IForgeItem with traits.SimpleItem with traits.Chargeable {
   override def maxCharge(stack: ItemStack): Double = Settings.get.bufferHoverBoots
 
   override def getCharge(stack: ItemStack): Double =
@@ -65,15 +63,15 @@ class HoverBoots(props: Properties) extends ArmorItem(ArmorMaterial.DIAMOND, Equ
     else super.getArmorModel(entityLiving, itemStack, armorSlot, _default)
   }
 
-  override def getArmorTexture(stack: ItemStack, entity: Entity, slot: EquipmentSlotType, subType: String): String = {
+  override def getArmorTexture(stack: ItemStack, entity: Entity, slot: EquipmentSlot, `type`: String): String = {
     if (entity.level.isClientSide) HoverBootRenderer.texture.toString
     else null
   }
 
   override def onArmorTick(stack: ItemStack, world: Level, player: Player): Unit = {
     super.onArmorTick(stack, world, player)
-    if (!Settings.get.ignorePower && player.getEffect(Effects.MOVEMENT_SLOWDOWN) == null && getCharge(stack) == 0) {
-      player.addEffect(new EffectInstance(Effects.MOVEMENT_SLOWDOWN, 20, 1))
+    if (!Settings.get.ignorePower && player.getEffect(MobEffects.MOVEMENT_SLOWDOWN) == null && getCharge(stack) == 0) {
+      player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 1))
     }
   }
 
@@ -81,11 +79,11 @@ class HoverBoots(props: Properties) extends ArmorItem(ArmorMaterial.DIAMOND, Equ
     if (entity != null && entity.level != null && !entity.level.isClientSide && ItemColorizer.hasColor(stack)) {
       val pos = entity.blockPosition
       val state = entity.level.getBlockState(pos)
-      if (state.getBlock == Blocks.CAULDRON) {
-        val level = state.getValue(CauldronBlock.LEVEL).toInt
+      if (state.getBlock == Blocks.WATER_CAULDRON) {
+        val level = state.getValue(LayeredCauldronBlock.LEVEL).toInt
         if (level > 0) {
           ItemColorizer.removeColor(stack)
-          entity.level.setBlock(pos, state.setValue(CauldronBlock.LEVEL, Int.box(level - 1)), 3)
+          entity.level.setBlock(pos, state.setValue(LayeredCauldronBlock.LEVEL, Int.box(level - 1)), 3)
           return true
         }
       }

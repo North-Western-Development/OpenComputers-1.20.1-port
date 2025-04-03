@@ -1,27 +1,24 @@
 package li.cil.oc.client.renderer.tileentity
 
-import java.util.function.Function
-
 import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.math.Axis
 import li.cil.oc.client.Textures
 import li.cil.oc.common.tileentity.Printer
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.client.renderer.RenderHelper
-import net.minecraft.client.renderer.model.ItemCameraTransforms
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
-import net.minecraft.util.math.vector.Vector3f
-import org.lwjgl.opengl.GL13
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.block.BlockRenderDispatcher
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
+import net.minecraft.world.item.ItemDisplayContext
 
-object PrinterRenderer extends Function[TileEntityRendererDispatcher, PrinterRenderer] {
-  override def apply(dispatch: TileEntityRendererDispatcher) = new PrinterRenderer(dispatch)
+import java.util.function.Function
+
+object PrinterRenderer extends Function[BlockRenderDispatcher, PrinterRenderer] {
+  override def apply(dispatch: BlockRenderDispatcher) = new PrinterRenderer(dispatch)
 }
 
-class PrinterRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Printer](dispatch) {
-  override def render(printer: Printer, dt: Float, matrix: PoseStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+class PrinterRenderer(dispatch: BlockRenderDispatcher) extends BlockEntityRenderer[Printer](dispatch) {
+  override def render(printer: Printer, dt: Float, matrix: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     if (printer.data.stateOff.nonEmpty) {
@@ -30,11 +27,11 @@ class PrinterRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntity
       matrix.pushPose()
       matrix.translate(0.5, 0.5 + 0.3, 0.5)
 
-      matrix.mulPose(Vector3f.YP.rotationDegrees((System.currentTimeMillis() % 20000) / 20000f * 360))
+      matrix.mulPose(Axis.YP.rotationDegrees((System.currentTimeMillis() % 20000) / 20000f * 360))
       matrix.scale(0.75f, 0.75f, 0.75f)
 
       Textures.Block.bind()
-      Minecraft.getInstance.getItemRenderer.renderStatic(stack, ItemCameraTransforms.TransformType.FIXED, light, overlay, matrix, buffer)
+      Minecraft.getInstance.getItemRenderer.renderStatic(stack, ItemDisplayContext.FIXED, light, overlay, matrix, buffer)
 
       matrix.popPose()
     }

@@ -1,7 +1,6 @@
 package li.cil.oc.common.item.traits
 
 import java.util
-
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.driver.item.MutableProcessor
@@ -9,13 +8,9 @@ import li.cil.oc.integration.opencomputers.DriverCPU
 import li.cil.oc.util.Tooltip
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
-import net.minecraft.util.ActionResult
-import net.minecraft.world.InteractionResult
-import net.minecraft.world.InteractionHand
+import net.minecraft.world.{InteractionHand, InteractionResult, InteractionResultHolder}
 import net.minecraft.Util
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.Component
-import net.minecraft.util.text.TranslationTextComponent
 import net.minecraft.world.level.Level
 
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -32,7 +27,7 @@ trait CPULike extends SimpleItem {
     }
   }
 
-  override def use(stack: ItemStack, world: Level, player: Player): ActionResult[ItemStack] = {
+  override def use(stack: ItemStack, world: Level, player: Player): InteractionResultHolder[ItemStack] = {
     if (player.isCrouching) {
       if (!world.isClientSide) {
         api.Driver.driverFor(stack) match {
@@ -44,13 +39,13 @@ trait CPULike extends SimpleItem {
               val archClass = architectures(newIndex)
               val archName = api.Machine.getArchitectureName(archClass)
               driver.setArchitecture(stack, archClass)
-              player.sendMessage(new TranslationTextComponent(Settings.namespace + "tooltip.cpu.Architecture", archName), Util.NIL_UUID)
+              player.sendSystemMessage(Component.translatable(Settings.namespace + "tooltip.cpu.Architecture", archName))
             }
-            player.swing(Hand.MAIN_HAND)
+            player.swing(InteractionHand.MAIN_HAND)
           case _ => // No known driver for this processor.
         }
       }
     }
-    new ActionResult(InteractionResult.sidedSuccess(world.isClientSide), stack)
+    new InteractionResultHolder[ItemStack](InteractionResult.sidedSuccess(world.isClientSide), stack)
   }
 }

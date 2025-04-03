@@ -24,7 +24,6 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.event.TickEvent.ClientTickEvent
 import net.minecraftforge.event.level.LevelEvent
-import net.minecraftforge.event.world.WorldEvent
 
 import scala.collection.mutable
 

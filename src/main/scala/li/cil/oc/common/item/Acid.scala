@@ -1,30 +1,22 @@
 package li.cil.oc.common.item
 
-import javax.annotation.Nonnull
-
 import li.cil.oc.api
+import net.minecraft.world.effect.{MobEffectInstance, MobEffects}
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.Item
 import net.minecraft.world.item.Item.Properties
-import net.minecraft.world.item.ItemStack
-import net.minecraft.item.UseAction
-import net.minecraft.potion.Effect
-import net.minecraft.potion.Effects
-import net.minecraft.potion.EffectInstance
-import net.minecraft.util.ActionResult
-import net.minecraft.world.InteractionResult
-import net.minecraft.world.InteractionHand
+import net.minecraft.world.item.{Item, ItemStack, UseAnim}
 import net.minecraft.world.level.Level
+import net.minecraft.world.{InteractionHand, InteractionResult, InteractionResultHolder}
 import net.minecraftforge.common.extensions.IForgeItem
 
 class Acid(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem {
-  override def use(stack: ItemStack, world: Level, player: Player): ActionResult[ItemStack] = {
-    player.startUsingItem(if (player.getItemInHand(Hand.MAIN_HAND) == stack) Hand.MAIN_HAND else Hand.OFF_HAND)
-    new ActionResult(InteractionResult.sidedSuccess(world.isClientSide), stack)
+  override def use(stack: ItemStack, world: Level, player: Player): InteractionResultHolder[ItemStack] = {
+    player.startUsingItem(if (player.getItemInHand(InteractionHand.MAIN_HAND) == stack) InteractionHand.MAIN_HAND else InteractionHand.OFF_HAND)
+    new InteractionResultHolder[ItemStack](InteractionResult.sidedSuccess(world.isClientSide), stack)
   }
 
-  override def getUseAnimation(stack: ItemStack): UseAction = UseAction.DRINK
+  override def getUseAnimation(stack: ItemStack): UseAnim = UseAnim.DRINK
 
   override def getUseDuration(stack: ItemStack): Int = 32
 
@@ -32,11 +24,11 @@ class Acid(props: Properties) extends Item(props) with IForgeItem with traits.Si
     entity match {
       case player: Player =>
         if (!world.isClientSide) {
-          player.addEffect(new EffectInstance(Effects.BLINDNESS, 200))
-          player.addEffect(new EffectInstance(Effects.POISON, 100))
-          player.addEffect(new EffectInstance(Effects.MOVEMENT_SLOWDOWN, 600))
-          player.addEffect(new EffectInstance(Effects.CONFUSION, 1200))
-          player.addEffect(new EffectInstance(Effects.SATURATION, 2000))
+          player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 200))
+          player.addEffect(new MobEffectInstance(MobEffects.POISON, 100))
+          player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 600))
+          player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 1200))
+          player.addEffect(new MobEffectInstance(MobEffects.SATURATION, 2000))
 
           // Remove nanomachines if installed.
           api.Nanomachines.uninstallController(player)

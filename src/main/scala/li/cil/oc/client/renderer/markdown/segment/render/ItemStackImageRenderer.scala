@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.api.manual.ImageRenderer
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.world.item.ItemStack
 import org.lwjgl.opengl.GL11
@@ -18,7 +19,7 @@ private[markdown] class ItemStackImageRenderer(val stacks: Array[ItemStack]) ext
 
   override def getHeight = 32
 
-  override def render(matrix: PoseStack, mouseX: Int, mouseY: Int): Unit = {
+  override def render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int): Unit = {
     val mc = Minecraft.getInstance
     val index = (System.currentTimeMillis() % (cycleSpeed * stacks.length)).toInt / cycleSpeed
     val stack = stacks(index)

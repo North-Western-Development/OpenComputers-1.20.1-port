@@ -1,14 +1,10 @@
 package li.cil.oc.common.event
 
-import com.mojang.blaze3d.systems.RenderSystem
-import li.cil.oc.Localization
-import li.cil.oc.Settings
+import li.cil.oc.{Localization, Settings}
 import li.cil.oc.api.event._
-import li.cil.oc.api.internal.Agent
-import li.cil.oc.api.internal.Robot
+import li.cil.oc.api.internal.{Agent, Robot}
 import li.cil.oc.api.network.Node
 import li.cil.oc.server.component
-import net.minecraft.Util
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -19,7 +15,7 @@ object ExperienceUpgradeHandler {
     val (level, experience) = getLevelAndExperience(e.agent)
     // This is basically a 'does it have an experience upgrade' check.
     if (experience != 0.0) {
-      e.player.sendMessage(Localization.Analyzer.RobotXp(experience, level), Util.NIL_UUID)
+      e.player.sendSystemMessage(Localization.Analyzer.RobotXp(experience, level))
     }
   }
 

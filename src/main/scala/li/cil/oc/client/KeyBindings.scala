@@ -7,7 +7,7 @@ import net.minecraft.client.{KeyMapping, Minecraft}
 import net.minecraftforge.client.settings.{IKeyConflictContext, KeyConflictContext, KeyModifier}
 import org.lwjgl.glfw.GLFW
 
-object KeyBindings {
+object KeyMappings {
   private def isActive(input: InputConstants.Key): Boolean = {
     val window = Minecraft.getInstance.getWindow.getWindow
     input.getType match {
@@ -32,7 +32,7 @@ object KeyBindings {
 
   def isAnalyzeCopyingAddress: Boolean = analyzeCopyAddr.isDown
 
-  def getKeyBindingName(keyBinding: KeyMapping) = keyBinding.getTranslatedKeyMessage.getString
+  def getKeyMappingName(keyBinding: KeyMapping) = keyBinding.getTranslatedKeyMessage.getString
 
   val textInputConflict = new IKeyConflictContext {
     override def isActive: Boolean = Minecraft.getInstance.screen.isInstanceOf[InputBuffer]

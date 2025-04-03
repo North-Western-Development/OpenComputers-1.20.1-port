@@ -1,56 +1,32 @@
 package li.cil.oc.common
 
-import java.util.function.Supplier
 import com.google.common.base.Strings
-import li.cil.oc._
-import li.cil.oc.common.{PacketHandler => CommonPacketHandler}
 import li.cil.oc.common.capabilities.Capabilities
 import li.cil.oc.common.container.ContainerTypes
-import li.cil.oc.common.entity.Drone
 import li.cil.oc.common.entity.EntityTypes
-import li.cil.oc.common.init.Blocks
 import li.cil.oc.common.init.Items
-import li.cil.oc.common.tileentity.TileEntityTypes
 import li.cil.oc.common.recipe.RecipeSerializers
+import li.cil.oc.common.tileentity.TileEntityTypes
+import li.cil.oc.common.{PacketHandler => CommonPacketHandler}
 import li.cil.oc.integration.Mods
-import li.cil.oc.server
+import li.cil.oc._
 import li.cil.oc.server._
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.server.machine.luac.{LuaStateFactory, NativeLua52Architecture, NativeLua53Architecture, NativeLua54Architecture}
 import li.cil.oc.server.machine.luaj.LuaJLuaArchitecture
-import net.minecraft.world.level.block.Block
 import net.minecraft.core.registries.Registries
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.player.Inventory
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.inventory.container.Container
-import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.world.item.Item
-import net.minecraft.world.item.ItemStack
-import net.minecraft.network.{FriendlyByteBuf, PacketBuffer}
+import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.tags.ItemTags
-import net.minecraft.resources.ResourceLocation
-import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.Component
-import net.minecraft.world.level.Level
 import net.minecraft.world.item.Item
 import net.minecraft.world.level.block.Block
-import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.common.util.FakePlayer
-import net.minecraftforge.event.RegistryEvent.MissingMappings
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
+import net.minecraftforge.fml.event.lifecycle.{FMLCommonSetupEvent, FMLLoadCompleteEvent}
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
-import net.minecraftforge.fml.network.NetworkEvent
-import net.minecraftforge.fml.network.NetworkRegistry
 import net.minecraftforge.network.{NetworkEvent, NetworkRegistry}
 import net.minecraftforge.registries.{ForgeRegistries, MissingMappingsEvent}
-import net.minecraftforge.scorge.lang.ScorgeModLoadingContext
 
+import java.util.function.Supplier
 import scala.jdk.CollectionConverters._
-import scala.reflect.ClassTag
 
 class Proxy {
   protected val modBus = FMLJavaModLoadingContext.get().getModEventBus

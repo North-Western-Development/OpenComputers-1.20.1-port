@@ -1,23 +1,15 @@
 package li.cil.oc.integration.minecraft
 
 import li.cil.oc.api.Network
-import li.cil.oc.api.driver.DriverBlock
-import li.cil.oc.api.driver.EnvironmentProvider
-import li.cil.oc.api.driver.NamedBlock
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network.ManagedEnvironment
-import li.cil.oc.api.network.Visibility
+import li.cil.oc.api.driver.{DriverBlock, EnvironmentProvider, NamedBlock}
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
+import li.cil.oc.api.network.{ManagedEnvironment, Visibility}
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.ResultWrapper.result
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.Blocks
-import net.minecraft.block.NoteBlock
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.core.Direction
-import net.minecraft.core.BlockPos
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.{Block, Blocks, NoteBlock}
 
 
 object DriverNoteBlock extends DriverBlock {

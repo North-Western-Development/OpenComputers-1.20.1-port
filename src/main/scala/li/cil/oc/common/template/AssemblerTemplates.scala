@@ -1,20 +1,16 @@
 package li.cil.oc.common.template
 
-import java.lang.reflect.Method
 import com.google.common.base.Strings
-import li.cil.oc.OpenComputers
-import li.cil.oc.api
+import li.cil.oc.{OpenComputers, api}
 import li.cil.oc.api.driver.item.Container
 import li.cil.oc.api.network.EnvironmentHost
-import li.cil.oc.common.IMC
-import li.cil.oc.common.Slot
-import li.cil.oc.common.Tier
+import li.cil.oc.common.{IMC, Slot, Tier}
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.inventory.IInventory
 import net.minecraft.nbt.{CompoundTag, Tag}
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 
+import java.lang.reflect.Method
 import scala.collection.mutable
 import scala.language.existentials
 
@@ -56,14 +52,14 @@ object AssemblerTemplates {
                  val componentSlots: Array[Slot]) {
     def select(stack: ItemStack) = IMC.tryInvokeStatic(selector, stack)(false)
 
-    def validate(inventory: IInventory) = IMC.tryInvokeStatic(validator, inventory)(null: Array[AnyRef]) match {
+    def validate(inventory: Container) = IMC.tryInvokeStatic(validator, inventory)(null: Array[AnyRef]) match {
       case Array(valid: java.lang.Boolean, progress: Component, warnings: Array[Component]) => (valid: Boolean, progress, warnings)
       case Array(valid: java.lang.Boolean, progress: Component) => (valid: Boolean, progress, Array.empty[Component])
       case Array(valid: java.lang.Boolean) => (valid: Boolean, null, Array.empty[Component])
       case _ => (false, null, Array.empty[Component])
     }
 
-    def assemble(inventory: IInventory) = IMC.tryInvokeStatic(assembler, inventory)(null: Array[AnyRef]) match {
+    def assemble(inventory: Container) = IMC.tryInvokeStatic(assembler, inventory)(null: Array[AnyRef]) match {
       case Array(stack: ItemStack, energy: java.lang.Number) => (stack, energy.doubleValue(): Double)
       case Array(stack: ItemStack) => (stack, 0.0)
       case _ => (ItemStack.EMPTY, 0.0)
@@ -71,7 +67,7 @@ object AssemblerTemplates {
   }
 
   class Slot(val kind: String, val tier: Int, val validator: Option[Method], val hostClass: Option[Class[_ <: EnvironmentHost]]) {
-    def validate(inventory: IInventory, slot: Int, stack: ItemStack) = validator match {
+    def validate(inventory: Container, slot: Int, stack: ItemStack) = validator match {
       case Some(method) => IMC.tryInvokeStatic(method, inventory, Integer.valueOf(slot), Integer.valueOf(tier), stack)(false)
       case _ => Option(hostClass.fold(api.Driver.driverFor(stack))(api.Driver.driverFor(stack, _))) match {
         case Some(driver) => try driver.slot(stack) == kind && driver.tier(stack) <= tier catch {
@@ -87,7 +83,7 @@ object AssemblerTemplates {
   private def parseSlot(nbt: CompoundTag, kindOverride: Option[String], hostClass: Option[Class[_ <: EnvironmentHost]]) = {
     val kind = kindOverride.getOrElse(if (nbt.contains("type")) nbt.getString("type") else Slot.None)
     val tier = if (nbt.contains("tier")) nbt.getInt("tier") else Tier.Any
-    val validator = if (nbt.contains("validate")) Option(IMC.getStaticMethod(nbt.getString("validate"), classOf[IInventory], classOf[Int], classOf[Int], classOf[ItemStack])) else None
+    val validator = if (nbt.contains("validate")) Option(IMC.getStaticMethod(nbt.getString("validate"), classOf[Container], classOf[Int], classOf[Int], classOf[ItemStack])) else None
     new Slot(kind, tier, validator, hostClass)
   }
 

@@ -15,7 +15,7 @@ import li.cil.oc.common.tileentity.traits.RedstoneAware
 import li.cil.oc.server.agent.Player
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import net.minecraft.core.Direction
-import net.minecraftforge.common.capabilities.Capability
+import net.minecraftforge.common.capabilities.{Capability, ForgeCapabilities}
 import net.minecraftforge.common.util.LazyOptional
 import net.minecraftforge.common.util.NonNullSupplier
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler
@@ -57,7 +57,7 @@ class RobotProxy(selfType: BlockEntityType[_ <: RobotProxy], val robot: Robot) e
   }
 
   override def getCapability[T](capability: Capability[T], facing: Direction): LazyOptional[T] = {
-    if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
+    if (capability == ForgeCapabilities.FLUID_HANDLER)
       wrapper.cast[T]
     else super.getCapability(capability, facing)
   }

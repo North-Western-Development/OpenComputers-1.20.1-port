@@ -15,7 +15,7 @@ import net.minecraft.world.InteractionResult
 import net.minecraft.core.Direction
 import net.minecraft.world.InteractionHand
 import net.minecraft.core.BlockPos
-import net.minecraft.world.phys.BlockHitResult
+import net.minecraft.world.phys.{BlockHitResult, HitResult}
 import net.minecraft.util.math.RayTraceResult
 import net.minecraft.world.phys.shapes.CollisionContext
 import net.minecraft.world.phys.shapes.VoxelShape
@@ -25,7 +25,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.RandomSource
 
 class RobotAfterimage(props: Properties) extends SimpleBlock(props) {
-  override def getPickBlock(state: BlockState, target: RayTraceResult, world: BlockGetter, pos: BlockPos, player: Player): ItemStack =
+  override def getPickBlock(state: BlockState, target: HitResult, world: BlockGetter, pos: BlockPos, player: Player): ItemStack =
     findMovingRobot(world, pos) match {
       case Some(robot) => robot.info.createItemStack()
       case _ => ItemStack.EMPTY
@@ -34,7 +34,7 @@ class RobotAfterimage(props: Properties) extends SimpleBlock(props) {
   override def getShape(state: BlockState, world: BlockGetter, pos: BlockPos, ctx: CollisionContext): VoxelShape = {
     findMovingRobot(world, pos) match {
       case Some(robot) =>
-        val block = robot.getBlockState.getBlock.asInstanceOf[SimpleBlock]
+        val block = robot.getBlockState.getBlock().asInstanceOf[SimpleBlock]
         val shape = block.getShape(state, world, robot.getBlockPos, ctx)
         val delta = robot.moveFrom.fold(BlockPos.ZERO)(vec => {
           val blockPos = robot.getBlockPos
@@ -48,8 +48,8 @@ class RobotAfterimage(props: Properties) extends SimpleBlock(props) {
   // ----------------------------------------------------------------------- //
 
   override def onPlace(state: BlockState, world: Level, pos: BlockPos, prevState: BlockState, moved: Boolean): Unit = {
-    if (!world.isClientSide) {
-      world.asInstanceOf[ServerLevel].getBlockTicks.scheduleTick(pos, this, Math.max((Settings.get.moveDelay * 20).toInt, 1) - 1)
+    if (!world.isClientSide()) {
+      world.asInstanceOf[ServerLevel].getBlockTicks().scheduleTick(pos, this, Math.max((Settings.get.moveDelay * 20).toInt, 1) - 1)
     }
   }
 
@@ -60,7 +60,7 @@ class RobotAfterimage(props: Properties) extends SimpleBlock(props) {
   override def removedByPlayer(state: BlockState, world: Level, pos: BlockPos, player: Player, willHarvest: Boolean, fluid: FluidState): Boolean = {
     findMovingRobot(world, pos) match {
       case Some(robot) if robot.isAnimatingMove && robot.moveFrom.contains(pos) =>
-        robot.proxy.getBlockState.getBlock.removedByPlayer(state, world, pos, player, false, fluid)
+        robot.proxy.getBlockState.getBlock().removedByPlayer(state, world, pos, player, false, fluid)
       case _ => super.removedByPlayer(state, world, pos, player, willHarvest, fluid) // Probably broken by the robot we represent.
     }
   }

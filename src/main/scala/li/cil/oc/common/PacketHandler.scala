@@ -1,36 +1,22 @@
 package li.cil.oc.common
 
-import java.io.ByteArrayInputStream
-import java.io.DataInputStream
-import java.io.InputStream
-import java.util.zip.InflaterInputStream
-import li.cil.oc.Constants
-import li.cil.oc.OpenComputers
-import li.cil.oc.api
 import li.cil.oc.common.block.RobotAfterimage
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedWorld._
-import li.cil.oc.util.RotationHelper
-import net.minecraft.world.entity.player.Player
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.{CompoundTag, CompressedStreamTools, NbtIo}
-import net.minecraft.network.INetHandler
-import net.minecraft.core.Direction
+import li.cil.oc.{Constants, OpenComputers, api}
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.nbt.{CompoundTag, NbtIo}
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.level.Level
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
-import net.minecraftforge.fml.network.NetworkDirection
-import net.minecraftforge.server.ServerLifecycleHooks
 import net.minecraftforge.network.NetworkDirection
 import net.minecraftforge.registries._
 
-import scala.collection.mutable.ArrayBuffer
-import scala.reflect.ClassTag
-import scala.reflect.classTag
+import java.io.{ByteArrayInputStream, DataInputStream, InputStream}
+import java.util.zip.InflaterInputStream
+import scala.reflect.{ClassTag, classTag}
 
 object PacketHandler {
   var clientHandler: PacketHandler = _
@@ -88,7 +74,7 @@ abstract class PacketHandler {
   private[oc] class PacketParser(stream: InputStream, val player: Player) extends DataInputStream(stream) {
     val packetType = PacketType(readByte())
 
-    def readRegistryEntry[T <: IForgeRegistryEntry[T]](registry: IForgeRegistry[T]): T =
+    def readRegistryEntry[T](registry: IForgeRegistry[T]): T =
       registry.asInstanceOf[ForgeRegistry[T]].getValue(readInt())
 
     def getBlockEntity[T: ClassTag](dimension: ResourceLocation, x: Int, y: Int, z: Int): Option[T] = {

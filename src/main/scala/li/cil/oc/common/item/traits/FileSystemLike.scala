@@ -1,25 +1,18 @@
 package li.cil.oc.common.item.traits
 
-import java.util
-
-import li.cil.oc.Localization
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
+import li.cil.oc.{Localization, Settings}
 import li.cil.oc.client.gui
 import li.cil.oc.common.item.data.DriveData
 import li.cil.oc.util.Tooltip
 import net.minecraft.client.Minecraft
-import net.minecraft.world.item.TooltipFlag
+import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.ItemStack
-import net.minecraft.util.ActionResult
-import net.minecraft.world.InteractionResult
-import net.minecraft.world.InteractionHand
-import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.Component
+import net.minecraft.world.item.{ItemStack, TooltipFlag}
 import net.minecraft.world.level.Level
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.world.{InteractionHand, InteractionResult, InteractionResultHolder}
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
+
+import java.util
 
 trait FileSystemLike extends SimpleItem {
   override protected def tooltipName = None
@@ -50,12 +43,12 @@ trait FileSystemLike extends SimpleItem {
     }
   }
 
-  override def use(stack: ItemStack, world: Level, player: Player): ActionResult[ItemStack] = {
+  override def use(stack: ItemStack, world: Level, player: Player): InteractionResultHolder[ItemStack] = {
     if (!player.isCrouching && (!stack.hasTag || !stack.getTag.contains(Settings.namespace + "lootFactory"))) {
       if (world.isClientSide) showGui(stack, player)
-      player.swing(Hand.MAIN_HAND)
+      player.swing(InteractionHand.MAIN_HAND)
     }
-    new ActionResult(InteractionResult.sidedSuccess(world.isClientSide), stack)
+    new InteractionResultHolder[ItemStack](InteractionResult.sidedSuccess(world.isClientSide), stack)
   }
 
   @OnlyIn(Dist.CLIENT)

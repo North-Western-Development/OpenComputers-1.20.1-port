@@ -20,7 +20,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.{Item, ItemStack, TooltipFlag}
 import net.minecraft.world.item.Item.Properties
-import net.minecraft.util.ActionResult
+import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.InteractionHand
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.network.chat.Component
@@ -47,7 +47,7 @@ class Terminal(props: Properties) extends Item(props) with IForgeItem with trait
 
   @OnlyIn(Dist.CLIENT)
   private def modelLocationFromState(running: Boolean) = {
-    new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.ItemName.Terminal + (if (running) "_on" else "_off"), "inventory")
+    new ModelResourceLocation(Settings.resourceDomain, Constants.ItemName.Terminal + (if (running) "_on" else "_off"), "inventory")
   }
 
   @OnlyIn(Dist.CLIENT)

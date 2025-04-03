@@ -1,16 +1,14 @@
 package li.cil.oc.client.renderer.font
 
 import com.google.common.base.Charsets
-import com.mojang.blaze3d.vertex.IVertexBuilder
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
+import com.mojang.blaze3d.vertex.VertexConsumer
+import li.cil.oc.{OpenComputers, Settings}
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.math.vector.Matrix4f
-import net.minecraft.util.math.vector.Vector4f
+import org.joml.{Matrix4f, Vector4f}
 import org.lwjgl.opengl.GL11
 
 import scala.io.Source
@@ -19,9 +17,9 @@ import scala.io.Source
  * Font renderer using a user specified texture file, meaning the list of
  * supported characters is fixed. But at least this one works.
  */
-class StaticFontRenderer extends TextureFontRenderer {
+class StaticFont extends TextureFont {
   protected val (chars, charWidth, charHeight) = try {
-    val lines = Source.fromInputStream(Minecraft.getInstance.getResourceManager.getResource(new ResourceLocation(Settings.resourceDomain, "textures/font/chars.txt")).getInputStream)(Charsets.UTF_8).getLines()
+    val lines = Source.fromInputStream(Minecraft.getInstance.getResourceManager.getResource(new ResourceLocation(Settings.resourceDomain, "textures/font/chars.txt")).get().open())(Charsets.UTF_8).getLines()
     val chars = lines.next()
     val (w, h) = if (lines.hasNext) {
       val size = lines.next().split(" ", 2)
@@ -81,23 +79,23 @@ class StaticFontRenderer extends TextureFontRenderer {
     val v = y * vStep
     GL11.glTexCoord2d(u, v + vSize)
     val vec = new Vector4f(tx - dw, ty + charHeight * s, 0, 1)
-    vec.transform(matrix)
+    vec.mul(matrix)
     GL11.glVertex3f(vec.x, vec.y, vec.z)
     GL11.glTexCoord2d(u + uSize, v + vSize)
     vec.set(tx + charWidth * s, ty + charHeight * s, 0, 1)
-    vec.transform(matrix)
+    vec.mul(matrix)
     GL11.glVertex3f(vec.x, vec.y, vec.z)
     GL11.glTexCoord2d(u + uSize, v)
     vec.set(tx + charWidth * s, ty - dh, 0, 1)
-    vec.transform(matrix)
+    vec.mul(matrix)
     GL11.glVertex3f(vec.x, vec.y, vec.z)
     GL11.glTexCoord2d(u, v)
     vec.set(tx - dw, ty - dh, 0, 1)
-    vec.transform(matrix)
+    vec.mul(matrix)
     GL11.glVertex3f(vec.x, vec.y, vec.z)
   }
 
-  protected def drawChar(builder: IVertexBuilder, matrix: Matrix4f, color: Int, tx: Float, ty: Float, char: Int) {
+  protected def drawChar(builder: VertexConsumer, matrix: Matrix4f, color: Int, tx: Float, ty: Float, char: Int) {
     val index = 1 + (chars.indexOf(char) match {
       case -1 => chars.indexOf('?')
       case i => i

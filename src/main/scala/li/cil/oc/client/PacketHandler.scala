@@ -30,7 +30,7 @@ import net.minecraft.Util
 import net.minecraft.client.Minecraft
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.{CompressedStreamTools, NbtIo}
+import net.minecraft.nbt.{NbtIo, NbtIo}
 import net.minecraft.particles.IParticleData
 import net.minecraft.core.Direction
 import net.minecraft.core.particles.{ItemParticleOption, ParticleOptions}
@@ -126,7 +126,7 @@ object PacketHandler extends CommonPacketHandler {
 
   def onAnalyze(p: PacketParser) {
     val address = p.readUTF()
-    if (KeyBindings.isAnalyzeCopyingAddress) {
+    if (KeyMappings.isAnalyzeCopyingAddress) {
       RenderSystem.recordRenderCall(new RenderCall {
         override def execute = {
           val mc = Minecraft.getInstance

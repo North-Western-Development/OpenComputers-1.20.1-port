@@ -1,32 +1,25 @@
 package li.cil.oc.common.tileentity
 
-import java.util.UUID
-import java.util.function.Consumer
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Settings, api}
 import li.cil.oc.api.Driver
 import li.cil.oc.api.fs.Label
-import li.cil.oc.api.network.Analyzable
-import li.cil.oc.api.network.Visibility
-import li.cil.oc.common.Slot
-import li.cil.oc.common.container
+import li.cil.oc.api.network.{Analyzable, Visibility}
+import li.cil.oc.common.{Slot, container}
 import li.cil.oc.common.container.ContainerTypes
-import li.cil.oc.common.item.data.DriveData
-import li.cil.oc.common.item.data.NodeData
+import li.cil.oc.common.item.data.{DriveData, NodeData}
 import li.cil.oc.server.component.FileSystem
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.player.Inventory
-import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.core.Direction
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.MenuProvider
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.world.entity.player.{Inventory, Player}
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
+
+import java.util.UUID
+import java.util.function.Consumer
 
 class Raid(selfType: BlockEntityType[_ <: Raid]) extends BlockEntity(selfType) with traits.Environment with traits.Inventory with traits.Rotatable with Analyzable with MenuProvider {
   val node = api.Network.newNode(this, Visibility.None).create()

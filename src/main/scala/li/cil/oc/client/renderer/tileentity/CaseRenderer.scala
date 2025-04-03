@@ -1,26 +1,25 @@
 package li.cil.oc.client.renderer.tileentity
 
-import java.util.function.Function
-
-import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.IVertexBuilder
+import com.mojang.blaze3d.vertex.{PoseStack, VertexConsumer}
+import com.mojang.math.Axis
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity.Case
 import li.cil.oc.util.RenderState
-import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.block.BlockRenderDispatcher
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.math.vector.Vector3f
 
-object CaseRenderer extends Function[TileEntityRendererDispatcher, CaseRenderer] {
-  override def apply(dispatch: TileEntityRendererDispatcher) = new CaseRenderer(dispatch)
+import java.util.function.Function
+
+object CaseRenderer extends Function[BlockRenderDispatcher, CaseRenderer] {
+  override def apply(dispatch: BlockRenderDispatcher) = new CaseRenderer(dispatch)
 }
 
-class CaseRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Case](dispatch) {
-  override def render(computer: Case, dt: Float, stack: PoseStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+class CaseRenderer(dispatch: BlockRenderDispatcher) extends BlockEntityRenderer[Case](dispatch) {
+  override def render(computer: Case, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     stack.pushPose()
@@ -28,9 +27,9 @@ class CaseRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRen
     stack.translate(0.5, 0.5, 0.5)
 
     computer.yaw match {
-      case Direction.WEST => stack.mulPose(Vector3f.YP.rotationDegrees(-90))
-      case Direction.NORTH => stack.mulPose(Vector3f.YP.rotationDegrees(180))
-      case Direction.EAST => stack.mulPose(Vector3f.YP.rotationDegrees(90))
+      case Direction.WEST => stack.mulPose(Axis.YP.rotationDegrees(-90))
+      case Direction.NORTH => stack.mulPose(Axis.YP.rotationDegrees(180))
+      case Direction.EAST => stack.mulPose(Axis.YP.rotationDegrees(90))
       case _ => // No yaw.
     }
 
@@ -52,7 +51,7 @@ class CaseRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRen
     RenderState.checkError(getClass.getName + ".render: leaving")
   }
 
-  private def renderFrontOverlay(stack: PoseStack, texture: ResourceLocation, r: IVertexBuilder): Unit = {
+  private def renderFrontOverlay(stack: PoseStack, texture: ResourceLocation, r: VertexConsumer): Unit = {
     val icon = Textures.getSprite(texture)
     r.vertex(stack.last.pose, 0, 1, 0).uv(icon.getU0, icon.getV1).endVertex()
     r.vertex(stack.last.pose, 1, 1, 0).uv(icon.getU1, icon.getV1).endVertex()

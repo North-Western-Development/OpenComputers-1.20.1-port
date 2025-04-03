@@ -1,11 +1,10 @@
 package li.cil.oc.common.block
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.Settings
 import li.cil.oc.api
-import li.cil.oc.client.KeyBindings
+import li.cil.oc.client.KeyMappings
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.item.data.RobotData
 import li.cil.oc.common.tileentity
@@ -23,7 +22,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.fluid.FluidState
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.storage.loot.LootContext
+import net.minecraft.world.level.storage.loot.{LootContext, LootParams}
 import net.minecraft.loot.LootContextParams
 import net.minecraft.core.Direction
 import net.minecraft.world.InteractionHand
@@ -36,6 +35,8 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Component
 import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.material.FluidState
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
@@ -87,7 +88,7 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
 
   override protected def tooltipTail(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], flag: TooltipFlag) {
     super.tooltipTail(stack, world, tooltip, flag)
-    if (KeyBindings.showExtendedTooltips) {
+    if (KeyMappings.showExtendedTooltips) {
       val info = new RobotData(stack)
       val components = info.containers ++ info.components
       if (components.length > 0) {
@@ -240,7 +241,7 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
           if (player.isCreative) InventoryUtils.spawnStackInWorld(BlockPosition(pos, world), robot.info.createItemStack())
         }
         robot.moveFrom.foreach(fromPos => if (world.getBlockState(fromPos).getBlock == api.Items.get(Constants.BlockName.RobotAfterimage).block) {
-          world.setBlock(fromPos, net.minecraft.block.Blocks.AIR.defaultBlockState, 1)
+          world.setBlock(fromPos, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState, 1)
         })
       case _ =>
     }

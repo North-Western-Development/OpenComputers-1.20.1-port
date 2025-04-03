@@ -1,7 +1,6 @@
 package li.cil.oc.common.tileentity
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -15,19 +14,16 @@ import li.cil.oc.common.container
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.template.DisassemblerTemplates
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedNBT._
-import li.cil.oc.util.InventoryUtils
-import li.cil.oc.util.ItemUtils
+import li.cil.oc.util.{BlockPosition, InventoryUtils, ItemUtils}
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.player.Inventory
-import net.minecraft.inventory.container.INamedContainerProvider
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.{CompoundTag, Tag}
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.core.Direction
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.world.MenuProvider
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
@@ -159,7 +155,7 @@ class Disassembler(selfType: BlockEntityType[_ <: Disassembler]) extends BlockEn
   override def loadForServer(nbt: CompoundTag) {
     super.loadForServer(nbt)
     queue.clear()
-    queue ++= nbt.getList(QueueTag, NBT.TAG_COMPOUND).
+    queue ++= nbt.getList(QueueTag, Tag.TAG_COMPOUND).
       map((tag: CompoundTag) => ItemStack.of(tag))
     buffer = nbt.getDouble(BufferTag)
     totalRequiredEnergy = nbt.getDouble(TotalTag)

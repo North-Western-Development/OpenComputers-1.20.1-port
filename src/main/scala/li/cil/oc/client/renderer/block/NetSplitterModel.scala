@@ -11,6 +11,7 @@ import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.renderer.block.model.BakedQuad
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.block.model.BakedQuad
 import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.client.renderer.block.model.ItemOverrides
@@ -36,7 +37,7 @@ import scala.collection.mutable
 object NetSplitterModel extends SmartBlockModelBase {
   override def getOverrides: ItemOverrides = ItemOverride
 
-  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData): util.List[BakedQuad] =
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData, render: RenderType): util.List[BakedQuad] =
     data match {
       case t: tileentity.NetSplitter =>
         val faces = mutable.ArrayBuffer.empty[BakedQuad]

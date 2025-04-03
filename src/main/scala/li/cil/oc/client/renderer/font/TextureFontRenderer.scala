@@ -1,15 +1,11 @@
 package li.cil.oc.client.renderer.font
 
-import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.IVertexBuilder
-import li.cil.oc.Settings
+import com.mojang.blaze3d.vertex.{PoseStack, VertexConsumer, VertexFormat}
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.util.{ExtendedUnicodeHelper, PackedColor, RenderState, TextBuffer}
-import net.minecraft.client.renderer.RenderType
-import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.util.math.vector.Matrix4f
-import net.minecraft.util.math.vector.Vector4f
+import net.minecraft.client.renderer.{MultiBufferSource, RenderType}
+import org.joml.Matrix4f
 import org.lwjgl.opengl.GL11
 
 /**
@@ -18,7 +14,7 @@ import org.lwjgl.opengl.GL11
   * Provides common logic for the static one (using an existing texture) and the
   * dynamic one (generating textures on the fly from a font).
   */
-abstract class TextureFontRenderer {
+abstract class TextureFont {
   protected final val basicChars = """☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~⌂ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥₧ƒáíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■"""
 
   def charRenderWidth = charWidth / 2
@@ -43,7 +39,7 @@ abstract class TextureFontRenderer {
     }
   }
 
-  def drawBuffer(stack: PoseStack, renderBuff: IRenderTypeBuffer, buffer: TextBuffer, viewportWidth: Int, viewportHeight: Int) {
+  def drawBuffer(stack: PoseStack, renderBuff: MultiBufferSource, buffer: TextBuffer, viewportWidth: Int, viewportHeight: Int) {
     val format = buffer.format
 
     stack.pushPose()
@@ -52,7 +48,7 @@ abstract class TextureFontRenderer {
 
     // Background first. We try to merge adjacent backgrounds of the same
     // color to reduce the number of quads we have to draw.
-    var quadBuilder: IVertexBuilder = null
+    var quadBuilder: VertexConsumer = null
     for (y <- 0 until (viewportHeight min buffer.height)) {
       val color = buffer.color(y)
       var cbg = 0x000000
@@ -124,7 +120,7 @@ abstract class TextureFontRenderer {
 
     RenderState.popAttrib()
     stack.popPose()
-    RenderSystem.color3f(1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
   }
 
   protected def charWidth: Int
@@ -141,9 +137,9 @@ abstract class TextureFontRenderer {
 
   protected def drawChar(matrix: Matrix4f, tx: Float, ty: Float, char: Int): Unit
 
-  protected def drawChar(builder: IVertexBuilder, matrix: Matrix4f, color: Int, tx: Float, ty: Float, char: Int): Unit
+  protected def drawChar(builder: VertexConsumer, matrix: Matrix4f, color: Int, tx: Float, ty: Float, char: Int): Unit
 
-  private def drawQuad(builder: IVertexBuilder, matrix: Matrix4f, color: Int, x: Int, y: Int, width: Int) = if (color != 0 && width > 0) {
+  private def drawQuad(builder: VertexConsumer, matrix: Matrix4f, color: Int, x: Int, y: Int, width: Int) = if (color != 0 && width > 0) {
     val x0 = x * charWidth
     val x1 = (x + width) * charWidth
     val y0 = y * charHeight

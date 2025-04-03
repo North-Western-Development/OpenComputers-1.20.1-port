@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex._
 import li.cil.oc.api
 import li.cil.oc.client.Textures
 import li.cil.oc.util.RenderState
+import net.minecraft.client.gui.GuiGraphics
 import org.joml.Matrix4f
 
 object BufferRenderer {
@@ -11,8 +12,10 @@ object BufferRenderer {
 
   val innerMargin = 1
 
-  def drawBackground(stack: PoseStack, bufferWidth: Int, bufferHeight: Int, forRobot: Boolean = false) = {
+  def drawBackground(guiGraphics: GuiGraphics, bufferWidth: Int, bufferHeight: Int, forRobot: Boolean = false) = {
     RenderState.checkError(getClass.getName + ".drawBackground: entering (aka: wasntme)")
+
+    val stack = guiGraphics.pose()
 
     val innerWidth = innerMargin * 2 + bufferWidth
     val innerHeight = innerMargin * 2 + bufferHeight
@@ -74,5 +77,5 @@ object BufferRenderer {
     builder.vertex(matrix, x, y, 0).uv(u1f, v1f).endVertex()
   }
 
-  def drawText(stack: PoseStack, screen: api.internal.TextBuffer) = screen.renderText(stack)
+  def drawText(guiGraphics: GuiGraphics, screen: api.internal.TextBuffer) = screen.renderText(guiGraphics)
 }

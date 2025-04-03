@@ -14,6 +14,7 @@ import li.cil.oc.integration.util.ItemCharge
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedWorld._
+import net.minecraft.Util
 import net.minecraft.core.Direction
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.nbt.CompoundTag
@@ -73,7 +74,7 @@ class Charger(selfType: BlockEntityType[_ <: Charger]) extends BlockEntity(selfT
   }
 
   override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Null = {
-    player.sendMessage(Localization.Analyzer.ChargerSpeed(chargeSpeed), Util.NIL_UUID)
+    player.sendSystemMessage(Localization.Analyzer.ChargerSpeed(chargeSpeed))
     null
   }
 

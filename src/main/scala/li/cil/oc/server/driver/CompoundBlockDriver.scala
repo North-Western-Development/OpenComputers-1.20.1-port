@@ -5,12 +5,11 @@ import li.cil.oc.api.driver
 import li.cil.oc.api.driver.DriverBlock
 import li.cil.oc.api.driver.NamedBlock
 import li.cil.oc.api.network.ManagedEnvironment
-import net.minecraft.inventory.IInventory
-import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
+import net.minecraft.core.registries.Registries
 import net.minecraft.world.level.Level
 
 class CompoundBlockDriver(val sidedBlocks: Array[DriverBlock]) extends DriverBlock {
@@ -53,7 +52,7 @@ class CompoundBlockDriver(val sidedBlocks: Array[DriverBlock]) extends DriverBlo
       case _: Throwable =>
     }
     try world.getBlockEntity(pos) match {
-      case tileEntity: TileEntity =>
+      case tileEntity: BlockEntity =>
         return tileEntity.getType.getRegistryName.getPath
     } catch {
       case _: Throwable =>

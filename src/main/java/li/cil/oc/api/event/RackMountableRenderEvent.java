@@ -89,7 +89,7 @@ public abstract class RackMountableRenderEvent extends Event {
     /**
      * Fired when the dynamic rack model is rendered.
      * <br>
-     * Code here runs inside a <tt>TileEntityRenderer</tt>, so go nuts. This is
+     * Code here runs inside a <tt>BlockEntityRenderer</tt>, so go nuts. This is
      * primarily meant to allow rendering custom overlays, such as LEDs. The GL state
      * will have been adjusted such that rendering a one by one quad starting at the
      * origin will fill the full front face of the rack (i.e. rotation and translation

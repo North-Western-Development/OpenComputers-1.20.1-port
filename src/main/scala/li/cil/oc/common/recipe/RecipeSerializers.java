@@ -1,16 +1,12 @@
 package li.cil.oc.common.recipe;
 
+import cofh.lib.util.crafting.SimpleRecipeSerializer;
 import li.cil.oc.OpenComputers;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.SpecialRecipeSerializer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 import net.minecraftforge.registries.ObjectHolder;
 import net.minecraftforge.registries.RegisterEvent;
 
@@ -27,7 +23,7 @@ public class RecipeSerializers {
         event.register(ForgeRegistries.Keys.RECIPE_SERIALIZERS,
                 helper -> {
 
-        helper.register(new ResourceLocation(OpenComputers.ID(), "crafting_lootdisk_cycling"), new SpecialRecipeSerializer<>(LootDiskCyclingRecipe::new));
+        helper.register(new ResourceLocation(OpenComputers.ID(), "crafting_lootdisk_cycling"), new SimpleRecipeSerializer<>(LootDiskCyclingRecipe::new));
         helper.register(new ResourceLocation(OpenComputers.ID(), "crafting_colorize"), new ItemSpecialSerializer<>(ColorizeRecipe::new, ColorizeRecipe::targetItem));
         helper.register(new ResourceLocation(OpenComputers.ID(), "crafting_decolorize"), new ItemSpecialSerializer<>(DecolorizeRecipe::new, DecolorizeRecipe::targetItem));
         helper.register(new ResourceLocation(OpenComputers.ID(), "crafting_shaped_extended"), new ExtendedShapedRecipe.Serializer());
@@ -36,7 +32,7 @@ public class RecipeSerializers {
         );
     }
 
-    private static <S extends IForgeRegistryEntry<IRecipeSerializer<?>> && RecipeSerializer<?>>
+    private static <S extends RecipeSerializer<?>>
         void register(IForgeRegistry<RecipeSerializer<?>> registry, String name, S serializer) {
 
         serializer.setRegistryName(new ResourceLocation(OpenComputers.ID(), name));

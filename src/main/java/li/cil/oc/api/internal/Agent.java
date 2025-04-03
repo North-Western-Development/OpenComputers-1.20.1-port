@@ -1,7 +1,7 @@
 package li.cil.oc.api.internal;
 
-import li.cil.oc.api.driver.item.Container;
 import li.cil.oc.api.machine.MachineHost;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.UUID;
@@ -26,7 +26,7 @@ public interface Agent extends MachineHost, Rotatable {
      * <br>
      * If an agent has no inventory slots this will be a zero-sized inventory.
      */
-    net.minecraft.world.Container mainInventory();
+    Container mainInventory();
 
     /**
      * Provides access to the tanks of the agent.

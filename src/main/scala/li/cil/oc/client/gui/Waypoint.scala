@@ -1,13 +1,11 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
-import li.cil.oc.client.{KeyBindings, PacketSender, Textures}
+import li.cil.oc.client.{PacketSender, Textures}
 import li.cil.oc.common.tileentity
+import net.minecraft.client.KeyMapping
 import net.minecraft.client.gui.components.EditBox
 import net.minecraft.client.gui.{GuiGraphics, screens}
-import net.minecraft.client.gui.widget.TextFieldWidget
-import net.minecraft.client.settings.KeyBinding
 import net.minecraft.network.chat.Component
 import org.lwjgl.glfw.GLFW
 
@@ -33,7 +31,7 @@ class Waypoint(val waypoint: tileentity.Waypoint) extends screens.Screen(Compone
   override protected def init(): Unit = {
     super.init()
     minecraft.mouseHandler.releaseMouse()
-    KeyBinding.releaseAll()
+    KeyMapping.releaseAll()
     leftPos = (width - imageWidth) / 2
     topPos = (height - imageHeight) / 2
 

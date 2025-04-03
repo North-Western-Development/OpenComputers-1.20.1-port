@@ -1,9 +1,9 @@
 package li.cil.oc.server.component.traits
 
-import li.cil.oc.api.driver.item.Container
 import li.cil.oc.api.machine.Arguments
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.StackOption
+import net.minecraft.world.Container
 import net.minecraft.world.entity.player.Player
 
 import scala.collection.immutable

@@ -1,38 +1,22 @@
 package li.cil.oc.common.tileentity
 
-import java.util
-import com.google.common.base.Strings
-import li.cil.oc.Constants
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, Settings, api}
 import li.cil.oc.common.block.{Print => PrintBlock}
 import li.cil.oc.common.item.data.PrintData
 import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
-import li.cil.oc.util.ExtendedAABB
 import li.cil.oc.util.ExtendedAABB._
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.sounds.{SoundEvents, SoundSource}
-import net.minecraft.BlockEntity.BlockEntity
-import net.minecraft.BlockEntity.BlockEntityType
+import net.minecraft.client.model.EntityModel
 import net.minecraft.core.Direction
-import net.minecraft.sounds.SoundEvents
-import net.minecraft.core.Direction
-import net.minecraft.util.SoundCategory
-import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.util.math.RayTraceResult
-import net.minecraft.util.math.shapes.IBooleanFunction
-import net.minecraft.world.phys.shapes.{BooleanOp, Shapes, VoxelShape}
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.server.level.ServerLevel
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraftforge.client.model.data.ModelData
-import net.minecraftforge.client.model.data.ModelProperty
+import net.minecraft.sounds.{SoundEvents, SoundSource}
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.phys.shapes.{BooleanOp, Shapes, VoxelShape}
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
+import net.minecraftforge.client.model.data.{ModelData, ModelProperty}
 
-import scala.collection.Iterable
-import scala.collection.convert.ImplicitConversionsToJava._
+import java.util
 
 class Print(selfType: BlockEntityType[_ <: Print], val canToggle: Option[() => Boolean], val scheduleUpdate: Option[Int => Unit], val onStateChange: Option[() => Unit])
   extends BlockEntity(selfType) with traits.TileEntity with traits.RedstoneAware with traits.RotatableTile with ModelData {

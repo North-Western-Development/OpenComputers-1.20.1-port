@@ -1,20 +1,15 @@
 package li.cil.oc.common.nanomachines
 
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{OpenComputers, Settings, api}
 import li.cil.oc.api.Persistable
-import li.cil.oc.api.nanomachines.Behavior
-import li.cil.oc.api.nanomachines.BehaviorProvider
+import li.cil.oc.api.nanomachines.{Behavior, BehaviorProvider}
 import li.cil.oc.server.PacketSender
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.world.entity.player.Player
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.Util
+import net.minecraft.nbt.{CompoundTag, Tag}
 import net.minecraft.network.chat.Component
-import net.minecraft.util.text.TextFormatting
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.player.Player
+import net.minecraft.{ChatFormatting, Util}
 
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
@@ -127,10 +122,10 @@ class NeuralNetwork(controller: ControllerImpl) extends Persistable {
   def print(player: Player): Unit = {
     val sb = StringBuilder.newBuilder
     def colored(value: Any, enabled: Boolean) = {
-      if (enabled) sb.append(TextFormatting.GREEN)
-      else sb.append(TextFormatting.RED)
+      if (enabled) sb.append(ChatFormatting.GREEN)
+      else sb.append(ChatFormatting.RED)
       sb.append(value)
-      sb.append(TextFormatting.RESET)
+      sb.append(ChatFormatting.RESET)
     }
     for (behavior <- behaviors) {
       val name = Option(behavior.behavior.getNameHint).getOrElse(behavior.behavior.getClass.getSimpleName)
@@ -154,7 +149,7 @@ class NeuralNetwork(controller: ControllerImpl) extends Persistable {
         }
       }
       sb.append(")")
-      player.sendMessage(Component.literal(sb.toString()), Util.NIL_UUID)
+      player.sendSystemMessage(Component.literal(sb.toString()))
       sb.clear()
     }
   }
@@ -195,21 +190,21 @@ class NeuralNetwork(controller: ControllerImpl) extends Persistable {
 
   override def loadData(nbt: CompoundTag): Unit = {
     triggers.clear()
-    nbt.getList(TriggersTag, NBT.TAG_COMPOUND).foreach((t: CompoundTag) => {
+    nbt.getList(TriggersTag, Tag.TAG_COMPOUND).foreach((t: CompoundTag) => {
       val neuron = new TriggerNeuron()
       neuron.isActive = t.getBoolean(IsActiveTag)
       triggers += neuron
     })
 
     connectors.clear()
-    nbt.getList(ConnectorsTag, NBT.TAG_COMPOUND).foreach((t: CompoundTag) => {
+    nbt.getList(ConnectorsTag, Tag.TAG_COMPOUND).foreach((t: CompoundTag) => {
       val neuron = new ConnectorNeuron()
       neuron.inputs ++= t.getIntArray(TriggerInputsTag).map(triggers.apply)
       connectors += neuron
     })
 
     behaviors.clear()
-    nbt.getList(BehaviorsTag, NBT.TAG_COMPOUND).foreach((t: CompoundTag) => {
+    nbt.getList(BehaviorsTag, Tag.TAG_COMPOUND).foreach((t: CompoundTag) => {
       api.Nanomachines.getProviders.find(p => p.load(controller.player, t.getCompound(BehaviorTag)) match {
         case b: Behavior =>
           val neuron = new BehaviorNeuron(p, b)

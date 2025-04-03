@@ -1,27 +1,21 @@
 package li.cil.oc.common.item
 
-import java.util
-
-import li.cil.oc.OpenComputers
-import li.cil.oc.client.KeyBindings
+import li.cil.oc.client.KeyMappings
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.inventory.ServerInventory
 import li.cil.oc.util.Tooltip
-import net.minecraft.world.entity.player.Player
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.item.Item
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item.Properties
-import net.minecraft.world.item.ItemStack
-import net.minecraft.util.ActionResult
-import net.minecraft.world.InteractionResult
-import net.minecraft.world.InteractionHand
-import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.Component
+import net.minecraft.world.item.{Item, ItemStack}
 import net.minecraft.world.level.Level
+import net.minecraft.world.{InteractionHand, InteractionResult, InteractionResultHolder}
 import net.minecraftforge.common.extensions.IForgeItem
 
-import scala.collection.mutable
+import java.util
 import scala.collection.convert.ImplicitConversionsToScala._
+import scala.collection.mutable
 
 class Server(props: Properties, val tier: Int) extends Item(props) with IForgeItem with traits.SimpleItem {
   @Deprecated
@@ -37,7 +31,7 @@ class Server(props: Properties, val tier: Int) extends Item(props) with IForgeIt
 
   override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[Component]) {
     super.tooltipExtended(stack, tooltip)
-    if (KeyBindings.showExtendedTooltips) {
+    if (KeyMappings.showExtendedTooltips) {
       HelperInventory.container = stack
       HelperInventory.reinitialize()
       val stacks = mutable.Map.empty[String, Int]
@@ -56,7 +50,7 @@ class Server(props: Properties, val tier: Int) extends Item(props) with IForgeIt
     }
   }
 
-  override def use(stack: ItemStack, world: Level, player: Player): ActionResult[ItemStack] = {
+  override def use(stack: ItemStack, world: Level, player: Player): InteractionResultHolder[ItemStack] = {
     if (!player.isCrouching) {
       if (!world.isClientSide) player match {
         case srvPlr: ServerPlayer => ContainerTypes.openServerGui(srvPlr, new ServerInventory {
@@ -68,9 +62,9 @@ class Server(props: Properties, val tier: Int) extends Item(props) with IForgeIt
           }, -1)
         case _ =>
       }
-      player.swing(Hand.MAIN_HAND)
+      player.swing(InteractionHand.MAIN_HAND)
     }
-    new ActionResult(InteractionResult.sidedSuccess(world.isClientSide), stack)
+    new InteractionResultHolder(InteractionResult.sidedSuccess(world.isClientSide), stack)
   }
 
 }

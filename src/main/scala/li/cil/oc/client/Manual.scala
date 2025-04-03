@@ -3,20 +3,15 @@ package li.cil.oc.client
 import com.google.common.base.Strings
 import li.cil.oc.OpenComputers
 import li.cil.oc.api.detail.ManualAPI
-import li.cil.oc.api.manual.ContentProvider
-import li.cil.oc.api.manual.ImageProvider
-import li.cil.oc.api.manual.ImageRenderer
-import li.cil.oc.api.manual.PathProvider
-import li.cil.oc.api.manual.TabIconRenderer
+import li.cil.oc.api.manual._
 import net.minecraft.client.Minecraft
+import net.minecraft.core.BlockPos
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
-import net.minecraft.core.BlockPos
 import net.minecraft.world.level.Level
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters.asJavaIterable
-import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 
@@ -86,7 +81,7 @@ object Manual extends ManualAPI {
 
   override def contentFor(path: String): java.lang.Iterable[String] = {
     val cleanPath = com.google.common.io.Files.simplifyPath(path)
-    val language = Minecraft.getInstance().getLanguageManager().getSelected().getCode()
+    val language = Minecraft.getInstance().getLanguageManager().getSelected()
     contentForWithRedirects(cleanPath.replaceAll(LanguageKey, language)).
       orElse(contentForWithRedirects(cleanPath.replaceAll(LanguageKey, FallbackLanguage))).
       orNull

@@ -1,51 +1,29 @@
 package li.cil.oc.server.machine
 
-import java.util
-import java.util.concurrent.TimeUnit
-
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api.Driver
-import li.cil.oc.api.Network
+import li.cil.oc.{OpenComputers, Settings}
 import li.cil.oc.api.detail.MachineAPI
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.driver.item.CallBudget
-import li.cil.oc.api.driver.item.Processor
-import li.cil.oc.api.machine
-import li.cil.oc.api.machine.Architecture
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
-import li.cil.oc.api.machine.ExecutionResult
-import li.cil.oc.api.machine.LimitReachedException
-import li.cil.oc.api.machine.MachineHost
-import li.cil.oc.api.machine.Value
-import li.cil.oc.api.network.Component
-import li.cil.oc.api.network.ComponentConnector
-import li.cil.oc.api.network.Message
-import li.cil.oc.api.network.Node
-import li.cil.oc.api.network.Visibility
-import li.cil.oc.api.prefab
+import li.cil.oc.api.driver.item.{CallBudget, Processor}
+import li.cil.oc.api.{Driver, Network, machine}
+import li.cil.oc.api.machine._
+import li.cil.oc.api.network._
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
-import li.cil.oc.common.EventHandler
-import li.cil.oc.common.SaveHandler
-import li.cil.oc.common.Slot
-import li.cil.oc.common.tileentity
+import li.cil.oc.common.{EventHandler, SaveHandler, Slot, tileentity}
 import li.cil.oc.server.PacketSender
 import li.cil.oc.server.driver.Registry
 import li.cil.oc.server.fs.FileSystem
 import li.cil.oc.util.ExtendedNBT._
-import li.cil.oc.util.ResultWrapper
 import li.cil.oc.util.ResultWrapper.result
-import li.cil.oc.util.ThreadPoolFactory
+import li.cil.oc.util.{ResultWrapper, ThreadPoolFactory}
 import net.minecraft.client.Minecraft
+import net.minecraft.client.server.IntegratedServer
+import net.minecraft.nbt._
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt._
-import net.minecraft.server.integrated.IntegratedServer
-import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.server.ServerLifecycleHooks
 
+import java.util
+import java.util.concurrent.TimeUnit
 import scala.collection.JavaConverters.mapAsJavaMap
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -754,12 +732,12 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     super.loadData(nbt)
 
     state.pushAll(nbt.getIntArray(StateTag).reverseMap(Machine.State(_)))
-    nbt.getList(UsersTag, NBT.TAG_STRING).foreach((tag: StringNBT) => _users += tag.getAsString)
+    nbt.getList(UsersTag, Tag.TAG_STRING).foreach((tag: StringTag) => _users += tag.getAsString)
     if (nbt.contains(MessageTag)) {
       message = Some(nbt.getString(MessageTag))
     }
 
-    _components ++= nbt.getList(ComponentsTag, NBT.TAG_COMPOUND).map((tag: CompoundTag) =>
+    _components ++= nbt.getList(ComponentsTag, Tag.TAG_COMPOUND).map((tag: CompoundTag) =>
       tag.getString(AddressTag) -> tag.getString(NameTag))
 
     tmp.foreach(fs => {
@@ -770,18 +748,18 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     if (state.nonEmpty && isRunning && init()) try {
       architecture.loadData(nbt)
 
-      signals ++= nbt.getList(SignalsTag, NBT.TAG_COMPOUND).map((signalNbt: CompoundTag) => {
+      signals ++= nbt.getList(SignalsTag, Tag.TAG_COMPOUND).map((signalNbt: CompoundTag) => {
         val argsNbt = signalNbt.getCompound(ArgsTag)
         val argsLength = argsNbt.getInt(LengthTag)
         new Machine.Signal(signalNbt.getString(NameTag),
           (0 until argsLength).map(ArgPrefixTag + _).map(argsNbt.get).map {
-            case tag: ByteNBT if tag.getAsByte == -1 => null
-            case tag: ByteNBT => Boolean.box(tag.getAsByte == 1)
-            case tag: LongNBT => Long.box(tag.getAsLong)
-            case tag: DoubleNBT => Double.box(tag.getAsDouble)
-            case tag: StringNBT => tag.getAsString
-            case tag: ByteArrayNBT => tag.getAsByteArray
-            case tag: ListNBT =>
+            case tag: ByteTag if tag.getAsByte == -1 => null
+            case tag: ByteTag => Boolean.box(tag.getAsByte == 1)
+            case tag: LongTag => Long.box(tag.getAsLong)
+            case tag: DoubleTag => Double.box(tag.getAsDouble)
+            case tag: StringTag => tag.getAsString
+            case tag: ByteArrayTag => tag.getAsByteArray
+            case tag: ListTag =>
               val data = mutable.Map.empty[String, String]
               for (i <- 0 until tag.size by 2) {
                 data += tag.getString(i) -> tag.getString(i + 1)
@@ -838,7 +816,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     nbt.setNewTagList(UsersTag, _users)
     message.foreach(nbt.putString(MessageTag, _))
 
-    val componentsNbt = new ListNBT()
+    val componentsNbt = new ListTag()
     for ((address, name) <- _components) {
       val componentNbt = new CompoundTag()
       componentNbt.putString(AddressTag, address)
@@ -852,7 +830,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     if (state.top != Machine.State.Stopped) try {
       architecture.saveData(nbt)
 
-      val signalsNbt = new ListNBT()
+      val signalsNbt = new ListTag()
       for (s <- signals.iterator) {
         val signalNbt = new CompoundTag()
         signalNbt.putString(NameTag, s.name)
@@ -866,7 +844,7 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
             case (arg: String, i) => args.putString(ArgPrefixTag + i, arg)
             case (arg: Array[Byte], i) => args.putByteArray(ArgPrefixTag + i, arg)
             case (arg: Map[_, _], i) =>
-              val list = new ListNBT()
+              val list = new ListTag()
               for ((key, value) <- arg) {
                 list.append(key.toString)
                 list.append(value.toString)

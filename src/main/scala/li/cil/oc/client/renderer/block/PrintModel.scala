@@ -4,7 +4,7 @@ import java.util
 import java.util.Collections
 import com.google.common.base.Strings
 import li.cil.oc.Settings
-import li.cil.oc.client.KeyBindings
+import li.cil.oc.client.KeyMappings
 import li.cil.oc.client.Textures
 import li.cil.oc.common.block
 import li.cil.oc.common.item.data.PrintData
@@ -14,6 +14,7 @@ import li.cil.oc.util.ExtendedAABB
 import li.cil.oc.util.ExtendedAABB._
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.block.model.BakedQuad
 import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.client.renderer.block.model.ItemOverrides
@@ -33,7 +34,7 @@ import scala.collection.mutable
 object PrintModel extends SmartBlockModelBase {
   override def getOverrides: ItemOverrides = ItemOverride
 
-  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData): util.List[BakedQuad] =
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData, render: RenderType): util.List[BakedQuad] =
     data match {
       case t: tileentity.Print =>
         val faces = mutable.ArrayBuffer.empty[BakedQuad]
@@ -64,7 +65,7 @@ object PrintModel extends SmartBlockModelBase {
       val faces = mutable.ArrayBuffer.empty[BakedQuad]
 
       val shapes =
-        if (data.hasActiveState && KeyBindings.showExtendedTooltips)
+        if (data.hasActiveState && KeyMappings.showExtendedTooltips)
           data.stateOn
         else
           data.stateOff

@@ -2,20 +2,14 @@ package li.cil.oc.client.renderer.font
 
 import com.mojang.blaze3d.platform.TextureUtil
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.{IVertexBuilder, VertexConsumer}
+import com.mojang.blaze3d.vertex.VertexConsumer
 import li.cil.oc.Settings
 import li.cil.oc.client.renderer.RenderTypes
-import li.cil.oc.client.renderer.font.DynamicFontRenderer.CharTexture
-import li.cil.oc.util.FontUtils
-import li.cil.oc.util.RenderState
+import li.cil.oc.client.renderer.font.DynamicFont.CharTexture
+import li.cil.oc.util.{FontUtils, RenderState}
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.RenderType
-import net.minecraft.client.renderer.texture.TextureUtil
-import net.minecraft.resources.IReloadableResourceManager
-import net.minecraft.resources.IResourceManager
-import net.minecraft.resources.IResourceManagerReloadListener
-import net.minecraft.util.math.vector.Matrix4f
-import net.minecraft.util.math.vector.Vector4f
+import net.minecraft.server.packs.resources.{ReloadableResourceManager, ResourceManager, ResourceManagerReloadListener}
 import org.joml.{Matrix4f, Vector4f}
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl._
@@ -26,21 +20,21 @@ import scala.collection.mutable
  * Font renderer that dynamically generates lookup textures by rendering a font
  * to it. It's pretty broken right now, and font rendering looks crappy as hell.
  */
-class DynamicFontRenderer extends TextureFontRenderer with IResourceManagerReloadListener {
+class DynamicFont extends TextureFont with ResourceManagerReloadListener {
   private val glyphProvider: IGlyphProvider = Settings.get.fontRenderer match {
     case _ => new FontParserHex()
   }
 
   private val textures = mutable.ArrayBuffer.empty[CharTexture]
 
-  private val charMap = mutable.Map.empty[Int, DynamicFontRenderer.CharIcon]
+  private val charMap = mutable.Map.empty[Int, DynamicFont.CharIcon]
 
   private var activeTexture: CharTexture = _
 
   initialize()
 
   Minecraft.getInstance.getResourceManager match {
-    case reloadable: IReloadableResourceManager => reloadable.registerReloadListener(this)
+    case reloadable: ReloadableResourceManager => reloadable.registerReloadListener(this)
     case _ =>
   }
 
@@ -51,12 +45,12 @@ class DynamicFontRenderer extends TextureFontRenderer with IResourceManagerReloa
     textures.clear()
     charMap.clear()
     glyphProvider.initialize()
-    textures += new DynamicFontRenderer.CharTexture(this)
+    textures += new DynamicFont.CharTexture(this)
     activeTexture = textures.head
     generateChars(basicChars.toCharArray)
   }
 
-  def onResourceManagerReload(manager: IResourceManager) {
+  def onResourceManagerReload(manager: ResourceManager) {
     initialize()
   }
 
@@ -95,14 +89,14 @@ class DynamicFontRenderer extends TextureFontRenderer with IResourceManagerReloa
     }
   }
 
-  private def createCharIcon(char: Int): DynamicFontRenderer.CharIcon = {
+  private def createCharIcon(char: Int): DynamicFont.CharIcon = {
     if (FontUtils.wcwidth(char) < 1 || glyphProvider.getGlyph(char) == null) {
       if (char == '?') null
       else charMap.getOrElseUpdate('?', createCharIcon('?'))
     }
     else {
       if (textures.last.isFull(char)) {
-        textures += new DynamicFontRenderer.CharTexture(this)
+        textures += new DynamicFont.CharTexture(this)
         textures.last.bind()
       }
       textures.last.add(char)
@@ -110,10 +104,10 @@ class DynamicFontRenderer extends TextureFontRenderer with IResourceManagerReloa
   }
 }
 
-object DynamicFontRenderer {
+object DynamicFont {
   private val size = 256
 
-  class CharTexture(val owner: DynamicFontRenderer) {
+  class CharTexture(val owner: DynamicFont) {
     private val id = TextureUtil.generateTextureId()
     RenderState.bindTexture(id)
     if (Settings.get.textLinearFiltering) {

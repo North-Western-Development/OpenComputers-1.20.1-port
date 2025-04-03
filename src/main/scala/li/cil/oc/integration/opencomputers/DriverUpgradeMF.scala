@@ -6,14 +6,12 @@ import li.cil.oc.api.network.{EnvironmentHost, ManagedEnvironment}
 import li.cil.oc.common.{Slot, Tier}
 import li.cil.oc.server.component
 import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.RotationHelper
 import li.cil.oc.{Constants, Settings, api}
-import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
-import net.minecraft.util.RegistryKey
-import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.registry.Registry
+import net.minecraft.core.registries.Registries
+import net.minecraft.resources.{ResourceKey, ResourceLocation}
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.item.ItemStack
 import net.minecraftforge.server.ServerLifecycleHooks
 
 /**
@@ -36,7 +34,7 @@ object DriverUpgradeMF extends Item with HostAware {
         stack.getTag.getIntArray(Settings.namespace + "coord") match {
           case Array(x, y, z, side) => {
             val dimension = new ResourceLocation(stack.getTag.getString(Settings.namespace + "dimension"))
-            ServerLifecycleHooks.getCurrentServer.getLevel(RegistryKey.create(Registry.DIMENSION_REGISTRY, dimension)) match {
+            ServerLifecycleHooks.getCurrentServer.getLevel(ResourceKey.create(Registries.LEVEL_STEM, dimension)) match {
               case world: ServerLevel => return new component.UpgradeMF(host, BlockPosition(x, y, z, world), Direction.from3DDataValue(side))
               case _ => // Invalid dimension ID
             }

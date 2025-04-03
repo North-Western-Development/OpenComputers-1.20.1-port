@@ -1,26 +1,22 @@
 package li.cil.oc.server.agent
 
-import java.util.function.Predicate
-
 import li.cil.oc.api.internal
 import li.cil.oc.util.ExtendedInventory._
-import li.cil.oc.util.InventoryUtils
-import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
+import li.cil.oc.util.{InventoryUtils, StackOption}
+import net.minecraft.nbt.ListTag
+import net.minecraft.network.chat.Component
+import net.minecraft.world.Container
+import net.minecraft.world.damagesource.DamageSource
+import net.minecraft.world.entity.player
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.player.Inventory
-import net.minecraft.inventory.IInventory
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.ListNBT
-import net.minecraft.util.DamageSource
-import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.Component
 import net.minecraft.world.level.block.state.BlockState
 
+import java.util.function.Predicate
 import scala.collection.immutable
 
-class Inventory(playerEntity: Player, val agent: internal.Agent) extendsInventory(playerEntity) {
+class Inventory(playerEntity: Player, val agent: internal.Agent) extends player.Inventory(playerEntity) {
 
   private def selectedItemStack: ItemStack = agent.mainInventory.getItem(agent.selectedSlot)
 
@@ -35,7 +31,7 @@ class Inventory(playerEntity: Player, val agent: internal.Agent) extendsInventor
 
   override def pickSlot(direction: Int) {}
 
-  override def clearOrCountMatchingItems(f: Predicate[ItemStack], count: Int, inv: IInventory): Int = 0
+  override def clearOrCountMatchingItems(f: Predicate[ItemStack], count: Int, inv: Container): Int = 0
 
   override def tick() {
     for (slot <- 0 until getContainerSize) {
@@ -55,19 +51,19 @@ class Inventory(playerEntity: Player, val agent: internal.Agent) extendsInventor
 
   override def getDestroySpeed(state: BlockState): Float = if (getSelected.isEmpty) 1f else getSelected.getDestroySpeed(state)
 
-  override def save(nbt: ListNBT): ListNBT = nbt
+  override def save(nbt: ListTag): ListTag = nbt
 
-  override def load(nbt: ListNBT) {}
+  override def load(nbt: ListTag) {}
 
   override def getArmor(slot: Int): ItemStack = ItemStack.EMPTY
 
-  override def hurtArmor(source: DamageSource, damage: Float) {}
+  override def hurtArmor(source: DamageSource, damage: Float, slots: Array[Int]) {}
 
   override def dropAll(): Unit = {}
 
-  override def contains(stack: ItemStack): Boolean = (0 until getContainerSize).map(getItem).filter(!_.isEmpty).exists(_.sameItem(stack))
+  override def contains(stack: ItemStack): Boolean = (0 until getContainerSize).map(getItem).filter(!_.isEmpty).exists(ItemStack.isSameItem(_,stack))
 
-  override def replaceWith(from:Inventory) {}
+  override def replaceWith(from:player.Inventory) {}
 
   // IInventory
 

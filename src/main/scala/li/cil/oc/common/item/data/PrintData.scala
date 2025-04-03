@@ -1,19 +1,15 @@
 package li.cil.oc.common.item.data
 
-import java.lang.reflect.Method
-
-import li.cil.oc.Constants
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, Settings, api}
 import li.cil.oc.common.IMC
 import li.cil.oc.common.item.data.PrintData.Shape
 import li.cil.oc.util.ExtendedAABB._
 import li.cil.oc.util.ExtendedNBT._
+import net.minecraft.nbt.{CompoundTag, Tag}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.phys.AABB
-import net.minecraftforge.common.util.Constants.NBT
 
+import java.lang.reflect.Method
 import scala.collection.mutable
 
 class PrintData extends ItemData(Constants.BlockName.Print) {
@@ -81,9 +77,9 @@ class PrintData extends ItemData(Constants.BlockName.Print) {
     if (nbt.getBoolean(RedstoneLevelTagCompat)) redstoneLevel = 15
     pressurePlate = nbt.getBoolean(PressurePlateTag)
     stateOff.clear()
-    stateOff ++= nbt.getList(StateOffTag, NBT.TAG_COMPOUND).map(PrintData.nbtToShape)
+    stateOff ++= nbt.getList(StateOffTag, Tag.TAG_COMPOUND).map(PrintData.nbtToShape)
     stateOn.clear()
-    stateOn ++= nbt.getList(StateOnTag, NBT.TAG_COMPOUND).map(PrintData.nbtToShape)
+    stateOn ++= nbt.getList(StateOnTag, Tag.TAG_COMPOUND).map(PrintData.nbtToShape)
     isBeaconBase = nbt.getBoolean(IsBeaconBaseTag)
     lightLevel = (nbt.getByte(LightLevelTag) & 0xFF) max 0 min 15
     noclipOff = nbt.getBoolean(NoclipOffTag)

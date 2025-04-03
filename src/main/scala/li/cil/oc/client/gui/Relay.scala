@@ -1,16 +1,14 @@
 package li.cil.oc.client.gui
 
 import java.text.DecimalFormat
-
-import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.{DefaultVertexFormat, PoseStack, Tesselator, VertexFormat}
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Localization
 import li.cil.oc.client.Textures
 import li.cil.oc.common.container
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.Rectangle2d
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.network.chat.Component
 import org.lwjgl.opengl.GL11
@@ -22,19 +20,19 @@ class Relay(state: container.Relay, playerInventory:Inventory, name: Component)
 
   val tabPosition = new Rectangle2d(imageWidth, 10, 23, 26)
 
-  override protected def drawSecondaryBackgroundLayer(stack: PoseStack): Unit = {
+  override protected def drawSecondaryBackgroundLayer(stack: GuiGraphics): Unit = {
     super.drawSecondaryBackgroundLayer(stack)
 
     // Tab background.
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
     Minecraft.getInstance.getTextureManager.bind(Textures.GUI.UpgradeTab)
     val x = windowX + tabPosition.getX
     val y = windowY + tabPosition.getY
     val w = tabPosition.getWidth
     val h = tabPosition.getHeight
-    val t = Tessellator.getInstance
+    val t = Tesselator.getInstance
     val r = t.getBuilder
-    r.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)
+    r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
     r.vertex(stack.last.pose, x, y + h, getBlitOffset).uv(0, 1).endVertex()
     r.vertex(stack.last.pose, x + w, y + h, getBlitOffset).uv(1, 1).endVertex()
     r.vertex(stack.last.pose, x + w, y, getBlitOffset).uv(1, 0).endVertex()
@@ -66,26 +64,26 @@ class Relay(state: container.Relay, playerInventory:Inventory, name: Component)
     }
   }
 
-  override def drawSecondaryForegroundLayer(stack: PoseStack, mouseX: Int, mouseY: Int): Unit = {
-    super.drawSecondaryForegroundLayer(stack, mouseX, mouseY)
+  override def drawSecondaryForegroundLayer(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int): Unit = {
+    super.drawSecondaryForegroundLayer(guiGraphics, mouseX, mouseY)
 
-    font.draw(stack,
+    guiGraphics.drawString(font,
       Localization.Switch.TransferRate,
       14, 20, 0x404040)
-    font.draw(stack,
+    guiGraphics.drawString(font,
       Localization.Switch.PacketsPerCycle,
       14, 39, 0x404040)
-    font.draw(stack,
+    guiGraphics.drawString(font,
       Localization.Switch.QueueSize,
       14, 58, 0x404040)
 
-    font.draw(stack,
+    guiGraphics.drawString(font,
       format.format(20f / inventoryContainer.relayDelay),
       108, 20, 0x404040)
-    font.draw(stack,
+    guiGraphics.drawString(font,
       inventoryContainer.packetsPerCycleAvg + " / " + inventoryContainer.relayAmount,
       108, 39, thresholdBasedColor(inventoryContainer.packetsPerCycleAvg, math.ceil(inventoryContainer.relayAmount / 2f).toInt, inventoryContainer.relayAmount))
-    font.draw(stack,
+    guiGraphics.drawString(font,
       inventoryContainer.queueSize + " / " + inventoryContainer.maxQueueSize,
       108, 58, thresholdBasedColor(inventoryContainer.queueSize, inventoryContainer.maxQueueSize / 2, inventoryContainer.maxQueueSize))
   }

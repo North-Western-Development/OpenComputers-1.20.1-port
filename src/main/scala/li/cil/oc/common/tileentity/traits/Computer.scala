@@ -1,25 +1,20 @@
 package li.cil.oc.common.tileentity.traits
 
-import java.lang
-import java.util
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Settings, api}
 import li.cil.oc.api.machine.Machine
 import li.cil.oc.api.network.Node
 import li.cil.oc.client.Sound
 import li.cil.oc.common.tileentity.RobotProxy
 import li.cil.oc.integration.opencomputers.DriverRedstoneCard
-import li.cil.oc.server.agent
-import li.cil.oc.server.{PacketSender => ServerPacketSender}
+import li.cil.oc.server.{agent, PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
+import net.minecraft.core.Direction
+import net.minecraft.nbt.{CompoundTag, StringTag, Tag}
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.{CompoundTag, StringNBT, StringTag, Tag}
-import net.minecraft.core.Direction
-import net.minecraftforge.common.util.Constants.NBT
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
+import java.{lang, util}
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 

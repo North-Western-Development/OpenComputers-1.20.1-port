@@ -25,7 +25,7 @@ class TexturePicker(props: Properties) extends Item(props) with IForgeItem with 
           val model = Minecraft.getInstance.getBlockRenderer.getBlockModel(player.level.getBlockState(pos))
           val particle = if (model != null) model.getParticleTexture(ModelDataManager.getModelData(player.level, pos)) else null
           if (particle != null && particle.getName != null) {
-            player.sendMessage(Localization.Chat.TextureName(particle.getName.toString), Util.NIL_UUID)
+            player.sendSystemMessage(Localization.Chat.TextureName(particle.getName.toString))
           }
         }
         true

@@ -1,11 +1,9 @@
 package li.cil.oc.common.item.data
 
-import li.cil.oc.Constants
-import li.cil.oc.Settings
+import li.cil.oc.{Constants, Settings}
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.item.FilledMapItem
-import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.item.{ItemStack, MapItem}
 import net.minecraft.world.level.Level
 
 class NavigationUpgradeData extends ItemData(Constants.ItemName.NavigationUpgrade) {
@@ -14,9 +12,9 @@ class NavigationUpgradeData extends ItemData(Constants.ItemName.NavigationUpgrad
     loadData(stack)
   }
 
-  var map = new ItemStack(net.minecraft.item.Items.FILLED_MAP)
+  var map = new ItemStack(net.minecraft.world.item.Items.FILLED_MAP)
 
-  def mapData(world: Level) = try FilledMapItem.getSavedData(map, world) catch {
+  def mapData(world: Level) = try MapItem.getSavedData(map, world) catch {
     case _: Throwable => throw new Exception("invalid map")
   }
 

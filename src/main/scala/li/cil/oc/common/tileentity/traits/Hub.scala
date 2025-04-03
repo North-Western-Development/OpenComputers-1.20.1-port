@@ -1,16 +1,13 @@
 package li.cil.oc.common.tileentity.traits
 
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Settings, api}
 import li.cil.oc.api.network._
 import li.cil.oc.common.tileentity.traits
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.MovingAverage
-import net.minecraft.nbt.CompoundTag
 import net.minecraft.core.Direction
-import net.minecraftforge.common.util.Constants.NBT
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.nbt.{CompoundTag, Tag}
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
 import scala.collection.mutable
 
@@ -116,11 +113,11 @@ trait Hub extends traits.Environment with SidedEnvironment with Tickable {
 
   override def loadForServer(nbt: CompoundTag) {
     super.loadForServer(nbt)
-    nbt.getList(PlugsTag, NBT.TAG_COMPOUND).toTagArray[CompoundTag].
+    nbt.getList(PlugsTag, Tag.TAG_COMPOUND).toTagArray[CompoundTag].
       zipWithIndex.foreach {
       case (tag, index) => plugs(index).node.loadData(tag)
     }
-    nbt.getList(QueueTag, NBT.TAG_COMPOUND).foreach(
+    nbt.getList(QueueTag, Tag.TAG_COMPOUND).foreach(
       (tag: CompoundTag) => {
         val side = tag.getDirection(SideTag)
         val packet = api.Network.newPacket(tag)

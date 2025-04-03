@@ -2,14 +2,14 @@ package li.cil.oc.util
 
 import li.cil.oc.Localization
 import li.cil.oc.Settings
-import li.cil.oc.client.KeyBindings
+import li.cil.oc.client.KeyMappings
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.gui.Font
 import net.minecraft.network.chat.Style
 import net.minecraft.util.text.CharacterManager.ISliceAcceptor
 import net.minecraft.util.text.Style
-import net.minecraft.util.text.TextFormatting
+import net.minecraft.ChatFormatting
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -27,10 +27,10 @@ object Tooltip {
       format(args.map(_.toString): _*)
     if (font == null) return tooltip.lines.toList // Some mods request tooltips before font renderer is available.
     val isSubTooltip = name.contains(".")
-    val shouldShorten = (isSubTooltip || font.width(tooltip) > maxWidth) && !KeyBindings.showExtendedTooltips
+    val shouldShorten = (isSubTooltip || font.width(tooltip) > maxWidth) && !KeyMappings.showExtendedTooltips
     if (shouldShorten) {
       if (isSubTooltip) Seq.empty[String]
-      else Seq(Localization.localizeImmediately("tooltip.toolong", KeyBindings.getKeyBindingName(KeyBindings.extendedTooltip)))
+      else Seq(Localization.localizeImmediately("tooltip.toolong", KeyMappings.getKeyMappingName(KeyMappings.extendedTooltip)))
     }
     else tooltip.
       linesIterator.
@@ -40,7 +40,7 @@ object Tooltip {
   }
 
   def extended(name: String, args: Any*): java.util.List[String] =
-    if (KeyBindings.showExtendedTooltips) {
+    if (KeyMappings.showExtendedTooltips) {
       Localization.localizeImmediately("tooltip." + name).
         format(args.map(_.toString): _*).
         linesIterator.
@@ -50,7 +50,7 @@ object Tooltip {
     }
     else Seq.empty[String]
 
-  private def wrap(font: FontRenderer, line: String, width: Int): java.util.List[String] = {
+  private def wrap(font: Font, line: String, width: Int): java.util.List[String] = {
     val list = new java.util.ArrayList[String]
     font.getSplitter.splitLines(line, width, net.minecraft.util.text.Style.EMPTY, true, new ISliceAcceptor {
       override def accept(style: Style, start: Int, end: Int) = list.add(line.substring(start, end))

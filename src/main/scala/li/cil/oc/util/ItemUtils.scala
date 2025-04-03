@@ -1,31 +1,15 @@
 package li.cil.oc.util
 
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.util.Random
-import li.cil.oc.Constants
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, OpenComputers, Settings, api}
 import li.cil.oc.common.Tier
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.item.Item
-import net.minecraft.item.BlockItem
-import net.minecraft.item.BucketItem
-import net.minecraft.world.item.ItemStack
-import net.minecraft.item.crafting.RecipeManager
-import net.minecraft.item.crafting.ICraftingRecipe
-import net.minecraft.item.crafting.IRecipe
-import net.minecraft.item.crafting.IRecipeType
-import net.minecraft.item.crafting.Ingredient
-import net.minecraft.item.crafting.ShapedRecipe
-import net.minecraft.item.crafting.ShapelessRecipe
-import net.minecraft.inventory.CraftingInventory
-import net.minecraft.nbt.{CompoundTag, CompoundTag, CompressedStreamTools}
-import net.minecraft.world.item.crafting.{Ingredient, Recipe, RecipeManager, RecipeType, ShapedRecipe, ShapelessRecipe}
+import net.minecraft.nbt.{CompoundTag, NbtIo}
+import net.minecraft.world.inventory.CraftingContainer
+import net.minecraft.world.item.crafting._
 import net.minecraft.world.item.{BlockItem, BucketItem, Item, ItemStack}
 import net.minecraftforge.registries.ForgeRegistries
 
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+import java.util.Random
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 
@@ -72,7 +56,7 @@ object ItemUtils {
 
   def loadTag(data: Array[Byte]): CompoundTag = {
     val bais = new ByteArrayInputStream(data)
-    CompressedStreamTools.readCompressed(bais)
+    NbtIo.readCompressed(bais)
   }
 
   def saveStack(stack: ItemStack): Array[Byte] = {
@@ -83,7 +67,7 @@ object ItemUtils {
 
   def saveTag(tag: CompoundTag): Array[Byte] = {
     val baos = new ByteArrayOutputStream()
-    CompressedStreamTools.writeCompressed(tag, baos)
+    NbtIo.writeCompressed(tag, baos)
     baos.toByteArray
   }
 
@@ -104,7 +88,7 @@ object ItemUtils {
       case _ => false
     }
 
-    val (ingredients, count) = manager.getAllRecipesFor[CraftingInventory, ICraftingRecipe](RecipeType.CRAFTING).
+    val (ingredients, count) = manager.getAllRecipesFor[CraftingContainer, CraftingRecipe](RecipeType.CRAFTING).
       filter(recipe => !recipe.getResultItem.isEmpty && recipe.getResultItem.sameItem(stack)).collect {
       case recipe: ShapedRecipe => getFilteredInputs(resolveOreDictEntries(recipe.getIngredients), getOutputSize(recipe))
       case recipe: ShapelessRecipe => getFilteredInputs(resolveOreDictEntries(recipe.getIngredients), getOutputSize(recipe))
@@ -116,13 +100,13 @@ object ItemUtils {
     }
 
     // Avoid positive feedback loops.
-    if (ingredients.exists(ingredient => ingredient.sameItem(stack))) {
+    if (ingredients.exists(ingredient => ItemStack.isSameItem(ingredient,stack))) {
       return Array.empty[ItemStack]
     }
     // Merge equal items for size division by output size.
     val merged = mutable.ArrayBuffer.empty[ItemStack]
     for (ingredient <- ingredients) {
-      merged.find(_.sameItem(ingredient)) match {
+      merged.find(ItemStack.isSameItem(_,ingredient)) match {
         case Some(entry) => entry.grow(ingredient.getCount)
         case _ => merged += ingredient.copy()
       }

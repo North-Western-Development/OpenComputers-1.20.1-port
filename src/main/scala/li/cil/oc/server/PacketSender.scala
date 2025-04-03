@@ -315,7 +315,7 @@ object PacketSender {
   }
 
   def sendLootDisks(p: ServerPlayer): Unit = {
-    // Sending as separate packets, because CompressedStreamTools hiccups otherwise...
+    // Sending as separate packets, because NbtIo hiccups otherwise...
     val stacks = Loot.worldDisks.map(_._1)
     for (stack <- stacks) {
       val pb = new SimplePacketBuilder(PacketType.LootDisk)

@@ -1,30 +1,29 @@
 package li.cil.oc.client.renderer.tileentity
 
-import java.util.function.Function
-import com.mojang.blaze3d.vertex.{IVertexBuilder, PoseStack, VertexConsumer}
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.{PoseStack, VertexConsumer}
 import com.mojang.math.Axis
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity.Microcontroller
 import li.cil.oc.util.RenderState
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.block.BlockRenderDispatcher
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
-import net.minecraft.client.renderer.{IRenderTypeBuffer, MultiBufferSource}
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.math.vector.Vector3f
 
-object MicrocontrollerRenderer extends Function[TileEntityRendererDispatcher, MicrocontrollerRenderer] {
-  override def apply(dispatch: TileEntityRendererDispatcher) = new MicrocontrollerRenderer(dispatch)
+import java.util.function.Function
+
+object MicrocontrollerRenderer extends Function[BlockRenderDispatcher, MicrocontrollerRenderer] {
+  override def apply(dispatch: BlockRenderDispatcher) = new MicrocontrollerRenderer(dispatch)
 }
 
-class MicrocontrollerRenderer(dispatch: TileEntityRendererDispatcher) extends BlockEntityRenderer[Microcontroller](dispatch) {
+class MicrocontrollerRenderer(dispatch: BlockRenderDispatcher) extends BlockEntityRenderer[Microcontroller](dispatch) {
   override def render(mcu: Microcontroller, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
 
     stack.pushPose()
 

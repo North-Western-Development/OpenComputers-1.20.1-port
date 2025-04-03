@@ -1,37 +1,27 @@
 package li.cil.oc.server
 
-import java.io.InputStream
-
-import li.cil.oc.Localization
-import li.cil.oc.OpenComputers
-import li.cil.oc.api
-import li.cil.oc.api.internal.Server
+import li.cil.oc.{Localization, OpenComputers, api}
 import li.cil.oc.api.machine.Machine
-import li.cil.oc.api.network.Connector
-import li.cil.oc.common.Achievement
-import li.cil.oc.common.PacketType
 import li.cil.oc.common.component.TextBuffer
-import li.cil.oc.common.container
-import li.cil.oc.common.entity.Drone
 import li.cil.oc.common.entity.DroneInventory
-import li.cil.oc.common.item.{Tablet, TabletWrapper}
+import li.cil.oc.common.item.Tablet
 import li.cil.oc.common.item.data.DriveData
 import li.cil.oc.common.item.traits.FileSystemLike
 import li.cil.oc.common.tileentity._
 import li.cil.oc.common.tileentity.traits.Computer
-import li.cil.oc.common.{PacketHandler => CommonPacketHandler}
-import net.minecraft.world.entity.player.Player
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.world.InteractionHand
-import net.minecraft.util.RegistryKey
-import net.minecraft.resources.ResourceLocation
+import li.cil.oc.common.{Achievement, PacketType, container, PacketHandler => CommonPacketHandler}
 import net.minecraft.Util
-import net.minecraft.util.registry.Registry
+import net.minecraft.core.registries.Registries
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.resources.{ResourceKey, ResourceLocation}
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.Level
-import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.server.ServerLifecycleHooks
 import org.apache.logging.log4j.MarkerManager
+
+import java.io.InputStream
 
 object PacketHandler extends CommonPacketHandler {
   private val securityMarker = MarkerManager.getMarker("SuspiciousPackets")
@@ -40,7 +30,7 @@ object PacketHandler extends CommonPacketHandler {
     OpenComputers.log.warn(securityMarker, "Player {} tried to send GUI packets without opening them", player.getGameProfile)
 
   override protected def world(player: Player, dimension: ResourceLocation): Option[Level] =
-    Option(ServerLifecycleHooks.getCurrentServer.getLevel(RegistryKey.create(Registry.DIMENSION_REGISTRY, dimension)))
+    Option(ServerLifecycleHooks.getCurrentServer.getLevel(ResourceKey.create(Registries.LEVEL_STEM, dimension)))
 
   override def dispatch(p: PacketParser) {
     p.packetType match {
@@ -125,7 +115,7 @@ object PacketHandler extends CommonPacketHandler {
 
   def onDriveLock(p: PacketParser): Unit = p.player match {
     case player: ServerPlayer => {
-      val heldItem = player.getItemInHand(Hand.MAIN_HAND)
+      val heldItem = player.getItemInHand(InteractionHand.MAIN_HAND)
       heldItem.getItem match {
         case drive: FileSystemLike => DriveData.lock(heldItem, player)
         case _ => // Invalid packet
@@ -138,7 +128,7 @@ object PacketHandler extends CommonPacketHandler {
     val unmanaged = p.readBoolean()
     p.player match {
       case player: ServerPlayer =>
-        val heldItem = player.getItemInHand(Hand.MAIN_HAND)
+        val heldItem = player.getItemInHand(InteractionHand.MAIN_HAND)
         heldItem.getItem match {
           case drive: FileSystemLike => DriveData.setUnmanaged(heldItem, unmanaged)
           case _ => // Invalid packet.
@@ -170,7 +160,7 @@ object PacketHandler extends CommonPacketHandler {
         if (!computer.isPaused) {
           computer.start()
           computer.lastError match {
-            case message if message != null => player.sendMessage(Localization.Analyzer.LastError(message), Util.NIL_UUID)
+            case message if message != null => player.sendSystemMessage(Localization.Analyzer.LastError(message))
             case _ =>
           }
         }

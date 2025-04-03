@@ -31,7 +31,7 @@ class TabletData extends ItemData(Constants.ItemName.Tablet) {
   private final val ContainerTag = Settings.namespace + "container"
 
   override def loadData(nbt: CompoundTag) {
-    nbt.getList(ItemsTag, NBT.TAG_COMPOUND).foreach((slotNbt: CompoundTag) => {
+    nbt.getList(ItemsTag, Tag.TAG_COMPOUND).foreach((slotNbt: CompoundTag) => {
       val slot = slotNbt.getByte(SlotTag)
       if (slot >= 0 && slot < items.length) {
         items(slot) = ItemStack.of(slotNbt.getCompound(ItemTag))

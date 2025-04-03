@@ -1,6 +1,6 @@
 package li.cil.oc.integration.appeng
 
-import appeng.api.implementations.tiles.ISegmentedInventory
+import appeng.api.inventories.ISegmentedInventory
 import appeng.api.networking.IGridHost
 import appeng.api.networking.security.IActionHost
 import appeng.api.parts.{IPartHost, PartItemStack}
@@ -27,22 +27,15 @@ object DriverPartInterface extends driver.DriverBlock {
 
   override def createEnvironment(world: Level, pos: BlockPos, side: Direction): DriverPartInterface.Environment = {
     val host: IPartHost = world.getBlockEntity(pos).asInstanceOf[IPartHost]
-    val tile = host.asInstanceOf[TileEntity with IPartHost with ISegmentedInventory with IActionHost with IGridHost]
-    val aePos: AEPartLocation = side match {
-      case Direction.EAST => AEPartLocation.WEST
-      case Direction.WEST => AEPartLocation.EAST
-      case Direction.NORTH => AEPartLocation.SOUTH
-      case Direction.SOUTH => AEPartLocation.NORTH
-      case Direction.UP => AEPartLocation.DOWN
-      case Direction.DOWN => AEPartLocation.UP
-    }
+    val tile = host.asInstanceOf[BlockEntity with IPartHost with ISegmentedInventory with IActionHost with IPartHost]
+    val aePos: Direction = side
     new Environment(host, tile, aePos)
   }
 
-  final class Environment(val host: IPartHost, val tile: TileEntity with IPartHost with ISegmentedInventory with IActionHost with IGridHost, val pos: AEPartLocation)
+  final class Environment(val host: IPartHost, val tile: BlockEntity with IPartHost with ISegmentedInventory with IActionHost with IPartHost, val pos: Direction)
       extends ManagedTileEntityEnvironment[IPartHost](host, "me_interface")
       with NamedBlock with PartEnvironmentBase
-      with NetworkControl[TileEntity with ISegmentedInventory with IActionHost with IGridHost]
+      with NetworkControl[BlockEntity with ISegmentedInventory with IActionHost with IPartHost]
   {
     override def preferredName = "me_interface"
 

@@ -1,6 +1,6 @@
 package li.cil.oc.client.gui.widget
 
-import com.mojang.blaze3d.vertex.PoseStack
+import net.minecraft.client.gui.GuiGraphics
 
 @Deprecated
 abstract class Widget {
@@ -14,5 +14,5 @@ abstract class Widget {
 
   def height: Int
 
-  def draw(stack: PoseStack): Unit
+  def draw(guiGraphics: GuiGraphics): Unit
 }

@@ -8,7 +8,7 @@ import net.minecraft.core.BlockPos
 
 object EventHandlerFoundation {
   def useWrench(player: Player, pos: BlockPos, changeDurability: Boolean): Boolean = {
-    player.getItemInHand(Hand.MAIN_HAND).getItem match {
+    player.getItemInHand(InteractionHand.MAIN_HAND).getItem match {
       case wrench: WrenchItem => true
       case _ => false
     }

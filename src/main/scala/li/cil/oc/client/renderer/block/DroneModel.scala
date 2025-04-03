@@ -1,20 +1,17 @@
 package li.cil.oc.client.renderer.block
 
-import java.util
-import java.util.Collections
 import li.cil.oc.client.Textures
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.client.renderer.block.model.BakedQuad
-import net.minecraft.client.resources.model.BakedModel
-import net.minecraft.client.renderer.block.model.ItemOverrides
 import net.minecraft.client.multiplayer.ClientLevel
-import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.item.ItemStack
+import net.minecraft.client.renderer.block.model.{BakedQuad, ItemOverrides}
+import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.core.Direction
 import net.minecraft.util.RandomSource
-import net.minecraft.util.math.vector.Vector3d
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.state.BlockState
 import org.joml.Vector3d
 
+import java.util
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 

@@ -1,15 +1,12 @@
 package li.cil.oc.common.item
 
 import li.cil.oc.Settings
-import li.cil.oc.util.BlockPosition
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.Item
-import net.minecraft.world.item.Item.Properties
-import net.minecraft.world.item.ItemStack
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.Component
-import net.minecraft.world.IWorldReader
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.{Item, ItemStack}
+import net.minecraft.world.level.LevelReader
 import net.minecraftforge.common.extensions.IForgeItem
 
 class EEPROM(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem {
@@ -26,5 +23,5 @@ class EEPROM(props: Properties) extends Item(props) with IForgeItem with traits.
     super.getName(stack)
   }
 
-  override def doesSneakBypassUse(stack: ItemStack, world: IWorldReader, pos: BlockPos, player: Player): Boolean = true
+  override def doesSneakBypassUse(stack: ItemStack, world: LevelReader, pos: BlockPos, player: Player): Boolean = true
 }

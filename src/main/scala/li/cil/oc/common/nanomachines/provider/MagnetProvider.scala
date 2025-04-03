@@ -1,12 +1,11 @@
 package li.cil.oc.common.nanomachines.provider
 
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Settings, api}
 import li.cil.oc.api.prefab.AbstractBehavior
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.Player
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.util.math.vector.Vector3d
+import org.joml.Vector3d
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
@@ -24,7 +23,7 @@ object MagnetProvider extends ScalaProvider("9324d5ec-71f1-41c2-b51c-406e527668f
         val actualRange = Settings.get.nanomachineMagnetRange * api.Nanomachines.getController(player).getInputCount(this)
         val items = world.getEntitiesOfClass(classOf[ItemEntity], player.getBoundingBox.inflate(actualRange, actualRange, actualRange))
         items.collect {
-          case item: ItemEntity if !item.hasPickUpDelay && !item.getItem.isEmpty && player.getInventory.items.exists(stack => stack.isEmpty || stack.getCount < stack.getMaxStackSize && stack.sameItem(item.getItem)) =>
+          case item: ItemEntity if !item.hasPickUpDelay && !item.getItem.isEmpty && player.getInventory.items.exists(stack => stack.isEmpty || stack.getCount < stack.getMaxStackSize && stack.is(item.getItem.getItem)) =>
             val dx = player.getX - item.getX
             val dy = player.getY - item.getY
             val dz = player.getZ - item.getZ

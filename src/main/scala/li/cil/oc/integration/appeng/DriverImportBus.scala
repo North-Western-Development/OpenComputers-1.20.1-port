@@ -1,6 +1,6 @@
 package li.cil.oc.integration.appeng
 
-import appeng.api.implementations.tiles.ISegmentedInventory
+import appeng.api.inventories.ISegmentedInventory
 import appeng.api.parts.{IPartHost, PartItemStack}
 import li.cil.oc.api.driver
 import li.cil.oc.api.driver.EnvironmentProvider

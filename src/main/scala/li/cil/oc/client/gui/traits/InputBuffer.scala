@@ -1,18 +1,16 @@
 package li.cil.oc.client.gui.traits
 
 import java.util.Arrays
-
-import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.{DefaultVertexFormat, PoseStack, Tesselator, VertexFormat}
 import li.cil.oc.api
-import li.cil.oc.client.KeyBindings
+import li.cil.oc.client.KeyMappings
 import li.cil.oc.client.Textures
 import li.cil.oc.integration.util.ItemSearch
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.screen.Screen
-import net.minecraft.client.gui.screen.inventory.ContainerScreen
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import net.minecraft.client.gui.screens.Screen
+import net.minecraft.client.gui.screens.inventory.ContainerScreen
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.util.InputMappings
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11
@@ -83,7 +81,7 @@ trait InputBuffer extends DisplayBuffer {
     Minecraft.getInstance.keyboardHandler.setSendRepeatsToGui(true)
   }
 
-  override protected def drawBufferLayer(stack: PoseStack) {
+  override protected def drawBufferLayer(stack: GuiGraphics) {
     super.drawBufferLayer(stack)
 
     if (System.currentTimeMillis() - showKeyboardMissing < 1000) {
@@ -92,9 +90,9 @@ trait InputBuffer extends DisplayBuffer {
       val x = bufferX + buffer.renderWidth - 16
       val y = bufferY + buffer.renderHeight - 16
 
-      val t = Tessellator.getInstance
+      val t = Tesselator.getInstance
       val r = t.getBuilder
-      r.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)
+      r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
       r.vertex(stack.last.pose, x, y + 16, 0).uv(0, 1).endVertex()
       r.vertex(stack.last.pose, x + 16, y + 16, 0).uv(1, 1).endVertex()
       r.vertex(stack.last.pose, x + 16, y, 0).uv(1, 0).endVertex()
@@ -124,7 +122,7 @@ trait InputBuffer extends DisplayBuffer {
   }
 
   def onInput(input: InputMappings.Input): Boolean = {
-    if (KeyBindings.clipboardPaste.isActiveAndMatches(input)) {
+    if (KeyMappings.clipboardPaste.isActiveAndMatches(input)) {
       if (buffer != null) {
         if (hasKeyboard) buffer.clipboard(Minecraft.getInstance.keyboardHandler.getClipboard, null)
         else showKeyboardMissing = System.currentTimeMillis()

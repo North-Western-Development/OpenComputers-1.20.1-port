@@ -1,78 +1,50 @@
 package li.cil.oc.server.component
 
-import java.util.UUID
-import java.util.function.Supplier
 import com.google.common.base.Strings
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api.Network
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network.ComponentConnector
-import li.cil.oc.api.network.Environment
-import li.cil.oc.api.network.EnvironmentHost
-import li.cil.oc.api.network.Node
-import li.cil.oc.api.network.Packet
-import li.cil.oc.api.network.SidedEnvironment
-import li.cil.oc.api.network.Visibility
-import li.cil.oc.api.prefab
-import li.cil.oc.api.prefab.AbstractManagedEnvironment
-import li.cil.oc.api.prefab.AbstractValue
-import li.cil.oc.common.tileentity.traits.TileEntity
+import li.cil.oc.{OpenComputers, Settings}
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
+import li.cil.oc.api.network._
+import li.cil.oc.api.{Network, prefab}
+import li.cil.oc.api.prefab.{AbstractManagedEnvironment, AbstractValue}
 import li.cil.oc.server.PacketSender
+import li.cil.oc.server.component.DebugCard.AccessContext
 import li.cil.oc.server.network.DebugNetwork
 import li.cil.oc.server.network.DebugNetwork.DebugNode
-import li.cil.oc.server.component.DebugCard.AccessContext
-import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedArguments._
-import li.cil.oc.util.ExtendedBlock._
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.ExtendedWorld._
-import li.cil.oc.util.InventoryUtils
-import net.minecraft.world.level.block.Block
+import li.cil.oc.util.{BlockPosition, InventoryUtils}
 import net.minecraft.commands.{CommandSource, CommandSourceStack}
 import net.minecraft.core.registries.Registries
-import net.minecraft.entity.item.minecart.MinecartEntity
-import net.minecraft.world.item.Item
-import net.minecraft.world.item.ItemStack
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt._
-import net.minecraft.scoreboard.ScoreCriteria
-import net.minecraft.server.MinecraftServer
-import net.minecraft.core.{BlockPos, Direction, Registry}
-import net.minecraft.resources.{ResourceKey, ResourceLocation}
 import net.minecraft.network.chat.Component
-import net.minecraft.world.phys.shapes.CollisionContext
+import net.minecraft.resources.{ResourceKey, ResourceLocation}
 import net.minecraft.server.level.{ServerLevel, ServerPlayer}
 import net.minecraft.sounds.SoundSource
-import net.minecraft.world.entity.{Entity, LivingEntity}
 import net.minecraft.world.entity.vehicle.Minecart
-import net.minecraft.world.level.{GameType, Level}
+import net.minecraft.world.entity.{Entity, LivingEntity}
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.{Block, LiquidBlock}
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.dimension.LevelStem
 import net.minecraft.world.level.storage.ServerLevelData
-import net.minecraft.world.phys.{Vec2, Vec3}
+import net.minecraft.world.level.{GameType, Level}
 import net.minecraft.world.phys.shapes.CollisionContext
+import net.minecraft.world.phys.{Vec2, Vec3}
 import net.minecraft.world.scores.Scoreboard
 import net.minecraft.world.scores.criteria.ObjectiveCriteria
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.common.util.FakePlayer
 import net.minecraftforge.common.util.FakePlayerFactory
 import net.minecraftforge.event.level.BlockEvent
-import net.minecraftforge.event.level.BlockEvent
-import net.minecraftforge.fluids.FluidStack
-import net.minecraftforge.fluids.IFluidBlock
+import net.minecraftforge.fluids.{FluidStack, IFluidBlock}
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.fml.ModList
+import net.minecraftforge.registries.{ForgeRegistries, ForgeRegistry}
 import net.minecraftforge.server.ServerLifecycleHooks
-import net.minecraftforge.registries.ForgeRegistries
-import net.minecraftforge.registries.ForgeRegistry
-import net.minecraftforge.registries.IForgeRegistry
-import net.minecraftforge.server.ServerLifecycleHooks
-import org.joml.{Vector2f, Vector3d}
 
-import scala.collection.JavaConverters.{collectionAsScalaIterable, mapAsScalaMap}
+import java.util.function.Supplier
+import scala.collection.JavaConverters.mapAsScalaMap
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.{JavaConverters, mutable}
 
@@ -981,7 +953,7 @@ object DebugCard {
       ctx = AccessContext.loadData(nbt)
       val dimension = new ResourceLocation(nbt.getString(DimensionTag))
       LevelStem
-      val dimKey = ResourceKey.create(Registries.LEVEL_STEM, dimension)
+      val dimKey = ResourceKey.create(Registries.DIMENSION, dimension)
       world = ServerLifecycleHooks.getCurrentServer.getLevel(dimKey)
     }
 

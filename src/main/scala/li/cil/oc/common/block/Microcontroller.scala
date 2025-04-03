@@ -1,7 +1,7 @@
 package li.cil.oc.common.block
 
 import li.cil.oc.{Constants, Settings, api}
-import li.cil.oc.client.KeyBindings
+import li.cil.oc.client.KeyMappings
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.item.data.MicrocontrollerData
 import li.cil.oc.common.{Tier, tileentity}
@@ -44,7 +44,7 @@ class Microcontroller(props: Properties)
 
   override protected def tooltipTail(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], advanced: TooltipFlag) {
     super.tooltipTail(stack, world, tooltip, advanced)
-    if (KeyBindings.showExtendedTooltips) {
+    if (KeyMappings.showExtendedTooltips) {
       val info = new MicrocontrollerData(stack)
       for (component <- info.components if !component.isEmpty) {
         tooltip.add(Component.literal("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))

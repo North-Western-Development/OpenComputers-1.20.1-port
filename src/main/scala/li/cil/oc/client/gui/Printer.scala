@@ -1,14 +1,14 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.Textures
 import li.cil.oc.client.gui.widget.ProgressBar
 import li.cil.oc.common.container
 import li.cil.oc.common.container.ComponentSlot
 import li.cil.oc.util.RenderState
-import net.minecraft.world.entity.player.Inventory
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.network.chat.Component
+import net.minecraft.world.entity.player.Inventory
 
 class Printer(state: container.Printer, playerInventory:Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name) {
@@ -38,7 +38,7 @@ class Printer(state: container.Printer, playerInventory:Inventory, name: Compone
     override def barTexture = Textures.GUI.PrinterProgress
   })
 
-  override def drawSecondaryForegroundLayer(stack: PoseStack, mouseX: Int, mouseY: Int) = {
+  override def drawSecondaryForegroundLayer(stack: GuiGraphics, mouseX: Int, mouseY: Int) = {
     super.drawSecondaryForegroundLayer(stack, mouseX, mouseY)
     RenderState.pushAttrib()
     if (isPointInRegion(materialBar.x, materialBar.y, materialBar.width, materialBar.height, mouseX - leftPos, mouseY - topPos)) {
@@ -54,16 +54,15 @@ class Printer(state: container.Printer, playerInventory:Inventory, name: Compone
     RenderState.popAttrib()
   }
 
-  override def renderBg(stack: PoseStack, dt: Float, mouseX: Int, mouseY: Int) {
-    RenderSystem.color3f(1, 1, 1)
-    Textures.bind(Textures.GUI.Printer)
-    blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
+  override def renderBg(guiGraphics: GuiGraphics, dt: Float, mouseX: Int, mouseY: Int) {
+    RenderSystem.setShaderColor(1, 1, 1, 1)
+    guiGraphics.blit(Textures.GUI.Printer, leftPos, topPos, 0, 0, imageWidth, imageHeight)
     materialBar.level = inventoryContainer.amountMaterial / inventoryContainer.maxAmountMaterial.toDouble
     inkBar.level = inventoryContainer.amountInk / inventoryContainer.maxAmountInk.toDouble
     progressBar.level = inventoryContainer.progress
-    drawWidgets(stack)
-    drawInventorySlots(stack)
+    drawWidgets(guiGraphics)
+    drawInventorySlots(guiGraphics)
   }
 
-  override protected def drawDisabledSlot(stack: PoseStack, slot: ComponentSlot) {}
+  override protected def drawDisabledSlot(stack: GuiGraphics, slot: ComponentSlot) {}
 }

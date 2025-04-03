@@ -10,8 +10,7 @@ import li.cil.oc.common.Slot
 import li.cil.oc.common.item.Tablet
 import li.cil.oc.common.item.data.TabletData
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.nbt.{CompoundTag, Tag}
 
 object DriverTablet extends Item {
   override def worksWith(stack: ItemStack) = isOneOf(stack,
@@ -45,7 +44,7 @@ object DriverTablet extends Item {
       case _ => false
     }
     if (index >= 0 && stack.hasTag && stack.getTag.contains(Settings.namespace + "items")) {
-      val baseTag = stack.getTag.getList(Settings.namespace + "items", NBT.TAG_COMPOUND).getCompound(index)
+      val baseTag = stack.getTag.getList(Settings.namespace + "items", Tag.TAG_COMPOUND).getCompound(index)
       if (!baseTag.contains("item")) {
         baseTag.put("item", new CompoundTag())
       }

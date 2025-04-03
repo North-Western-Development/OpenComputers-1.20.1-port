@@ -1,17 +1,14 @@
 package li.cil.oc.server.component.traits
 
 import li.cil.oc.Settings
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.ResultWrapper.result
 import li.cil.oc.util.StackOption._
-import net.minecraft.world.entity.item.ItemEntity
-import net.minecraft.item.BlockItem
-import net.minecraft.world.item.{BlockItem, ItemStack}
 import net.minecraft.core.Direction
+import net.minecraft.world.entity.item.ItemEntity
+import net.minecraft.world.item.{BlockItem, ItemStack}
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.entity.item.ItemTossEvent
 import net.minecraftforge.eventbus.api.Event.Result
@@ -70,7 +67,7 @@ trait InventoryWorldControl extends InventoryAware with WorldAware with SideRest
           }
           if (!dropped.isEmpty) {
             if (InventoryUtils.spawnStackInWorld(position, dropped, Some(facing), Some(validator)) == null)
-              fakePlayer.inventory.add(dropped)
+              fakePlayer.getInventory.add(dropped)
           }
       }
 

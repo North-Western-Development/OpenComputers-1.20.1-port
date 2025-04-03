@@ -10,11 +10,12 @@ import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.inventory.IInventory
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.Container
 import net.minecraft.world.item.ItemStack
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-class Assembler(selfType: MenuType[_ <: Assembler], id: Int, playerInventory:Inventory, val assembler: IInventory)
+class Assembler(selfType: MenuType[_ <: Assembler], id: Int, playerInventory:Inventory, val assembler: Container)
   extends Player(selfType, id, playerInventory, assembler) {
 
   override protected def getHostClass = classOf[tileentity.Assembler]

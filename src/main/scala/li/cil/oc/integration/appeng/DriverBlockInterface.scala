@@ -1,6 +1,6 @@
 package li.cil.oc.integration.appeng
 
-import appeng.api.implementations.tiles.ISegmentedInventory
+import appeng.api.inventories.ISegmentedInventory
 import appeng.api.networking.IGridHost
 import appeng.api.networking.security.IActionHost
 import appeng.api.util.AEPartLocation
@@ -36,7 +36,7 @@ object DriverBlockInterface extends DriverSidedTileEntity {
 
     @Callback(doc = "function([slot:number]):table -- Get the configuration of the interface.")
     def getInterfaceConfiguration(context: Context, args: Arguments): Array[AnyRef] = {
-      val config = tileEntity.getInventoryByName("config")
+      val config = tileEntity.getSubInventory(ISegmentedInventory.CONFIG)
       val slot = args.optSlot(config, 0, 0)
       val stack = config.getStackInSlot(slot)
       result(stack)
@@ -44,7 +44,7 @@ object DriverBlockInterface extends DriverSidedTileEntity {
 
     @Callback(doc = "function([slot:number][, database:address, entry:number[, size:number]]):boolean -- Configure the interface.")
     def setInterfaceConfiguration(context: Context, args: Arguments): Array[AnyRef] = {
-      val config = tileEntity.getInventoryByName("config")
+      val config = tileEntity.getSubInventory(ISegmentedInventory.CONFIG)
       val slot = if (args.isString(0)) 0 else args.optSlot(config, 0, 0)
       val stack = if (args.count > 1) {
         val (address, entry, size) =

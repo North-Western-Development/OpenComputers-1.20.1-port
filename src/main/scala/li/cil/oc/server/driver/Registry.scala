@@ -1,27 +1,19 @@
 package li.cil.oc.server.driver
 
-import java.util
-import li.cil.oc.OpenComputers
-import li.cil.oc.api
-import li.cil.oc.api.driver.Converter
-import li.cil.oc.api.driver.DriverBlock
-import li.cil.oc.api.driver.DriverItem
-import li.cil.oc.api.driver.EnvironmentProvider
-import li.cil.oc.api.driver.InventoryProvider
+import li.cil.oc.{OpenComputers, api}
+import li.cil.oc.api.driver._
 import li.cil.oc.api.driver.item.HostAware
 import li.cil.oc.api.machine.Value
 import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.util.InventoryUtils
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.world.entity.player.Player
-import net.minecraft.inventory.IInventory
 import net.minecraft.world.item.ItemStack
-import net.minecraft.core.Direction
-import net.minecraft.core.BlockPos
 import net.minecraft.world.level.Level
 import net.minecraftforge.common.capabilities.ForgeCapabilities
-import net.minecraftforge.items.CapabilityItemHandler
 import net.minecraftforge.items.IItemHandler
 
+import java.util
 import scala.collection.JavaConverters.mapAsScalaMap
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -141,7 +133,7 @@ private[oc] object Registry extends api.detail.DriverAPI {
   override def itemDrivers: util.List[DriverItem] = items.toSeq
 
   def blacklistHost(stack: ItemStack, host: Class[_]) {
-    blacklist.find(_._1.sameItem(stack)) match {
+    blacklist.find(item => ItemStack.isSameItem(item._1, stack)) match {
       case Some((_, hosts)) => hosts += host
       case _ => blacklist.append((stack, mutable.Set(host)))
     }

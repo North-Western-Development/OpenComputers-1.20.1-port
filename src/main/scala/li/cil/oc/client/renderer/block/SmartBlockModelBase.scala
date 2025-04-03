@@ -5,7 +5,8 @@ import java.util.Collections
 import li.cil.oc.client.Textures
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.block.model.{BakedQuad, ItemOverrides, ItemTransform}
+import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.block.model.{BakedQuad, ItemOverrides, ItemTransform, ItemTransforms}
 import net.minecraft.client.renderer.model._
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.client.resources.model.BakedModel
@@ -13,13 +14,13 @@ import net.minecraft.core.Direction
 import net.minecraft.util.RandomSource
 import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.util.math.vector.Vector3f
+import net.minecraftforge.client.model.data.ModelData
 import org.joml.{Vector3d, Vector3f}
 
 trait SmartBlockModelBase extends BakedModel {
   override def getOverrides: ItemOverrides = ItemOverrides.EMPTY
 
-  @Deprecated
-  override def getQuads(state: BlockState, side: Direction, rand: RandomSource): util.List[BakedQuad] = Collections.emptyList()
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, modelData: ModelData, render: RenderType): util.List[BakedQuad] = Collections.emptyList()
 
   override def useAmbientOcclusion = true
 
@@ -35,7 +36,7 @@ trait SmartBlockModelBase extends BakedModel {
   override def getParticleIcon = Textures.getSprite(Textures.Block.GenericTop)
 
   @Deprecated
-  override def getTransforms = DefaultBlockCameraTransforms
+  override def getTransforms: ItemTransforms = DefaultBlockCameraTransforms
 
   @Deprecated
   protected final val DefaultBlockCameraTransforms = {
@@ -54,7 +55,7 @@ trait SmartBlockModelBase extends BakedModel {
     firstperson_righthand.translation.mul(0.0625f)
     firstperson_lefthand.translation.mul(0.0625f)
 
-    new ItemCameraTransforms(
+    new ItemTransforms(
       ItemTransform.NO_TRANSFORM,
       thirdperson_righthand,
       firstperson_lefthand,
@@ -180,7 +181,7 @@ trait SmartBlockModelBase extends BakedModel {
     })
   }
 
-  // See FaceBakery#fillVertex, IVertexBuilder#putBulkData and ForgeHooksClient#fillNormal.
+  // See FaceBakery#fillVertex, VertexConsumer#putBulkData and ForgeHooksClient#fillNormal.
   protected def rawData(x: Double, y: Double, z: Double, face: Direction, texture: TextureAtlasSprite, u: Float, v: Float, colorRGB: Int) = {
     val vx = (face.getStepX * 127) & 0xFF
     val vy = (face.getStepY * 127) & 0xFF

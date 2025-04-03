@@ -24,7 +24,7 @@ import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.particles.ParticleTypes
+import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
 

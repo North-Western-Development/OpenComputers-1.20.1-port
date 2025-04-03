@@ -1,5 +1,6 @@
 package li.cil.oc
 
+import net.minecraft.client.Minecraft
 import net.minecraft.network.chat.{ClickEvent, Component, HoverEvent}
 import net.minecraft.util.text._
 import net.minecraft.util.text.event.ClickEvent
@@ -20,7 +21,7 @@ object Localization {
   def localizeLater(key: String, values: AnyRef*) = Component.translatable(resolveKey(key).getOrElse(key), values: _*)
 
   def localizeImmediately(key: String, values: AnyRef*): String = {
-    resolveKey(key).map(k => String.format(LanguageMap.getInstance.getOrDefault(k), values: _*).linesIterator.map(_.trim).mkString("\n")).getOrElse(key)
+    resolveKey(key).map(k => String.format(Minecraft.getInstance.getOrDefault(k), values: _*).linesIterator.map(_.trim).mkString("\n")).getOrElse(key)
   }
 
   def localizeImmediately(key: String): String = {
@@ -28,7 +29,7 @@ object Localization {
   }
 
   object Analyzer {
-    def Address(value: String): IFormattableTextComponent = {
+    def Address(value: String): Component = {
       val result = localizeLater("gui.Analyzer.Address", value)
       result.setStyle(result.getStyle
         .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, value))

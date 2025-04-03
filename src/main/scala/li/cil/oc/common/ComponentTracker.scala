@@ -1,17 +1,13 @@
 package li.cil.oc.common
 
-import com.google.common.cache.Cache
-import com.google.common.cache.CacheBuilder
+import com.google.common.cache.{Cache, CacheBuilder}
 import li.cil.oc.api.network.ManagedEnvironment
 import net.minecraft.resources.ResourceKey
-import net.minecraft.util.RegistryKey
 import net.minecraft.world.level.Level
 import net.minecraftforge.event.level.LevelEvent
-import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
 import scala.collection.JavaConverters.asJavaIterable
-import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 
@@ -50,7 +46,7 @@ abstract class ComponentTracker {
   }
 
   @SubscribeEvent
-  def onWorldUnload(e: LevelEvent.Unload): Unit = e.getWorld match {
+  def onWorldUnload(e: LevelEvent.Unload): Unit = e.getLevel match {
     case world: Level => clear(world)
     case _ =>
   }

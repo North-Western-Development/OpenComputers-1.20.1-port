@@ -1,34 +1,27 @@
 package li.cil.oc.common.block
 
-import java.util
-import li.cil.oc.client.KeyBindings
-import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.client.KeyMappings
 import li.cil.oc.common.block.property.PropertyRotatable
+import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.item.data.RaidData
 import li.cil.oc.common.tileentity
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.Tooltip
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.item.TooltipFlag
-import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.entity.player.Player
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.block.state.StateDefinition
-import net.minecraft.world.level.storage.loot.{LootContext, LootParams}
-import net.minecraft.loot.LootContextParams
-import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.Component
-import net.minecraft.world.level.BlockGetter
-import net.minecraft.world.level.Level
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.{ItemStack, TooltipFlag}
+import net.minecraft.world.level.{BlockGetter, Level}
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
+import net.minecraft.world.level.storage.loot.LootParams
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams
 import net.minecraftforge.common.extensions.IForgeBlock
 
-import scala.reflect.ClassTag
+import java.util
 
 class Raid(props: Properties) extends SimpleBlock(props) with IForgeBlock with traits.GUI {
 
@@ -37,7 +30,7 @@ class Raid(props: Properties) extends SimpleBlock(props) with IForgeBlock with t
 
   override protected def tooltipTail(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], advanced: TooltipFlag) {
     super.tooltipTail(stack, world, tooltip, advanced)
-    if (KeyBindings.showExtendedTooltips) {
+    if (KeyMappings.showExtendedTooltips) {
       val data = new RaidData(stack)
       for (disk <- data.disks if !disk.isEmpty) {
         tooltip.add(Component.literal("- " + disk.getHoverName.getString).setStyle(Tooltip.DefaultStyle))

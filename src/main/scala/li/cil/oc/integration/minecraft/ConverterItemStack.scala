@@ -1,29 +1,23 @@
 package li.cil.oc.integration.minecraft
 
-import java.util
-
-import li.cil.oc.Settings
-import li.cil.oc.api
-import li.cil.oc.integration.Mods
+import li.cil.oc.{Settings, api}
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.ItemUtils
-import net.minecraft.enchantment.EnchantmentHelper
-import net.minecraft.item
-import net.minecraft.world.item.Item
-import net.minecraft.nbt.{CompoundTag, ListNBT, StringNBT}
-import net.minecraft.tags.ItemTags
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.nbt.{CompoundTag, ListTag, StringTag, Tag}
+import net.minecraft.world.item.enchantment.EnchantmentHelper
+import net.minecraft.world.item.{Item, ItemStack}
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 
 object ConverterItemStack extends api.driver.Converter {
   def getTagValue(tag: CompoundTag, key: String): AnyRef = tag.getTagType(key) match {
-    case NBT.TAG_INT => Int.box(tag.getInt(key))
-    case NBT.TAG_STRING => tag.getString(key)
-    case NBT.TAG_BYTE => Byte.box(tag.getByte(key))
-    case NBT.TAG_COMPOUND => tag.getCompound(key)
-    case NBT.TAG_LIST => tag.getList(key, NBT.TAG_STRING)
+    case Tag.TAG_INT => Int.box(tag.getInt(key))
+    case Tag.TAG_STRING => tag.getString(key)
+    case Tag.TAG_BYTE => Byte.box(tag.getByte(key))
+    case Tag.TAG_COMPOUND => tag.getCompound(key)
+    case Tag.TAG_LIST => tag.getList(key, Tag.TAG_STRING)
     case _ => null
   }
 
@@ -37,16 +31,16 @@ object ConverterItemStack extends api.driver.Converter {
   }
 
   def withCompound(tag: CompoundTag, key: String, f: CompoundTag => AnyRef): AnyRef = {
-    withTag(tag, key, NBT.TAG_COMPOUND, { case value: CompoundTag => f(value)})
+    withTag(tag, key, Tag.TAG_COMPOUND, { case value: CompoundTag => f(value)})
   }
 
-  def withList(tag: CompoundTag, key: String, f: ListNBT => AnyRef): AnyRef = {
-    withTag(tag, key, NBT.TAG_STRING, { case value: ListNBT => f(value)})
+  def withList(tag: CompoundTag, key: String, f: ListTag => AnyRef): AnyRef = {
+    withTag(tag, key, Tag.TAG_STRING, { case value: ListTag => f(value)})
   }
 
   override def convert(value: AnyRef, output: util.Map[AnyRef, AnyRef]) =
     value match {
-      case stack: item.ItemStack =>
+      case stack: ItemStack =>
         if (Settings.get.insertIdsInConverters) {
           output += "id" -> Int.box(Item.getId(stack.getItem))
           output += "oreNames" -> stack.getItem.getTags.map(_.toString).toArray
@@ -65,11 +59,11 @@ object ConverterItemStack extends api.driver.Converter {
 
           //Lore tags
           withCompound(tags, "display", withList(_, "Lore", {
-              output += "lore" -> _.map((tag: StringNBT) => tag.getAsString).mkString("\n")
+              output += "lore" -> _.map((tag: StringTag) => tag.getAsString).mkString("\n")
             })
           )
 
-          withTag(tags, "Energy", NBT.TAG_INT, value => output += "Energy" -> value)
+          withTag(tags, "Energy", Tag.TAG_INT, value => output += "Energy" -> value)
 
           if (Settings.get.allowItemStackNBTTags) {
             output += "tag" -> ItemUtils.saveTag(stack.getTag)

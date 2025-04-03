@@ -37,7 +37,7 @@ object ExtendedWorld {
 
     def isAirBlock(position: BlockPosition) = {
       val state = world.getBlockState(position.toBlockPos)
-      state.getBlock.isAir(state, world, position.toBlockPos)
+      state.isAir
     }
   }
 

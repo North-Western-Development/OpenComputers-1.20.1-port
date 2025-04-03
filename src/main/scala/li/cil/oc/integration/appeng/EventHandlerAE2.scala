@@ -8,8 +8,8 @@ import net.minecraft.core.BlockPos
 
 object EventHandlerAE2 {
   def useWrench(player: Player, pos: BlockPos, changeDurability: Boolean): Boolean = {
-    player.getItemInHand(Hand.MAIN_HAND).getItem match {
-      case wrench: IAEWrench => wrench.canWrench(player.getItemInHand(Hand.MAIN_HAND), player, pos)
+    player.getItemInHand(InteractionHand.MAIN_HAND).getItem match {
+      case wrench: IAEWrench => wrench.canWrench(player.getItemInHand(InteractionHand.MAIN_HAND), player, pos)
       case _ => false
     }
   }

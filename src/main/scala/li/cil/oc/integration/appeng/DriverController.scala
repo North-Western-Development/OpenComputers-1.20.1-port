@@ -17,7 +17,7 @@ import net.minecraft.world.level.Level
 import scala.language.existentials
 
 object DriverController extends DriverSidedTileEntity {
-  private type TileController = TileEntity with IActionHost with IGridHost
+  private type TileController = BlockEntity with IActionHost with IGridHost
 
   def getTileEntityClass = AEUtil.controllerClass
 

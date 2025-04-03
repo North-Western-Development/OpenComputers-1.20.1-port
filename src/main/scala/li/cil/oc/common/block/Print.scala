@@ -1,44 +1,29 @@
 package li.cil.oc.common.block
 
-import java.util
-import java.util.Random
-import li.cil.oc.Localization
-import li.cil.oc.Settings
+import li.cil.oc.{Localization, Settings}
 import li.cil.oc.common.item.data.PrintData
 import li.cil.oc.common.tileentity
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.Tooltip
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.item.TooltipFlag
-import net.minecraft.core.BlockPos
-import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.storage.loot.LootContext
-import net.minecraft.loot.LootContextParams
-import net.minecraft.world.InteractionResult
-import net.minecraft.core.Direction
-import net.minecraft.world.InteractionHand
-import net.minecraft.core.BlockPos
-import net.minecraft.world.phys.BlockHitResult
-import net.minecraft.util.math.RayTraceResult
-import net.minecraft.world.phys.shapes.CollisionContext
-import net.minecraft.world.phys.shapes.VoxelShape
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.Component
-import net.minecraft.world.level.BlockGetter
-import net.minecraft.world.level.Level
-import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.level.storage.loot.LootContext
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.RandomSource
+import net.minecraft.world.{InteractionHand, InteractionResult}
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.{ItemStack, TooltipFlag}
+import net.minecraft.world.level.{BlockGetter, Level}
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.storage.loot.LootParams
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams
+import net.minecraft.world.phys.shapes.{CollisionContext, VoxelShape}
+import net.minecraft.world.phys.{BlockHitResult, HitResult}
 import net.minecraftforge.common.extensions.IForgeBlock
-import li.cil.oc.common.tileentity.Print
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
-import scala.reflect.ClassTag
 
 class Print(props: Properties) extends RedstoneAware(props) with IForgeBlock {
   @Deprecated
@@ -66,13 +51,13 @@ class Print(props: Properties) extends RedstoneAware(props) with IForgeBlock {
     }
   }
 
-  override def getLightValue(state: BlockState, world: BlockGetter, pos: BlockPos): Int =
+  override def getLightEmission(state: BlockState, world: BlockGetter, pos: BlockPos): Int =
     world match {
       case world: Level if world.isLoaded(pos) => world.getBlockEntity(pos) match {
         case print: tileentity.Print => print.data.lightLevel
-        case _ => super.getLightValue(state, world, pos)
+        case _ => super.getLightEmission(state, world, pos)
       }
-      case _ => super.getLightValue(state, world, pos)
+      case _ => super.getLightEmission(state, world, pos)
     }
 
   @Deprecated
@@ -85,7 +70,7 @@ class Print(props: Properties) extends RedstoneAware(props) with IForgeBlock {
       case _ => super.getLightBlock(state, world, pos)
     }
 
-  override def getPickBlock(state: BlockState, target: RayTraceResult, world: BlockGetter, pos: BlockPos, player: Player): ItemStack = {
+  override def getPickBlock(state: BlockState, target: HitResult, world: BlockGetter, pos: BlockPos, player: Player): ItemStack = {
     world.getBlockEntity(pos) match {
       case print: tileentity.Print => print.data.createItemStack()
       case _ => ItemStack.EMPTY
@@ -119,7 +104,7 @@ class Print(props: Properties) extends RedstoneAware(props) with IForgeBlock {
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(worldIn: IBlockReader) = new tileentity.Print(tileentity.TileEntityTypes.PRINT)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Print(tileentity.TileEntityTypes.PRINT)
 
   // ----------------------------------------------------------------------- //
 

@@ -41,10 +41,10 @@ class UpgradeCrafting(val host: EnvironmentHost with internal.Robot) extends Abs
   @Callback(doc = """function([count:number]):number -- Tries to craft the specified number of items in the top left area of the inventory.""")
   def craft(context: Context, args: Arguments): Array[AnyRef] = {
     val count = args.optInteger(0, 64) max 0 min 64
-    result(CraftingInventory.craft(count): _*)
+    result(CraftingContainer.craft(count): _*)
   }
 
-  private object CraftingInventory extends inventory.CraftingInventory(new Container(null, 0) {
+  private object CraftingContainer extends inventory.CraftingContainer(new Container(null, 0) {
     override def stillValid(player: Player) = true
   }, 3, 3) {
     def craft(wantedCount: Int): Seq[_] = {
@@ -52,16 +52,16 @@ class UpgradeCrafting(val host: EnvironmentHost with internal.Robot) extends Abs
       copyItemsFromHost(player.getInventory)
       var countCrafted = 0
       val manager = host.world.getRecipeManager
-      val initialCraft = manager.getRecipeFor(IRecipeType.CRAFTING, CraftingInventory: inventory.CraftingInventory, host.world)
+      val initialCraft = manager.getRecipeFor(IRecipeType.CRAFTING, CraftingContainer: inventory.CraftingContainer, host.world)
       if (initialCraft.isPresent) {
         def tryCraft() : Boolean = {
-          val craft = manager.getRecipeFor(IRecipeType.CRAFTING, CraftingInventory: inventory.CraftingInventory, host.world)
+          val craft = manager.getRecipeFor(IRecipeType.CRAFTING, CraftingContainer: inventory.CraftingContainer, host.world)
           if (craft != initialCraft) {
             return false
           }
 
           val craftResult = new CraftResultInventory
-          val craftingSlot = new CraftingResultSlot(player, CraftingInventory, craftResult, 0, 0, 0)
+          val craftingSlot = new CraftingResultSlot(player, CraftingContainer, craftResult, 0, 0, 0)
           val craftedResult = craft.get.assemble(this)
           craftResult.setItem(0, craftedResult)
           if (!craftingSlot.hasItem)

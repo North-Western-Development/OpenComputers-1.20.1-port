@@ -1,34 +1,20 @@
 package li.cil.oc.integration.tis3d
 
-import java.util.Optional
-
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.internal.Adapter
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network.Environment
-import li.cil.oc.api.network.Message
-import li.cil.oc.api.network.Node
-import li.cil.oc.api.network.Visibility
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
+import li.cil.oc.api.network.{Environment, Message, Node, Visibility}
 import li.cil.oc.util.ResultWrapper.result
-import li.cil.tis3d.api.serial.SerialInterface
-import li.cil.tis3d.api.serial.SerialInterfaceProvider
-import li.cil.tis3d.api.serial.SerialProtocolDocumentationReference
-import li.cil.tis3d.common.provider.SerialInterfaceProviders
+import li.cil.tis3d.api.serial.{SerialInterface, SerialInterfaceProvider, SerialProtocolDocumentationReference}
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.core.Direction
-import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.world.level.Level
-import net.minecraftforge.registries.ForgeRegistryEntry
 
+import java.util.Optional
 import scala.collection.mutable
 
-object SerialInterfaceProviderAdapter extends ForgeRegistryEntry[SerialInterfaceProvider] with SerialInterfaceProvider {
-  setRegistryName(OpenComputers.ID, "serial_port")
+object SerialInterfaceProviderAdapter extends SerialInterfaceProvider {
 
   override def getDocumentationReference = Optional.of(new SerialProtocolDocumentationReference(Component.literal("OpenComputers Adapter"), "protocols/opencomputersadapter.md"))
 
@@ -107,7 +93,7 @@ object SerialInterfaceProviderAdapter extends ForgeRegistryEntry[SerialInterface
       })
     }
 
-    override def readFromNBT(nbt: CompoundTag): Unit = {
+    override def load(nbt: CompoundTag): Unit = {
       node.loadData(nbt)
 
       writeBuffer.clear()
@@ -117,7 +103,7 @@ object SerialInterfaceProviderAdapter extends ForgeRegistryEntry[SerialInterface
       isReading = nbt.getBoolean("isReading")
     }
 
-    override def writeToNBT(nbt: CompoundTag): Unit = {
+    override def save(nbt: CompoundTag): Unit = {
       node.saveData(nbt)
 
       nbt.putIntArray("writeBuffer", writeBuffer.toArray.map(_.toInt))

@@ -1,12 +1,13 @@
 package li.cil.oc.integration.appeng
 
 import java.util
-
 import appeng.api.config.Actionable
 import appeng.api.networking.{IGridHost, IGridNode}
 import appeng.api.networking.crafting.{ICraftingJob, ICraftingLink, ICraftingRequester}
 import appeng.api.networking.security.IActionHost
-import appeng.api.storage.data.IAEItemStack
+import appeng.api.parts.IPartHost
+import appeng.api.stacks.AEKey
+import appeng.api.stacks.AEKey
 import appeng.api.util.{AECableType, AEPartLocation}
 import com.google.common.collect.ImmutableSet
 import li.cil.oc.OpenComputers
@@ -22,14 +23,12 @@ import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.ResultWrapper._
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.{CompoundTag, Tag}
 import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.util.RegistryKey
-import net.minecraft.resources.ResourceLocation
-import net.minecraft.core.BlockPos
-import net.minecraft.util.registry.{Registry => VanillaRegistry}
+import net.minecraft.resources.{ResourceKey, ResourceLocation}
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.core.registries.Registries
 import net.minecraft.world.level.Level
-import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.server.ServerLifecycleHooks
 
 import scala.collection.convert.ImplicitConversionsToJava._
@@ -40,21 +39,21 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.existentials
 
 // Note to self: this class is used by ExtraCells (and potentially others), do not rename / drastically change it.
-trait NetworkControl[AETile >: Null <: TileEntity with IActionHost with IGridHost] {
+trait NetworkControl[AETile >: Null <: BlockEntity with IActionHost with IPartHost] {
   def tile: AETile
-  def pos: AEPartLocation
+  def pos: Direction
 
   def node: Node
 
-  private def aeCraftItem(aeItem: IAEItemStack): IAEItemStack = {
-    val patterns = AEUtil.getGridCrafting(tile.getGridNode(pos).getGrid).getCraftingFor(aeItem, null, 0, tile.getLevel)
+  private def aeCraftItem(aeItem: AEKey): AEKey = {
+    val patterns = AEUtil.getGridCrafting(tile.getPart(pos).getGridNode.getGrid).getCraftingFor(aeItem, null, 0, tile.getLevel)
     patterns.find(pattern => pattern.getOutputs.exists(_.isSameType(aeItem))) match {
       case Some(pattern) => pattern.getOutputs.find(_.isSameType(aeItem)).get
       case _ => aeItem.copy.setStackSize(0) // Should not be possible, but hey...
     }
   }
 
-  private def aePotentialItem(aeItem: IAEItemStack): IAEItemStack = {
+  private def aePotentialItem(aeItem: AEKey): AEKey = {
     if (aeItem.getStackSize > 0 || !aeItem.isCraftable)
       aeItem
     else
@@ -115,16 +114,16 @@ trait NetworkControl[AETile >: Null <: TileEntity with IActionHost with IGridHos
     hash
   }
 
-  private def allItems: Iterable[IAEItemStack] = {
-    val storage = AEUtil.getGridStorage(tile.getGridNode(pos).getGrid)
+  private def allItems: Iterable[AEKey] = {
+    val storage = AEUtil.getGridStorage(tile.getActionableNode.getGrid)
     val inventory = storage.getInventory(AEUtil.itemStorageChannel)
     inventory.getStorageList
   }
 
-  private def allCraftables: Iterable[IAEItemStack] = allItems.collect{ case aeItem if aeItem.isCraftable => aeCraftItem(aeItem) }
+  private def allCraftables: Iterable[AEKey] = allItems.collect{ case aeItem if aeItem.isCraftable => aeCraftItem(aeItem) }
 
-  private def convert(aeItem: IAEItemStack): java.util.Map[AnyRef, AnyRef] = {
-    // I would prefer to move the convert code to the registry for IAEItemStack
+  private def convert(aeItem: AEKey): java.util.Map[AnyRef, AnyRef] = {
+    // I would prefer to move the convert code to the registry for AEKey
     // but craftables need the device that crafts them
     val hash = new java.util.HashMap[AnyRef, AnyRef]()
     Registry.convert(Array[AnyRef](aePotentialItem(aeItem).createItemStack()))
@@ -141,7 +140,7 @@ trait NetworkControl[AETile >: Null <: TileEntity with IActionHost with IGridHos
   @Callback(doc = """function():table -- Get a list of tables representing the available CPUs in the network.""")
   def getCpus(context: Context, args: Arguments): Array[AnyRef] = {
     val buffer = new mutable.ListBuffer[Map[String, Any]]
-    AEUtil.getGridCrafting(tile.getGridNode(pos).getGrid).getCpus.foreach(cpu => {
+    AEUtil.getGridCrafting(tile.getPart(pos).getGridNode.getGrid).getCpus.foreach(cpu => {
       buffer.append(Map(
         "name" -> cpu.getName,
         "storage" -> cpu.getAvailableStorage,
@@ -197,32 +196,32 @@ trait NetworkControl[AETile >: Null <: TileEntity with IActionHost with IGridHos
 
   @Callback(doc = """function():number -- Get the average power injection into the network.""")
   def getAvgPowerInjection(context: Context, args: Arguments): Array[AnyRef] =
-    result(AEUtil.getGridEnergy(tile.getGridNode(pos).getGrid).getAvgPowerInjection)
+    result(AEUtil.getGridEnergy(tile.getActionableNode.getGrid).getAvgPowerInjection)
 
   @Callback(doc = """function():number -- Get the average power usage of the network.""")
   def getAvgPowerUsage(context: Context, args: Arguments): Array[AnyRef] =
-    result(AEUtil.getGridEnergy(tile.getGridNode(pos).getGrid).getAvgPowerUsage)
+    result(AEUtil.getGridEnergy(tile.getActionableNode.getGrid).getAvgPowerUsage)
 
   @Callback(doc = """function():number -- Get the idle power usage of the network.""")
   def getIdlePowerUsage(context: Context, args: Arguments): Array[AnyRef] =
-    result(AEUtil.getGridEnergy(tile.getGridNode(pos).getGrid).getIdlePowerUsage)
+    result(AEUtil.getGridEnergy(tile.getActionableNode.getGrid).getIdlePowerUsage)
 
   @Callback(doc = """function():number -- Get the maximum stored power in the network.""")
   def getMaxStoredPower(context: Context, args: Arguments): Array[AnyRef] =
-    result(AEUtil.getGridEnergy(tile.getGridNode(pos).getGrid).getMaxStoredPower)
+    result(AEUtil.getGridEnergy(tile.getActionableNode.getGrid).getMaxStoredPower)
 
   @Callback(doc = """function():number -- Get the stored power in the network. """)
   def getStoredPower(context: Context, args: Arguments): Array[AnyRef] =
-    result(AEUtil.getGridEnergy(tile.getGridNode(pos).getGrid).getStoredPower)
+    result(AEUtil.getGridEnergy(tile.getActionableNode.getGrid).getStoredPower)
 
   @Callback(doc = """function():boolean -- True if the AE network is considered online""")
   def isNetworkPowered(context: Context, args: Arguments): Array[AnyRef] =
-    result(AEUtil.getGridEnergy(tile.getGridNode(pos).getGrid).isNetworkPowered)
+    result(AEUtil.getGridEnergy(tile.getActionableNode.getGrid).isNetworkPowered)
 
   @Callback(direct = false, doc = """function():number -- Returns the energy demand on the AE network""")
   def getEnergyDemand(context: Context, args: Arguments): Array[AnyRef] = {
     context.consumeCallBudget(1.5)
-    result(AEUtil.getGridEnergy(tile.getGridNode(pos).getGrid).getEnergyDemand(Double.MaxValue))
+    result(AEUtil.getGridEnergy(tile.getActionableNode.getGrid).getEnergyDemand(Double.MaxValue))
   }
 
   private def matches(stack: java.util.Map[AnyRef, AnyRef], filter: scala.collection.mutable.Map[AnyRef, AnyRef]): Boolean = {
@@ -279,10 +278,10 @@ object NetworkControl {
     }
   }
 
-  class Craftable(var controller: TileEntity with IActionHost with IGridHost,
-                  var pos: AEPartLocation,
-                  var stack: IAEItemStack)
-                    extends AbstractValue with ICraftingRequester with IGridHost {
+  class Craftable(var controller: BlockEntity with IActionHost with IPartHost,
+                  var pos: Direction,
+                  var stack: AEKey)
+                    extends AbstractValue with ICraftingRequester with IPartHost {
     def this() = this(null, null, null)
 
     private val links = mutable.Set.empty[ICraftingLink]
@@ -294,20 +293,20 @@ object NetworkControl {
     override def jobStateChange(link: ICraftingLink): Unit = links -= link
 
     // rv1
-    def injectCratedItems(link: ICraftingLink, stack: IAEItemStack, p3: Actionable): IAEItemStack = stack
+    override  def insertCraftedItems(link: ICraftingLink, what:AEKey, amount:Long, mode:Actionable): AEKey = stack
 
     // rv2
-    def injectCraftedItems(link: ICraftingLink, stack: IAEItemStack, p3: Actionable): IAEItemStack = stack
+    def injectCraftedItems(link: ICraftingLink, stack: AEKey, p3: Actionable): AEKey = stack
 
     override def getActionableNode: IGridNode = controller.getActionableNode
 
-    override def getGridNode(dir: AEPartLocation): IGridNode = controller.getGridNode(pos)
-    override def getCableConnectionType(dir: AEPartLocation): AECableType = controller.getCableConnectionType(dir)
+    override def getGridNode(dir: Direction): IGridNode = controller.getActionableNode
+    override def getCableConnectionType(dir: Direction): AECableType = controller.getCableConnectionType(dir)
     override def securityBreak(): Unit = controller.securityBreak()
 
     // ----------------------------------------------------------------------- //
 
-    private def withController(f: (TileEntity with IActionHost with IGridHost) => Array[AnyRef]): Array[AnyRef] = {
+    private def withController(f: (BlockEntity with IActionHost with IPartHost) => Array[AnyRef]): Array[AnyRef] = {
       if (delayData != null) {
         result((), "waiting for ae network to load")
       } else {
@@ -320,7 +319,7 @@ object NetworkControl {
     }
 
     private def withGridNode(f: (IGridNode) => Array[AnyRef]): Array[AnyRef] = {
-      withController(c => Option(c.getGridNode(pos)) match {
+      withController(c => Option(c.getActionableNode) match {
         case Some(grid: IGridNode) => f(grid)
         case _ => result((), "no ae grid")
       })
@@ -395,14 +394,14 @@ object NetworkControl {
     private val MAX_BACKOFF_TICKS = 20 * 5 // 5 seconds
     private val BACKOFF_SCALE = 2 // multiply by this factor on each failure
 
-    private class EphemeralDelayData(val dimension: RegistryKey[Level], val x: Int, val y: Int, val z: Int) {
+    private class EphemeralDelayData(val dimension: ResourceKey[Level], val x: Int, val y: Int, val z: Int) {
       var delay: Int = 1
     }
     private var delayData: EphemeralDelayData = _ // null unless delay loading is active
 
     // return true when we do not want to try again, either because we completely failed or we succeeded
     // return false when things appears just not ready yet
-    private def tryLoadGrid(dimension: RegistryKey[Level], x: Int, y: Int, z: Int): Boolean = {
+    private def tryLoadGrid(dimension: ResourceKey[Level], x: Int, y: Int, z: Int): Boolean = {
       val world = ServerLifecycleHooks.getCurrentServer.getLevel(dimension)
       if (world == null) {
         return false // maybe the dimension isn't loaded yet
@@ -411,11 +410,11 @@ object NetworkControl {
       if (tileEntity == null) {
         return false // maybe the chunk isn't loaded yet
       }
-      if (!tileEntity.isInstanceOf[TileEntity with IActionHost with IGridHost]) {
+      if (!tileEntity.isInstanceOf[BlockEntity with IActionHost with IPartHost]) {
         return true // failure: looks like the tile was swapped before we could see it
       }
-      val gridHost = tileEntity.asInstanceOf[TileEntity with IActionHost with IGridHost]
-      val gridNode = gridHost.getGridNode(pos)
+      val gridHost = tileEntity.asInstanceOf[BlockEntity with IActionHost with IPartHost]
+      val gridNode = gridHost.getActionableNode
       if (gridNode == null) {
         return false // this is typical as the ae network is still loading
       }
@@ -448,11 +447,11 @@ object NetworkControl {
     override def loadData(nbt: CompoundTag) {
       super.loadData(nbt)
       stack = AEUtil.itemStorageChannel.createStack(ItemStack.of(nbt))
-      links ++= nbt.getList(LINKS_KEY, NBT.TAG_COMPOUND).map(
+      links ++= nbt.getList(LINKS_KEY, Tag.TAG_COMPOUND).map(
         (nbt: CompoundTag) => LinkCache.store(AEUtil.aeApi.get.storage.loadCraftingLink(nbt, this)))
       pos = AEPartLocation.fromOrdinal(NbtDataStream.getOptInt(nbt, POS_KEY, AEPartLocation.INTERNAL.ordinal))
       if (nbt.contains(DIMENSION_KEY)) {
-        val dimension = RegistryKey.create(VanillaRegistry.DIMENSION_REGISTRY, new ResourceLocation(nbt.getString(DIMENSION_KEY)))
+        val dimension = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(nbt.getString(DIMENSION_KEY)))
         val x = nbt.getInt(X_KEY)
         val y = nbt.getInt(Y_KEY)
         val z = nbt.getInt(Z_KEY)

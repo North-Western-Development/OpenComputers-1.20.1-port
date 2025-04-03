@@ -1,11 +1,9 @@
 package li.cil.oc.common.item.data
 
-import li.cil.oc.Constants
-import li.cil.oc.Settings
+import li.cil.oc.{Constants, Settings}
 import li.cil.oc.util.ExtendedNBT._
+import net.minecraft.nbt.{CompoundTag, Tag}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
-import net.minecraftforge.common.util.Constants.NBT
 
 class RaidData extends ItemData(Constants.BlockName.Raid) {
   def this(stack: ItemStack) {
@@ -24,8 +22,8 @@ class RaidData extends ItemData(Constants.BlockName.Raid) {
   private final val LabelTag = Settings.namespace + "label"
 
   override def loadData(nbt: CompoundTag): Unit = {
-    disks = nbt.getList(DisksTag, NBT.TAG_COMPOUND).
-      toTagArray[CompoundTag].map(ItemStack.of(_))
+    disks = nbt.getList(DisksTag, Tag.TAG_COMPOUND).
+      toTagArray[CompoundTag].map(ItemStack.of)
     filesystem = nbt.getCompound(FileSystemTag)
     if (nbt.contains(LabelTag)) {
       label = Option(nbt.getString(LabelTag))

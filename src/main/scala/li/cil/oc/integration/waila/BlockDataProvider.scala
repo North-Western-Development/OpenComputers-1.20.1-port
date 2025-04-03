@@ -127,7 +127,7 @@
 //
 //    accessor.getTileEntity match {
 //      case _: tileentity.Relay =>
-//        val address = tag.getList("addresses", NBT.TAG_STRING).getString(accessor.getSide.ordinal)
+//        val address = tag.getList("addresses", Tag.TAG_STRING).getString(accessor.getSide.ordinal)
 //        val signalStrength = tag.getDouble("signalStrength")
 //        if (config.get(ConfigAddress)) {
 //          tooltip.add(Localization.Analyzer.Address(address))
@@ -147,7 +147,7 @@
 //        val chargeSpeed = tag.getDouble("chargeSpeed")
 //        tooltip.add(Localization.Analyzer.ChargerSpeed(chargeSpeed))
 //      case te: tileentity.Rack =>
-////        val servers = tag.getList("servers", NBT.TAG_STRING).map((t: StringNBT) => t.getAsString).toArray
+////        val servers = tag.getList("servers", Tag.TAG_STRING).map((t: StringNBT) => t.getAsString).toArray
 ////        val hitPos = accessor.getMOP.getLocation
 ////        val address = te.slotAt(accessor.getSide, (hitPos.xCoord - accessor.getMOP.getBlockPos.getX).toFloat, (hitPos.yCoord - accessor.getMOP.getBlockPos.getY).toFloat, (hitPos.zCoord - accessor.getMOP.getBlockPos.getZ).toFloat) match {
 ////          case Some(slot) => servers(slot)
@@ -184,7 +184,7 @@
 //
 //    accessor.getTileEntity match {
 //      case te: li.cil.oc.api.network.SidedEnvironment =>
-//        readNode(tag.getList("nodes", NBT.TAG_COMPOUND).getCompound(accessor.getSide.ordinal))
+//        readNode(tag.getList("nodes", Tag.TAG_COMPOUND).getCompound(accessor.getSide.ordinal))
 //      case te: li.cil.oc.api.network.Environment =>
 //        readNode(tag)
 //      case _ =>

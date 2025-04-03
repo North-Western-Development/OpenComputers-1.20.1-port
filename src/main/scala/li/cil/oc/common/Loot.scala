@@ -1,29 +1,22 @@
 package li.cil.oc.common
 
-import java.io
-import java.util.Random
-import java.util.concurrent.Callable
-import li.cil.oc.Constants
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, OpenComputers, Settings, api}
 import li.cil.oc.api.fs.FileSystem
 import li.cil.oc.common.init.Items
 import li.cil.oc.util.Color
-import net.minecraft.item.DyeColor
-import net.minecraft.world.item.{DyeColor, ItemStack}
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.nbt.{CompoundTag, Tag}
 import net.minecraft.network.chat.Component
-import net.minecraft.world.level.Level
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.item.{DyeColor, ItemStack}
+import net.minecraft.world.level.Level
 import net.minecraft.world.level.storage.LevelResource
-import net.minecraft.world.storage.FolderName
-import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.event.level.LevelEvent
-import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
+import java.io
+import java.util.Random
+import java.util.concurrent.Callable
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 
@@ -59,7 +52,7 @@ object Loot {
 
   val disksForClient = mutable.ArrayBuffer.empty[ItemStack]
 
-  def isLootDisk(stack: ItemStack): Boolean = api.Items.get(stack) == api.Items.get(Constants.ItemName.Floppy) && stack.hasTag && stack.getTag.contains(Settings.namespace + "lootFactory", NBT.TAG_STRING)
+  def isLootDisk(stack: ItemStack): Boolean = api.Items.get(stack) == api.Items.get(Constants.ItemName.Floppy) && stack.hasTag && stack.getTag.contains(Settings.namespace + "lootFactory", Tag.TAG_STRING)
 
   def randomDisk(rng: Random) =
     if (disksForSampling.nonEmpty) Some(disksForSampling(rng.nextInt(disksForSampling.length)))
@@ -101,7 +94,7 @@ object Loot {
   }
 
   @SubscribeEvent
-  def initForWorld(e: LevelEvent.Load): Unit = e.getWorld match {
+  def initForWorld(e: LevelEvent.Load): Unit = e.getLevel match {
     case world: ServerLevel if world.dimension == Level.OVERWORLD => {
       worldDisks.clear()
       disksForSampling.clear()

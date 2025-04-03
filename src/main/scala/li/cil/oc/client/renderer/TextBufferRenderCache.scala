@@ -12,8 +12,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 
 object TextBufferRenderCache {
   val renderer =
-    if (Settings.get.fontRenderer == "texture") new font.StaticFontRenderer()
-    else new font.DynamicFontRenderer()
+    if (Settings.get.fontRenderer == "texture") new font.StaticFont()
+    else new font.DynamicFont()
 
   private val cache = com.google.common.cache.CacheBuilder.newBuilder().
     expireAfterAccess(2, TimeUnit.SECONDS).

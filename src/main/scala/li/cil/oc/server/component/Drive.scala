@@ -1,33 +1,22 @@
 package li.cil.oc.server.component
 
-import java.io
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.util
-import java.util.zip.GZIPInputStream
-import java.util.zip.GZIPOutputStream
-
 import com.google.common.io.Files
-import li.cil.oc.Constants
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
+import li.cil.oc.{Constants, OpenComputers, Settings}
 import li.cil.oc.api.Network
 import li.cil.oc.api.driver.DeviceInfo
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
 import li.cil.oc.api.fs.Label
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network.EnvironmentHost
-import li.cil.oc.api.network.Visibility
-import li.cil.oc.api.prefab
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
+import li.cil.oc.api.network.{EnvironmentHost, Visibility}
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.world.storage.FolderName
+import net.minecraft.world.level.storage.LevelResource
 import net.minecraftforge.server.ServerLifecycleHooks
 
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+import java.util
+import java.util.zip.{GZIPInputStream, GZIPOutputStream}
 import scala.collection.convert.ImplicitConversionsToJava._
 
 class Drive(val capacity: Int, val platterCount: Int, val label: Label, host: Option[EnvironmentHost], val sound: Option[String], val speed: Int, val isLocked: Boolean) extends AbstractManagedEnvironment with DeviceInfo {
@@ -36,7 +25,7 @@ class Drive(val capacity: Int, val platterCount: Int, val label: Label, host: Op
     withConnector().
     create()
 
-  private def savePath = ServerLifecycleHooks.getCurrentServer.getWorldPath(new FolderName(Settings.savePath + node.address + ".bin")).toFile
+  private def savePath = ServerLifecycleHooks.getCurrentServer.getWorldPath(new LevelResource(Settings.savePath + node.address + ".bin")).toFile
 
   private final val sectorSize = 512
 

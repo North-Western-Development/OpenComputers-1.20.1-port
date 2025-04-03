@@ -4,33 +4,20 @@ import li.cil.oc.Settings
 import li.cil.oc.api.event.RobotPlaceInAirEvent
 import li.cil.oc.api.internal
 import li.cil.oc.api.internal.MultiTank
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
 import li.cil.oc.common.entity
-import li.cil.oc.server.agent.ActivationType
-import li.cil.oc.server.agent.Player
-import li.cil.oc.util.BlockPosition
+import li.cil.oc.server.agent.{ActivationType, Player}
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.ExtendedWorld._
-import li.cil.oc.util.InventoryUtils
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.entity.{Entity, LivingEntity, Pose, player}
-import net.minecraft.entity.Pose
+import li.cil.oc.util.{BlockPosition, InventoryUtils}
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.world.entity.item.ItemEntity
-import net.minecraft.entity.item.minecart.MinecartEntity
-import net.minecraft.world.entity.player.Player
-import net.minecraft.inventory.IInventory
-import net.minecraft.core.Direction
-import net.minecraft.world.InteractionHand
-import net.minecraft.core.BlockPos
-import net.minecraft.util.math.RayTraceContext
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.world.entity.item.ItemEntity
-import net.minecraft.world.{Container, InteractionHand}
 import net.minecraft.world.entity.vehicle.Minecart
-import net.minecraft.world.phys.{BlockHitResult, EntityHitResult, HitResult}
+import net.minecraft.world.entity.{Entity, LivingEntity, Pose, player}
+import net.minecraft.world.level.ClipContext
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.phys.{BlockHitResult, EntityHitResult, HitResult, Vec3}
+import net.minecraft.world.{Container, InteractionHand}
 import net.minecraftforge.common.MinecraftForge
 
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -293,7 +280,7 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
           // but onItemUse will try to adjust the placement if the target position is not replaceable
           // we don't want that
           val state: BlockState = world.getBlockState(adjustedPos)
-          if (state.getMaterial.isReplaceable) {
+          if (state.canBeReplaced) {
             player.placeBlock(agent.selectedSlot, adjustedPos, facing, hx, hy, hz)
           } else {
             false
@@ -338,7 +325,7 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
   protected def checkSideForFace(args: Arguments, n: Int, facing: Direction): Direction = agent.toGlobal(args.checkSideForFace(n, agent.toLocal(facing)))
 
   protected def pick(player: Player, range: Double): HitResult = {
-    val origin = new Vector3d(
+    val origin = new Vec3(
       player.getX + player.facing.getStepX * 0.5,
       player.getY + player.facing.getStepY * 0.5,
       player.getZ + player.facing.getStepZ * 0.5)
@@ -350,9 +337,9 @@ trait Agent extends traits.WorldControl with traits.InventoryControl with traits
       player.side.getStepX * range,
       player.side.getStepY * range,
       player.side.getStepZ * range)
-    val hit = world.clip(new RayTraceContext(origin, target, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.ANY, player))
+    val hit = world.clip(new ClipContext(origin, target, ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, player))
     player.closestEntity(classOf[Entity]) match {
-      case Some(entity@(_: LivingEntity | _: MinecartEntity | _: entity.Drone)) if hit.getType == HitResult.Type.MISS || player.distanceToSqr(hit.getLocation) > player.distanceToSqr(entity) => new EntityHitResult(entity)
+      case Some(entity@(_: LivingEntity | _: Minecart | _: entity.Drone)) if hit.getType == HitResult.Type.MISS || player.distanceToSqr(hit.getLocation) > player.distanceToSqr(entity) => new EntityHitResult(entity)
       case _ => hit
     }
   }

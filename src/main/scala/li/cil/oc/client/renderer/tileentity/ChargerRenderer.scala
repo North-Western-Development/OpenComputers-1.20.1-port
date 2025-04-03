@@ -1,28 +1,28 @@
 package li.cil.oc.client.renderer.tileentity
 
-import java.util.function.Function
-
-import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.math.Axis
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity.Charger
 import li.cil.oc.util.RenderState
-import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.block.BlockRenderDispatcher
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
 import net.minecraft.core.Direction
-import net.minecraft.util.math.vector.Vector3f
 
-object ChargerRenderer extends Function[TileEntityRendererDispatcher, ChargerRenderer] {
-  override def apply(dispatch: TileEntityRendererDispatcher) = new ChargerRenderer(dispatch)
+import java.util.function.Function
+
+object ChargerRenderer extends Function[BlockRenderDispatcher, ChargerRenderer] {
+  override def apply(dispatch: BlockRenderDispatcher) = new ChargerRenderer(dispatch)
 }
 
-class ChargerRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Charger](dispatch) {
-  override def render(charger: Charger, dt: Float, stack: PoseStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+class ChargerRenderer(dispatch: BlockRenderDispatcher) extends BlockEntityRenderer[Charger](dispatch) {
+  override def render(charger: Charger, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
 
     if (charger.chargeSpeed > 0) {
       stack.pushPose()
@@ -30,9 +30,9 @@ class ChargerRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntity
       stack.translate(0.5, 0.5, 0.5)
 
       charger.yaw match {
-        case Direction.WEST => stack.mulPose(Vector3f.YP.rotationDegrees(-90))
-        case Direction.NORTH => stack.mulPose(Vector3f.YP.rotationDegrees(180))
-        case Direction.EAST => stack.mulPose(Vector3f.YP.rotationDegrees(90))
+        case Direction.WEST => stack.mulPose(Axis.YP.rotationDegrees(-90))
+        case Direction.NORTH => stack.mulPose(Axis.YP.rotationDegrees(180))
+        case Direction.EAST => stack.mulPose(Axis.YP.rotationDegrees(90))
         case _ => // No yaw.
       }
 

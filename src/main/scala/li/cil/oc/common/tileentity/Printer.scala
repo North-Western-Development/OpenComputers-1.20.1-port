@@ -236,7 +236,7 @@ class Printer(selfType: BlockEntityType[_ <: Printer]) extends BlockEntity(selfT
     def canMergeOutput = {
       val presentStack = getItem(slotOutput)
       val outputStack = data.createItemStack()
-      presentStack.isEmpty || (presentStack.sameItem(outputStack) && ItemStack.tagMatches(presentStack, outputStack))
+      presentStack.isEmpty || ItemStack.isSameItemSameTags(presentStack, outputStack)
     }
 
     if (isActive && output.isEmpty && canMergeOutput) {

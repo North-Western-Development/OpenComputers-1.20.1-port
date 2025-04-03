@@ -21,7 +21,7 @@ import li.cil.oc.api.network.Connector
 import li.cil.oc.api.network.Message
 import li.cil.oc.api.network.Node
 import li.cil.oc.{client, server}
-import li.cil.oc.client.KeyBindings
+import li.cil.oc.client.KeyMappings
 import li.cil.oc.client.gui
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
@@ -51,7 +51,7 @@ import net.minecraft.world.item.{Item, ItemGroup, ItemStack, Rarity}
 import net.minecraft.world.item.Item.Properties
 import net.minecraft.nbt.{CompoundTag, Tag}
 import net.minecraft.server.integrated.IntegratedServer
-import net.minecraft.util.ActionResult
+import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.{InteractionHand, InteractionResult, InteractionResultHolder, MenuProvider}
 import net.minecraft.core.Direction
 import net.minecraft.core.NonNullList
@@ -68,7 +68,6 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.model.ModelLoader
 import net.minecraftforge.common.extensions.IForgeItem
 import net.minecraftforge.common.util.Constants.NBT
-import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.event.TickEvent.ClientTickEvent
 import net.minecraftforge.event.TickEvent.ServerTickEvent
 import net.minecraftforge.event.level.LevelEvent
@@ -85,7 +84,7 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
   // ----------------------------------------------------------------------- //
 
   override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[Component]): Unit = {
-    if (KeyBindings.showExtendedTooltips) {
+    if (KeyMappings.showExtendedTooltips) {
       val info = new TabletData(stack)
       // Ignore/hide the screen.
       val components = info.items.drop(1)
@@ -177,12 +176,12 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
   }
 
   override def onItemUse(stack: ItemStack, player: Player, position: BlockPosition, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Boolean = {
-    player.startUsingItem(if (player.getItemInHand(InteractionHand.MAIN_HAND) == stack) InteractionHand.MAIN_HAND else Hand.OFF_HAND)
+    player.startUsingItem(if (player.getItemInHand(InteractionHand.MAIN_HAND) == stack) InteractionHand.MAIN_HAND else InteractionHand.OFF_HAND)
     true
   }
 
   override def use(stack: ItemStack, world: Level, player: Player): InteractionResultHolder[ItemStack] = {
-    player.startUsingItem(if (player.getItemInHand(InteractionHand.MAIN_HAND) == stack) InteractionHand.MAIN_HAND else Hand.OFF_HAND)
+    player.startUsingItem(if (player.getItemInHand(InteractionHand.MAIN_HAND) == stack) InteractionHand.MAIN_HAND else InteractionHand.OFF_HAND)
     new InteractionResultHolder[ItemStack](InteractionResult.sidedSuccess(world.isClientSide), stack)
   }
 
@@ -228,7 +227,7 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
               val computer = Tablet.get(stack, player).machine
               computer.start()
               computer.lastError match {
-                case message if message != null => player.sendMessage(Localization.Analyzer.LastError(message), Util.NIL_UUID)
+                case message if message != null => player.sendSystemMessage(Localization.Analyzer.LastError(message))
                 case _ =>
               }
             }

@@ -34,7 +34,7 @@ import scala.collection.mutable
 object CableModel extends SmartBlockModelBase {
   override def getOverrides: ItemOverrides = ItemOverride
 
-  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData,  renderType: RenderType): util.List[BakedQuad] = {
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData, renderType: RenderType): util.List[BakedQuad] = {
     data match {
       case cable: tileentity.Cable if side == null =>
         val color = cable.getColor

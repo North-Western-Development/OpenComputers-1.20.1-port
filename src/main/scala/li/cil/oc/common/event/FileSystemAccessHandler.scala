@@ -3,14 +3,10 @@ package li.cil.oc.common.event
 import li.cil.oc.Settings
 import li.cil.oc.api.event.FileSystemAccessEvent
 import li.cil.oc.api.internal.Rack
-import li.cil.oc.common.tileentity.Case
-import li.cil.oc.common.tileentity.DiskDrive
-import li.cil.oc.common.tileentity.Raid
-import li.cil.oc.server.component.DiskDriveMountable
-import li.cil.oc.server.component.Server
+import li.cil.oc.common.tileentity.{Case, DiskDrive, Raid}
+import li.cil.oc.server.component.{DiskDriveMountable, Server}
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.SoundCategory
-import net.minecraft.util.SoundEvent
+import net.minecraft.sounds.{SoundEvent, SoundSource}
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
 object FileSystemAccessHandler {
@@ -43,7 +39,7 @@ object FileSystemAccessHandler {
   def onFileSystemAccess(e: FileSystemAccessEvent.Client) {
     val volume = Settings.get.soundVolume
     val sound = new SoundEvent(new ResourceLocation(e.getSound))
-    e.getWorld.playLocalSound(e.getX, e.getY, e.getZ, sound, SoundCategory.BLOCKS, volume, 1, false)
+    e.getWorld.playLocalSound(e.getX, e.getY, e.getZ, sound, SoundSource.BLOCKS, volume, 1, false)
     e.getBlockEntity match {
       case t: DiskDrive => t.lastAccess = System.currentTimeMillis()
       case t: Case => t.lastFileSystemAccess = System.currentTimeMillis()

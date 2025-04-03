@@ -1,10 +1,9 @@
 package li.cil.oc.common.item
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.Settings
-import li.cil.oc.client.KeyBindings
+import li.cil.oc.client.KeyMappings
 import li.cil.oc.client.renderer.block.DroneModel
 import li.cil.oc.common.item.data.DroneData
 import li.cil.oc.common.entity
@@ -13,6 +12,7 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.Rarity
 import li.cil.oc.util.Tooltip
 import net.minecraft.client.renderer.model.ModelResourceLocation
+import net.minecraft.client.resources.model.ModelResourceLocation
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Item.Properties
@@ -29,7 +29,7 @@ import net.minecraftforge.api.distmarker.OnlyIn
 
 class Drone(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with CustomModel {
   @OnlyIn(Dist.CLIENT)
-  override def getModelLocation(stack: ItemStack) = new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.ItemName.Drone, "inventory")
+  override def getModelLocation(stack: ItemStack) = new ModelResourceLocation(Settings.resourceDomain, Constants.ItemName.Drone, "inventory")
 
   @OnlyIn(Dist.CLIENT)
   override def bakeModels(bakeEvent: ModelBakeEvent): Unit = {
@@ -37,7 +37,7 @@ class Drone(props: Properties) extends Item(props) with IForgeItem with traits.S
   }
 
   override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[Component]): Unit = {
-    if (KeyBindings.showExtendedTooltips) {
+    if (KeyMappings.showExtendedTooltips) {
       val info = new DroneData(stack)
       for (component <- info.components if !component.isEmpty) {
         tooltip.add(Component.literal("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))

@@ -79,9 +79,9 @@ private[oc] class Proxy extends CommonProxy {
       ClientRegistry.bindTileEntityRenderer(tileentity.TileEntityTypes.SCREEN, ScreenRenderer)
       ClientRegistry.bindTileEntityRenderer(tileentity.TileEntityTypes.TRANSPOSER, TransposerRenderer)
 
-      ClientRegistry.registerKeyBinding(KeyBindings.extendedTooltip)
-      ClientRegistry.registerKeyBinding(KeyBindings.analyzeCopyAddr)
-      ClientRegistry.registerKeyBinding(KeyBindings.clipboardPaste)
+      ClientRegistry.registerKeyMapping(KeyMappings.extendedTooltip)
+      ClientRegistry.registerKeyMapping(KeyMappings.analyzeCopyAddr)
+      ClientRegistry.registerKeyMapping(KeyMappings.clipboardPaste)
 
       MinecraftForge.EVENT_BUS.register(HighlightRenderer)
       MinecraftForge.EVENT_BUS.register(NanomachinesHandler.Client)

@@ -1,29 +1,24 @@
 package li.cil.oc.integration.minecraft
 
-import li.cil.oc.api.driver.EnvironmentProvider
-import li.cil.oc.api.driver.NamedBlock
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
+import li.cil.oc.api.driver.{EnvironmentProvider, NamedBlock}
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
 import li.cil.oc.api.network.ManagedEnvironment
 import li.cil.oc.api.prefab.DriverSidedTileEntity
 import li.cil.oc.integration.ManagedTileEntityEnvironment
 import li.cil.oc.util.ResultWrapper.result
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.Blocks
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.tileentity.FurnaceTileEntity
-import net.minecraft.core.Direction
-import net.minecraft.core.BlockPos
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.{Block, Blocks}
+import net.minecraft.world.level.block.entity.FurnaceBlockEntity
 
 object DriverFurnace extends DriverSidedTileEntity {
-  override def getTileEntityClass: Class[_] = classOf[FurnaceTileEntity]
+  override def getTileEntityClass: Class[_] = classOf[FurnaceBlockEntity]
 
   override def createEnvironment(world: Level, pos: BlockPos, side: Direction): ManagedEnvironment =
-    new Environment(world.getBlockEntity(pos).asInstanceOf[FurnaceTileEntity])
+    new Environment(world.getBlockEntity(pos).asInstanceOf[FurnaceBlockEntity])
 
-  final class Environment(tileEntity: FurnaceTileEntity) extends ManagedTileEntityEnvironment[FurnaceTileEntity](tileEntity, "furnace") with NamedBlock {
+  final class Environment(tileEntity: FurnaceBlockEntity) extends ManagedTileEntityEnvironment[FurnaceBlockEntity](tileEntity, "furnace") with NamedBlock {
     override def preferredName = "furnace"
 
     override def priority = 0

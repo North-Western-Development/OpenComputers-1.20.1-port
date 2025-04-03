@@ -2,44 +2,29 @@ package li.cil.oc.common.component
 
 import com.google.common.base.Strings
 import com.mojang.blaze3d.vertex.PoseStack
-import li.cil.oc.Constants
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network.EnvironmentHost
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
 import li.cil.oc.api.network._
-import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.client.renderer.TextBufferRenderCache
 import li.cil.oc.client.renderer.font.TextBufferRenderData
-import li.cil.oc.client.{ComponentTracker => ClientComponentTracker}
-import li.cil.oc.client.{PacketSender => ClientPacketSender}
+import li.cil.oc.client.{ComponentTracker => ClientComponentTracker, PacketSender => ClientPacketSender}
 import li.cil.oc.common._
-import li.cil.oc.common.item.data.NodeData
-import li.cil.oc.common.component.traits.TextBufferProxy
 import li.cil.oc.common.component.traits.VideoRamRasterizer
+import li.cil.oc.common.item.data.NodeData
 import li.cil.oc.server.component.Keyboard
-import li.cil.oc.server.{ComponentTracker => ServerComponentTracker}
-import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import li.cil.oc.util
-import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.PackedColor
-import li.cil.oc.util.SideTracker
+import li.cil.oc.server.{ComponentTracker => ServerComponentTracker, PacketSender => ServerPacketSender}
+import li.cil.oc.{Constants, OpenComputers, Settings, api, util}
+import li.cil.oc.util.{BlockPosition, PackedColor, SideTracker}
 import net.minecraft.client.Minecraft
-import net.minecraft.world.entity.player.Player
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.InteractionHand
-import net.minecraftforge.event.world.ChunkEvent
-import net.minecraftforge.event.world.WorldEvent
+import net.minecraft.world.entity.player.Player
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
+import net.minecraftforge.event.level.{ChunkEvent, LevelEvent}
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -363,7 +348,7 @@ class TextBuffer(val host: EnvironmentHost) extends AbstractManagedEnvironment w
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def renderText(stack: PoseStack): Boolean = relativeLitArea != 0 && proxy.render(stack)
+  override def renderText(guiGraphics: GuiGraphics): Boolean = relativeLitArea != 0 && proxy.render(stack)
 
   @OnlyIn(Dist.CLIENT)
   override def renderWidth: Int = TextBufferRenderCache.renderer.charRenderWidth * getViewportWidth
@@ -510,7 +495,7 @@ object TextBuffer {
     clientBuffers = clientBuffers.filter(t => {
       val blockPos = BlockPosition(t.host)
       val chunkPos = chunk.getPos
-      val keep = t.host.world != e.getWorld || ((blockPos.x >> 4) != chunkPos.x || (blockPos.z >> 4) != chunkPos.z)
+      val keep = t.host.world != e.getLevel || ((blockPos.x >> 4) != chunkPos.x || (blockPos.z >> 4) != chunkPos.z)
       if (!keep) {
         ClientComponentTracker.remove(t.host.world, t)
       }
@@ -519,9 +504,9 @@ object TextBuffer {
   }
 
   @SubscribeEvent
-  def onWorldUnload(e: WorldEvent.Unload) {
+  def onWorldUnload(e: LevelEvent.Unload) {
     clientBuffers = clientBuffers.filter(t => {
-      val keep = t.host.world != e.getWorld
+      val keep = t.host.world != e.getLevel
       if (!keep) {
         ClientComponentTracker.remove(t.host.world, t)
       }
@@ -736,7 +721,7 @@ object TextBuffer {
     private lazy val Debugger = api.Items.get(Constants.ItemName.Debugger)
 
     private def debug(message: String) {
-      if (Minecraft.getInstance != null && Minecraft.getInstance.player != null && api.Items.get(Minecraft.getInstance.player.getItemInHand(Hand.MAIN_HAND)) == Debugger) {
+      if (Minecraft.getInstance != null && Minecraft.getInstance.player != null && api.Items.get(Minecraft.getInstance.player.getItemInHand(InteractionHand.MAIN_HAND)) == Debugger) {
         OpenComputers.log.info(s"[NETWORK DEBUGGER] Sending packet to node $nodeAddress: " + message)
       }
     }
@@ -867,7 +852,7 @@ object TextBuffer {
     }
 
     override def copyToAnalyzer(line: Int, player: Player): Unit = {
-      val stack = player.getItemInHand(Hand.MAIN_HAND)
+      val stack = player.getItemInHand(InteractionHand.MAIN_HAND)
       if (!stack.isEmpty) {
         stack.removeTagKey(Settings.namespace + "clipboard")
 

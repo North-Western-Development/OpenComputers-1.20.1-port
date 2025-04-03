@@ -6,10 +6,10 @@ import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
-import net.minecraft.inventory.container.PlayerContainer
 import net.minecraft.client.renderer.texture.SimpleTexture
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.inventory.InventoryMenu
 import net.minecraftforge.client.event.TextureStitchEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
@@ -546,11 +546,11 @@ object Textures {
   }
 
   def getSprite(location: ResourceLocation): TextureAtlasSprite =
-    Minecraft.getInstance.getModelManager.getAtlas(PlayerContainer.BLOCK_ATLAS).getSprite(location)
+    Minecraft.getInstance.getModelManager.getAtlas(InventoryMenu.BLOCK_ATLAS).getSprite(location)
 
   @SubscribeEvent
   def onTextureStitchPre(e: TextureStitchEvent.Pre): Unit = {
-    if (e.getMap.location.equals(PlayerContainer.BLOCK_ATLAS)) {
+    if (e.getMap.location.equals(InventoryMenu.BLOCK_ATLAS)) {
       Font.init(e)
       GUI.init(e)
       Icons.init(e)

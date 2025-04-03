@@ -1,37 +1,22 @@
 package li.cil.oc.common.block
 
-import java.util.Random
-import com.mojang.blaze3d.systems.RenderSystem
-import li.cil.oc.Constants
-import li.cil.oc.api
+import li.cil.oc.{Constants, api}
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
-import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedEnumFacing._
-import li.cil.oc.util.InventoryUtils
-import li.cil.oc.util.RotationHelper
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.Blocks
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.entity.player.Player
-import net.minecraft.item.BlockItemUseContext
-import net.minecraft.world.item.ItemStack
-import net.minecraft.core.Direction
-import net.minecraft.world.InteractionHand
-import net.minecraft.core.BlockPos
-import net.minecraft.world.phys.shapes.CollisionContext
-import net.minecraft.world.phys.shapes.VoxelShape
-import net.minecraft.world.phys.shapes.Shapes
-import net.minecraft.world.level.block.state.StateDefinition
-import net.minecraft.world.level.BlockGetter
-import net.minecraft.world.IWorldReader
-import net.minecraft.world.level.Level
+import li.cil.oc.util.{BlockPosition, InventoryUtils}
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.RandomSource
+import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Player
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.context.BlockPlaceContext
+import net.minecraft.world.level.block.{Block, Blocks}
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
+import net.minecraft.world.level.{BlockGetter, Level, LevelReader}
+import net.minecraft.world.phys.shapes.{CollisionContext, Shapes, VoxelShape}
 
 class Keyboard(props: Properties) extends SimpleBlock(props) {
   // For Immibis Microblock support.
@@ -79,7 +64,7 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
     world.getBlockTicks.scheduleTick(pos, this, 10)
   }
 
-  override def getStateForPlacement(ctx: BlockItemUseContext): BlockState = {
+  override def getStateForPlacement(ctx: BlockPlaceContext): BlockState = {
     val (pitch, yaw) = ctx.getClickedFace match {
       case side@(Direction.DOWN | Direction.UP) => (side, ctx.getHorizontalDirection)
       case side => (Direction.NORTH, side)
@@ -87,7 +72,7 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
     super.getStateForPlacement(ctx).setValue(PropertyRotatable.Pitch, pitch).setValue(PropertyRotatable.Yaw, yaw)
   }
 
-  override def canSurvive(state: BlockState, world: IWorldReader, pos: BlockPos) = {
+  override def canSurvive(state: BlockState, world: LevelReader, pos: BlockPos) = {
     // Check without the TE because this is called to check if the block may be placed.
     val side = state.getValue(PropertyRotatable.Pitch) match {
       case pitch@(Direction.UP | Direction.DOWN) => pitch

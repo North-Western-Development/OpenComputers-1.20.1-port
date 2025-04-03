@@ -1,55 +1,26 @@
 package li.cil.oc.common.block
 
-import java.util
-import li.cil.oc.CreativeTab
 import li.cil.oc.common.tileentity
-import li.cil.oc.common.tileentity.traits.Colored
-import li.cil.oc.common.tileentity.traits.Inventory
-import li.cil.oc.common.tileentity.traits.Rotatable
+import li.cil.oc.common.tileentity.traits.{Colored, Inventory, Rotatable}
 import li.cil.oc.server.loot.LootFunctions
-import li.cil.oc.util.Color
-import li.cil.oc.util.ExtendedWorld._
-import li.cil.oc.util.Tooltip
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.block.BlockRenderType
-import net.minecraft.block.ContainerBlock
-import net.minecraft.block.material.Material
-import net.minecraft.world.item.TooltipFlag
+import li.cil.oc.util.{Color, Tooltip}
 import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.network.chat.Component
+import net.minecraft.world.{InteractionHand, InteractionResult}
 import net.minecraft.world.entity.Entity
-import net.minecraft.world.entity.EntityType
-import net.minecraft.world.entity.player.Player
-import net.minecraft.item.DyeColor
-import net.minecraft.world.item.ItemGroup
-import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.storage.loot.LootContext
-import net.minecraft.loot.LootContextParams
-import net.minecraft.network.chat.Component
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.InteractionResult
-import net.minecraft.core.Direction
-import net.minecraft.world.InteractionHand
-import net.minecraft.core.BlockPos
-import net.minecraft.world.phys.BlockHitResult
-import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.Component
-import net.minecraft.world.entity.Entity
-import net.minecraft.world.{IWorldReader, InteractionHand, InteractionResult, World}
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.{ItemStack, TooltipFlag}
-import net.minecraft.world.level.{BlockGetter, Level, LevelAccessor}
 import net.minecraft.world.level.block.RenderShape
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.storage.loot.LootParams
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams
-import net.minecraft.world.level.storage.loot.{LootContext, LootParams}
+import net.minecraft.world.level.{BlockGetter, Level, LevelAccessor}
 import net.minecraft.world.phys.BlockHitResult
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraftforge.common.ToolType
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToScala._
 
 abstract class SimpleBlock(props: Properties) extends net.minecraft.world.level.block.BaseEntityBlock(props) {
@@ -134,7 +105,6 @@ abstract class SimpleBlock(props: Properties) extends net.minecraft.world.level.
 
   def getValidRotations(world: Level, pos: BlockPos): Array[Direction] = validRotations_
 
-  getDrops()
   override def getDrops(state: BlockState, ctx: LootParams.Builder): util.List[ItemStack] = {
     val newCtx = ctx.getOptionalParameter(LootContextParams.BLOCK_ENTITY) match {
       case _: Inventory => ctx.withDynamicDrop(LootFunctions.DYN_VOLATILE_CONTENTS, (c, f) => {
