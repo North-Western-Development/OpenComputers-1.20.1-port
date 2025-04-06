@@ -14,6 +14,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -108,7 +109,7 @@ public class FontParserHex implements IGlyphProvider {
                 c <<= 1;
             }
         }
-        buffer.rewind();
+        ((Buffer) buffer).rewind();
         return buffer;
     }
 

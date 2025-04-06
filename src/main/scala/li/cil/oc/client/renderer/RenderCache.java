@@ -1,5 +1,6 @@
 package li.cil.oc.client.renderer
 ;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,8 @@ public class RenderCache implements IRenderTypeBuffer {
             {
                 int bufferCap = state.format().getVertexSize() * state.vertexCount();
                 ByteBuffer temp = GLAllocation.createByteBuffer(bufferCap);
-                temp.put(data).flip();
+                temp.put(data);
+                ((Buffer) temp).flip();
                 data = temp;
             }
             this.data = data;

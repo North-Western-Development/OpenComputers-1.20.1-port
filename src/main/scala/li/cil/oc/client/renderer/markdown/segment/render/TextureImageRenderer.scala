@@ -1,6 +1,7 @@
 package li.cil.oc.client.renderer.markdown.segment.render
 
 import java.io.InputStream
+import java.nio.Buffer
 import javax.imageio.ImageIO
 
 import com.mojang.blaze3d.matrix.MatrixStack
@@ -80,7 +81,7 @@ class TextureImageRenderer(val location: ResourceLocation) extends ImageRenderer
         }
 
         bind()
-        data.flip()
+        data.asInstanceOf[Buffer].flip()
         TextureUtil.initTexture(data, bi.getWidth, bi.getHeight)
         width = bi.getWidth
         height = bi.getHeight

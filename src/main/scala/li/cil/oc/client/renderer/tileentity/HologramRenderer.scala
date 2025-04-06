@@ -1,5 +1,6 @@
 package li.cil.oc.client.renderer.tileentity
 
+import java.nio.Buffer
 import java.nio.IntBuffer
 import java.util.ArrayDeque
 import java.util.function.Function
@@ -258,7 +259,7 @@ object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramR
       }
 
       // Important! OpenGL will start reading from the current buffer position.
-      data.rewind()
+      data.asInstanceOf[Buffer].rewind()
 
       // This buffer never ever changes, so static is the way to go.
       GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, commonBuffer)
@@ -297,7 +298,7 @@ object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramR
       // Copy color information, identify which quads to render and prepare data for glDrawElements
       hologram.visibleQuads = 0
       var index = 0
-      dataBuffer.position(hologram.width * hologram.width * hologram.height * 6 * 4)
+      dataBuffer.asInstanceOf[Buffer].position(hologram.width * hologram.width * hologram.height * 6 * 4)
       for (hx <- 0 until hologram.width) {
         for (hz <- 0 until hologram.width) {
           for (hy <- 0 until hologram.height) {
@@ -350,7 +351,7 @@ object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramR
       GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, glBuffer)
       if (hologram.visibleQuads > 0) {
         // Flip the buffer to only fill in as much data as necessary.
-        dataBuffer.flip()
+        dataBuffer.asInstanceOf[Buffer].flip()
 
         // This buffer can be updated quite frequently, so dynamic seems sensible.
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, dataBuffer, GL15.GL_DYNAMIC_DRAW)
@@ -361,7 +362,7 @@ object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramR
       }
 
       // Reset for the next operation.
-      dataBuffer.clear()
+      dataBuffer.asInstanceOf[Buffer].clear()
 
       hologram.needsRendering = false
     }
@@ -398,7 +399,7 @@ object HologramRenderer extends Function[TileEntityRendererDispatcher, HologramR
   def onRemoval(e: RemovalNotification[TileEntity, Int]) {
     val glBuffer = e.getValue
     GL15.glDeleteBuffers(glBuffer)
-    dataBuffer.clear()
+    dataBuffer.asInstanceOf[Buffer].clear()
   }
 
   @SubscribeEvent

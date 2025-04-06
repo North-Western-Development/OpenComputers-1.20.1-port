@@ -2,6 +2,7 @@ package li.cil.oc.server.fs
 
 import java.io
 import java.io.FileNotFoundException
+import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.util.concurrent.CancellationException
 import java.util.concurrent.Future
@@ -134,14 +135,14 @@ trait Buffered extends OutputStreamFileSystem {
             val out = new io.FileOutputStream(childFile).getChannel
             val in = openInputChannel(childPath).get
 
-            buffer.clear()
+            buffer.asInstanceOf[Buffer].clear()
             while (in.read(buffer) != -1) {
-              buffer.flip()
+              buffer.asInstanceOf[Buffer].flip()
               out.write(buffer)
               buffer.compact()
             }
 
-            buffer.flip()
+            buffer.asInstanceOf[Buffer].flip()
             while (buffer.hasRemaining) {
               out.write(buffer)
             }

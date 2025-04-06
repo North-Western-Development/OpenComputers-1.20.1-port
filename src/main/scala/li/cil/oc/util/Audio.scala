@@ -1,5 +1,6 @@
 package li.cil.oc.util
 
+import java.nio.Buffer
 import java.nio.ByteBuffer
 
 import li.cil.oc.OpenComputers
@@ -88,7 +89,7 @@ object Audio {
           }
         }
       }
-      data.rewind()
+      data.asInstanceOf[Buffer].rewind()
 
       // Watch out for sound cards running out of memory... this apparently
       // really does happen. I'm assuming this is due to too many sounds being
