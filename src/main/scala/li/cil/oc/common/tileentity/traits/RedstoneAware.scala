@@ -126,7 +126,7 @@ trait RedstoneAware extends RotationAware {
 
   override def clearRemoved(): Unit = {
     super.clearRemoved()
-    if (!this.isInstanceOf[Tickable]) {
+    if (!this.isInstanceOf[Tickable] && isServer) {
       EventHandler.scheduleServer(() => Direction.values().foreach(updateRedstoneInput))
     }
   }
