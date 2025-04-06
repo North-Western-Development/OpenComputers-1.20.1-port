@@ -1,37 +1,30 @@
 package li.cil.oc.client.renderer.block
 
-import java.util
-import java.util.Collections
 import li.cil.oc.api.component.RackMountable
 import li.cil.oc.api.event.RackMountableRenderEvent
 import li.cil.oc.client.Textures
-import li.cil.oc.common.block
 import li.cil.oc.common.tileentity
 import net.minecraft.client.multiplayer.ClientLevel
-import net.minecraft.client.renderer.block.model.BakedQuad
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.client.multiplayer.ClientLevel
-import net.minecraft.client.renderer.block.model.BakedQuad
+import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.block.model.{BakedQuad, ItemOverrides}
 import net.minecraft.client.resources.model.BakedModel
-import net.minecraft.client.renderer.block.model.ItemOverrides
-import net.minecraft.client.resources.model.BakedModel
-import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
 import net.minecraft.util.RandomSource
-import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.world.entity.LivingEntity
-import net.minecraftforge.common.MinecraftForge
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.client.model.data.ModelData
+import net.minecraftforge.common.MinecraftForge
 import org.joml.Vector3d
 
+import java.util
 import scala.collection.JavaConverters.bufferAsJavaList
 import scala.collection.mutable
 
 class ServerRackModel(val parent: BakedModel) extends SmartBlockModelBase {
   override def getOverrides: ItemOverrides = ItemOverride
 
-  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData): util.List[BakedQuad] =
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData, renderType: RenderType): util.List[BakedQuad] =
     data match {
       case rack: tileentity.Rack =>
         val facing = rack.facing

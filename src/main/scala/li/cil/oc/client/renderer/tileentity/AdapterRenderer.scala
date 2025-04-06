@@ -8,13 +8,11 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.block.BlockRenderDispatcher
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 import net.minecraft.core.Direction
 
-import java.util.function.Function
-
-object AdapterRenderer extends Function[BlockRenderDispatcher, AdapterRenderer] {
-  override def apply(dispatch: BlockRenderDispatcher) = new AdapterRenderer(dispatch)
+object AdapterRenderer extends BlockEntityRendererProvider[tileentity.Adapter] {
+  override def create(dispatch: BlockEntityRendererProvider.Context) = new AdapterRenderer(dispatch.getBlockRenderDispatcher)
 }
 
 class AdapterRenderer(dispatch: BlockRenderDispatcher) extends BlockEntityRenderer[tileentity.Adapter](dispatch) {

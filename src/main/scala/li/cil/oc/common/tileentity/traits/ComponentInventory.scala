@@ -57,7 +57,7 @@ trait ComponentInventory extends Environment with Inventory with inventory.Compo
     for (slot <- this.indices) {
       (pendingRemovals(slot), pendingAdds(slot)) match {
         case (SomeStack(removed), SomeStack(added)) =>
-          if (!removed.sameItem(added) || !ItemStack.tagMatches(removed, added)) {
+          if (!ItemStack.isSameItemSameTags(removed,added)) {
             super.onItemRemoved(slot, removed)
             super.onItemAdded(slot, added)
             setChanged()
@@ -87,7 +87,7 @@ trait ComponentInventory extends Environment with Inventory with inventory.Compo
     if (isServer) super.onItemAdded(slot, stack)
     else {
       pendingRemovals(slot) match {
-        case SomeStack(removed) if removed.sameItem(stack) && ItemStack.tagMatches(removed, stack) =>
+        case SomeStack(removed) if ItemStack.isSameItemSameTags(removed, stack) =>
           // Reverted to original state.
           pendingAdds(slot) = EmptyStack
           pendingRemovals(slot) = EmptyStack

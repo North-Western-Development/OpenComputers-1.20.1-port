@@ -25,14 +25,16 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.{CompoundTag, Tag}
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
 import scala.collection.JavaConverters.asJavaIterable
 import scala.collection.convert.ImplicitConversionsToJava._
 
-class Microcontroller(selfType: BlockEntityType[_ <: Microcontroller]) extends BlockEntity(selfType) with traits.PowerAcceptor with traits.Hub with traits.Computer with WorldlyContainer with internal.Microcontroller with DeviceInfo {
+class Microcontroller(selfType: BlockEntityType[_ <: Microcontroller], pos: BlockPos, state: BlockState)
+  extends BlockEntity(selfType, pos, state) with traits.PowerAcceptor with traits.Hub with traits.Computer with WorldlyContainer with internal.Microcontroller with DeviceInfo {
   val info = new MicrocontrollerData()
 
   override def node = null

@@ -5,16 +5,15 @@ import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
+import li.cil.oc.common.tileentity
 import li.cil.oc.common.tileentity.Assembler
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.block.BlockRenderDispatcher
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 
-import java.util.function.Function
-
-object AssemblerRenderer extends Function[BlockRenderDispatcher, AssemblerRenderer] {
-  override def apply(dispatch: BlockRenderDispatcher) = new AssemblerRenderer(dispatch)
+object AssemblerRenderer extends BlockEntityRendererProvider[tileentity.Assembler] {
+  override def create(dispatch: BlockEntityRendererProvider.Context) = new AssemblerRenderer(dispatch.getBlockRenderDispatcher)
 }
 
 class AssemblerRenderer(dispatch: BlockRenderDispatcher) extends BlockEntityRenderer[Assembler](dispatch) {

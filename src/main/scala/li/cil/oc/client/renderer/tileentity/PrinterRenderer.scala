@@ -8,13 +8,13 @@ import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.block.BlockRenderDispatcher
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 import net.minecraft.world.item.ItemDisplayContext
 
 import java.util.function.Function
 
-object PrinterRenderer extends Function[BlockRenderDispatcher, PrinterRenderer] {
-  override def apply(dispatch: BlockRenderDispatcher) = new PrinterRenderer(dispatch)
+object PrinterRenderer extends BlockEntityRendererProvider[Printer] {
+  override def create(dispatch: BlockEntityRendererProvider.Context): BlockEntityRenderer[Printer] = new PrinterRenderer(dispatch.getBlockRenderDispatcher)
 }
 
 class PrinterRenderer(dispatch: BlockRenderDispatcher) extends BlockEntityRenderer[Printer](dispatch) {

@@ -11,7 +11,7 @@ import net.minecraft.core.Direction
 import net.minecraftforge.client.model.data.ModelData
 import net.minecraftforge.client.model.data.ModelProperty
 
-trait Environment extends TileEntity with network.Environment with network.EnvironmentHost with ModelData {
+trait Environment extends TileEntity with network.Environment with network.EnvironmentHost {
   protected var isChangeScheduled = false
 
   override def world = getLevel
@@ -99,9 +99,6 @@ trait Environment extends TileEntity with network.Environment with network.Envir
   protected def result(args: Any*) = li.cil.oc.util.ResultWrapper.result(args: _*)
 
   // ----------------------------------------------------------------------- //
-
-  @Deprecated
-  override def getModelData() = this
 
   @Deprecated
   override def hasProperty(prop: ModelProperty[_]) = false

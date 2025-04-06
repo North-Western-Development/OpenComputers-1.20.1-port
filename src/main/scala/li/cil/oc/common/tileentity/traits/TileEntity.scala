@@ -1,21 +1,14 @@
 package li.cil.oc.common.tileentity.traits
 
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
 import li.cil.oc.client.Sound
 import li.cil.oc.common.SaveHandler
-import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.SideTracker
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.nbt.{CompoundTag, CompoundTag}
-import net.minecraft.network.NetworkManager
-import net.minecraft.network.play.server.SUpdateTileEntityPacket
-import net.minecraft.core.BlockPos
-import net.minecraft.world.level.Level
+import li.cil.oc.util.{BlockPosition, SideTracker}
+import li.cil.oc.{OpenComputers, Settings}
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.protocol.Packet
+import net.minecraft.network.protocol.game.{ClientGamePacketListener, ClientboundBlockEntityDataPacket}
 import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
 trait TileEntity extends BlockEntity {
   private final val IsServerDataTag = Settings.namespace + "isServerData"
@@ -35,7 +28,7 @@ trait TileEntity extends BlockEntity {
   // ----------------------------------------------------------------------- //
 
   def updateEntity() {
-    if (Settings.get.periodicallyForceLightUpdate && getLevel.getGameTime % 40 == 0 && getBlockState.getBlock.getLightValue(getLevel.getBlockState(getBlockPos), getLevel, getBlockPos) > 0) {
+    if (Settings.get.periodicallyForceLightUpdate && getLevel.getGameTime % 40 == 0 && getBlockState.getLightBlock(getLevel, getBlockPos) > 0) {
       getLevel.sendBlockUpdated(getBlockPos, getLevel.getBlockState(getBlockPos), getLevel.getBlockState(getBlockPos), 3)
     }
   }
@@ -73,7 +66,6 @@ trait TileEntity extends BlockEntity {
 
   def saveForServer(nbt: CompoundTag): Unit = {
     nbt.putBoolean(IsServerDataTag, true)
-    super.save(nbt)
   }
 
   @OnlyIn(Dist.CLIENT)
@@ -85,8 +77,8 @@ trait TileEntity extends BlockEntity {
 
   // ----------------------------------------------------------------------- //
 
-  override def load(state: BlockState, nbt: CompoundTag): Unit = {
-    super.load(state, nbt)
+  override def load(nbt: CompoundTag): Unit = {
+    super.load(nbt)
     if (isServer || nbt.getBoolean(IsServerDataTag)) {
       loadForServer(nbt)
     }
@@ -95,17 +87,17 @@ trait TileEntity extends BlockEntity {
     }
   }
 
-  override def save(nbt: CompoundTag): CompoundTag = {
+  override def saveAdditional(nbt: CompoundTag): CompoundTag = {
     if (isServer) {
       saveForServer(nbt)
     }
     nbt
   }
 
-  override def getUpdatePacket: SUpdateTileEntityPacket = {
+  override def getUpdatePacket: Packet[ClientGamePacketListener] = {
     // Obfuscation workaround. If it works.
     val te = this.asInstanceOf[net.minecraft.world.level.block.entity.BlockEntity]
-    new SUpdateTileEntityPacket(te.getBlockPos, 0, te.getUpdateTag)
+    ClientboundBlockEntityDataPacket.create(te)
   }
 
   override def getUpdateTag: CompoundTag = {
@@ -123,9 +115,8 @@ trait TileEntity extends BlockEntity {
 
     nbt
   }
-
-  override def onDataPacket(manager: NetworkManager, packet: SUpdateTileEntityPacket) {
-    try loadForClient(packet.getTag) catch {
+  override def handleUpdateTag(tag: CompoundTag) {
+    try loadForClient(tag) catch {
       case e: Throwable => OpenComputers.log.warn("There was a problem reading a TileEntity description packet. Please report this if you see it!", e)
     }
   }

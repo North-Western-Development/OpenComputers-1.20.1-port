@@ -6,6 +6,6 @@ import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
 
 class PowerDistributor(props: Properties) extends SimpleBlock(props) {
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.PowerDistributor(tileentity.TileEntityTypes.POWER_DISTRIBUTOR)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.PowerDistributor(tileentity.TileEntityTypes.POWER_DISTRIBUTOR.get(), pos, state)
 }
 

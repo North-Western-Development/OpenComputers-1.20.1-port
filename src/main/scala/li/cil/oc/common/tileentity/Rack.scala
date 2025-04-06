@@ -11,17 +11,18 @@ import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
 import li.cil.oc.integration.opencomputers.DriverRedstoneCard
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.core.Direction
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt.{CompoundTag, IntArrayTag, Tag}
 import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.{Container, MenuProvider}
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
 import java.util
 
-class Rack(selfType: BlockEntityType[_ <: Rack]) extends BlockEntity(selfType) with traits.PowerAcceptor with traits.Hub with traits.PowerBalancer
+class Rack(selfType: BlockEntityType[_ <: Rack], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.PowerAcceptor with traits.Hub with traits.PowerBalancer
   with traits.ComponentInventory with traits.Rotatable with traits.BundledRedstoneAware with Analyzable with internal.Rack with traits.StateAware with MenuProvider {
 
   var isRelayEnabled = false

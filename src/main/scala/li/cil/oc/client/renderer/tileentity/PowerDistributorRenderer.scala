@@ -1,21 +1,18 @@
 package li.cil.oc.client.renderer.tileentity
 
-import java.util.function.Function
-
-import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
 import net.minecraft.client.renderer.block.BlockRenderDispatcher
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 
-object PowerDistributorRenderer extends Function[BlockRenderDispatcher, PowerDistributorRenderer] {
-  override def apply(dispatch: BlockRenderDispatcher) = new PowerDistributorRenderer(dispatch)
+object PowerDistributorRenderer extends BlockEntityRendererProvider[tileentity.PowerDistributor] {
+  override def create(dispatch: BlockEntityRendererProvider.Context): BlockEntityRenderer[tileentity.PowerDistributor] = new PowerDistributorRenderer(dispatch.getBlockRenderDispatcher)
 }
-
 class PowerDistributorRenderer(dispatch: BlockRenderDispatcher) extends BlockEntityRenderer[tileentity.PowerDistributor](dispatch) {
   override def render(distributor: tileentity.PowerDistributor, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")

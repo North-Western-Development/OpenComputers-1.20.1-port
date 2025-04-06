@@ -532,7 +532,7 @@ object Textures {
 
     Screen.makeSureThisIsInitialized()
 
-    def bind(): Unit = Textures.bind(PlayerContainer.BLOCK_ATLAS)
+    def bind(): Unit = Textures.bind(InventoryMenu.BLOCK_ATLAS)
 
     override protected def basePath = "blocks/%s"
 

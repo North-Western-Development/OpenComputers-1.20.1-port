@@ -9,13 +9,11 @@ import li.cil.oc.common.tileentity.Charger
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.block.BlockRenderDispatcher
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 import net.minecraft.core.Direction
 
-import java.util.function.Function
-
-object ChargerRenderer extends Function[BlockRenderDispatcher, ChargerRenderer] {
-  override def apply(dispatch: BlockRenderDispatcher) = new ChargerRenderer(dispatch)
+object ChargerRenderer extends BlockEntityRendererProvider[Charger] {
+  override def create(dispatch: BlockEntityRendererProvider.Context): BlockEntityRenderer[Charger] = new ChargerRenderer(dispatch.getBlockRenderDispatcher)
 }
 
 class ChargerRenderer(dispatch: BlockRenderDispatcher) extends BlockEntityRenderer[Charger](dispatch) {

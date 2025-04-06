@@ -9,14 +9,12 @@ import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.block.BlockRenderDispatcher
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 import net.minecraft.core.Direction
 import net.minecraft.world.inventory.InventoryMenu
 
-import java.util.function.Function
-
-object NetSplitterRenderer extends Function[BlockRenderDispatcher, NetSplitterRenderer] {
-  override def apply(dispatch: BlockRenderDispatcher) = new NetSplitterRenderer(dispatch)
+object NetSplitterRenderer extends BlockEntityRendererProvider[tileentity.NetSplitter] {
+  override def create(dispatch: BlockEntityRendererProvider.Context): BlockEntityRenderer[tileentity.NetSplitter] = new NetSplitterRenderer(dispatch.getBlockRenderDispatcher)
 }
 
 class NetSplitterRenderer(dispatch: BlockRenderDispatcher) extends BlockEntityRenderer[tileentity.NetSplitter](dispatch) {

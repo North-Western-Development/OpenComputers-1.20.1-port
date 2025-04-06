@@ -2,6 +2,7 @@ package li.cil.oc.client.renderer.entity
 
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
+import com.mojang.math.Axis
 import li.cil.oc.common.entity.Drone
 import net.minecraft.client.model.EntityModel
 import net.minecraft.client.renderer.LightTexture
@@ -11,6 +12,7 @@ import net.minecraft.client.renderer.model.ModelRenderer
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.util.math.vector.Vector3f
+import org.joml.Vector3d
 
 final class ModelQuadcopter extends EntityModel[Drone] {
   val body = new ModelRenderer(this)

@@ -15,17 +15,19 @@ import li.cil.oc.server.PacketSender
 import li.cil.oc.server.network.QuantumNetwork
 import li.cil.oc.util.ExtendedNBT._
 import net.minecraft.Util
-import net.minecraft.core.Direction
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt.{CompoundTag, Tag}
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
 import scala.collection.mutable
 
-class Relay(selfType: BlockEntityType[_ <: Relay]) extends BlockEntity(selfType) with traits.Hub with traits.ComponentInventory
+class Relay(selfType: BlockEntityType[_ <: Relay], pos: BlockPos, state: BlockState)
+  extends BlockEntity(selfType, pos, state) with traits.Hub with traits.ComponentInventory
   with traits.PowerAcceptor with Analyzable with WirelessEndpoint with QuantumNetwork.QuantumNode with MenuProvider {
 
   lazy final val WirelessNetworkCardTier1: ItemInfo = api.Items.get(Constants.ItemName.WirelessNetworkCardTier1)

@@ -13,9 +13,10 @@ import li.cil.oc.api.network._
 import li.cil.oc.common.SaveHandler
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.core.Direction
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.{AABB, Vec3}
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -23,8 +24,9 @@ import net.minecraftforge.api.distmarker.OnlyIn
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 
-class Hologram(selfType: BlockEntityType[_ <: Hologram], var tier: Int) extends BlockEntity(selfType) with traits.Environment with SidedEnvironment with Analyzable with traits.RotatableTile with traits.Tickable with DeviceInfo {
-  def this(selfType: BlockEntityType[_ <: Hologram]) = this(selfType, 0)
+class Hologram(selfType: BlockEntityType[_ <: Hologram], pos: BlockPos, state: BlockState, var tier: Int)
+  extends BlockEntity(selfType, pos: BlockPos, state: BlockState) with traits.Environment with SidedEnvironment with Analyzable with traits.RotatableTile with traits.Tickable with DeviceInfo {
+  def this(selfType: BlockEntityType[_ <: Hologram], pos: BlockPos, state: BlockState) = this(selfType, pos, state, 0)
 
   val node = api.Network.newNode(this, Visibility.Network).
     withComponent("hologram").
@@ -430,7 +432,7 @@ class Hologram(selfType: BlockEntityType[_ <: Hologram], var tier: Int) extends 
 
   // ----------------------------------------------------------------------- //
 
-  override def getViewDistance = scale / Settings.get.hologramMaxScaleByTier.max * Settings.get.hologramRenderDistance
+  def getViewDistance = scale / Settings.get.hologramMaxScaleByTier.max * Settings.get.hologramRenderDistance
 
   def getFadeStartDistanceSquared = scale / Settings.get.hologramMaxScaleByTier.max * Settings.get.hologramFadeStartDistance * Settings.get.hologramFadeStartDistance
 

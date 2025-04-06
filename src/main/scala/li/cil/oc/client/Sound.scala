@@ -1,30 +1,16 @@
 package li.cil.oc.client
 
-import java.net.MalformedURLException
-import java.net.URL
-import java.net.URLConnection
-import java.net.URLStreamHandler
-import java.util.Timer
-import java.util.TimerTask
-import java.util.UUID
-import com.google.common.base.Charsets
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import net.minecraft.client.Minecraft
-import net.minecraft.client.audio.ITickableSound
-import net.minecraft.client.audio.LocatableSound
-import net.minecraft.client.audio.SoundEngine
+import li.cil.oc.{OpenComputers, Settings}
+import net.minecraft.client.resources.sounds.{AbstractSoundInstance, TickableSoundInstance}
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.sounds.SoundSource
+import net.minecraft.util.RandomSource
 import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.SoundCategory
-import net.minecraft.world.level.block.SoundType
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.event.TickEvent.ClientTickEvent
 import net.minecraftforge.event.level.LevelEvent
+import net.minecraftforge.eventbus.api.SubscribeEvent
 
+import java.util.{Timer, TimerTask}
 import scala.collection.mutable
 
 object Sound {
@@ -143,7 +129,7 @@ object Sound {
   }
 
   private class PseudoLoopingStream(val tileEntity: BlockEntity, val subVolume: Float, name: String)
-    extends LocatableSound(new ResourceLocation(OpenComputers.ID, name), SoundSource.BLOCKS) with ITickableSound {
+    extends AbstractSoundInstance(new ResourceLocation(OpenComputers.ID, name), SoundSource.BLOCKS, RandomSource.create()) with TickableSoundInstance{
     var stopped = false
     volume = subVolume * Settings.get.soundVolume
     relative = tileEntity != null
@@ -166,9 +152,10 @@ object Sound {
     // Required by ITickableSound, which is required to update position while playing
     override def tick() = ()
 
-    def stop() {
-      stopped = true
-      looping = false
+
+    def stop(): Unit = {
+      this.stopped = true
+      this.looping = false
     }
   }
 }

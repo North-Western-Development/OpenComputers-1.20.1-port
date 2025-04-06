@@ -12,6 +12,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent
 import net.minecraftforge.event.level.BlockEvent
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper
 import net.minecraftforge.eventbus.api.{EventPriority, SubscribeEvent}
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
@@ -29,9 +30,9 @@ object PlayerInteractionManagerHelper {
   def onBlockClicked(player: Player, pos: BlockPos, side: Direction): Boolean = {
     val buildLimit = player.level().getMaxBuildHeight;
     if (isDestroyingBlock(player)) {
-      player.gameMode.handleBlockBreakAction(pos, ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, side, buildLimit)
+      player.gameMode.handleBlockBreakAction(pos, ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, side, buildLimit, 0)
     }
-    player.gameMode.handleBlockBreakAction(pos, ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK, side, buildLimit)
+    player.gameMode.handleBlockBreakAction(pos, ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK, side, buildLimit, 0)
     isDestroyingBlock(player)
   }
 
@@ -81,7 +82,7 @@ object PlayerInteractionManagerHelper {
     }
 
     MinecraftForge.EVENT_BUS.register(infBreaker)
-    val buildLimit = player.level().getMaxBuildHeight);
+    val buildLimit = player.level().getMaxBuildHeight;
     try {
       player.gameMode.handleBlockBreakAction(pos, ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK, null, buildLimit)
       infBreaker.expToDrop

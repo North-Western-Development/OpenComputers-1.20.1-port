@@ -9,14 +9,12 @@ import li.cil.oc.common.tileentity.Microcontroller
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.block.BlockRenderDispatcher
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
 
-import java.util.function.Function
-
-object MicrocontrollerRenderer extends Function[BlockRenderDispatcher, MicrocontrollerRenderer] {
-  override def apply(dispatch: BlockRenderDispatcher) = new MicrocontrollerRenderer(dispatch)
+object MicrocontrollerRenderer extends BlockEntityRendererProvider[Microcontroller] {
+  override def create(dispatch: BlockEntityRendererProvider.Context): BlockEntityRenderer[Microcontroller] = new MicrocontrollerRenderer(dispatch.getBlockRenderDispatcher)
 }
 
 class MicrocontrollerRenderer(dispatch: BlockRenderDispatcher) extends BlockEntityRenderer[Microcontroller](dispatch) {

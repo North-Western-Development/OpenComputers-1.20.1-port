@@ -1,6 +1,6 @@
 package li.cil.oc.client.renderer.item
 
-import com.mojang.blaze3d.vertex.{VertexConsumer, PoseStack, VertexConsumer}
+import com.mojang.blaze3d.vertex.{PoseStack, VertexConsumer}
 import li.cil.oc.Settings
 import net.minecraft.client.model.Model
 import net.minecraft.client.renderer.LightTexture

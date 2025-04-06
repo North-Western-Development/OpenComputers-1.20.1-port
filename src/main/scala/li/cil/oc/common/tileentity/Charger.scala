@@ -1,27 +1,27 @@
 package li.cil.oc.common.tileentity
 
-import li.cil.oc.{Constants, Localization, Settings, api}
 import li.cil.oc.api.Driver
 import li.cil.oc.api.driver.DeviceInfo
 import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
 import li.cil.oc.api.nanomachines.Controller
 import li.cil.oc.api.network._
 import li.cil.oc.api.util.StateAware
-import li.cil.oc.common.{Slot, container}
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.entity.Drone
+import li.cil.oc.common.{Slot, container}
 import li.cil.oc.integration.util.ItemCharge
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedWorld._
-import net.minecraft.Util
-import net.minecraft.core.Direction
+import li.cil.oc.{Constants, Localization, Settings, api}
 import net.minecraft.core.particles.ParticleTypes
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
@@ -30,7 +30,8 @@ import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 
-class Charger(selfType: BlockEntityType[_ <: Charger]) extends BlockEntity(selfType) with traits.Environment with traits.PowerAcceptor with traits.RedstoneAware
+class Charger(selfType: BlockEntityType[_ <: Charger], pos: BlockPos, state: BlockState)
+  extends BlockEntity(selfType, pos, state) with traits.Environment with traits.PowerAcceptor with traits.RedstoneAware
   with traits.Rotatable with traits.ComponentInventory with traits.Tickable with Analyzable with traits.StateAware with DeviceInfo with MenuProvider {
 
   val node: Connector = api.Network.newNode(this, Visibility.None).

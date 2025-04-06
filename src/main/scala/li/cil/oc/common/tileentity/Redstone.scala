@@ -7,10 +7,13 @@ import li.cil.oc.integration.util.BundledRedstone
 import li.cil.oc.server.component
 import li.cil.oc.server.component.RedstoneVanilla
 import li.cil.oc.util.ExtendedNBT._
+import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
 
-class Redstone(selfType: BlockEntityType[_ <: Redstone]) extends BlockEntity(selfType) with traits.Environment with traits.BundledRedstoneAware with traits.Tickable {
+class Redstone(selfType: BlockEntityType[_ <: Redstone], pos: BlockPos, state: BlockState)
+  extends BlockEntity(selfType, pos, state) with traits.Environment with traits.BundledRedstoneAware with traits.Tickable {
   val instance: RedstoneVanilla =
     if (BundledRedstone.isAvailable)
       new component.Redstone.Bundled(this)

@@ -8,22 +8,25 @@ import li.cil.oc.api
 import li.cil.oc.common.item.CustomModel
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.{BlockModelShapes, RenderType}
+import net.minecraft.client.renderer.{RenderType}
 import net.minecraft.client.resources.model.{BakedModel, ModelResourceLocation}
 import net.minecraft.client.renderer.block.model.ItemOverrides
 import net.minecraft.client.renderer.model.ModelResourceLocation
 import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.client.renderer.block.BlockModelShaper
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.util.{IItemProvider, RandomSource}
 import net.minecraft.core.Direction
+import net.minecraft.world.level.ItemLike
 import net.minecraftforge.client.event.ModelEvent.ModifyBakingResult
-import net.minecraftforge.client.event.{ModelBakeEvent, ModelRegistryEvent}
+import net.minecraftforge.client.event.{ModelBakeEvent, ModelEvent, ModelRegistryEvent}
 import net.minecraftforge.client.model.IDynamicBakedModel
 import net.minecraftforge.client.model.data.IDynamicBakedModel
 import net.minecraftforge.client.model.data.ModelData
 import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.registries.{ForgeRegistries, ForgeRegistry}
 
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
@@ -70,7 +73,7 @@ object ModelInitialization {
 
   // ----------------------------------------------------------------------- //
 
-  def registerModel(instance: IItemProvider, id: String): Unit = {
+  def registerModel(instance: ItemLike, id: String): Unit = {
     meshableItems += instance.asItem
   }
 
@@ -88,7 +91,7 @@ object ModelInitialization {
     if (blockLocation != null) {
       val block = descriptor.block()
       block.getStateDefinition.getPossibleStates.foreach {
-        modelRemappings += BlockModelShapes.stateToModelLocation(_) -> blockLocation
+        modelRemappings += BlockModelShaper.stateToModelLocation(_) -> blockLocation
       }
     }
   }

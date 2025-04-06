@@ -11,18 +11,20 @@ import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.InventoryUtils
-import net.minecraft.core.Direction
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
 import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 
-class DiskDrive(selfType: BlockEntityType[_ <: DiskDrive]) extends BlockEntity(selfType) with traits.Environment
+class DiskDrive(selfType: BlockEntityType[_ <: DiskDrive], pos: BlockPos, state: BlockState)
+  extends BlockEntity(selfType, pos, state) with traits.Environment
   with traits.ComponentInventory with traits.Rotatable with Analyzable with DeviceInfo with MenuProvider {
 
   // Used on client side to check whether to render disk activity indicators.

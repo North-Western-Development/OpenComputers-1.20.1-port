@@ -1,43 +1,30 @@
 package li.cil.oc.common.tileentity
 
-import java.util
-import li.cil.oc.Constants
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
-import li.cil.oc.Settings
-import li.cil.oc.api.Driver
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.internal
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
+import li.cil.oc.api.{Driver, internal}
 import li.cil.oc.api.network.Connector
-import li.cil.oc.common
-import li.cil.oc.common.InventorySlots
-import li.cil.oc.common.Slot
-import li.cil.oc.common.Tier
+import li.cil.oc.{Constants, Settings, common}
 import li.cil.oc.common.block.property.PropertyRunning
-import li.cil.oc.common.container
+import li.cil.oc.common.{InventorySlots, Slot, Tier, container}
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.util.Color
-import net.minecraft.core.Direction
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.player.Inventory
-import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.world.item.ItemStack
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 
-class Case(selfType: BlockEntityType[_ <: Case], var tier: Int) extends BlockEntity(selfType) with traits.PowerAcceptor with traits.Computer with traits.Colored with internal.Case with DeviceInfo with MenuProvider {
-  def this(selfType: BlockEntityType[_ <: Case]) = {
-    this(selfType, 0)
+class Case(selfType: BlockEntityType[_ <: Case], pos: BlockPos, state: BlockState, var tier: Int)
+  extends BlockEntity(selfType, pos, state) with traits.PowerAcceptor with traits.Computer with traits.Colored with internal.Case with DeviceInfo with MenuProvider {
+  def this(selfType: BlockEntityType[_ <: Case], pos: BlockPos, state: BlockState) = {
+    this(selfType, pos, state, 0)
     // If no tier was defined when constructing this case, then we don't yet know the inventory size
     // this is set back to true when the nbt data is loaded
     isSizeInventoryReady = false

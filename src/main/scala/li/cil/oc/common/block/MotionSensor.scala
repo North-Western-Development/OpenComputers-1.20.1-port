@@ -6,5 +6,5 @@ import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
 
 class MotionSensor(props: Properties) extends SimpleBlock(props) {
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.MotionSensor(tileentity.TileEntityTypes.MOTION_SENSOR)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.MotionSensor(tileentity.TileEntityTypes.MOTION_SENSOR.get(), pos, state)
 }

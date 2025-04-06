@@ -15,7 +15,7 @@ import net.minecraftforge.common.util.NonNullSupplier
 object CapabilitySidedComponent {
   final val SidedComponent = new ResourceLocation(Mods.IDs.OpenComputers, "sided_component")
 
-  class Provider(val tileEntity: TileEntity with Environment with SidedComponent) extends ICapabilityProvider with NonNullSupplier[Provider] with SidedEnvironment {
+  class Provider(val tileEntity: BlockEntity with Environment with SidedComponent) extends ICapabilityProvider with NonNullSupplier[Provider] with SidedEnvironment {
     private val wrapper = LazyOptional.of(this)
 
     def get = this

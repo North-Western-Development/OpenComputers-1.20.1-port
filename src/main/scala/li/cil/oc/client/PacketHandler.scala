@@ -1,51 +1,32 @@
 package li.cil.oc.client
 
 import com.mojang.blaze3d.pipeline.RenderCall
-
-import java.io.EOFException
-import java.io.InputStream
-import com.mojang.blaze3d.systems.IRenderCall
 import com.mojang.blaze3d.systems.RenderSystem
-import li.cil.oc.Localization
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api
-import li.cil.oc.api.event.FileSystemAccessEvent
-import li.cil.oc.api.event.NetworkActivityEvent
+import li.cil.oc.{Localization, OpenComputers, Settings, api}
+import li.cil.oc.api.event.{FileSystemAccessEvent, NetworkActivityEvent}
 import li.cil.oc.client.renderer.PetRenderer
-import li.cil.oc.common.Loot
-import li.cil.oc.common.PacketType
-import li.cil.oc.common.component
-import li.cil.oc.common.container
-import li.cil.oc.common.item.{Tablet, TabletWrapper}
+import li.cil.oc.common.item.Tablet
 import li.cil.oc.common.nanomachines.ControllerImpl
 import li.cil.oc.common.tileentity._
 import li.cil.oc.common.tileentity.traits._
-import li.cil.oc.common.{PacketHandler => CommonPacketHandler}
+import li.cil.oc.common.{Loot, PacketType, component, container, PacketHandler => CommonPacketHandler}
 import li.cil.oc.integration.Mods
 import li.cil.oc.integration.jei.ModJEI
 import li.cil.oc.util.Audio
 import li.cil.oc.util.ExtendedWorld._
-import net.minecraft.Util
 import net.minecraft.client.Minecraft
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.{NbtIo, NbtIo}
-import net.minecraft.particles.IParticleData
 import net.minecraft.core.Direction
-import net.minecraft.core.particles.{ItemParticleOption, ParticleOptions}
-import net.minecraft.network.chat.ChatType
-import net.minecraft.Util
+import net.minecraft.core.particles.ParticleOptions
+import net.minecraft.nbt.NbtIo
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.sounds.{SoundEvent, SoundSource}
-import net.minecraft.util.SoundCategory
-import net.minecraft.util.SoundEvent
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.util.text.ChatType
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.Level
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.registries.ForgeRegistries
+
+import java.io.{EOFException, InputStream}
 
 object PacketHandler extends CommonPacketHandler {
   protected override def world(player: Player, dimension: ResourceLocation): Option[Level] = {
@@ -131,7 +112,7 @@ object PacketHandler extends CommonPacketHandler {
         override def execute = {
           val mc = Minecraft.getInstance
           mc.keyboardHandler.setClipboard(address)
-          mc.gui.handleChat(ChatType.SYSTEM, Localization.Analyzer.AddressCopied, Util.NIL_UUID)
+          mc.gui.getChat.addMessage(Localization.Analyzer.AddressCopied)
         }
       })
     }
@@ -420,9 +401,9 @@ object PacketHandler extends CommonPacketHandler {
         val velocity = p.readDouble()
         val direction = p.readDirection()
         val particleType = p.readRegistryEntry(ForgeRegistries.PARTICLE_TYPES)
+        val count = p.readByte()
         if (particleType.isInstanceOf[ParticleOptions]) {
           val particle = particleType.asInstanceOf[ParticleOptions]
-          val count = p.readUnsignedByte() / (1 << Minecraft.getInstance.options.particles.getId())
 
           for (i <- 0 until count) {
             def rv(f: Direction => Int) = direction match {

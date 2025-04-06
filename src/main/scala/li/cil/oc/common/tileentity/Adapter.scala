@@ -1,20 +1,19 @@
 package li.cil.oc.common.tileentity
 
-import li.cil.oc.{Constants, Settings, api}
 import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
 import li.cil.oc.api.driver.{DeviceInfo, DriverBlock}
-import li.cil.oc.api.{Driver, internal}
 import li.cil.oc.api.network._
-import li.cil.oc.common.{Slot, container}
+import li.cil.oc.api.{Driver, internal}
 import li.cil.oc.common.container.ContainerTypes
+import li.cil.oc.common.{Slot, container}
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
+import li.cil.oc.{Constants, Settings, api}
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt.{CompoundTag, ListTag, Tag}
 import net.minecraft.sounds.{SoundEvents, SoundSource}
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.crafting.RecipeType
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockState
 
@@ -22,7 +21,8 @@ import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 
-class Adapter(selfType: BlockEntityType[_ <: Adapter]) extends BlockEntity(selfType) with traits.Environment with traits.ComponentInventory
+class Adapter(selfType: BlockEntityType[_ <: Adapter], pos: BlockPos, state: BlockState)
+  extends BlockEntity(selfType, pos, state) with traits.Environment with traits.ComponentInventory
   with traits.Tickable with traits.OpenSides with Analyzable with internal.Adapter with DeviceInfo with MenuProvider {
   val node = api.Network.newNode(this, Visibility.Network).create()
 

@@ -27,5 +27,5 @@ class Assembler(props: Properties) extends SimpleBlock(props) with traits.PowerA
     case _ =>
   }
 
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Assembler(tileentity.TileEntityTypes.ASSEMBLER)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Assembler(tileentity.TileEntityTypes.ASSEMBLER.get(), pos, state)
 }

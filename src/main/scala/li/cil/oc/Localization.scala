@@ -1,12 +1,7 @@
 package li.cil.oc
 
-import net.minecraft.client.Minecraft
+import net.minecraft.locale.Language
 import net.minecraft.network.chat.{ClickEvent, Component, HoverEvent}
-import net.minecraft.util.text._
-import net.minecraft.util.text.event.ClickEvent
-import net.minecraft.util.text.event.HoverEvent
-
-import scala.util.matching.Regex
 
 object Localization {
   private def resolveKey(key: String) =
@@ -14,18 +9,18 @@ object Localization {
     else if (canLocalize(key)) Option(key)
     else Option.empty
 
-  def canLocalize(key: String): Boolean = LanguageMap.getInstance.has(key)
+  def canLocalize(key: String): Boolean = Language.getInstance.has(key)
 
   def localizeLater(key: String) = Component.translatable(resolveKey(key).getOrElse(key))
 
   def localizeLater(key: String, values: AnyRef*) = Component.translatable(resolveKey(key).getOrElse(key), values: _*)
 
   def localizeImmediately(key: String, values: AnyRef*): String = {
-    resolveKey(key).map(k => String.format(Minecraft.getInstance.getOrDefault(k), values: _*).linesIterator.map(_.trim).mkString("\n")).getOrElse(key)
+    resolveKey(key).map(k => String.format(Language.getInstance.getOrDefault(k), values: _*).linesIterator.map(_.trim).mkString("\n")).getOrElse(key)
   }
 
   def localizeImmediately(key: String): String = {
-    resolveKey(key).map(k => LanguageMap.getInstance.getOrDefault(k).linesIterator.map(_.trim).mkString("\n")).getOrElse(key)
+    resolveKey(key).map(k => Language.getInstance.getOrDefault(k).linesIterator.map(_.trim).mkString("\n")).getOrElse(key)
   }
 
   object Analyzer {

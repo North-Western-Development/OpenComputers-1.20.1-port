@@ -1,11 +1,14 @@
 package li.cil.oc.common.tileentity
 
 import li.cil.oc.server.component
+import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.world.level.block.state.BlockState
 
-class Geolyzer(selfType: BlockEntityType[_ <: Geolyzer]) extends BlockEntity(selfType) with traits.Environment {
+class Geolyzer(selfType: BlockEntityType[_ <: Geolyzer], pos: BlockPos, state: BlockState)
+  extends BlockEntity(selfType, pos: BlockPos, state: BlockState) with traits.Environment {
   val geolyzer = new component.Geolyzer(this)
 
   def node = geolyzer.node

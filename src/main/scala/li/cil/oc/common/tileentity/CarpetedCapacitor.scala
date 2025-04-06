@@ -2,17 +2,19 @@ package li.cil.oc.common.tileentity
 
 import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
 import li.cil.oc.{Constants, Settings}
-import net.minecraft.core.Direction
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.animal.{Ocelot, Sheep}
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.world.level.block.state.BlockState
 
 import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 
-class CarpetedCapacitor(selfType: BlockEntityType[_ <: CarpetedCapacitor]) extends Capacitor(selfType) with traits.Tickable {
+class CarpetedCapacitor(selfType: BlockEntityType[_ <: CarpetedCapacitor], pos: BlockPos, state: BlockState)
+  extends Capacitor(selfType, pos: BlockPos, state: BlockState) with traits.Tickable {
   private final lazy val deviceInfo = Map(
     DeviceAttribute.Class -> DeviceClass.Power,
     DeviceAttribute.Description -> "Battery",

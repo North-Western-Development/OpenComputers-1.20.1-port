@@ -17,5 +17,5 @@ class Relay(props: Properties) extends SimpleBlock(props) with traits.GUI with t
 
   override def energyThroughput = Settings.get.accessPointRate
 
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Relay(tileentity.TileEntityTypes.RELAY)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Relay(tileentity.TileEntityTypes.RELAY.get(), pos, state)
 }

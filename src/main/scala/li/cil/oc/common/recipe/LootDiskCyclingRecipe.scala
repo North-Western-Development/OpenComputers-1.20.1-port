@@ -1,14 +1,14 @@
 package li.cil.oc.common.recipe
 
-import li.cil.oc.{Constants, Settings, api}
 import li.cil.oc.common.Loot
 import li.cil.oc.integration.util.Wrench
 import li.cil.oc.util.StackOption
+import li.cil.oc.{Constants, Settings, api}
 import net.minecraft.core.{NonNullList, RegistryAccess}
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.inventory.CraftingContainer
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.crafting.{CraftingRecipe, Ingredient}
+import net.minecraft.world.item.crafting.{CraftingBookCategory, CraftingRecipe, Ingredient}
 import net.minecraft.world.level.Level
 
 import scala.collection.immutable
@@ -61,4 +61,6 @@ class LootDiskCyclingRecipe(val getId: ResourceLocation) extends CraftingRecipe 
   override def getIngredients = ingredients
 
   override def getSerializer = RecipeSerializers.CRAFTING_LOOTDISK_CYCLING
+
+  override def category(): CraftingBookCategory = CraftingBookCategory.MISC
 }

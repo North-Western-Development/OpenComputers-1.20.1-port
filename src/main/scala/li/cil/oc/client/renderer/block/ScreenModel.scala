@@ -12,6 +12,7 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.util.Color
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.block.model.BakedQuad
 import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.client.renderer.block.model.ItemOverrides
@@ -27,7 +28,7 @@ import scala.collection.convert.ImplicitConversionsToJava._
 object ScreenModel extends SmartBlockModelBase {
   override def getOverrides: ItemOverrides = ItemOverride
 
-  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData): util.List[BakedQuad] = {
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData, renderType: RenderType): util.List[BakedQuad] = {
     val safeSide = if (side != null) side else Direction.SOUTH
     data match {
       case screen: tileentity.Screen =>

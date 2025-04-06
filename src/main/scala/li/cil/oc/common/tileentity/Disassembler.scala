@@ -1,14 +1,8 @@
 package li.cil.oc.common.tileentity
 
-import java.util
-import li.cil.oc.Constants
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
-import li.cil.oc.Settings
-import li.cil.oc.api
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.network.Connector
-import li.cil.oc.api.network.Visibility
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
+import li.cil.oc.api.network.{Connector, Visibility}
 import li.cil.oc.api.util.StateAware
 import li.cil.oc.common.container
 import li.cil.oc.common.container.ContainerTypes
@@ -16,22 +10,23 @@ import li.cil.oc.common.template.DisassemblerTemplates
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.{BlockPosition, InventoryUtils, ItemUtils}
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.player.Inventory
-import net.minecraft.world.item.ItemStack
+import li.cil.oc.{Constants, Settings, api}
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt.{CompoundTag, Tag}
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
 import net.minecraft.world.MenuProvider
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.world.entity.player.{Inventory, Player}
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-class Disassembler(selfType: BlockEntityType[_ <: Disassembler]) extends BlockEntity(selfType) with traits.Environment with traits.PowerAcceptor
+class Disassembler(selfType: BlockEntityType[_ <: Disassembler], pos: BlockPos, state: BlockState)
+  extends BlockEntity(selfType, pos, state) with traits.Environment with traits.PowerAcceptor
   with traits.Inventory with traits.StateAware with traits.PlayerInputAware with traits.Tickable with DeviceInfo with MenuProvider {
 
   val node: Connector = api.Network.newNode(this, Visibility.None).

@@ -1,46 +1,33 @@
 package li.cil.oc.client.renderer.tileentity
 
-import java.util.function.Function
 import com.google.common.base.Strings
-import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.{VertexConsumer, PoseStack, VertexConsumer}
+import com.mojang.blaze3d.vertex.{PoseStack, VertexConsumer}
 import com.mojang.math.Axis
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
+import li.cil.oc.{OpenComputers, Settings}
 import li.cil.oc.api.driver.item.UpgradeRenderer
 import li.cil.oc.api.driver.item.UpgradeRenderer.MountPointName
 import li.cil.oc.api.event.RobotRenderEvent
 import li.cil.oc.client.renderer.RenderTypes
-import li.cil.oc.common.EventHandler
-import li.cil.oc.common.tileentity
-import li.cil.oc.util.RenderState
-import li.cil.oc.util.StackOption
+import li.cil.oc.common.{EventHandler, tileentity}
+import li.cil.oc.util.{RenderState, StackOption}
 import li.cil.oc.util.StackOption._
+import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer._
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
 import net.minecraft.client.renderer.block.BlockRenderDispatcher
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
-import net.minecraft.world.item.Items
-import net.minecraft.item.BlockItem
-import net.minecraft.world.item.{BlockItem, ItemDisplayContext, ItemStack, Items}
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 import net.minecraft.core.Direction
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.util.math.vector.Vector3f
-import net.minecraft.util.math.vector.Matrix3f
-import net.minecraft.ChatFormatting
+import net.minecraft.world.item.{BlockItem, ItemDisplayContext, ItemStack, Items}
 import net.minecraftforge.client.ForgeHooksClient
 import net.minecraftforge.common.MinecraftForge
-import org.joml.{Matrix3f, Vector3d, Vector3f}
+import org.joml.{Matrix3f, Vector3d}
 
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 
-object RobotRenderer extends Function[BlockRenderDispatcher, RobotRenderer] {
-  override def apply(dispatch: BlockRenderDispatcher) = new RobotRenderer(dispatch)
+object RobotRenderer extends BlockEntityRendererProvider[tileentity.RobotProxy] {
+  override def create(dispatch: BlockEntityRendererProvider.Context): BlockEntityRenderer[tileentity.RobotProxy] = new RobotRenderer(dispatch.getBlockRenderDispatcher)
 
   private val instance = new RobotRenderer(null)
 

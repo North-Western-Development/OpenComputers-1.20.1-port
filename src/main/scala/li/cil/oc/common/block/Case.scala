@@ -54,7 +54,7 @@ class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with t
     case _ =>
   }
 
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Case(tileentity.TileEntityTypes.CASE, tier)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Case(tileentity.TileEntityTypes.CASE.get(), pos, state, tier)
 
   // ----------------------------------------------------------------------- //
 

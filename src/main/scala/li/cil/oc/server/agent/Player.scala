@@ -44,6 +44,7 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.server.players.{ServerOpList, ServerOpListEntry}
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.effect.MobEffectInstance
+import net.minecraft.world.entity.Entity.RemovalReason
 import net.minecraft.world.inventory.InventoryMenu
 import net.minecraft.world.item.context.UseOnContext
 import net.minecraft.world.item.trading.MerchantOffers
@@ -103,10 +104,10 @@ object Player {
     val yaw = Math.toDegrees(-Math.atan2(direction.x, direction.z)).toFloat
     val pitch = Math.toDegrees(-Math.atan2(direction.y, Math.sqrt((direction.x * direction.x) + (direction.z * direction.z)))).toFloat * 0.99f
     player.setPos(player.agent.xPosition, player.agent.yPosition, player.agent.zPosition)
-    player.xRot = pitch % 360f
-    player.yRot = yaw % 360f
-    player.xRotO = player.xRot
-    player.yRotO = player.yRot
+    player.setXRot(pitch % 360f)
+    player.setXRot(yaw % 360f)
+    player.xRotO = player.getXRot
+    player.yRotO = player.getYRot
   }
 
   def setPlayerInventoryItems(player: Player): Unit = {
@@ -155,9 +156,9 @@ object Player {
 class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanceOf[ServerLevel], Player.profileFor(agent)) {
   connection= new ServerPlayNetHandler(server, FakeNetworkManager, this)
 
-  abilities.mayfly = true
-  abilities.invulnerable = true
-  abilities.flying = true
+  getAbilities.mayfly = true
+  getAbilities.invulnerable = true
+  getAbilities.flying = true
   setOnGround(true)
 
   override def getMyRidingOffset = 0.5
@@ -392,7 +393,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
       !ItemStack.matches(oldStack, stack)
 
     if (stackChanged) {
-      inventory.offhand.set(0, newStack)
+      getInventory.offhand.set(0, newStack)
     }
     stackChanged
   }
@@ -607,7 +608,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
 
   override def setHealth(value: Float) {}
 
-  override def remove(invalidate: Entity.RemovalReason): Unit = super.remove(false)
+  override def remove(invalidate: Entity.RemovalReason): Unit = super.remove(RemovalReason.UNLOADED_WITH_PLAYER)
 
   override def aiStep() {}
 
@@ -643,7 +644,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
     def tick(): Unit = {
       // Cancel if the agent stopped or our action is invalidated some other way.
       if (level != player.level || !level.isLoaded(pos) || level.isEmptyBlock(pos) || !player.agent.machine.isRunning) {
-        player.gameMode.handleBlockBreakAction(pos, ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, side, player.level().getMaxBuildHeight())
+        player.gameMode.handleBlockBreakAction(pos, ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, side, player.level().getMaxBuildHeight(), 0)
         return
       }
 

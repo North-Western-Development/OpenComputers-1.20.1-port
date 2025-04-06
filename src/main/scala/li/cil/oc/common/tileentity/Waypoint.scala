@@ -5,13 +5,15 @@ import li.cil.oc.api.machine.{Arguments, Callback, Context}
 import li.cil.oc.api.network.Visibility
 import li.cil.oc.common.EventHandler
 import li.cil.oc.server.network.Waypoints
-import net.minecraft.core.Direction
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
-class Waypoint(selfType: BlockEntityType[_ <: Waypoint]) extends BlockEntity(selfType) with traits.Environment with traits.Rotatable with traits.RedstoneAware with traits.Tickable {
+class Waypoint(selfType: BlockEntityType[_ <: Waypoint], pos: BlockPos, state: BlockState)
+  extends BlockEntity(selfType, pos: BlockPos, state: BlockState) with traits.Environment with traits.Rotatable with traits.RedstoneAware with traits.Tickable {
   val node = api.Network.newNode(this, Visibility.Network).
     withComponent("waypoint").
     create()

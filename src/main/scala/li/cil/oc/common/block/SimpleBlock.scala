@@ -28,7 +28,7 @@ abstract class SimpleBlock(props: Properties) extends net.minecraft.world.level.
   private var unlocalizedName = super.getDescriptionId()
 
   @Deprecated
-  private[oc] def setUnlocalizedName(name: String): Unit = unlocalizedName = "tile." + name
+  private[oc] def setUnlocalizedName(name: String): Unit = unlocalizedName = "block." + name
 
   @Deprecated
   override def getDescriptionId = unlocalizedName

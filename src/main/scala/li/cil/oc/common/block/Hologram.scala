@@ -30,5 +30,5 @@ class Hologram(props: Properties, val tier: Int) extends SimpleBlock(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Hologram(tileentity.TileEntityTypes.HOLOGRAM, tier)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Hologram(tileentity.TileEntityTypes.HOLOGRAM.get(), pos, state, tier)
 }

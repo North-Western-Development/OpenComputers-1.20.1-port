@@ -39,7 +39,7 @@ class Screen(props: Properties, val tier: Int) extends RedstoneAware(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Screen(tileentity.TileEntityTypes.SCREEN, tier)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Screen(tileentity.TileEntityTypes.SCREEN.get(), pos, state, tier)
 
   // ----------------------------------------------------------------------- //
 

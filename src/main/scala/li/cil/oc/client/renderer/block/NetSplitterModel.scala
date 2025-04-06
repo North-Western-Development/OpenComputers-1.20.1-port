@@ -1,36 +1,25 @@
 package li.cil.oc.client.renderer.block
 
-import java.util
-import java.util.Collections
-import li.cil.oc.OpenComputers
 import li.cil.oc.client.Textures
-import li.cil.oc.common.block
-import li.cil.oc.common.item.data.PrintData
 import li.cil.oc.common.tileentity
 import net.minecraft.client.multiplayer.ClientLevel
-import net.minecraft.client.renderer.block.model.BakedQuad
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.renderer.RenderType
-import net.minecraft.client.renderer.block.model.BakedQuad
+import net.minecraft.client.renderer.block.model.{BakedQuad, ItemOverrides}
+import net.minecraft.client.renderer.texture.{TextureAtlas, TextureAtlasSprite}
 import net.minecraft.client.resources.model.BakedModel
-import net.minecraft.client.renderer.block.model.ItemOverrides
-import net.minecraft.client.renderer.texture.AtlasTexture
-import net.minecraft.client.renderer.texture.TextureAtlasSprite
-import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.item.ItemStack
-import net.minecraft.inventory.container.PlayerContainer
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.RandomSource
-import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.inventory.InventoryMenu
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.client.event.TextureStitchEvent
 import net.minecraftforge.client.model.data.ModelData
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import org.joml.Vector3d
 
+import java.util
 import scala.collection.JavaConverters.bufferAsJavaList
 import scala.collection.mutable
 
@@ -49,12 +38,12 @@ object NetSplitterModel extends SmartBlockModelBase {
       case _ => super.getQuads(state, side, rand)
     }
 
-  private def getSprite(location: ResourceLocation, atlas: Option[AtlasTexture]): TextureAtlasSprite = atlas match {
+  private def getSprite(location: ResourceLocation, atlas: Option[TextureAtlas]): TextureAtlasSprite = atlas match {
     case Some(atls) => atls.getSprite(location)
     case None => Textures.getSprite(location)
   }
 
-  protected def splitterTexture(atlas: Option[AtlasTexture]) = Array(
+  protected def splitterTexture(atlas: Option[TextureAtlas]) = Array(
     getSprite(Textures.Block.NetSplitterTop, atlas),
     getSprite(Textures.Block.NetSplitterTop, atlas),
     getSprite(Textures.Block.NetSplitterSide, atlas),
@@ -63,7 +52,7 @@ object NetSplitterModel extends SmartBlockModelBase {
     getSprite(Textures.Block.NetSplitterSide, atlas)
   )
 
-  protected def GenerateBaseModel(atlas: AtlasTexture) = {
+  protected def GenerateBaseModel(atlas: TextureAtlas) = {
     val faces = mutable.ArrayBuffer.empty[BakedQuad]
 
     // Bottom.
@@ -89,7 +78,7 @@ object NetSplitterModel extends SmartBlockModelBase {
 
   @SubscribeEvent
   def onTextureStitch(e: TextureStitchEvent.Post): Unit = {
-    if (e.getMap.location.equals(PlayerContainer.BLOCK_ATLAS)) BaseModel = GenerateBaseModel(e.getMap)
+    if (e.getAtlas.location.equals(InventoryMenu.BLOCK_ATLAS)) BaseModel = GenerateBaseModel(e.getAtlas)
   }
 
   protected def addSideQuads(faces: mutable.ArrayBuffer[BakedQuad], openSides: Array[Boolean]): Unit = {

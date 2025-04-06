@@ -18,8 +18,7 @@ import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.block.model.BakedQuad
 import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.client.renderer.block.model.ItemOverrides
-import net.minecraft.client.renderer.texture.MissingTextureSprite
-import net.minecraft.client.renderer.texture.TextureAtlasSprite
+import net.minecraft.client.renderer.texture.{MissingTextureAtlasSprite, MissingTextureSprite, TextureAtlasSprite}
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.item.DyeColor
 import net.minecraft.world.item.{DyeColor, ItemStack}
@@ -51,7 +50,7 @@ object PrintModel extends SmartBlockModelBase {
 
   private def resolveTexture(name: String): TextureAtlasSprite = try {
     val texture = Textures.getSprite(new ResourceLocation(name))
-    if (texture.getName == MissingTextureSprite.getLocation) Textures.getSprite(new ResourceLocation("minecraft:blocks/" + name))
+    if (texture.getName == MissingTextureAtlasSprite.getLocation) Textures.getSprite(new ResourceLocation("minecraft:blocks/" + name))
     else texture
   }
   catch {

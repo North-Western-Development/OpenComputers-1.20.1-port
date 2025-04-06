@@ -14,15 +14,15 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.block.BlockRenderDispatcher
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 import net.minecraft.core.Direction
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.item.ItemStack
 
 import java.util.function.Function
 
-object ScreenRenderer extends Function[BlockRenderDispatcher, ScreenRenderer] {
-  override def apply(dispatch: BlockRenderDispatcher) = new ScreenRenderer(dispatch)
+object ScreenRenderer extends BlockEntityRendererProvider[Screen] {
+  override def create(dispatch: BlockEntityRendererProvider.Context): BlockEntityRenderer[Screen] = new ScreenRenderer(dispatch.getBlockRenderDispatcher)
 }
 
 class ScreenRenderer(dispatch: BlockRenderDispatcher) extends BlockEntityRenderer[Screen](dispatch) {

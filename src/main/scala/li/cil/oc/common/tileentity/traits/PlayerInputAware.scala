@@ -1,6 +1,6 @@
 package li.cil.oc.common.tileentity.traits
 
-import li.cil.oc.api.driver.item.Container
+import net.minecraft.world.Container
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 

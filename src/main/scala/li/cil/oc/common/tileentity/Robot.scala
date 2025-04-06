@@ -4,6 +4,7 @@ import li.cil.oc._
 import li.cil.oc.api.driver.item
 import li.cil.oc.api.driver.item.Container
 import li.cil.oc.api.event.{RobotAnalyzeEvent, RobotMoveEvent}
+import li.cil.oc.api.internal.MultiTank
 import li.cil.oc.api.{Driver, internal}
 import li.cil.oc.api.network._
 import li.cil.oc.client.gui
@@ -77,14 +78,14 @@ class Robot extends BlockEntity(TileEntityTypes.ROBOT) with traits.Computer with
 
   def isCreative: Boolean = tier == Tier.Four
 
-  val equipmentInventory = new InventoryProxy {
+  val equipmentInventory: InventoryProxy = new InventoryProxy {
     override def inventory: Robot = Robot.this
 
     override def getContainerSize = 4
   }
 
   // Wrapper for the part of the inventory that is mutable.
-  val mainInventory = new InventoryProxy {
+  val mainInventory: InventoryProxy = new InventoryProxy {
     override def inventory: Robot = Robot.this
 
     override def getContainerSize: Int = Robot.this.inventorySize
@@ -107,7 +108,7 @@ class Robot extends BlockEntity(TileEntityTypes.ROBOT) with traits.Computer with
     }
   }
 
-  val tank = new internal.MultiTank {
+  val tank: MultiTank = new internal.MultiTank {
     override def tankCount: Int = Robot.this.tankCount
 
     override def getFluidTank(index: Int): ManagedEnvironment with IFluidTank = Robot.this.getFluidTank(index)
@@ -124,7 +125,7 @@ class Robot extends BlockEntity(TileEntityTypes.ROBOT) with traits.Computer with
 
   override def getComponentInSlot(index: Int): ManagedEnvironment = if (components.length > index) components(index).orNull else null
 
-  override def player: Player = {
+  override def player: agent.Player = {
     agent.Player.updatePositionAndRotation(player_, facing, facing)
     agent.Player.setPlayerInventoryItems(player_)
     player_

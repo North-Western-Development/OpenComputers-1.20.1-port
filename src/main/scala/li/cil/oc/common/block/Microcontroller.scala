@@ -56,7 +56,7 @@ class Microcontroller(props: Properties)
 
   override def energyThroughput: Double = Settings.get.caseRate(Tier.One)
 
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Microcontroller(tileentity.TileEntityTypes.MICROCONTROLLER)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Microcontroller(tileentity.TileEntityTypes.MICROCONTROLLER.get(), pos, state)
 
   // ----------------------------------------------------------------------- //
 

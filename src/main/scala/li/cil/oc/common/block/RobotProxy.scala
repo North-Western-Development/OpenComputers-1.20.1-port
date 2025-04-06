@@ -23,11 +23,9 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.fluid.FluidState
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.storage.loot.{LootContext, LootParams}
-import net.minecraft.loot.LootContextParams
 import net.minecraft.core.Direction
 import net.minecraft.world.InteractionHand
 import net.minecraft.core.BlockPos
-import net.minecraft.util.math.RayTraceResult
 import net.minecraft.world.phys.shapes.CollisionContext
 import net.minecraft.world.phys.shapes.VoxelShape
 import net.minecraft.world.phys.shapes.Shapes
@@ -37,6 +35,7 @@ import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.material.FluidState
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams
+import net.minecraft.world.phys.BlockHitResult
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
@@ -51,7 +50,7 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
 
   // ----------------------------------------------------------------------- //
 
-  override def getPickBlock(state: BlockState, target: RayTraceResult, world: BlockGetter, pos: BlockPos, player: Player): ItemStack =
+  override def getPickBlock(state: BlockState, target: BlockHitResult, world: BlockGetter, pos: BlockPos, player: Player): ItemStack =
     world.getBlockEntity(pos) match {
       case proxy: tileentity.RobotProxy => proxy.robot.info.copyItemStack()
       case _ => ItemStack.EMPTY
@@ -128,8 +127,8 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
 
   override def newBlockEntity(pos: BlockPos, state: BlockState): tileentity.RobotProxy = {
     moving.get match {
-      case Some(robot) => new tileentity.RobotProxy(tileentity.TileEntityTypes.ROBOT, robot)
-      case _ => new tileentity.RobotProxy(tileentity.TileEntityTypes.ROBOT)
+      case Some(robot) => new tileentity.RobotProxy(tileentity.TileEntityTypes.ROBOT.get(), pos, state, robot)
+      case _ => new tileentity.RobotProxy(tileentity.TileEntityTypes.ROBOT.get(), pos, state)
     }
   }
 

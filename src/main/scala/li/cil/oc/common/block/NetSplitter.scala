@@ -11,7 +11,7 @@ import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.{InteractionHand, InteractionResult}
 
 class NetSplitter(props: Properties) extends RedstoneAware(props) {
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.NetSplitter(tileentity.TileEntityTypes.NET_SPLITTER)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.NetSplitter(tileentity.TileEntityTypes.NET_SPLITTER.get(), pos, state)
 
   // ----------------------------------------------------------------------- //
 

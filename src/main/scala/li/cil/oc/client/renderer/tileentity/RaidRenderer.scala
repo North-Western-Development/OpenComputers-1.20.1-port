@@ -9,14 +9,12 @@ import li.cil.oc.common.tileentity.Raid
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.block.BlockRenderDispatcher
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.core.Direction
 
-import java.util.function.Function
-
-object RaidRenderer extends Function[BlockRenderDispatcher, RaidRenderer] {
-  override def apply(dispatch: BlockRenderDispatcher) = new RaidRenderer(dispatch)
+object RaidRenderer extends BlockEntityRendererProvider[Raid] {
+  override def create(dispatch: BlockEntityRendererProvider.Context): BlockEntityRenderer[Raid] = new RaidRenderer(dispatch.getBlockRenderDispatcher)
 }
 
 class RaidRenderer(dispatch: BlockRenderDispatcher) extends BlockEntityRenderer[Raid](dispatch) {

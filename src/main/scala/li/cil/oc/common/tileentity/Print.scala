@@ -7,23 +7,24 @@ import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
 import li.cil.oc.util.ExtendedAABB._
 import li.cil.oc.util.ExtendedNBT._
 import net.minecraft.client.model.EntityModel
-import net.minecraft.core.Direction
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.sounds.{SoundEvents, SoundSource}
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.shapes.{BooleanOp, Shapes, VoxelShape}
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 import net.minecraftforge.client.model.data.{ModelData, ModelProperty}
 
 import java.util
 
-class Print(selfType: BlockEntityType[_ <: Print], val canToggle: Option[() => Boolean], val scheduleUpdate: Option[Int => Unit], val onStateChange: Option[() => Unit])
-  extends BlockEntity(selfType) with traits.TileEntity with traits.RedstoneAware with traits.RotatableTile with ModelData {
+class Print(selfType: BlockEntityType[_ <: Print], pos: BlockPos, state2: BlockState, val canToggle: Option[() => Boolean], val scheduleUpdate: Option[Int => Unit], val onStateChange: Option[() => Unit])
+  extends BlockEntity(selfType, pos, state2) with traits.TileEntity with traits.RedstoneAware with traits.RotatableTile with ModelData {
 
-  def this(selfType: BlockEntityType[_ <: Print]) = this(selfType, None, None, None)
-  def this(selfType: BlockEntityType[_ <: Print], canToggle: () => Boolean, scheduleUpdate: Int => Unit, onStateChange: () => Unit) =
-    this(selfType, Option(canToggle), Option(scheduleUpdate), Option(onStateChange))
+  def this(selfType: BlockEntityType[_ <: Print], pos: BlockPos, state: BlockState) = this(selfType, pos, state, None, None, None)
+  def this(selfType: BlockEntityType[_ <: Print], pos: BlockPos, state: BlockState, canToggle: () => Boolean, scheduleUpdate: Int => Unit, onStateChange: () => Unit) =
+    this(selfType, pos, state, Option(canToggle), Option(scheduleUpdate), Option(onStateChange))
 
   _isOutputEnabled = true
 

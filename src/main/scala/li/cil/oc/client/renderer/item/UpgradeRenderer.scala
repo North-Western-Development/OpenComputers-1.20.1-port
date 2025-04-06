@@ -1,22 +1,14 @@
 package li.cil.oc.client.renderer.item
 
-import com.google.common.collect.ImmutableList
-import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.{VertexConsumer, PoseStack, VertexConsumer}
-import li.cil.oc.Constants
-import li.cil.oc.api
+import com.mojang.blaze3d.vertex.{PoseStack, VertexConsumer}
+import li.cil.oc.{Constants, api}
 import li.cil.oc.api.driver.item.UpgradeRenderer.MountPointName
 import li.cil.oc.api.event.RobotRenderEvent.MountPoint
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.integration.opencomputers.Item
 import li.cil.oc.util.RenderState
-import net.minecraft.client.renderer.{MultiBufferSource, MultiBufferSource}
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
-import net.minecraft.client.renderer.vertex.VertexFormat
+import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.world.item.ItemStack
-import net.minecraft.util.math.vector.Vector3f
-import org.lwjgl.opengl.GL11
 
 object UpgradeRenderer {
   lazy val craftingUpgrade = api.Items.get(Constants.ItemName.CraftingUpgrade)

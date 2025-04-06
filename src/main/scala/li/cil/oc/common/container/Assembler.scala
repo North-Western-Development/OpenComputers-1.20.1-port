@@ -5,15 +5,12 @@ import li.cil.oc.common
 import li.cil.oc.common.InventorySlots.InventorySlot
 import li.cil.oc.common.template.AssemblerTemplates
 import li.cil.oc.common.tileentity
-import net.minecraft.world.item.ItemStack
-import net.minecraft.world.inventory.MenuType
-import net.minecraft.world.entity.player.Inventory
-import net.minecraft.inventory.IInventory
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.Container
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.inventory.MenuType
 import net.minecraft.world.item.ItemStack
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
 class Assembler(selfType: MenuType[_ <: Assembler], id: Int, playerInventory:Inventory, val assembler: Container)
   extends Player(selfType, id, playerInventory, assembler) {

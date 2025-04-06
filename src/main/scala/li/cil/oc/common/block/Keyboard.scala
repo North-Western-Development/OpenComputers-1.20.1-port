@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
 import net.minecraft.world.level.{BlockGetter, Level, LevelReader}
 import net.minecraft.world.phys.shapes.{CollisionContext, Shapes, VoxelShape}
+import net.minecraft.world.ticks.ScheduledTick
 
 class Keyboard(props: Properties) extends SimpleBlock(props) {
   // For Immibis Microblock support.
@@ -46,7 +47,7 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Keyboard(tileentity.TileEntityTypes.KEYBOARD)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Keyboard(tileentity.TileEntityTypes.KEYBOARD.get(), pos, state)
 
   // ----------------------------------------------------------------------- //
 

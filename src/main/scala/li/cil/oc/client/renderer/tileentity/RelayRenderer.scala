@@ -1,19 +1,17 @@
 package li.cil.oc.client.renderer.tileentity
 
-import java.util.function.Function
-
-import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
 import net.minecraft.client.renderer.block.BlockRenderDispatcher
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 
-object RelayRenderer extends Function[BlockRenderDispatcher, RelayRenderer] {
-  override def apply(dispatch: BlockRenderDispatcher) = new RelayRenderer(dispatch)
+object RelayRenderer extends BlockEntityRendererProvider[tileentity.Relay] {
+  override def create(dispatch: BlockEntityRendererProvider.Context): BlockEntityRenderer[tileentity.Relay] = new RelayRenderer(dispatch.getBlockRenderDispatcher)
 }
 
 class RelayRenderer(dispatch: BlockRenderDispatcher) extends BlockEntityRenderer[tileentity.Relay](dispatch) {

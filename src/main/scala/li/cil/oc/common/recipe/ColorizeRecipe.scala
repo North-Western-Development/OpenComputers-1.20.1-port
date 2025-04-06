@@ -4,14 +4,14 @@ import li.cil.oc.util.{Color, ItemColorizer, StackOption}
 import net.minecraft.core.RegistryAccess
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.inventory.CraftingContainer
+import net.minecraft.world.item.crafting.{CraftingBookCategory, CustomRecipe}
 import net.minecraft.world.item.{Item, ItemStack}
-import net.minecraft.world.item.crafting.CustomRecipe
 import net.minecraft.world.level.{ItemLike, Level}
 
 /**
   * @author asie, Vexatos
   */
-class ColorizeRecipe(id: ResourceLocation, target: ItemLike) extends CustomRecipe(id) {
+class ColorizeRecipe(id: ResourceLocation, target: ItemLike) extends CustomRecipe(id, CraftingBookCategory.MISC) {
   val targetItem: Item = target.asItem()
 
   override def matches(crafting: CraftingContainer, world: Level): Boolean = {

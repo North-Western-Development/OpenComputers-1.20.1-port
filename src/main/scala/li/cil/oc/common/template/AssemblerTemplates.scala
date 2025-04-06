@@ -2,12 +2,12 @@ package li.cil.oc.common.template
 
 import com.google.common.base.Strings
 import li.cil.oc.{OpenComputers, api}
-import li.cil.oc.api.driver.item.Container
 import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.common.{IMC, Slot, Tier}
 import li.cil.oc.util.ExtendedNBT._
 import net.minecraft.nbt.{CompoundTag, Tag}
 import net.minecraft.network.chat.Component
+import net.minecraft.world.Container
 import net.minecraft.world.item.ItemStack
 
 import java.lang.reflect.Method

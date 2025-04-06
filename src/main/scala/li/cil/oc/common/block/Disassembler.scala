@@ -31,5 +31,5 @@ class Disassembler(props: Properties) extends SimpleBlock(props) with traits.Pow
     case _ =>
   }
 
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Disassembler(tileentity.TileEntityTypes.DISASSEMBLER)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Disassembler(tileentity.TileEntityTypes.DISASSEMBLER.get(), pos, state)
 }

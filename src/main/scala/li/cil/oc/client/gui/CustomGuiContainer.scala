@@ -7,10 +7,11 @@ import li.cil.oc.client.gui.widget.WidgetContainer
 import li.cil.oc.util.RenderState
 import net.minecraft.client.gui.{Font, GuiGraphics}
 import net.minecraft.client.gui.screens.inventory.{AbstractContainerScreen, ContainerScreen}
-import net.minecraft.client.renderer.{MultiBufferSource, MultiBufferSource, RenderHelper}
+import net.minecraft.client.renderer.{MultiBufferSource, RenderHelper}
 import com.mojang.blaze3d.vertex.Tesselator
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.inventory.container.Container
+import net.minecraft.locale.Language
 import net.minecraft.network.chat.Component
 import net.minecraft.util.text.ITextProperties
 import net.minecraft.util.text.LanguageMap
@@ -93,7 +94,7 @@ abstract class CustomGuiContainer[C <: Container](val inventoryContainer: C, inv
       stack.translate(0, 0, 400)
       val buffer = MultiBufferSource.immediate(Tesselator.getInstance.getBuilder())
       for ((line, index) <- text.zipWithIndex) {
-        font.drawInBatch(LanguageMap.getInstance.getVisualOrder(line), posX, posY, -1, true, stack.last.pose, buffer, false, 0, 15728880)
+        font.drawInBatch(Language.getInstance.getVisualOrder(line), posX, posY, -1, true, stack.last.pose, buffer, false, 0, 15728880)
         if (index == 0) {
           posY += 2
         }

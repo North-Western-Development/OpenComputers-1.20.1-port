@@ -10,11 +10,13 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
-class Keyboard(selfType: BlockEntityType[_ <: Keyboard]) extends BlockEntity(selfType) with traits.Environment with traits.Rotatable with traits.ImmibisMicroblock with SidedEnvironment with Analyzable {
+class Keyboard(selfType: BlockEntityType[_ <: Keyboard], pos: BlockPos, state: BlockState)
+  extends BlockEntity(selfType, pos, state) with traits.Environment with traits.Rotatable with traits.ImmibisMicroblock with SidedEnvironment with Analyzable {
   override def validFacings = Direction.values
 
   val keyboard = {

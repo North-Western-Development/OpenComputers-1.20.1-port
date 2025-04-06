@@ -1,40 +1,21 @@
 package li.cil.oc.common.init
 
-import java.util.concurrent.Callable
-import li.cil.oc.Constants
-import li.cil.oc.CreativeTab
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api.detail.ItemAPI
-import li.cil.oc.api.detail.ItemInfo
+import li.cil.oc.api.detail.{ItemAPI, ItemInfo}
 import li.cil.oc.api.fs.FileSystem
-import li.cil.oc.common
-import li.cil.oc.common.Loot
-import li.cil.oc.common.Tier
 import li.cil.oc.common.block.SimpleBlock
-import li.cil.oc.common.item
-import li.cil.oc.common.item.data.DroneData
-import li.cil.oc.common.item.data.HoverBootsData
-import li.cil.oc.common.item.data.MicrocontrollerData
-import li.cil.oc.common.item.data.RobotData
-import li.cil.oc.common.item.data.TabletData
+import li.cil.oc.common.item.data._
 import li.cil.oc.common.item.traits.SimpleItem
+import li.cil.oc.common.{Loot, Tier, item}
 import li.cil.oc.server.machine.luac.LuaStateFactory
-import net.minecraft.world.level.block.Block
-import net.minecraft.item.BlockItem
-import net.minecraft.item.DyeColor
-import net.minecraft.world.item.Item
-import net.minecraft.world.item.Item.Properties
-import net.minecraft.world.item.ItemGroup
-import net.minecraft.world.item.{Item, ItemStack, Rarity}
-import net.minecraft.item.Rarity
+import li.cil.oc.{Constants, OpenComputers, Settings, common}
 import net.minecraft.core.NonNullList
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item._
 import net.minecraft.world.level.block.Block
-import net.minecraftforge.common.ToolType
-import net.minecraftforge.registries.GameData
+import net.minecraftforge.registries.RegisterEvent
 
+import java.util.concurrent.Callable
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -60,8 +41,6 @@ object Items extends ItemAPI {
       instance match {
         case simple: SimpleBlock =>
           simple.setUnlocalizedName("oc." + id)
-          simple.setRegistryName(OpenComputers.ID, id)
-          GameData.register_impl[Block](simple)
         case _ =>
       }
       descriptors += id -> new ItemInfo {
@@ -86,12 +65,7 @@ object Items extends ItemAPI {
       val itemInst = instance match {
         case simple: SimpleBlock =>
           simple.setUnlocalizedName("oc." + id)
-          simple.setRegistryName(OpenComputers.ID, id)
-          GameData.register_impl[Block](simple)
-
           val item : Item = new common.block.Item(simple, itemProps)
-          item.setRegistryName(OpenComputers.ID, id)
-          GameData.register_impl(item)
           OpenComputers.proxy.registerModel(item, id)
           item
         case _ => null.asInstanceOf[Item]
@@ -117,7 +91,6 @@ object Items extends ItemAPI {
     if (!descriptors.contains(id)) {
       instance match {
         case simple: SimpleItem =>
-          GameData.register_impl(simple.setRegistryName(new ResourceLocation(Settings.resourceDomain, id)))
           OpenComputers.proxy.registerModel(simple, id)
         case _ =>
       }
@@ -331,9 +304,9 @@ object Items extends ItemAPI {
 
   // ----------------------------------------------------------------------- //
 
-  private def defaultProps = new Properties().tab(CreativeTab)
+  private def defaultProps = new Properties() //.tab(CreativeTab)
 
-  def init() {
+  def init(helper: RegisterEvent.RegisterHelper[Item]) {
     initMaterials()
     initTools()
     initComponents()
@@ -341,7 +314,11 @@ object Items extends ItemAPI {
     initUpgrades()
     initStorage()
     initSpecial()
-
+    for ((_, item) <- descriptors) {
+      if (item.item() != null){
+        helper.register(new ResourceLocation(OpenComputers.ID, item.name), item.item())
+      }
+    }
     // Register aliases.
     for ((k, v) <- aliases) {
       descriptors.getOrElseUpdate(k, descriptors(v))
@@ -385,8 +362,6 @@ object Items extends ItemAPI {
     registerItem(new item.DiamondChip(defaultProps), Constants.ItemName.DiamondChip)
   }
 
-  val WrenchType: ToolType = ToolType.get("wrench")
-
   // All kinds of tools.
   private def initTools(): Unit = {
     registerItem(new item.Analyzer(defaultProps), Constants.ItemName.Analyzer)
@@ -394,7 +369,7 @@ object Items extends ItemAPI {
     registerItem(new item.Terminal(defaultProps.stacksTo(1)), Constants.ItemName.Terminal)
     registerItem(new item.TexturePicker(defaultProps), Constants.ItemName.TexturePicker)
     registerItem(new item.Manual(defaultProps), Constants.ItemName.Manual)
-    registerItem(new item.Wrench(defaultProps.stacksTo(1).addToolType(WrenchType, 1)), Constants.ItemName.Wrench)
+    registerItem(new item.Wrench(defaultProps.stacksTo(1)), Constants.ItemName.Wrench)
 
     // 1.5.11
     registerItem(new item.HoverBoots(defaultProps.stacksTo(1).rarity(Rarity.UNCOMMON).setNoRepair), Constants.ItemName.HoverBoots)

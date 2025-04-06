@@ -104,7 +104,7 @@ class Print(props: Properties) extends RedstoneAware(props) with IForgeBlock {
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Print(tileentity.TileEntityTypes.PRINT)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Print(tileentity.TileEntityTypes.PRINT.get(), pos, state)
 
   // ----------------------------------------------------------------------- //
 

@@ -1,5 +1,7 @@
 package li.cil.oc.client.renderer.markdown.segment.render
 
+import com.mojang.blaze3d.platform.TextureUtil
+
 import java.io.InputStream
 import javax.imageio.ImageIO
 import com.mojang.blaze3d.vertex.{PoseStack, VertexFormat}
@@ -8,10 +10,10 @@ import li.cil.oc.api.manual.ImageRenderer
 import li.cil.oc.client.Textures
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
-import net.minecraft.client.renderer.texture.Texture
-import net.minecraft.client.renderer.texture.TextureUtil
+import net.minecraft.client.renderer.texture.{AbstractTexture, TextureUtil}
 import net.minecraft.resources.IResourceManager
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.util.math.vector.Matrix4f
 import net.minecraft.util.math.vector.Vector4f
 import org.joml.Vector4f
@@ -38,7 +40,7 @@ class TextureImageRenderer(val location: ResourceLocation) extends ImageRenderer
   override def render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int): Unit = {
     Textures.bind(location)
     RenderSystem.setShaderColor(1, 1, 1, 1)
-    GL11.glBegin(VertexFormat.Mode.QUADS)
+    GL11.glBegin(GL11.GL_QUADS)
     GL11.glTexCoord2f(0, 0)
     val matrix = stack.last.pose
     val vec = new Vector4f(0, 0, 0, 1)
@@ -59,11 +61,11 @@ class TextureImageRenderer(val location: ResourceLocation) extends ImageRenderer
     GL11.glEnd()
   }
 
-  private class ImageTexture(val location: ResourceLocation) extends Texture {
+  private class ImageTexture(val location: ResourceLocation) extends AbstractTexture {
     var width = 0
     var height = 0
 
-    override def load(manager: IResourceManager): Unit = {
+    override def load(manager: ResourceManager): Unit = {
       releaseId()
 
       var is: InputStream = null

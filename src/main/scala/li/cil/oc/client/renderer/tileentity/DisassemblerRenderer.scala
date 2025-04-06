@@ -8,12 +8,10 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.block.BlockRenderDispatcher
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 
-import java.util.function.Function
-
-object DisassemblerRenderer extends Function[BlockRenderDispatcher, DisassemblerRenderer] {
-  override def apply(dispatch: BlockRenderDispatcher) = new DisassemblerRenderer(dispatch)
+object DisassemblerRenderer extends BlockEntityRendererProvider[tileentity.Disassembler] {
+  override def create(dispatch: BlockEntityRendererProvider.Context): BlockEntityRenderer[tileentity.Disassembler] = new DisassemblerRenderer(dispatch.getBlockRenderDispatcher)
 }
 
 class DisassemblerRenderer(dispatch: BlockRenderDispatcher) extends BlockEntityRenderer[tileentity.Disassembler](dispatch) {

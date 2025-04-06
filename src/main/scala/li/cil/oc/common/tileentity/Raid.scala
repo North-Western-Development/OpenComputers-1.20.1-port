@@ -10,18 +10,20 @@ import li.cil.oc.common.item.data.{DriveData, NodeData}
 import li.cil.oc.server.component.FileSystem
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.core.Direction
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
 import java.util.UUID
 import java.util.function.Consumer
 
-class Raid(selfType: BlockEntityType[_ <: Raid]) extends BlockEntity(selfType) with traits.Environment with traits.Inventory with traits.Rotatable with Analyzable with MenuProvider {
+class Raid(selfType: BlockEntityType[_ <: Raid], pos: BlockPos, state: BlockState)
+  extends BlockEntity(selfType, pos, state) with traits.Environment with traits.Inventory with traits.Rotatable with Analyzable with MenuProvider {
   val node = api.Network.newNode(this, Visibility.None).create()
 
   var filesystem: Option[FileSystem] = None
@@ -108,7 +110,7 @@ class Raid(selfType: BlockEntityType[_ <: Raid]) extends BlockEntity(selfType) w
     }
   }
 
-  private def wipeDisksAndComputeSpace = items.foldLeft(0L) {
+  private def wipeDisksAndComputeSpace: Long = items.foldLeft[Long](0L) {
     case (acc, hdd) if !hdd.isEmpty => acc + (Option(api.Driver.driverFor(hdd)) match {
       case Some(driver) => driver.createEnvironment(hdd, this) match {
         case fs: FileSystem =>
@@ -117,12 +119,12 @@ class Raid(selfType: BlockEntityType[_ <: Raid]) extends BlockEntity(selfType) w
           fs.fileSystem.close()
           fs.fileSystem.list("/").foreach(fs.fileSystem.delete)
           fs.saveData(nbt)
-          fs.fileSystem.spaceTotal.toInt
+          fs.fileSystem.spaceTotal
         case _ => 0L // Ignore.
       }
       case _ => 0L
     })
-    case (acc, ItemStack.EMPTY) => acc
+    case (acc: Long, ItemStack.EMPTY) => acc
   }
 
   // ----------------------------------------------------------------------- //

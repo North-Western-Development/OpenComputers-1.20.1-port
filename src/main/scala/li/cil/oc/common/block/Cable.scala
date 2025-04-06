@@ -1,31 +1,10 @@
 package li.cil.oc.common.block
 
-import li.cil.oc.common.block.Cable.updateState
-
-import java.util
 import li.cil.oc.common.block.property.PropertyCableConnection
 import li.cil.oc.common.capabilities.Capabilities
 import li.cil.oc.common.tileentity
-import li.cil.oc.util.Color
-import li.cil.oc.util.ExtendedWorld._
-import li.cil.oc.util.ItemColorizer
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.state.BlockState
+import li.cil.oc.util.{Color, ItemColorizer}
 import net.minecraft.core.{BlockPos, Direction}
-import net.minecraft.world.entity.player.Player
-import net.minecraft.entity.{Entity, LivingEntity}
-import net.minecraft.item.{BlockItemUseContext, DyeColor, ItemStack}
-import net.minecraft.world.level.block.state.StateDefinition
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.core.Direction
-import net.minecraft.util.math.{BlockPos, RayTraceResult}
-import net.minecraft.world.phys.shapes.CollisionContext
-import net.minecraft.world.phys.shapes.VoxelShape
-import net.minecraft.world.phys.shapes.Shapes
-import net.minecraft.world.level.BlockGetter
-import net.minecraft.world.IWorld
-import net.minecraft.world.level.Level
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.context.BlockPlaceContext
@@ -37,11 +16,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.shapes.{CollisionContext, Shapes, VoxelShape}
-import net.minecraft.server.level.ServerLevel
 import net.minecraftforge.common.extensions.IForgeBlock
-
-import scala.collection.JavaConverters._
-import scala.reflect.ClassTag
 
 class Cable(props: Properties) extends SimpleBlock(props) with IForgeBlock {
   // For Immibis Microblock support.
@@ -105,7 +80,7 @@ class Cable(props: Properties) extends SimpleBlock(props) with IForgeBlock {
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Cable(tileentity.TileEntityTypes.CABLE)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Cable(tileentity.TileEntityTypes.CABLE.get(), pos, state)
 
   // ----------------------------------------------------------------------- //
 

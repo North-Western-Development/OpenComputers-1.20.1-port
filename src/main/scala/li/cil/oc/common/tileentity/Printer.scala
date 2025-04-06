@@ -13,11 +13,12 @@ import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
-import net.minecraft.core.Direction
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.{MenuProvider, WorldlyContainer}
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
@@ -25,7 +26,7 @@ import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 
-class Printer(selfType: BlockEntityType[_ <: Printer]) extends BlockEntity(selfType) with traits.Environment with traits.Inventory with traits.Rotatable
+class Printer(selfType: BlockEntityType[_ <: Printer], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Environment with traits.Inventory with traits.Rotatable
   with SidedEnvironment with traits.StateAware with traits.Tickable with WorldlyContainer with DeviceInfo with MenuProvider {
 
   val node: ComponentConnector = api.Network.newNode(this, Visibility.Network).
@@ -294,9 +295,6 @@ class Printer(selfType: BlockEntityType[_ <: Printer]) extends BlockEntity(selfT
       val material = removeItem(slotInk, 1)
       if (material != null) {
         amountInk += inkValue
-        if (material.hasContainerItem()) {
-          setItem(slotInk, material.getContainerItem())
-        }
       }
     }
   }

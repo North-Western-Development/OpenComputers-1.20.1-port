@@ -1,26 +1,22 @@
 package li.cil.oc.client.renderer.block
 
-import java.util
-import java.util.Collections
 import li.cil.oc.client.Textures
-import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.block.model.{BakedQuad, ItemOverrides, ItemTransform, ItemTransforms}
-import net.minecraft.client.renderer.model._
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.core.Direction
 import net.minecraft.util.RandomSource
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.util.math.vector.Vector3f
-import net.minecraftforge.client.model.data.ModelData
+import net.minecraft.world.level.block.state.BlockState
 import org.joml.{Vector3d, Vector3f}
+
+import java.util
+import java.util.Collections
 
 trait SmartBlockModelBase extends BakedModel {
   override def getOverrides: ItemOverrides = ItemOverrides.EMPTY
 
-  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, modelData: ModelData, render: RenderType): util.List[BakedQuad] = Collections.emptyList()
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource): util.List[BakedQuad] = Collections.emptyList()
 
   override def useAmbientOcclusion = true
 
@@ -111,7 +107,7 @@ trait SmartBlockModelBase extends BakedModel {
 
   protected def rotateVector(v: Vector3d, angle: Double, axis: Vector3d) = {
     // vrot = v * cos(angle) + (axis x v) * sin(angle) + axis * (axis dot v)(1 - cos(angle))
-    def scale(v: Vector3d, s: Double) = v.scale(s)
+    def scale(v: Vector3d, s: Double) = v.mul(s)
     val cosAngle = math.cos(angle)
     val sinAngle = math.sin(angle)
     scale(v, cosAngle).
@@ -120,7 +116,7 @@ trait SmartBlockModelBase extends BakedModel {
   }
 
   protected def rotateFace(face: Array[Vector3d], angle: Double, axis: Vector3d, around: Vector3d = new Vector3d(0.5, 0.5, 0.5)) = {
-    face.map(v => rotateVector(v.subtract(around), angle, axis).add(around))
+    face.map(v => rotateVector(v.sub(around), angle, axis).add(around))
   }
 
   protected def rotateBox(box: Array[Array[Vector3d]], angle: Double, axis: Vector3d = new Vector3d(0, 1, 0), around: Vector3d = new Vector3d(0.5, 0.5, 0.5)) = {

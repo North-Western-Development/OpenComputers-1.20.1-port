@@ -17,7 +17,7 @@ import li.cil.oc.common.tileentity.Hologram
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 import net.minecraft.client.renderer.block.BlockRenderDispatcher
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.core.Direction
@@ -32,10 +32,12 @@ import org.lwjgl.opengl.GL15
 
 import scala.util.Random
 
-object HologramRenderer extends Function[BlockRenderDispatcher, HologramRenderer]
+object HologramRenderer extends BlockEntityRendererProvider[Hologram]
   with Callable[Int] with RemovalListener[BlockEntity, Int] {
 
-  override def apply(dispatch: BlockRenderDispatcher) = new HologramRenderer(dispatch)
+  override def create(context: BlockEntityRendererProvider.Context): BlockEntityRenderer[Hologram] = {
+    new HologramRenderer(context.getBlockRenderDispatcher)
+  }
 
   private val random = new Random()
 
