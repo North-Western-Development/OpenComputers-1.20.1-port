@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
  *     Object[] f(Context context, Arguments arguments) throws Exception;
  * </pre>
  * <br>
- * The method may return <tt>null</tt> in case it doesn't wish return anything,
+ * The method may return {@code null} in case it doesn't wish return anything,
  * which is functionally equivalent to returning an empty array.
  * <br>
  * To raise an error from your callback, simply throw an exception. The
@@ -45,7 +45,7 @@ public @interface Callback {
      * thread instead of from the server thread.
      * <br>
      * You will have to ensure anything your callback does is thread safe when
-     * setting this to <tt>true</tt>. Use this for minor lookups, for example.
+     * setting this to {@code true}. Use this for minor lookups, for example.
      * This is mainly intended to allow functions to perform faster than when
      * called 'synchronously' (where the call takes at least one server tick).
      * <br>
@@ -80,7 +80,7 @@ public @interface Callback {
      * Note that the interpretation of this value changed a bit in OC 1.4.
      * Before, it was the actual number of calls that could be performed on
      * the component per tick. Now it's more of a general cost value: for each
-     * direct call a computer makes, <tt>1/limit</tt> is subtracted from the
+     * direct call a computer makes, {@code 1/limit} is subtracted from the
      * computer's call budget. This budget may vary between computers, for
      * example, tier three computers have a higher call budget than tier two
      * computers.
@@ -97,9 +97,9 @@ public @interface Callback {
      * type here.
      * <br>
      * <em>Important</em>: the recommended format is either<br>
-     * <tt>function(arg:type[, optionArg:type]):resultType -- Description.</tt><br>
+     * {@code function(arg:type[, optionArg:type]):resultType -- Description.}<br>
      * or<br>
-     * <tt>function(arg:type[, optionArg:type]):resultType; Description.</tt><br>
+     * {@code function(arg:type[, optionArg:type]):resultType; Description.}<br>
      * where the argument list can be of any format (as long as it doesn't contain
      * further braces), and the return type is optional. These two formats are
      * recognized by OC's NEI component documentation plugin. If you use a
@@ -112,7 +112,7 @@ public @interface Callback {
      * <br>
      * Callbacks that are getters do not appear as methods on a component's
      * proxy. Instead they are accessed as fields, for example in Lua via the
-     * proxy's <tt>__index</tt> metamethod, with its only parameter being the
+     * proxy's {@code __index} metamethod, with its only parameter being the
      * accessed key.
      * <br>
      * Note: if you wish to have a field that is read/write, that is you need
@@ -121,8 +121,8 @@ public @interface Callback {
      * differentiate between contexts by checking the number of arguments.
      * <br>
      * <em>Important</em>: this only works in environments (for components),
-     * it does <em>not</em> work for userdata (<tt>Value</tt> objects). For
-     * userdata, use the <tt>apply</tt> method instead.
+     * it does <em>not</em> work for userdata ({@link Value} objects). For
+     * userdata, use the {@link Value#apply} method instead.
      */
     boolean getter() default false;
 
@@ -131,7 +131,7 @@ public @interface Callback {
      * <br>
      * Callbacks that are setters do not appear as methods on a component's
      * proxy. Instead they are accessed as fields, for example in Lua via the
-     * proxy's <tt>__newindex</tt> metamethod, with its only two parameters
+     * proxy's {@code __newindex} metamethod, with its only two parameters
      * being the accessed key and the new value.
      * <br>
      * Note: if you wish to have a field that is read/write, that is you need
@@ -140,8 +140,8 @@ public @interface Callback {
      * differentiate between contexts by checking the number of arguments.
      * <br>
      * <em>Important</em>: this only works in environments (for components),
-     * it does <em>not</em> work for userdata (<tt>Value</tt> objects). For
-     * userdata, use the <tt>unapply</tt> method instead.
+     * it does <em>not</em> work for userdata ({@link Value} objects). For
+     * userdata, use the {@link Value#unapply} method instead.
      */
     boolean setter() default false;
 }

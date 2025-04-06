@@ -17,7 +17,7 @@ public interface Architecture {
     /**
      * Used to check if the machine is fully initialized. If this is false no
      * signals for detected components will be generated. Avoids duplicate
-     * signals if <tt>component_added</tt> signals are generated in the
+     * signals if {@code component_added} signals are generated in the
      * language's startup script, for already present components (see Lua's
      * init.lua script).
      * <br>
@@ -48,7 +48,7 @@ public interface Architecture {
      * <br>
      * This also sets up any built-in APIs for the underlying language, such as
      * querying available memory, listing and interacting with components and so
-     * on. If this returns <tt>false</tt> the machine fails to start.
+     * on. If this returns {@code false} the machine fails to start.
      * <br>
      * Note that the owning machine has not necessarily been connected to a
      * network when this is called, in case this is called from the machine's
@@ -74,10 +74,10 @@ public interface Architecture {
      * synchronization.
      * <br>
      * This method is expected to leave the architecture in a state so it is
-     * prepared to next be called with <tt>runThreaded(true)</tt>. For example,
+     * prepared to next be called with {@code runThreaded(true)}. For example,
      * the Lua architecture will leave the results of the synchronized call on
      * the stack so they can be further processed in the next call to
-     * <tt>runThreaded</tt>.
+     * {@link #runThreaded(boolean) runThreaded}.
      */
     void runSynchronized();
 
@@ -85,10 +85,10 @@ public interface Architecture {
      * Continues execution of the machine. The first call may be used to
      * initialize the machine (e.g. for Lua we load the libraries in the first
      * call so that the computers boot faster). After that the architecture
-     * <em>should</em> return <tt>true</tt> from {@link #isInitialized()}.
+     * <em>should</em> return {@code true} from {@link #isInitialized()}.
      * <br>
      * The resumed state is either a return from a synchronized call, when a
-     * synchronized call has been completed (via <tt>runSynchronized</tt>), or
+     * synchronized call has been completed (via {@link #runSynchronized}), or
      * a normal yield in all other cases (sleep, interrupt, boot, ...).
      * <br>
      * This is expected to return within a very short time, usually. For example,
@@ -172,7 +172,7 @@ public interface Architecture {
      * Use this to allow assembly of devices such as microcontrollers without
      * any memory being installed in them while your architecture is being
      * used by the CPU being installed. Note to actually make the machine
-     * start up you only need to always return <tt>true</tt> from
+     * start up you only need to always return {@code true} from
      * {@link #recomputeMemory}.
      */
     @Retention(RetentionPolicy.RUNTIME)

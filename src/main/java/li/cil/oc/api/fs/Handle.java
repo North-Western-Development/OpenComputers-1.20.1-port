@@ -21,7 +21,7 @@ public interface Handle {
      * <br>
      * For example, if there is an underlying stream, this should close that
      * stream. Any future calls to {@link #read} or {@link #write} should throw
-     * an <tt>IOException</tt> after this function was called.
+     * an {@link IOException} after this function was called.
      */
     void close();
 

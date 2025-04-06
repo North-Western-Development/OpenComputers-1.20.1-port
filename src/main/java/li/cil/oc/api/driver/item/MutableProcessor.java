@@ -9,7 +9,7 @@ import net.minecraft.item.ItemStack;
  * This is the case for OC's built-in CPUs, for example, which can be reconfigured
  * to any registered architecture. It a CPU has such a driver, it may also be
  * reconfigured by the machine it is running in (e.g. in the Lua case via
- * <tt>computer.setArchitecture</tt>).
+ * {@code computer.setArchitecture}).
  */
 public interface MutableProcessor extends Processor {
     /**

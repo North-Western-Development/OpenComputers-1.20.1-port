@@ -63,7 +63,7 @@ public interface Environment {
      * <br>
      * This is also called for the node itself, if it was added to the network.
      * <br>
-     * At this point the node's network is never <tt>null</tt> and you can use
+     * At this point the node's network is never {@code null} and you can use
      * it to query it for other nodes. Use this to perform initialization logic,
      * such as building lists of nodes of a certain type in the network.
      * <br>
@@ -86,7 +86,7 @@ public interface Environment {
      * its network. Note that this is called on the node that is being removed
      * <em>only once</em> with the node itself as the parameter.
      * <br>
-     * At this point the node's network is no longer available (<tt>null</tt>).
+     * At this point the node's network is no longer available ({@code null}).
      * Use this to perform clean-up logic such as removing references to the
      * removed node.
      * <br>
@@ -104,8 +104,8 @@ public interface Environment {
      * This is the generic message handler.
      * <br>
      * It is called whenever this environments {@link Node} receives a message
-     * that was sent via one of the <tt>send</tt> methods in the {@link Network}
-     * or the <tt>Node</tt> itself.
+     * that was sent via one of the {@code send???} methods in the {@link Network}
+     * or the {@link Node} itself.
      *
      * @param message the message to handle.
      */

@@ -7,7 +7,7 @@ import java.util.Map;
  * types to something that can be pushed to a machine's architecture.
  * <br>
  * Note that converters operating on the same object type may override each
- * other when using the same keys in the resulting <tt>Map</tt>. The order in
+ * other when using the same keys in the resulting {@link Map}. The order in
  * which converters are called depends on the order they were registered in.
  */
 public interface Converter {
@@ -20,7 +20,7 @@ public interface Converter {
      * <br>
      * The conversion result should be placed into the the passed map, i.e. the
      * map will represent the original object. For example, if the value had a
-     * field <tt>name</tt>, add a key <tt>name</tt> to the map with the value
+     * field {@code name}, add a key {@code name} to the map with the value
      * of that field.
      *
      * @param value  the value to convert.

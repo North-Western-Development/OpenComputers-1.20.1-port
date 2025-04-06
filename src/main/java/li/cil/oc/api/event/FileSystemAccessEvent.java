@@ -110,7 +110,7 @@ public class FileSystemAccessEvent extends Event {
     /**
      * The tile entity hosting the file system.
      * <br>
-     * <em>Important</em>: this can be <tt>null</tt>, which is usually the
+     * <em>Important</em>: this can be {@code null}, which is usually the
      * case when the container is an entity or item.
      */
     public TileEntity getBlockEntity() {

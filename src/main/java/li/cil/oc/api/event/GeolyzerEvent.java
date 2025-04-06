@@ -40,7 +40,7 @@ public abstract class GeolyzerEvent extends Event {
      * The bounds are guaranteed to not define a volume larger than 64.
      * Resulting data should be written to the {@link #data} array such that
      * <code>index = x + z*w + y*w*d</code>, with <code>w = maxX - minX</code>
-     * and <code>d = maxZ - minZ</code> (<tt>h</tt> meaning height, <tt>d</tt>
+     * and <code>d = maxZ - minZ</code> ({@code h} meaning height, {@code d}
      * meaning depth).
      */
     public static class Scan extends GeolyzerEvent {

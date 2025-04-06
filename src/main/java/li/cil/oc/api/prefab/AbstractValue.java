@@ -6,7 +6,7 @@ import li.cil.oc.api.machine.Value;
 import net.minecraft.nbt.CompoundNBT;
 
 /**
- * Basic implementation for the <tt>Value</tt> interface.
+ * Basic implementation for the {@link Value} interface.
  */
 public class AbstractValue implements Value {
     @Override

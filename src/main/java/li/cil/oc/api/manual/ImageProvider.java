@@ -13,13 +13,13 @@ public interface ImageProvider {
      * <br>
      * The data passed here will be part of the image URL following the prefix
      * that the provider was registered with. So for example, if the provider
-     * was registered for the prefix <tt>custom</tt>, and the image to be
-     * rendered in the Markdown document was <tt>[blah](custom:the data]</tt>,
-     * then the string passed where would be <tt>the data</tt>.
+     * was registered for the prefix {@code custom}, and the image to be
+     * rendered in the Markdown document was {@code [blah](custom:the data)},
+     * then the string passed where would be {@code the data}.
      * <br>
      * If there is no appropriate image renderer (for example, for the built-in
      * item stack renderers: if the item definition is invalid), this should
-     * return <tt>null</tt>, it should <em>never</em> throw an exception.
+     * return {@code null}, it should <em>never</em> throw an exception.
      *
      * @param data the data part of the image definition.
      * @return the image renderer for the data.

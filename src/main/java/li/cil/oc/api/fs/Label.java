@@ -11,7 +11,7 @@ public interface Label extends Persistable {
     /**
      * Get the current value of this label.
      * <br>
-     * May be <tt>null</tt> if no label is set.
+     * May be {@code null} if no label is set.
      *
      * @return the current label.
      */
@@ -20,7 +20,7 @@ public interface Label extends Persistable {
     /**
      * Set the new value of this label.
      * <br>
-     * May be set to <tt>null</tt> to clear the label.
+     * May be set to {@code null} to clear the label.
      * <br>
      * May throw an exception if the label is read-only.
      *

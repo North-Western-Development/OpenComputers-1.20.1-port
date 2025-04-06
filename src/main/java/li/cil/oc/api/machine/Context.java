@@ -35,9 +35,9 @@ public interface Context {
      * <br>
      * Use this to check whether you should signal something to the computer,
      * for example. Note that for signals triggered via network messages there
-     * is a <tt>computer.checked_signal</tt> message, that expects an
-     * <tt>PlayerEntity</tt> as the first argument and performs this check
-     * before pushing the signal.
+     * is a {@code computer.checked_signal} message, that expects an
+     * {@link net.minecraft.entity.player.PlayerEntity PlayerEntity}
+     * as the first argument and performs this check before pushing the signal.
      *
      * @param player the name of the player to check for.
      * @return whether the player with the specified name may use the computer.
@@ -74,9 +74,9 @@ public interface Context {
      * paused in the next server tick.
      * <br>
      * If this is called while the computer is in a non-paused and non-stopped
-     * state it will do nothing and return <tt>false</tt>.
+     * state it will do nothing and return {@code false}.
      *
-     * @return <tt>true</tt> if the computer switched to a running state.
+     * @return {@code true} if the computer switched to a running state.
      */
     boolean start();
 
@@ -99,7 +99,7 @@ public interface Context {
      * via direct callbacks.<br>
      * <b>However</b>, if the computer is already in a paused state
      * and the call would not lead to a longer pause this will immediately
-     * return <tt>false</tt>, <em>without</em> blocking.
+     * return {@code false}, <em>without</em> blocking.
      * <br>
      * Note that the computer still accepts signals while in paused state, so
      * it is generally better to avoid long pauses, to avoid a signal queue
@@ -109,10 +109,10 @@ public interface Context {
      * the time resolution is actually quite limited.
      * <br>
      * If this is called while the computer is in a paused, stopping or stopped
-     * state this will do nothing and return <tt>false</tt>.
+     * state this will do nothing and return {@code false}.
      *
      * @param seconds the number of seconds to pause the computer for.
-     * @return <tt>true</tt> if the computer switched to the paused state.
+     * @return {@code true} if the computer switched to the paused state.
      */
     boolean pause(double seconds);
 
@@ -131,9 +131,9 @@ public interface Context {
      * future server tick after it has completed.
      * <br>
      * If this is called while the computer is in a stopping or stopped state
-     * this will do nothing and return <tt>false</tt>.
+     * this will do nothing and return {@code false}.
      *
-     * @return <tt>true</tt> if the computer switched to the stopping state.
+     * @return {@code true} if the computer switched to the stopping state.
      */
     boolean stop();
 
@@ -146,7 +146,7 @@ public interface Context {
      * take care of switching states as necessary.
      * <br>
      * Call this from a method with <code>@Callback(direct = true)</code> and
-     * no <tt>limit</tt> set to use dynamic costs. If a limit is set, it will
+     * no {@code limit} set to use dynamic costs. If a limit is set, it will
      * always be deduced from the budget in addition to this.
      * <br>
      * When called from a non-direct / synchronous callback this does nothing.
@@ -160,12 +160,12 @@ public interface Context {
      * <br>
      * Signals are processed sequentially by the computer, and are queued in a
      * queue with limited length. If the queue is full and the signal could not
-     * be pushed this will return <tt>false</tt>.
+     * be pushed this will return {@code false}.
      * <br>
      * Note that only a limited amount of types is supported for arguments:
      * <ul>
-     * <li><tt>null</tt> and Scala's <tt>Unit</tt> and <tt>None</tt> (all appear
-     * as <tt>nil</tt> on the Lua side, for example)</li>
+     * <li>{@code null} and Scala's {@code Unit} and {@code None} (all appear
+     * as {@code nil} on the Lua side, for example)</li>
      * <li>Boolean values.</li>
      * <li>Numeric types (byte, short, int, long, float, double).</li>
      * <li>Strings.</li>
@@ -174,12 +174,12 @@ public interface Context {
      * <li>CompoundNBTs.</li>
      * </ul>
      * If an unsupported type is specified the method will enqueue nothing
-     * instead, resulting in a <tt>nil</tt> on the Lua side, e.g., and log a
+     * instead, resulting in a {@code nil} on the Lua side, e.g., and log a
      * warning.
      *
      * @param name the name of the signal to push.
      * @param args additional arguments to pass along with the signal.
-     * @return <tt>true</tt> if the signal was queued; <tt>false</tt> otherwise.
+     * @return {@code true} if the signal was queued; {@code false} otherwise.
      */
     boolean signal(String name, Object... args);
 }

@@ -23,7 +23,7 @@ public interface Keyboard extends Environment, Persistable {
      * position, the specified callback will be queried for usability checks
      * instead.
      * <br>
-     * Pass <tt>null</tt> here to unset a previously set override.
+     * Pass {@code null} here to unset a previously set override.
      *
      * @param callback the usability checker to use.
      */

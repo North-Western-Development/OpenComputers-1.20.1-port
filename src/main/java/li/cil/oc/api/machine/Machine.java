@@ -29,7 +29,7 @@ public interface Machine extends ManagedEnvironment, Context {
      * This is what actually evaluates code running on the machine, where the
      * machine class itself serves as a scheduler.
      * <br>
-     * This may be <tt>null</tt>, for example when the hosting computer has
+     * This may be {@code null}, for example when the hosting computer has
      * no CPU installed.
      *
      * @return the architecture of this machine.
@@ -53,7 +53,7 @@ public interface Machine extends ManagedEnvironment, Context {
     /**
      * The number of connected components.
      * <br>
-     * This number can differ from <tt>components().size()</tt>, since this is
+     * This number can differ from {@code components().size()}, since this is
      * the number of actually <em>connected</em> components, which is used to
      * determine whether the component limit has been exceeded, for example. It
      * takes into account components added but not processed, yet (see also
@@ -91,14 +91,14 @@ public interface Machine extends ManagedEnvironment, Context {
 
     /**
      * The address of the file system that holds the machine's temporary files
-     * (tmpfs). This may return <tt>null</tt> if either the creation of the file
+     * (tmpfs). This may return {@code null} if either the creation of the file
      * system failed, or if the size of the tmpfs has been set to zero in the
      * config.
      * <br>
      * Use this in a custom architecture to allow code do differentiate the
      * tmpfs from other file systems, for example.
      *
-     * @return the address of the tmpfs component, or <tt>null</tt>.
+     * @return the address of the tmpfs component, or {@code null}.
      */
     String tmpAddress();
 
@@ -109,9 +109,9 @@ public interface Machine extends ManagedEnvironment, Context {
      * {@link #crash(String)} method), or when it fails to start (which,
      * technically, is also a crash).
      * <br>
-     * When the machine started, this is reset to <tt>null</tt>.
+     * When the machine started, this is reset to {@code null}.
      *
-     * @return the last error message, or <tt>null</tt>.
+     * @return the last error message, or {@code null}.
      */
     String lastError();
 
@@ -119,7 +119,7 @@ public interface Machine extends ManagedEnvironment, Context {
      * The current world time. This is updated each tick and provides a thread
      * safe way to access the world time for architectures.
      * <br>
-     * This is equivalent to <tt>owner().world().getWorldTime()</tt>.
+     * This is equivalent to {@code owner().world().getWorldTime()}.
      *
      * @return the current world time.
      */
@@ -148,7 +148,7 @@ public interface Machine extends ManagedEnvironment, Context {
      * <br>
      * This is what's used to emit beep codes when an error occurs while trying
      * to start the computer, for example, and what's used for playing sounds
-     * when <tt>computer.beep</tt> is called.
+     * when {@code computer.beep} is called.
      * <br>
      * Be responsible in how you limit calls to this, as each call will cause
      * a packet to be sent to all nearby clients, and will cause the receiving
@@ -177,7 +177,7 @@ public interface Machine extends ManagedEnvironment, Context {
      * the same considerations should be made as for {@link #beep(short, short)},
      * i.e. prefer not to use overly long patterns.
      * <br>
-     * The passed pattern must consist of dots (<tt>.</tt>) and dashes (<tt>-</tt>),
+     * The passed pattern must consist of dots ({@code .}) and dashes ({@code -}),
      * where a dot is short tone, and a dash is a long tone.
      * <br>
      * The audio will be played at the machine's host's location.
@@ -194,7 +194,7 @@ public interface Machine extends ManagedEnvironment, Context {
      * Analyzer is used on computer cases, for example.
      *
      * @param message the message to set.
-     * @return <tt>true</tt> if the computer switched to the stopping state.
+     * @return {@code true} if the computer switched to the stopping state.
      */
     boolean crash(String message);
 
@@ -204,7 +204,7 @@ public interface Machine extends ManagedEnvironment, Context {
      * Signals are stored in a FIFO queue of limited size. This method is / must
      * be called by architectures regularly to process the queue.
      *
-     * @return a signal or <tt>null</tt> if the queue was empty.
+     * @return a signal or {@code null} if the queue was empty.
      */
     Signal popSignal();
 
@@ -235,7 +235,7 @@ public interface Machine extends ManagedEnvironment, Context {
      * @param address the address of the component to call the method on.
      * @param method  the name of the method to call.
      * @param args    the list of arguments to pass to the callback.
-     * @return a list of results returned by the callback, or <tt>null</tt>.
+     * @return a list of results returned by the callback, or {@code null}.
      * @throws LimitReachedException    when the called method supports direct
      *                                  calling, but the number of calls in this
      *                                  tick has exceeded the allowed limit.
@@ -257,7 +257,7 @@ public interface Machine extends ManagedEnvironment, Context {
      * @param value  the value to call the method on.
      * @param method the name of the method to call.
      * @param args   the list of arguments to pass to the callback.
-     * @return a list of results returned by the callback, or <tt>null</tt>.
+     * @return a list of results returned by the callback, or {@code null}.
      * @throws LimitReachedException    when the called method supports direct
      *                                  calling, but the number of calls in this
      *                                  tick has exceeded the allowed limit.

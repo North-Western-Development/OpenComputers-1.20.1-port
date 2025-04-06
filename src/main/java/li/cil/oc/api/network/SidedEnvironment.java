@@ -38,14 +38,14 @@ public interface SidedEnvironment {
      * Whether the environment provides a node to connect to on the specified
      * side.
      * <br>
-     * For each side the environment returns <tt>false</tt> here, it should
-     * return <tt>null</tt> from {@link #sidedNode}, and for each side it
-     * returns <tt>true</tt> for it should return a node.
+     * For each side the environment returns {@code false} here, it should
+     * return {@code null} from {@link #sidedNode}, and for each side it
+     * returns {@code true} for it should return a node.
      * <br>
      * This is intended for the client side, i.e. rendering related things,
      * since nodes are not created on the client side.
      * <br>
-     * The side is relative to the environment, same as for <tt>sidedNode</tt>.
+     * The side is relative to the environment, same as for {@link #sidedNode}.
      *
      * @param side the side to check for.
      * @return whether the environment provides a node for the specified side.

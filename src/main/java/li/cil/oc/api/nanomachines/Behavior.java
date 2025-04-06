@@ -10,14 +10,14 @@ public interface Behavior {
     /**
      * A short name / description of this behavior.
      * <br>
-     * You can <em>not</em> use commas (<tt>,</tt>) or double quotes (<tt>"</tt>)
+     * You can <em>not</em> use commas ({@code ,}) or double quotes ({@code "})
      * in the returned string. If you do, they'll automatically be replaced with
      * underscores.
      * <br>
-     * This is entirely optional and may even return <tt>null</tt>. It is made
+     * This is entirely optional and may even return {@code null}. It is made
      * accessible via the controller's wireless protocol, to allow better
      * automating reconfigurations / determining input mappings. In some cases
-     * you may not wish to make this possible, in those cases return <tt>null</tt>
+     * you may not wish to make this possible, in those cases return {@code null}
      * or a random string.
      * <br>
      * Again, you can return whatever you like here, it's not used in mod internal

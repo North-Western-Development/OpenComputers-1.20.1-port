@@ -25,14 +25,14 @@ public interface Rack extends SidedEnvironment, EnvironmentHost, Rotatable, IInv
      * Determine the index of the specified mountable.
      *
      * @param mountable the mountable in this rack to get the index of.
-     * @return the index in the rack, or <tt>-1</tt> if it's not in the rack.
+     * @return the index in the rack, or {@code -1} if it's not in the rack.
      */
     int indexOfMountable(RackMountable mountable);
 
     /**
      * The mountable in the specified slot.
      * <br>
-     * This can be <tt>null</tt>, for example when there is no mountable installed
+     * This can be {@code null}, for example when there is no mountable installed
      * in that slot.
      *
      * @param slot the slot in which to get the mountable.
@@ -43,10 +43,10 @@ public interface Rack extends SidedEnvironment, EnvironmentHost, Rotatable, IInv
     /**
      * Get the last data state provided by the mountable in the specified slot.
      * <br>
-     * This is also available on the client. This may be <tt>null</tt>.
+     * This is also available on the client. This may be {@code null}.
      *
      * @param slot the slot of the mountable to get the data for.
-     * @return the data of the mountable in that slot, or <tt>null</tt>.
+     * @return the data of the mountable in that slot, or {@code null}.
      */
     CompoundNBT getMountableData(int slot);
 

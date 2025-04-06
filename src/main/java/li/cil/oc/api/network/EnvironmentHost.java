@@ -1,6 +1,7 @@
 package li.cil.oc.api.network;
 
 import net.minecraft.world.World;
+import net.minecraft.tileentity.TileEntity;
 
 /**
  * To be implemented by 'hosts' of components.
@@ -11,7 +12,7 @@ import net.minecraft.world.World;
  * You will only need to implement this if you intend to host components, e.g.
  * by providing a custom computer case or such. In OpenComputers this interface
  * is usually implemented directly by the tile entities acting as the host, so
- * in most cases you should be able to cast this to <tt>TileEntity</tt> for
+ * in most cases you should be able to cast this to {@link TileEntity} for
  * more options, if necessary.
  */
 public interface EnvironmentHost {

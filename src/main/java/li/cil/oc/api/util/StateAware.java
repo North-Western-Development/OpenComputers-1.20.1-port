@@ -1,11 +1,13 @@
 package li.cil.oc.api.util;
 
+import net.minecraft.tileentity.TileEntity;
+
 import java.util.EnumSet;
 
 /**
  * Implemented on machines that have an "working" state.
  * <br>
- * This is similar to BuildCraft's <tt>IHasWork</tt> interface.
+ * This is similar to BuildCraft's {@code IHasWork} interface.
  * <br>
  * This can also be implemented on {@link li.cil.oc.api.component.RackMountable}s
  * to indicate a working state, which is used when checking for redstone cards
@@ -13,7 +15,7 @@ import java.util.EnumSet;
  */
 public interface StateAware {
     /**
-     * Get the current work state (usually a <tt>TileEntity</tt>.
+     * Get the current work state (usually a {@link TileEntity}.
      * <br>
      * An empty set indicates that no work can be performed.
      *

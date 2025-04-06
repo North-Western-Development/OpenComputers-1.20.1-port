@@ -11,11 +11,11 @@ import java.util.Map;
  * care of proper type checking based on what can be passed along by Lua.
  * <br>
  * Note that integer values fetched this way are actually double values that
- * have been truncated. So if a Lua program passes <tt>1.9</tt> and you do a
- * <tt>checkInteger</tt> you'll get a <tt>1</tt>.
+ * have been truncated. So if a Lua program passes {@code 1.9} and you do a
+ * {@link #checkInteger} you'll get a {@code 1}.
  * <br>
  * The indexes passed to the various functions start at zero, i.e. to get the
- * first argument you would use <tt>checkAny(0)</tt>. This is worth mentioning
+ * first argument you would use {@code checkAny(0)}. This is worth mentioning
  * because Lua starts its indexes at one.
  */
 public interface Arguments extends Iterable<Object> {
@@ -32,10 +32,10 @@ public interface Arguments extends Iterable<Object> {
      * The returned object will be one of the following, based on the conversion
      * performed internally:
      * <ul>
-     * <li><tt>null</tt> if the Lua value was <tt>nil</tt>.</li>
-     * <li><tt>java.lang.Boolean</tt> if the Lua value was a boolean.</li>
-     * <li><tt>java.lang.Double</tt> if the Lua value was a number.</li>
-     * <li><tt>byte[]</tt> if the Lua value was a string.</li>
+     * <li>{@code null} if the Lua value was {@code nil}.</li>
+     * <li>{@link java.lang.Boolean} if the Lua value was a boolean.</li>
+     * <li>{@link java.lang.Double} if the Lua value was a number.</li>
+     * <li>{@code byte[]} if the Lua value was a string.</li>
      * </ul>
      *
      * @param index the index from which to get the argument.
@@ -166,10 +166,10 @@ public interface Arguments extends Iterable<Object> {
      * The returned object will be one of the following, based on the conversion
      * performed internally:
      * <ul>
-     * <li><tt>null</tt> if the Lua value was <tt>nil</tt>.</li>
-     * <li><tt>java.lang.Boolean</tt> if the Lua value was a boolean.</li>
-     * <li><tt>java.lang.Double</tt> if the Lua value was a number.</li>
-     * <li><tt>byte[]</tt> if the Lua value was a string.</li>
+     * <li>{@code null} if the Lua value was {@code nil}.</li>
+     * <li>{@link java.lang.Boolean} if the Lua value was a boolean.</li>
+     * <li>{@link java.lang.Double} if the Lua value was a number.</li>
+     * <li>{@code byte[]} if the Lua value was a string.</li>
      * </ul>
      *
      * @param index the index from which to get the argument.

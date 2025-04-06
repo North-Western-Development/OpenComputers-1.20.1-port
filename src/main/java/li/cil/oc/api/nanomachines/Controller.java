@@ -92,7 +92,7 @@ public interface Controller {
      * inputs they have. Behaviors in the returned list will have at least one
      * active input.
      *
-     * @return the list of currently active behaviors. Never <tt>null</tt>.
+     * @return the list of currently active behaviors. Never {@code null}.
      */
     Iterable<Behavior> getActiveBehaviors();
 

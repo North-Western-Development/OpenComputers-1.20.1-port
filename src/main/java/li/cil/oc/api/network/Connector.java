@@ -57,7 +57,7 @@ public interface Connector extends Node {
      * remaining delta will be returned. This means that for negative values
      * a part of the energy will have been consumed, though.
      * <br>
-     * If there is enough energy or no overflow this will return <tt>0</tt>.
+     * If there is enough energy or no overflow this will return {@code 0}.
      * <br>
      * Keep in mind that this change is applied to the <em>global</em> buffer,
      * i.e. energy from multiple buffers may be consumed / multiple buffers may
@@ -74,7 +74,7 @@ public interface Connector extends Node {
      * amount of energy if there is enough capacity/energy available.
      *
      * @param delta the amount of energy to consume or store.
-     * @return <tt>true</tt> if the energy was successfully consumed or stored.
+     * @return {@code true} if the energy was successfully consumed or stored.
      */
     boolean tryChangeBuffer(double delta);
 
