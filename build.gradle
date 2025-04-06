@@ -139,6 +139,12 @@ repositories {
         }
     }
     maven {
+        url "https://api.modrinth.com/maven"
+        content {
+            includeGroup "maven.modrinth"
+        }
+    }
+    maven {
         url "https://cursemaven.com"
         content {
             includeGroup "curse.maven"
@@ -195,7 +201,7 @@ dependencies {
     compileOnly fg.deobf("curse.maven:cofh-core-69162:4022663") /* CoFHCore */
     compileOnly fg.deobf("curse.maven:thermal-foundation-222880:4022666") /* Thermal Foundation */
 
-    runtimeOnly fg.deobf("curse.maven:modernfix-790626:4714445")
+    runtimeOnly fg.deobf("maven.modrinth:modernfix:${config.modernfix.version}")
 
     provided fg.deobf("appeng:appliedenergistics2:${config.ae2.version}:api") {
         transitive = false
