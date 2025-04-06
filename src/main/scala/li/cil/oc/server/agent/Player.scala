@@ -130,7 +130,7 @@ object Player {
   }
 
   def detectPlayerInventoryChanges(player: Player): Unit = {
-  	val agent = player.agent
+    val agent = player.agent
     player.inventoryMenu.broadcastChanges()
     // The follow code will set agent.inventories = FakePlayer's inv.stack
     def setCopy(inv: IInventory, index: Int, item: ItemStack): Unit = {

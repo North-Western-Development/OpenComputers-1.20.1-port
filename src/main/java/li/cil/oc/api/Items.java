@@ -68,7 +68,7 @@ public final class Items {
      *
      * @param name    the label and identifier to use for the loot disk.
      * @param loc     the location where the disk's contents are stored.
-	 * @param color   the color of the disk, as a Minecraft color.
+     * @param color   the color of the disk, as a Minecraft color.
      * @param factory the callable to call for creating file system instances.
      * @param doRecipeCycling whether to include this floppy disk in floppy disk cycling.
      * @return an item stack representing the registered loot disk, to allow
