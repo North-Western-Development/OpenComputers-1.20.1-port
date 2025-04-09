@@ -4,15 +4,14 @@ import li.cil.oc.Settings
 import li.cil.oc.api.event.GeolyzerEvent
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedWorld._
-import net.minecraft.block.Block
-import net.minecraft.block.CropsBlock
-import net.minecraft.block.FlowingFluidBlock
-import net.minecraft.block.StemBlock
-import net.minecraft.state.IntegerProperty
-import net.minecraft.block.BlockState
-import net.minecraft.block.Blocks
+import net.minecraft.world.level.block.{Block, Blocks, LiquidBlock, StemBlock}
+import net.minecraft.world.level.block.CropBlock
+import net.minecraft.world.level.block.StemBlock
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.properties.IntegerProperty
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fluids.IFluidBlock
+import net.minecraftforge.registries.{ForgeRegistries, ForgeRegistry}
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
@@ -39,8 +38,8 @@ object EventHandlerVanilla {
       if (world.isLoaded(pos) && !world.isEmptyBlock(pos)) {
         val blockState = world.getBlockState(pos)
         val block = blockState.getBlock
-        val isFluid = block.isInstanceOf[FlowingFluidBlock] || block.isInstanceOf[IFluidBlock]
-        if (!blockState.getBlock.isAir(blockState, world, pos) && (includeReplaceable || isFluid || !blockState.getMaterial.isReplaceable)) {
+        val isFluid = block.isInstanceOf[LiquidBlock] || block.isInstanceOf[IFluidBlock]
+        if (!blockState.isAir() && (includeReplaceable || isFluid || !blockState.canBeReplaced)) {
           val distance = math.sqrt(rx * rx + ry * ry + rz * rz).toFloat
           e.data(index) = e.data(index) * distance * Settings.get.geolyzerNoise + blockState.getDestroySpeed(world, pos)
         }
@@ -66,7 +65,7 @@ object EventHandlerVanilla {
     val blockState = world.getBlockState(e.pos)
     val block = blockState.getBlock
 
-    e.data += "name" -> block.getRegistryName
+    e.data += "name" -> ForgeRegistries.BLOCKS.getKey(block).toString
     e.data += "hardness" -> Float.box(blockState.getDestroySpeed(world, e.pos))
     e.data += "harvestLevel" -> Int.box(block.getHarvestLevel(blockState))
     e.data += "harvestTool" -> Option(block.getHarvestTool(blockState)).map(_.getName).orNull
@@ -88,7 +87,7 @@ object EventHandlerVanilla {
     }
 
     {
-      if (block.isInstanceOf[CropsBlock] || block.isInstanceOf[StemBlock] || block == Blocks.COCOA || block == Blocks.NETHER_WART || block == Blocks.CHORUS_FLOWER) {
+      if (block.isInstanceOf[CropBlock] || block.isInstanceOf[StemBlock] || block == Blocks.COCOA || block == Blocks.NETHER_WART || block == Blocks.CHORUS_FLOWER) {
         getGrowth(blockState)
       } else if (block == Blocks.MELON || block == Blocks.PUMPKIN || block == Blocks.CACTUS || block == Blocks.SUGAR_CANE || block == Blocks.CHORUS_PLANT) {
         Some(1f)

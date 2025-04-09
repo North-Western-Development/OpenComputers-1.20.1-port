@@ -1,34 +1,31 @@
 package li.cil.oc.client.renderer
 
-import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Settings
 import li.cil.oc.server.network.WirelessNetwork
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
-import net.minecraft.util.math.vector.Vector4f
-import net.minecraft.util.math.vector.Matrix4f
-import net.minecraft.world.World
-import net.minecraftforge.client.event.RenderWorldLastEvent
+import net.minecraftforge.client.event.RenderLevelStageEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
+import org.joml.{Matrix4f, Vector4f}
 import org.lwjgl.opengl.GL11
 
 object WirelessNetworkDebugRenderer {
   val colors = Array(0xFF0000, 0x00FFFF, 0x00FF00, 0x0000FF, 0xFF00FF, 0xFFFF00, 0xFFFFFF, 0x000000)
 
   @SubscribeEvent
-  def onRenderWorldLastEvent(e: RenderWorldLastEvent) {
-    if (Settings.rTreeDebugRenderer) {
+  def onRenderWorldLastEvent(e: RenderLevelStageEvent) {
+    if (e.getStage == RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES && Settings.rTreeDebugRenderer) {
       RenderState.checkError(getClass.getName + ".onRenderWorldLastEvent: entering (aka: wasntme)")
 
       val world = Minecraft.getInstance.level
       WirelessNetwork.dimensions.get(world.dimension) match {
         case Some(tree) =>
           val player = Minecraft.getInstance.player
-          val px = player.xOld + (player.getX - player.xOld) * e.getPartialTicks
-          val py = player.yOld + (player.getY - player.yOld) * e.getPartialTicks
-          val pz = player.zOld + (player.getZ - player.zOld) * e.getPartialTicks
+          val px = player.xOld + (player.getX - player.xOld) * e.getPartialTick
+          val py = player.yOld + (player.getY - player.yOld) * e.getPartialTick
+          val pz = player.zOld + (player.getZ - player.zOld) * e.getPartialTick
 
-          val stack = e.getMatrixStack
+          val stack = e.getPoseStack
           RenderState.pushAttrib()
           stack.pushPose()
           stack.translate(-px, -py, -pz)
@@ -40,7 +37,7 @@ object WirelessNetworkDebugRenderer {
 
           def glVertex(matrix: Matrix4f, temp: Vector4f, x: Float, y: Float, z: Float) {
             temp.set(x, y, z, 1)
-            temp.transform(matrix)
+            temp.mul(matrix)
             GL11.glVertex3f(temp.x, temp.y, temp.z)
           }
 

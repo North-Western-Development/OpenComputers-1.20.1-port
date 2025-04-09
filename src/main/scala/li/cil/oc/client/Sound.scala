@@ -1,31 +1,20 @@
 package li.cil.oc.client
 
-import java.net.MalformedURLException
-import java.net.URL
-import java.net.URLConnection
-import java.net.URLStreamHandler
-import java.util.Timer
-import java.util.TimerTask
-import java.util.UUID
-
-import com.google.common.base.Charsets
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import net.minecraft.client.Minecraft
-import net.minecraft.client.audio.ITickableSound
-import net.minecraft.client.audio.LocatableSound
-import net.minecraft.client.audio.SoundEngine
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.SoundCategory
-import net.minecraftforge.eventbus.api.SubscribeEvent
+import li.cil.oc.{OpenComputers, Settings}
+import net.minecraft.client.resources.sounds.{AbstractSoundInstance, TickableSoundInstance}
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.sounds.SoundSource
+import net.minecraft.util.RandomSource
+import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraftforge.event.TickEvent.ClientTickEvent
-import net.minecraftforge.event.world.WorldEvent
+import net.minecraftforge.event.level.LevelEvent
+import net.minecraftforge.eventbus.api.SubscribeEvent
 
+import java.util.{Timer, TimerTask}
 import scala.collection.mutable
 
 object Sound {
-  private val sources = mutable.Map.empty[TileEntity, PseudoLoopingStream]
+  private val sources = mutable.Map.empty[BlockEntity, PseudoLoopingStream]
 
   private val commandQueue = mutable.PriorityQueue.empty[Command]
 
@@ -52,7 +41,7 @@ object Sound {
     }
   }
 
-  def startLoop(tileEntity: TileEntity, name: String, volume: Float = 1f, delay: Long = 0) {
+  def startLoop(tileEntity: BlockEntity, name: String, volume: Float = 1f, delay: Long = 0) {
     if (Settings.get.soundVolume > 0) {
       commandQueue.synchronized {
         commandQueue += new StartCommand(System.currentTimeMillis() + delay, tileEntity, name, volume)
@@ -60,7 +49,7 @@ object Sound {
     }
   }
 
-  def stopLoop(tileEntity: TileEntity) {
+  def stopLoop(tileEntity: BlockEntity) {
     if (Settings.get.soundVolume > 0) {
       commandQueue.synchronized {
         commandQueue += new StopCommand(tileEntity)
@@ -68,7 +57,7 @@ object Sound {
     }
   }
 
-  def updatePosition(tileEntity: TileEntity) {
+  def updatePosition(tileEntity: BlockEntity) {
     if (Settings.get.soundVolume > 0) {
       commandQueue.synchronized {
         commandQueue += new UpdatePositionCommand(tileEntity)
@@ -85,7 +74,7 @@ object Sound {
   }
 
   @SubscribeEvent
-  def onWorldUnload(event: WorldEvent.Unload) {
+  def onWorldUnload(event: LevelEvent.Unload) {
     commandQueue.synchronized(commandQueue.clear())
     sources.synchronized(try sources.foreach(_._2.stop()) catch {
       case _: Throwable => // Ignore.
@@ -93,13 +82,13 @@ object Sound {
     sources.clear()
   }
 
-  private abstract class Command(val when: Long, val tileEntity: TileEntity) extends Ordered[Command] {
+  private abstract class Command(val when: Long, val tileEntity: BlockEntity) extends Ordered[Command] {
     def apply(): Unit
 
     override def compare(that: Command) = (that.when - when).toInt
   }
 
-  private class StartCommand(when: Long, tileEntity: TileEntity, val name: String, val volume: Float) extends Command(when, tileEntity) {
+  private class StartCommand(when: Long, tileEntity: BlockEntity, val name: String, val volume: Float) extends Command(when, tileEntity) {
     override def apply() {
       sources.synchronized {
         val current = sources.getOrElse(tileEntity, null)
@@ -111,7 +100,7 @@ object Sound {
     }
   }
 
-  private class StopCommand(tileEntity: TileEntity) extends Command(System.currentTimeMillis() + 1, tileEntity) {
+  private class StopCommand(tileEntity: BlockEntity) extends Command(System.currentTimeMillis() + 1, tileEntity) {
     override def apply() {
       sources.synchronized {
         sources.remove(tileEntity) match {
@@ -128,7 +117,7 @@ object Sound {
     }
   }
 
-  private class UpdatePositionCommand(tileEntity: TileEntity) extends Command(System.currentTimeMillis(), tileEntity) {
+  private class UpdatePositionCommand(tileEntity: BlockEntity) extends Command(System.currentTimeMillis(), tileEntity) {
     override def apply() {
       sources.synchronized {
         sources.get(tileEntity) match {
@@ -139,9 +128,8 @@ object Sound {
     }
   }
 
-  private class PseudoLoopingStream(val tileEntity: TileEntity, val subVolume: Float, name: String)
-    extends LocatableSound(new ResourceLocation(OpenComputers.ID, name), SoundCategory.BLOCKS) with ITickableSound {
-
+  private class PseudoLoopingStream(val tileEntity: BlockEntity, val subVolume: Float, name: String)
+    extends AbstractSoundInstance(new ResourceLocation(OpenComputers.ID, name), SoundSource.BLOCKS, RandomSource.create()) with TickableSoundInstance{
     var stopped = false
     volume = subVolume * Settings.get.soundVolume
     relative = tileEntity != null
@@ -164,9 +152,10 @@ object Sound {
     // Required by ITickableSound, which is required to update position while playing
     override def tick() = ()
 
-    def stop() {
-      stopped = true
-      looping = false
+
+    def stop(): Unit = {
+      this.stopped = true
+      this.looping = false
     }
   }
 }

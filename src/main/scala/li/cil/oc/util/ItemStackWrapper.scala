@@ -1,10 +1,8 @@
 package li.cil.oc.util
 
+import net.minecraft.world.item.{Item, ItemStack}
+
 import java.util.Objects
-
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-
 import scala.language.implicitConversions
 
 class ItemStackWrapper(val inner: ItemStack) extends Ordered[ItemStackWrapper] {

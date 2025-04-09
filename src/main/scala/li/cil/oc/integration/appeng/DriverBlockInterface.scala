@@ -1,6 +1,6 @@
 package li.cil.oc.integration.appeng
 
-import appeng.api.implementations.tiles.ISegmentedInventory
+import appeng.api.inventories.ISegmentedInventory
 import appeng.api.networking.IGridHost
 import appeng.api.networking.security.IActionHost
 import appeng.api.util.AEPartLocation
@@ -16,19 +16,19 @@ import li.cil.oc.api.prefab.DriverSidedTileEntity
 import li.cil.oc.integration.ManagedTileEntityEnvironment
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.ResultWrapper._
-import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.Direction
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.Level
 
 object DriverBlockInterface extends DriverSidedTileEntity {
   def getTileEntityClass: Class[_] = AEUtil.interfaceClass
 
-  def createEnvironment(world: World, pos: BlockPos, side: Direction): ManagedEnvironment =
-    new Environment(world.getBlockEntity(pos).asInstanceOf[TileEntity with ISegmentedInventory with IActionHost with IGridHost])
+  def createEnvironment(world: Level, pos: BlockPos, side: Direction): ManagedEnvironment =
+    new Environment(world.getBlockEntity(pos).asInstanceOf[BlockEntity with ISegmentedInventory with IActionHost with IGridHost])
 
-  final class Environment(val tile: TileEntity with ISegmentedInventory with IActionHost with IGridHost) extends ManagedTileEntityEnvironment[TileEntity with ISegmentedInventory with IActionHost](tile, "me_interface") with NamedBlock with NetworkControl[TileEntity with ISegmentedInventory with IActionHost with IGridHost] {
+  final class Environment(val tile: BlockEntity with ISegmentedInventory with IActionHost with IGridHost) extends ManagedTileEntityEnvironment[BlockEntity with ISegmentedInventory with IActionHost](tile, "me_interface") with NamedBlock with NetworkControl[BlockEntity with ISegmentedInventory with IActionHost with IGridHost] {
     override def preferredName = "me_interface"
     override def pos: AEPartLocation = AEPartLocation.INTERNAL
 
@@ -36,7 +36,7 @@ object DriverBlockInterface extends DriverSidedTileEntity {
 
     @Callback(doc = "function([slot:number]):table -- Get the configuration of the interface.")
     def getInterfaceConfiguration(context: Context, args: Arguments): Array[AnyRef] = {
-      val config = tileEntity.getInventoryByName("config")
+      val config = tileEntity.getSubInventory(ISegmentedInventory.CONFIG)
       val slot = args.optSlot(config, 0, 0)
       val stack = config.getStackInSlot(slot)
       result(stack)
@@ -44,7 +44,7 @@ object DriverBlockInterface extends DriverSidedTileEntity {
 
     @Callback(doc = "function([slot:number][, database:address, entry:number[, size:number]]):boolean -- Configure the interface.")
     def setInterfaceConfiguration(context: Context, args: Arguments): Array[AnyRef] = {
-      val config = tileEntity.getInventoryByName("config")
+      val config = tileEntity.getSubInventory(ISegmentedInventory.CONFIG)
       val slot = if (args.isString(0)) 0 else args.optSlot(config, 0, 0)
       val stack = if (args.count > 1) {
         val (address, entry, size) =

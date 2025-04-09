@@ -7,7 +7,7 @@ import li.cil.oc.api.driver.item.Container
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
 import li.cil.oc.common.item
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 object DriverContainerUpgrade extends Item with Container {
   override def worksWith(stack: ItemStack) = isOneOf(stack,

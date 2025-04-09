@@ -1,9 +1,9 @@
 package li.cil.oc.client.gui
 
 import li.cil.oc.common.container
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.util.text.ITextComponent
+import net.minecraft.world.entity.player.Inventory
+import net.minecraft.network.chat.Component
 
-class DiskDrive(state: container.DiskDrive, playerInventory: PlayerInventory, name: ITextComponent)
+class DiskDrive(state: container.DiskDrive, playerInventory:Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name) {
 }

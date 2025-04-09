@@ -1,27 +1,19 @@
 package li.cil.oc.server.component
 
-import java.util
-
-import li.cil.oc.Constants
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, Settings, api}
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network.EnvironmentHost
-import li.cil.oc.api.network.Visibility
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
+import li.cil.oc.api.network.{EnvironmentHost, Visibility}
 import li.cil.oc.api.prefab
 import li.cil.oc.util.SideTracker
-import net.minecraft.entity.LivingEntity
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.potion.Effect
-import net.minecraft.potion.Effects
-import net.minecraft.util.math.{AxisAlignedBB, BlockPos, RayTraceContext, RayTraceResult}
-import net.minecraft.util.math.vector.Vector3d
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.effect.MobEffects
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.level.ClipContext
+import net.minecraft.world.phys.{AABB, HitResult, Vec3}
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
@@ -92,22 +84,22 @@ class MotionSensor(val host: EnvironmentHost) extends prefab.AbstractManagedEnvi
     }
   }
 
-  private def sensorBounds = new AxisAlignedBB(
+  private def sensorBounds = new AABB(
     x + 0.5 - radius, y + 0.5 - radius, z + 0.5 - radius,
     x + 0.5 + radius, y + 0.5 + radius, z + 0.5 + radius)
 
   private def isInRange(entity: LivingEntity) = entity.distanceToSqr(x + 0.5, y + 0.5, z + 0.5) <= radius * radius
 
-  private def isClearPath(target: Vector3d): Boolean = {
-    val origin = new Vector3d(x, y, z)
+  private def isClearPath(target: Vec3): Boolean = {
+    val origin = new Vec3(x, y, z)
     val path = target.subtract(origin).normalize()
     val eye = origin.add(path)
-    val trace = world.clip(new RayTraceContext(eye, target, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.ANY, null))
-    trace.getType == RayTraceResult.Type.MISS
+    val trace = world.clip(new ClipContext(eye, target, ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, null))
+    trace.getType == HitResult.Type.MISS
   }
 
   private def isVisible(entity: LivingEntity) =
-    entity.getEffect(Effects.INVISIBILITY) == null &&
+    entity.getEffect(MobEffects.INVISIBILITY) == null &&
       // Note: it only working in lit conditions works and is neat, but this
       // is pseudo-infrared driven (it only works for *living* entities, after
       // all), so I think it makes more sense for it to work in the dark, too.
@@ -141,12 +133,12 @@ class MotionSensor(val host: EnvironmentHost) extends prefab.AbstractManagedEnvi
 
   private final val SensitivityTag = Settings.namespace + "sensitivity"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundTag) {
     super.loadData(nbt)
     sensitivity = nbt.getDouble(SensitivityTag)
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundTag) {
     super.saveData(nbt)
     nbt.putDouble(SensitivityTag, sensitivity)
   }

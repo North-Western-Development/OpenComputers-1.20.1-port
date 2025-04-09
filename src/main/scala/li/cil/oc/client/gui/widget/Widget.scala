@@ -1,6 +1,6 @@
 package li.cil.oc.client.gui.widget
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import net.minecraft.client.gui.GuiGraphics
 
 @Deprecated
 abstract class Widget {
@@ -14,5 +14,5 @@ abstract class Widget {
 
   def height: Int
 
-  def draw(stack: MatrixStack): Unit
+  def draw(guiGraphics: GuiGraphics): Unit
 }

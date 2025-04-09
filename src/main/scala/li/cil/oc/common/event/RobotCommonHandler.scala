@@ -8,7 +8,7 @@ import li.cil.oc.api.internal.Robot
 import li.cil.oc.common.item.UpgradeHover
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedWorld._
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
 object RobotCommonHandler {

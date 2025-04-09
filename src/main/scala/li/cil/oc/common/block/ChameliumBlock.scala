@@ -1,42 +1,30 @@
 package li.cil.oc.common.block
 
-import java.util.List
-
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
-import net.minecraft.block.AbstractBlock.Properties
-import net.minecraft.item.BlockItemUseContext
-import net.minecraft.item.DyeColor
-import net.minecraft.item.ItemGroup
-import net.minecraft.item.ItemStack
-import net.minecraft.state.EnumProperty
-import net.minecraft.state.StateContainer
-import net.minecraft.util.NonNullList
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.IBlockReader
+import net.minecraft.core.BlockPos
+import net.minecraft.world.item.context.BlockPlaceContext
+import net.minecraft.world.item.{DyeColor, ItemStack}
+import net.minecraft.world.level.BlockGetter
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
+import net.minecraft.world.level.block.state.properties.EnumProperty
 
 object ChameliumBlock {
   final val Color = EnumProperty.create("color", classOf[DyeColor])
 }
 
 class ChameliumBlock(props: Properties) extends SimpleBlock(props) {
-  protected override def createBlockStateDefinition(builder: StateContainer.Builder[Block, BlockState]): Unit = {
+  protected override def createBlockStateDefinition(builder: StateDefinition.Builder[Block, BlockState]): Unit = {
     builder.add(ChameliumBlock.Color)
   }
   registerDefaultState(stateDefinition.any.setValue(ChameliumBlock.Color, DyeColor.BLACK))
 
-  override def getCloneItemStack(world: IBlockReader, pos: BlockPos, state: BlockState): ItemStack = {
+  override def getCloneItemStack(world: BlockGetter, pos: BlockPos, state: BlockState): ItemStack = {
     val stack = new ItemStack(this)
     stack.setDamageValue(state.getValue(ChameliumBlock.Color).getId)
     stack
   }
 
-  override def getStateForPlacement(ctx: BlockItemUseContext): BlockState =
+  override def getStateForPlacement(ctx: BlockPlaceContext): BlockState =
     defaultBlockState.setValue(ChameliumBlock.Color, DyeColor.byId(ctx.getItemInHand.getDamageValue))
-
-  override def fillItemCategory(tab: ItemGroup, list: NonNullList[ItemStack]) {
-    val stack = new ItemStack(this, 1)
-    stack.setDamageValue(defaultBlockState.getValue(ChameliumBlock.Color).getId)
-    list.add(stack)
-  }
 }

@@ -1,34 +1,29 @@
 package li.cil.oc.common.tileentity
 
-import java.util.UUID
-import java.util.function.Consumer
-
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Settings, api}
 import li.cil.oc.api.Driver
 import li.cil.oc.api.fs.Label
-import li.cil.oc.api.network.Analyzable
-import li.cil.oc.api.network.Visibility
-import li.cil.oc.common.Slot
-import li.cil.oc.common.container
+import li.cil.oc.api.network.{Analyzable, Visibility}
+import li.cil.oc.common.{Slot, container}
 import li.cil.oc.common.container.ContainerTypes
-import li.cil.oc.common.item.data.DriveData
-import li.cil.oc.common.item.data.NodeData
+import li.cil.oc.common.item.data.{DriveData, NodeData}
 import li.cil.oc.server.component.FileSystem
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.MenuProvider
+import net.minecraft.world.entity.player.{Inventory, Player}
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
-class Raid(selfType: TileEntityType[_ <: Raid]) extends TileEntity(selfType) with traits.Environment with traits.Inventory with traits.Rotatable with Analyzable with INamedContainerProvider {
+import java.util.UUID
+import java.util.function.Consumer
+
+class Raid(selfType: BlockEntityType[_ <: Raid], pos: BlockPos, state: BlockState)
+  extends BlockEntity(selfType, pos, state) with traits.Environment with traits.Inventory with traits.Rotatable with Analyzable with MenuProvider {
   val node = api.Network.newNode(this, Visibility.None).create()
 
   var filesystem: Option[FileSystem] = None
@@ -43,7 +38,7 @@ class Raid(selfType: TileEntityType[_ <: Raid]) extends TileEntity(selfType) wit
 
   // ----------------------------------------------------------------------- //
 
-  override def onAnalyze(player: PlayerEntity, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = Array(filesystem.map(_.node).orNull)
+  override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = Array(filesystem.map(_.node).orNull)
 
   // ----------------------------------------------------------------------- //
 
@@ -77,7 +72,7 @@ class Raid(selfType: TileEntityType[_ <: Raid]) extends TileEntity(selfType) wit
       filesystem.foreach(fs => {
         fs.fileSystem.close()
         fs.fileSystem.list("/").foreach(fs.fileSystem.delete)
-        fs.saveData(new CompoundNBT()) // Flush buffered fs.
+        fs.saveData(new CompoundTag()) // Flush buffered fs.
         fs.node.remove()
         filesystem = None
       })
@@ -104,7 +99,7 @@ class Raid(selfType: TileEntityType[_ <: Raid]) extends TileEntity(selfType) wit
         api.FileSystem.fromSaveDirectory(id, wipeDisksAndComputeSpace, Settings.get.bufferChanges),
         label, this, Settings.resourceDomain + ":hdd_access", 6).
         asInstanceOf[FileSystem]
-      val nbtToSetAddress = new CompoundNBT()
+      val nbtToSetAddress = new CompoundTag()
       nbtToSetAddress.putString(NodeData.AddressTag, id)
       fs.node.loadData(nbtToSetAddress)
       fs.node.setVisibility(Visibility.Network)
@@ -115,7 +110,7 @@ class Raid(selfType: TileEntityType[_ <: Raid]) extends TileEntity(selfType) wit
     }
   }
 
-  private def wipeDisksAndComputeSpace = items.foldLeft(0L) {
+  private def wipeDisksAndComputeSpace: Long = items.foldLeft[Long](0L) {
     case (acc, hdd) if !hdd.isEmpty => acc + (Option(api.Driver.driverFor(hdd)) match {
       case Some(driver) => driver.createEnvironment(hdd, this) match {
         case fs: FileSystem =>
@@ -124,17 +119,17 @@ class Raid(selfType: TileEntityType[_ <: Raid]) extends TileEntity(selfType) wit
           fs.fileSystem.close()
           fs.fileSystem.list("/").foreach(fs.fileSystem.delete)
           fs.saveData(nbt)
-          fs.fileSystem.spaceTotal.toInt
+          fs.fileSystem.spaceTotal
         case _ => 0L // Ignore.
       }
       case _ => 0L
     })
-    case (acc, ItemStack.EMPTY) => acc
+    case (acc: Long, ItemStack.EMPTY) => acc
   }
 
   // ----------------------------------------------------------------------- //
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
+  override def createMenu(id: Int, playerInventory:Inventory, player: Player) =
     new container.Raid(ContainerTypes.RAID, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
@@ -143,7 +138,7 @@ class Raid(selfType: TileEntityType[_ <: Raid]) extends TileEntity(selfType) wit
   private final val PresenceTag = Settings.namespace + "presence"
   private final val LabelTag = Settings.namespace + "label"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundTag) {
     super.loadForServer(nbt)
     if (nbt.contains(FileSystemTag)) {
       val tag = nbt.getCompound(FileSystemTag)
@@ -153,14 +148,14 @@ class Raid(selfType: TileEntityType[_ <: Raid]) extends TileEntity(selfType) wit
     label.loadData(nbt)
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundTag) {
     super.saveForServer(nbt)
     filesystem.foreach(fs => nbt.setNewCompoundTag(FileSystemTag, fs.saveData))
     label.saveData(nbt)
   }
 
   @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundNBT) {
+  def loadForClient(nbt: CompoundTag) {
     super.loadForClient(nbt)
     nbt.getByteArray(PresenceTag).
       map(_ != 0).
@@ -168,7 +163,7 @@ class Raid(selfType: TileEntityType[_ <: Raid]) extends TileEntity(selfType) wit
     label.setLabel(nbt.getString(LabelTag))
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundTag) {
     super.saveForClient(nbt)
     nbt.put(PresenceTag, items.map(!_.isEmpty))
     if (label.getLabel != null)
@@ -184,13 +179,13 @@ class Raid(selfType: TileEntityType[_ <: Raid]) extends TileEntity(selfType) wit
 
     override def setLabel(value: String) = label = Option(value).map(_.take(16)).orNull
 
-    override def loadData(nbt: CompoundNBT) {
+    override def loadData(nbt: CompoundTag) {
       if (nbt.contains(Settings.namespace + "label")) {
         label = nbt.getString(Settings.namespace + "label")
       }
     }
 
-    override def saveData(nbt: CompoundNBT) {
+    override def saveData(nbt: CompoundTag) {
       nbt.putString(Settings.namespace + "label", label)
     }
   }

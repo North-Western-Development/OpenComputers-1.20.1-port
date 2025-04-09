@@ -1,25 +1,19 @@
 package li.cil.oc.common.item
 
-import li.cil.oc.Constants
-import li.cil.oc.Localization
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, Localization, Settings, api}
 import li.cil.oc.api.machine.Machine
-import li.cil.oc.api.network.Analyzable
 import li.cil.oc.api.network._
 import li.cil.oc.common.tileentity
 import li.cil.oc.server.PacketSender
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedWorld._
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.item.Item.Properties
-import net.minecraft.item.ItemStack
-import net.minecraft.util.ActionResult
-import net.minecraft.util.Direction
-import net.minecraft.util.Util
-import net.minecraft.world.World
+import net.minecraft.core.Direction
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.InteractionResultHolder
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.{Item, ItemStack}
+import net.minecraft.world.level.Level
 import net.minecraftforge.common.extensions.IForgeItem
 import net.minecraftforge.common.util.FakePlayer
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
@@ -30,7 +24,7 @@ object Analyzer {
 
   @SubscribeEvent
   def onInteract(e: PlayerInteractEvent.EntityInteract): Unit = {
-    val player = e.getPlayer
+    val player = e.getEntity
     val held = player.getItemInHand(e.getHand)
     if (api.Items.get(held) == analyzer) {
       if (analyze(e.getTarget, player, Direction.DOWN, 0, 0, 0)) {
@@ -40,7 +34,7 @@ object Analyzer {
     }
   }
 
-  def analyze(thing: AnyRef, player: PlayerEntity, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Boolean = {
+  def analyze(thing: AnyRef, player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Boolean = {
     val world = player.level
     thing match {
       case analyzable: Analyzable =>
@@ -63,20 +57,20 @@ object Analyzer {
     }
   }
 
-  private def analyzeNodes(nodes: Array[Node], player: PlayerEntity) = if (nodes != null) for (node <- nodes if node != null) {
+  private def analyzeNodes(nodes: Array[Node], player: Player) = if (nodes != null) for (node <- nodes if node != null) {
     player match {
       case _: FakePlayer => // Nope
-      case playerMP: ServerPlayerEntity =>
+      case playerMP: ServerPlayer =>
         if (node != null) node.host match {
           case machine: Machine =>
             if (machine != null) {
               if (machine.lastError != null) {
-                playerMP.sendMessage(Localization.Analyzer.LastError(machine.lastError), Util.NIL_UUID)
+                playerMP.sendSystemMessage(Localization.Analyzer.LastError(machine.lastError))
               }
-              playerMP.sendMessage(Localization.Analyzer.Components(machine.componentCount, machine.maxComponents), Util.NIL_UUID)
+              playerMP.sendSystemMessage(Localization.Analyzer.Components(machine.componentCount, machine.maxComponents))
               val list = machine.users
               if (list.nonEmpty) {
-                playerMP.sendMessage(Localization.Analyzer.Users(list), Util.NIL_UUID)
+                playerMP.sendSystemMessage(Localization.Analyzer.Users(list))
               }
             }
           case _ =>
@@ -84,19 +78,19 @@ object Analyzer {
         node match {
           case connector: Connector =>
             if (connector.localBufferSize > 0) {
-              playerMP.sendMessage(Localization.Analyzer.StoredEnergy(f"${connector.localBuffer}%.2f/${connector.localBufferSize}%.2f"), Util.NIL_UUID)
+              playerMP.sendSystemMessage(Localization.Analyzer.StoredEnergy(f"${connector.localBuffer}%.2f/${connector.localBufferSize}%.2f"))
             }
-            playerMP.sendMessage(Localization.Analyzer.TotalEnergy(f"${connector.globalBuffer}%.2f/${connector.globalBufferSize}%.2f"), Util.NIL_UUID)
+            playerMP.sendSystemMessage(Localization.Analyzer.TotalEnergy(f"${connector.globalBuffer}%.2f/${connector.globalBufferSize}%.2f"))
           case _ =>
         }
         node match {
           case component: Component =>
-            playerMP.sendMessage(Localization.Analyzer.ComponentName(component.name), Util.NIL_UUID)
+            playerMP.sendSystemMessage(Localization.Analyzer.ComponentName(component.name))
           case _ =>
         }
         val address = node.address()
         if (address != null && !address.isEmpty) {
-          playerMP.sendMessage(Localization.Analyzer.Address(address), Util.NIL_UUID)
+          playerMP.sendSystemMessage(Localization.Analyzer.Address(address))
           PacketSender.sendAnalyze(address, playerMP)
         }
       case _ =>
@@ -105,14 +99,14 @@ object Analyzer {
 }
 
 class Analyzer(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem {
-  override def use(stack: ItemStack, world: World, player: PlayerEntity): ActionResult[ItemStack] = {
+  override def use(stack: ItemStack, world: Level, player: Player): InteractionResultHolder[ItemStack] = {
     if (player.isCrouching && stack.hasTag) {
       stack.removeTagKey(Settings.namespace + "clipboard")
     }
     super.use(stack, world, player)
   }
 
-  override def onItemUse(stack: ItemStack, player: PlayerEntity, position: BlockPosition, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = {
+  override def onItemUse(stack: ItemStack, player: Player, position: BlockPosition, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = {
     val world = player.level
     world.getBlockEntity(position) match {
       case screen: tileentity.Screen if side == screen.facing =>

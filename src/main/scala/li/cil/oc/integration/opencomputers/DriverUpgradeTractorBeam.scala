@@ -12,7 +12,7 @@ import li.cil.oc.common.entity.Drone
 import li.cil.oc.common.item.TabletWrapper
 import li.cil.oc.server.component
 import li.cil.oc.server.component.UpgradeTractorBeam
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 object DriverUpgradeTractorBeam extends Item with HostAware {
   override def worksWith(stack: ItemStack) = isOneOf(stack,

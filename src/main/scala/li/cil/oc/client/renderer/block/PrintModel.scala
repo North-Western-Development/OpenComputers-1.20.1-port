@@ -2,10 +2,9 @@ package li.cil.oc.client.renderer.block
 
 import java.util
 import java.util.Collections
-
 import com.google.common.base.Strings
 import li.cil.oc.Settings
-import li.cil.oc.client.KeyBindings
+import li.cil.oc.client.KeyMappings
 import li.cil.oc.client.Textures
 import li.cil.oc.common.block
 import li.cil.oc.common.item.data.PrintData
@@ -13,27 +12,28 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.util.Color
 import li.cil.oc.util.ExtendedAABB
 import li.cil.oc.util.ExtendedAABB._
-import net.minecraft.block.BlockState
-import net.minecraft.client.world.ClientWorld
-import net.minecraft.client.renderer.model.BakedQuad
-import net.minecraft.client.renderer.model.IBakedModel
-import net.minecraft.client.renderer.model.ItemOverrideList
-import net.minecraft.client.renderer.texture.MissingTextureSprite
-import net.minecraft.client.renderer.texture.TextureAtlasSprite
-import net.minecraft.entity.LivingEntity
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.block.model.BakedQuad
+import net.minecraft.client.resources.model.BakedModel
+import net.minecraft.client.renderer.block.model.ItemOverrides
+import net.minecraft.client.renderer.texture.{MissingTextureAtlasSprite, MissingTextureSprite, TextureAtlasSprite}
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.item.DyeColor
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
-import net.minecraft.util.ResourceLocation
-import net.minecraftforge.client.model.data.IModelData
+import net.minecraft.world.item.{DyeColor, ItemStack}
+import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.util.RandomSource
+import net.minecraftforge.client.model.data.ModelData
 
 import scala.collection.JavaConverters.bufferAsJavaList
 import scala.collection.mutable
 
 object PrintModel extends SmartBlockModelBase {
-  override def getOverrides: ItemOverrideList = ItemOverride
+  override def getOverrides: ItemOverrides = ItemOverride
 
-  override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] =
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData, render: RenderType): util.List[BakedQuad] =
     data match {
       case t: tileentity.Print =>
         val faces = mutable.ArrayBuffer.empty[BakedQuad]
@@ -50,7 +50,7 @@ object PrintModel extends SmartBlockModelBase {
 
   private def resolveTexture(name: String): TextureAtlasSprite = try {
     val texture = Textures.getSprite(new ResourceLocation(name))
-    if (texture.getName == MissingTextureSprite.getLocation) Textures.getSprite(new ResourceLocation("minecraft:blocks/" + name))
+    if (texture.getName == MissingTextureAtlasSprite.getLocation) Textures.getSprite(new ResourceLocation("minecraft:blocks/" + name))
     else texture
   }
   catch {
@@ -60,11 +60,11 @@ object PrintModel extends SmartBlockModelBase {
   class ItemModel(val stack: ItemStack) extends SmartBlockModelBase {
     val data = new PrintData(stack)
 
-    override def getQuads(state: BlockState, side: Direction, rand: util.Random): util.List[BakedQuad] = {
+    override def getQuads(state: BlockState, side: Direction, rand: RandomSource): util.List[BakedQuad] = {
       val faces = mutable.ArrayBuffer.empty[BakedQuad]
 
       val shapes =
-        if (data.hasActiveState && KeyBindings.showExtendedTooltips)
+        if (data.hasActiveState && KeyMappings.showExtendedTooltips)
           data.stateOn
         else
           data.stateOff
@@ -83,8 +83,8 @@ object PrintModel extends SmartBlockModelBase {
     }
   }
 
-  object ItemOverride extends ItemOverrideList {
-    override def resolve(originalModel: IBakedModel, stack: ItemStack, world: ClientWorld, entity: LivingEntity): IBakedModel = new ItemModel(stack)
+  object ItemOverride extends ItemOverrides {
+    override def resolve(originalModel: BakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity, entity_id: Int): BakedModel = new ItemModel(stack)
   }
 
 }

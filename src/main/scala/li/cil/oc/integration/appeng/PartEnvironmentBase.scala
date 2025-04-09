@@ -1,15 +1,13 @@
 package li.cil.oc.integration.appeng
 
-import appeng.api.implementations.tiles.ISegmentedInventory
+import appeng.api.inventories.ISegmentedInventory
 import appeng.api.parts.IPartHost
 import li.cil.oc.api.internal.Database
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network.Component
-import li.cil.oc.api.network.ManagedEnvironment
+import li.cil.oc.api.machine.{Arguments, Context}
+import li.cil.oc.api.network.{Component, ManagedEnvironment}
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.ResultWrapper.result
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 import scala.reflect.ClassTag
 
@@ -21,7 +19,7 @@ trait PartEnvironmentBase extends ManagedEnvironment {
     val side = args.checkSideAny(0)
     host.getPart(side) match {
       case part: PartType =>
-        val config = part.getInventoryByName("config")
+        val config = part.getSubInventory(ISegmentedInventory.CONFIG)
         val slot = args.optSlot(config, 1, 0)
         val stack = config.getStackInSlot(slot)
         result(stack)
@@ -34,7 +32,7 @@ trait PartEnvironmentBase extends ManagedEnvironment {
     val side = args.checkSideAny(0)
     host.getPart(side) match {
       case part: PartType =>
-        val config = part.getInventoryByName("config")
+        val config = part.getSubInventory(ISegmentedInventory.CONFIG)
         val slot = if (args.isString(1)) 0 else args.optSlot(config, 1, 0)
         val stack = if (args.count > 2) {
           val (address, entry, size) =

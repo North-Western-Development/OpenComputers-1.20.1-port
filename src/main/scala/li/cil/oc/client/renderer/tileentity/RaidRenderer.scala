@@ -1,40 +1,36 @@
 package li.cil.oc.client.renderer.tileentity
 
-import java.util.function.Function
-
-import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.IVertexBuilder
+import com.mojang.blaze3d.vertex.{PoseStack, VertexConsumer}
+import com.mojang.math.Axis
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity.Raid
 import li.cil.oc.util.RenderState
-import net.minecraft.client.renderer.BufferBuilder
-import net.minecraft.client.renderer.IRenderTypeBuffer
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.block.BlockRenderDispatcher
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
-import net.minecraft.util.Direction
-import net.minecraft.util.math.vector.Vector3f
+import net.minecraft.core.Direction
 
-object RaidRenderer extends Function[TileEntityRendererDispatcher, RaidRenderer] {
-  override def apply(dispatch: TileEntityRendererDispatcher) = new RaidRenderer(dispatch)
+object RaidRenderer extends BlockEntityRendererProvider[Raid] {
+  override def create(dispatch: BlockEntityRendererProvider.Context): BlockEntityRenderer[Raid] = new RaidRenderer(dispatch.getBlockRenderDispatcher)
 }
 
-class RaidRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[Raid](dispatch) {
-  override def render(raid: Raid, dt: Float, stack: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+class RaidRenderer(dispatch: BlockRenderDispatcher) extends BlockEntityRenderer[Raid](dispatch) {
+  override def render(raid: Raid, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
 
     stack.pushPose()
 
     stack.translate(0.5, 0.5, 0.5)
 
     raid.yaw match {
-      case Direction.WEST => stack.mulPose(Vector3f.YP.rotationDegrees(-90))
-      case Direction.NORTH => stack.mulPose(Vector3f.YP.rotationDegrees(180))
-      case Direction.EAST => stack.mulPose(Vector3f.YP.rotationDegrees(90))
+      case Direction.WEST => stack.mulPose(Axis.YP.rotationDegrees(-90))
+      case Direction.NORTH => stack.mulPose(Axis.YP.rotationDegrees(180))
+      case Direction.EAST => stack.mulPose(Axis.YP.rotationDegrees(90))
       case _ => // No yaw.
     }
 
@@ -69,7 +65,7 @@ class RaidRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRen
   private val u1 = 2 / 16f
   private val fs = 4 / 16f
 
-  private def renderSlot(stack: MatrixStack, r: IVertexBuilder, slot: Int, icon: TextureAtlasSprite) {
+  private def renderSlot(stack: PoseStack, r: VertexConsumer, slot: Int, icon: TextureAtlasSprite) {
     val l = u1 + slot * fs
     val h = u1 + (slot + 1) * fs
     r.vertex(stack.last.pose, l, 1, 0).uv(icon.getU(l * 16), icon.getV1).endVertex()

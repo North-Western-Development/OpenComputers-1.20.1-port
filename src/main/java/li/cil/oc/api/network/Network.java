@@ -75,8 +75,8 @@ public interface Network {
      * Removes a node from the network.
      * <br>
      * This should be called by nodes when they are destroyed (e.g. in
-     * {@link net.minecraft.tileentity.TileEntity#setRemoved()}) or unloaded
-     * (e.g. in {@link net.minecraft.tileentity.TileEntity#onChunkUnloaded()}).
+     * {@link net.minecraft.world.level.block.entity.BlockEntity#setRemoved()}) or unloaded
+     * (e.g. in {@link net.minecraft.world.level.block.entity.BlockEntity#onChunkUnloaded()}).
      * Removing the node can lead to one or more new networks if it was the a
      * bridge node, i.e. the only node connecting the resulting networks.
      *

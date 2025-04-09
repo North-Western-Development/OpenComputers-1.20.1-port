@@ -1,17 +1,15 @@
 package li.cil.oc.integration.computercraft
 
-import dan200.computercraft.api.filesystem.IMount
-import dan200.computercraft.api.filesystem.IWritableMount
+import dan200.computercraft.api.filesystem.{Mount, WritableMount}
 import dan200.computercraft.api.media.IMedia
 import li.cil.oc
 import li.cil.oc.Settings
-import li.cil.oc.api.fs.FileSystem
-import li.cil.oc.api.fs.Label
+import li.cil.oc.api.fs.{FileSystem, Label}
 import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.common.Slot
 import li.cil.oc.integration.opencomputers.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.item.ItemStack
 
 object DriverComputerCraftMedia extends Item {
   override def worksWith(stack: ItemStack) = stack.getItem.isInstanceOf[IMedia]
@@ -32,11 +30,11 @@ object DriverComputerCraftMedia extends Item {
   override def slot(stack: ItemStack) = Slot.Floppy
 
   def createFileSystem(mount: AnyRef) = Option(mount) collect {
-    case rw: IWritableMount => new ComputerCraftWritableFileSystem(rw)
-    case ro: IMount => new ComputerCraftFileSystem(ro)
+    case rw: WritableMount => new ComputerCraftWritableFileSystem(rw)
+    case ro: Mount => new ComputerCraftFileSystem(ro)
   }
 
-  private def addressFromTag(tag: CompoundNBT) =
+  private def addressFromTag(tag: CompoundTag) =
     if (tag.contains("node") && tag.getCompound("node").contains("address")) {
       tag.getCompound("node").getString("address")
     }
@@ -51,9 +49,9 @@ object DriverComputerCraftMedia extends Item {
       media.setLabel(stack, value)
     }
 
-    override def loadData(nbt: CompoundNBT) {}
+    override def loadData(nbt: CompoundTag) {}
 
-    override def saveData(nbt: CompoundNBT) {}
+    override def saveData(nbt: CompoundTag) {}
   }
 
 }

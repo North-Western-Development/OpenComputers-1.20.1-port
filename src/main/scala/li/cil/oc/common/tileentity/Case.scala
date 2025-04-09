@@ -1,39 +1,30 @@
 package li.cil.oc.common.tileentity
 
-import java.util
-
-import li.cil.oc.Constants
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
-import li.cil.oc.Settings
-import li.cil.oc.api.Driver
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.internal
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
+import li.cil.oc.api.{Driver, internal}
 import li.cil.oc.api.network.Connector
-import li.cil.oc.common
-import li.cil.oc.common.InventorySlots
-import li.cil.oc.common.Slot
-import li.cil.oc.common.Tier
+import li.cil.oc.{Constants, Settings, common}
 import li.cil.oc.common.block.property.PropertyRunning
-import li.cil.oc.common.container
+import li.cil.oc.common.{InventorySlots, Slot, Tier, container}
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.util.Color
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.MenuProvider
+import net.minecraft.world.entity.player.{Inventory, Player}
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 
-class Case(selfType: TileEntityType[_ <: Case], var tier: Int) extends TileEntity(selfType) with traits.PowerAcceptor with traits.Computer with traits.Colored with internal.Case with DeviceInfo with INamedContainerProvider {
-  def this(selfType: TileEntityType[_ <: Case]) = {
-    this(selfType, 0)
+class Case(selfType: BlockEntityType[_ <: Case], pos: BlockPos, state: BlockState, var tier: Int)
+  extends BlockEntity(selfType, pos, state) with traits.PowerAcceptor with traits.Computer with traits.Colored with internal.Case with DeviceInfo with MenuProvider {
+  def this(selfType: BlockEntityType[_ <: Case], pos: BlockPos, state: BlockState) = {
+    this(selfType, pos, state, 0)
     // If no tier was defined when constructing this case, then we don't yet know the inventory size
     // this is set back to true when the nbt data is loaded
     isSizeInventoryReady = false
@@ -100,14 +91,14 @@ class Case(selfType: TileEntityType[_ <: Case], var tier: Int) extends TileEntit
 
   private final val TierTag = Settings.namespace + "tier"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundTag) {
     tier = nbt.getByte(TierTag) max 0 min 3
     setColor(Color.rgbValues(Color.byTier(tier)))
     super.loadForServer(nbt)
     isSizeInventoryReady = true
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundTag) {
     nbt.putByte(TierTag, tier.toByte)
     super.saveForServer(nbt)
   }
@@ -138,7 +129,7 @@ class Case(selfType: TileEntityType[_ <: Case], var tier: Int) extends TileEntit
 
   override def getContainerSize = if (tier < 0 || tier >= InventorySlots.computer.length) 0 else InventorySlots.computer(tier).length
 
-  override def stillValid(player: PlayerEntity) =
+  override def stillValid(player: Player) =
     super.stillValid(player) && (!isCreative || player.isCreative)
 
   override def canPlaceItem(slot: Int, stack: ItemStack) =
@@ -149,6 +140,6 @@ class Case(selfType: TileEntityType[_ <: Case], var tier: Int) extends TileEntit
 
   // ----------------------------------------------------------------------- //
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
+  override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
     new container.Case(ContainerTypes.CASE, id, playerInventory, this, tier)
 }

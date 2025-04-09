@@ -1,68 +1,45 @@
 package li.cil.oc.common.tileentity
 
-import java.util.UUID
-import java.util.function.Consumer
-
 import li.cil.oc._
-import li.cil.oc.api.Driver
 import li.cil.oc.api.driver.item
 import li.cil.oc.api.driver.item.Container
-import li.cil.oc.api.event.RobotAnalyzeEvent
-import li.cil.oc.api.event.RobotMoveEvent
-import li.cil.oc.api.internal
+import li.cil.oc.api.event.{RobotAnalyzeEvent, RobotMoveEvent}
+import li.cil.oc.api.internal.MultiTank
+import li.cil.oc.api.{Driver, internal}
 import li.cil.oc.api.network._
 import li.cil.oc.client.gui
-import li.cil.oc.common.EventHandler
-import li.cil.oc.common.Slot
-import li.cil.oc.common.Tier
-import li.cil.oc.common.container
+import li.cil.oc.common.{EventHandler, Slot, Tier, container}
 import li.cil.oc.common.container.ContainerTypes
-import li.cil.oc.common.inventory.InventoryProxy
-import li.cil.oc.common.inventory.InventorySelection
-import li.cil.oc.common.inventory.TankSelection
+import li.cil.oc.common.inventory.{InventoryProxy, InventorySelection, TankSelection}
 import li.cil.oc.common.item.data.RobotData
-import li.cil.oc.integration.opencomputers.DriverKeyboard
-import li.cil.oc.integration.opencomputers.DriverRedstoneCard
-import li.cil.oc.integration.opencomputers.DriverScreen
-import li.cil.oc.server.agent
-import li.cil.oc.server.agent.Player
-import li.cil.oc.server.component
-import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import li.cil.oc.util.BlockPosition
+import li.cil.oc.integration.opencomputers.{DriverKeyboard, DriverRedstoneCard, DriverScreen}
+import li.cil.oc.server.{agent, component, PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.ExtendedWorld._
-import li.cil.oc.util.InventoryUtils
-import li.cil.oc.util.StackOption
+import li.cil.oc.util.{BlockPosition, InventoryUtils, StackOption}
 import li.cil.oc.util.StackOption._
-import net.minecraft.block.Block
-import net.minecraft.block.Blocks
-import net.minecraft.block.FlowingFluidBlock
+import net.minecraft.Util
 import net.minecraft.client.Minecraft
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.fluid.Fluid
-import net.minecraft.inventory.EquipmentSlotType
-import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.SoundCategory
-import net.minecraft.util.SoundEvents
-import net.minecraft.util.Util
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.chat.Component
+import net.minecraft.sounds.{SoundEvents, SoundSource}
+import net.minecraft.world.MenuProvider
+import net.minecraft.world.entity.EquipmentSlot
+import net.minecraft.world.entity.player.{Inventory, Player}
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.{Block, Blocks, LiquidBlock}
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.common.capabilities.Capability
-import net.minecraftforge.common.util.LazyOptional
-import net.minecraftforge.common.util.NonNullSupplier
+import net.minecraftforge.common.capabilities.{Capability, ForgeCapabilities}
+import net.minecraftforge.common.util.{LazyOptional, NonNullSupplier}
 import net.minecraftforge.fluids._
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
 
+import java.util.UUID
+import java.util.function.Consumer
 import scala.collection.mutable
 
 // Implementation note: this tile entity is never directly added to the world.
@@ -71,8 +48,8 @@ import scala.collection.mutable
 // robot moves we only create a new proxy tile entity, hook the instance of this
 // class that was held by the old proxy to it and can then safely forget the
 // old proxy, which will be cleaned up by Minecraft like any other tile entity.
-class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with traits.PowerInformation with traits.RotatableTile
-  with IFluidHandler with internal.Robot with InventorySelection with TankSelection with INamedContainerProvider {
+class Robot extends BlockEntity(TileEntityTypes.ROBOT) with traits.Computer with traits.PowerInformation with traits.RotatableTile
+  with IFluidHandler with internal.Robot with InventorySelection with TankSelection with MenuProvider{
 
   var proxy: RobotProxy = _
 
@@ -91,7 +68,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
   // ----------------------------------------------------------------------- //
 
   override def getCapability[T](capability: Capability[T], facing: Direction): LazyOptional[T] = {
-    if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
+    if (capability == ForgeCapabilities.FLUID_HANDLER)
       fluidCap.cast()
     else
       super.getCapability(capability, facing)
@@ -101,14 +78,14 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
 
   def isCreative: Boolean = tier == Tier.Four
 
-  val equipmentInventory = new InventoryProxy {
+  val equipmentInventory: InventoryProxy = new InventoryProxy {
     override def inventory: Robot = Robot.this
 
     override def getContainerSize = 4
   }
 
   // Wrapper for the part of the inventory that is mutable.
-  val mainInventory = new InventoryProxy {
+  val mainInventory: InventoryProxy = new InventoryProxy {
     override def inventory: Robot = Robot.this
 
     override def getContainerSize: Int = Robot.this.inventorySize
@@ -131,7 +108,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
     }
   }
 
-  val tank = new internal.MultiTank {
+  val tank: MultiTank = new internal.MultiTank {
     override def tankCount: Int = Robot.this.tankCount
 
     override def getFluidTank(index: Int): ManagedEnvironment with IFluidTank = Robot.this.getFluidTank(index)
@@ -148,7 +125,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
 
   override def getComponentInSlot(index: Int): ManagedEnvironment = if (components.length > index) components(index).orNull else null
 
-  override def player: Player = {
+  override def player: agent.Player = {
     agent.Player.updatePositionAndRotation(player_, facing, facing)
     agent.Player.setPlayerInventoryItems(player_)
     player_
@@ -210,9 +187,9 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
 
   override def setName(name: String): Unit = info.name = name
 
-  override def onAnalyze(player: PlayerEntity, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
-    player.sendMessage(Localization.Analyzer.RobotOwner(ownerName), Util.NIL_UUID)
-    player.sendMessage(Localization.Analyzer.RobotName(player_.getName.getString), Util.NIL_UUID)
+  override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
+    player.sendSystemMessage(Localization.Analyzer.RobotOwner(ownerName))
+    player.sendSystemMessage(Localization.Analyzer.RobotName(player_.getName.getString))
     MinecraftForge.EVENT_BUS.post(new RobotAnalyzeEvent(this, player))
     super.onAnalyze(player, side, hitX, hitY, hitZ)
   }
@@ -267,10 +244,10 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
           if (!wasAir) {
             if (block != Blocks.AIR && block != blockRobotAfterImage) {
               if (!state.getFluidState.isEmpty) {
-                getLevel.playLocalSound(newPosition.getX + 0.5, newPosition.getY + 0.5, newPosition.getZ + 0.5, SoundEvents.WATER_AMBIENT, SoundCategory.BLOCKS,
+                getLevel.playLocalSound(newPosition.getX + 0.5, newPosition.getY + 0.5, newPosition.getZ + 0.5, SoundEvents.WATER_AMBIENT, SoundSource.BLOCKS,
                   getLevel.random.nextFloat * 0.25f + 0.75f, getLevel.random.nextFloat * 1.0f + 0.5f, false)
               }
-              if (!block.isInstanceOf[FlowingFluidBlock]) {
+              if (!block.isInstanceOf[LiquidBlock]) {
                 getLevel.levelEvent(2001, newPosition, Block.getId(state))
               }
             }
@@ -359,7 +336,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
       if (!appliedToolEnchantments) {
         appliedToolEnchantments = true
         StackOption(getItem(0)) match {
-          case SomeStack(item) => player_.getAttributes.addTransientAttributeModifiers(item.getAttributeModifiers(EquipmentSlotType.MAINHAND))
+          case SomeStack(item) => player_.getAttributes.addTransientAttributeModifiers(item.getAttributeModifiers(EquipmentSlot.MAINHAND))
           case _ =>
         }
       }
@@ -423,7 +400,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
   private final val SwingingToolTag = Settings.namespace + "swingingTool"
   private final val TurnAxisTag = Settings.namespace + "turnAxis"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundTag) {
     updateInventorySize()
     machine.onHostChanged()
 
@@ -458,7 +435,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
   }
 
   // Side check for Waila (and other mods that may call this client side).
-  override def saveForServer(nbt: CompoundNBT): Unit = if (isServer) this.synchronized {
+  override def saveForServer(nbt: CompoundTag): Unit = if (isServer) this.synchronized {
     info.saveData(nbt)
 
     // Note: computer is saved when proxy is saved (in proxy's super save)
@@ -484,7 +461,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT) {
+  override def loadForClient(nbt: CompoundTag) {
     super.loadForClient(nbt)
     loadData(nbt)
     info.loadData(nbt)
@@ -507,7 +484,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
     connectComponents()
   }
 
-  override def saveForClient(nbt: CompoundNBT): Unit = this.synchronized {
+  override def saveForClient(nbt: CompoundTag): Unit = this.synchronized {
     super.saveForClient(nbt)
     saveData(nbt)
     info.saveData(nbt)
@@ -554,7 +531,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
   override protected def onItemAdded(slot: Int, stack: ItemStack) {
     if (isServer) {
       if (isToolSlot(slot)) {
-        player_.getAttributes.addTransientAttributeModifiers(stack.getAttributeModifiers(EquipmentSlotType.MAINHAND))
+        player_.getAttributes.addTransientAttributeModifiers(stack.getAttributeModifiers(EquipmentSlot.MAINHAND))
         ServerPacketSender.sendRobotInventory(this, slot, stack)
       }
       if (isUpgradeSlot(slot)) {
@@ -578,7 +555,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
     super.onItemRemoved(slot, stack)
     if (isServer) {
       if (isToolSlot(slot)) {
-        player_.getAttributes.removeAttributeModifiers(stack.getAttributeModifiers(EquipmentSlotType.MAINHAND))
+        player_.getAttributes.removeAttributeModifiers(stack.getAttributeModifiers(EquipmentSlot.MAINHAND))
         ServerPacketSender.sendRobotInventory(this, slot, ItemStack.EMPTY)
       }
       if (isUpgradeSlot(slot)) {
@@ -710,7 +687,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
       getContainerSize = realSize + componentCount
       if (getLevel != null && isServer) {
         for (stack <- removed) {
-          player().inventory.add(stack)
+          player().getInventory.add(stack)
           spawnStackInWorld(stack, Option(facing))
         }
         setSelectedSlot(oldSelected)
@@ -740,7 +717,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
       if (!stack.isEmpty && stack.getCount > 1 && isComponentSlot(slot, stack)) {
         super.setItem(slot, stack.split(1))
         if (stack.getCount > 0 && isServer) {
-          player().inventory.add(stack)
+          player().getInventory.add(stack)
           spawnStackInWorld(stack, Option(facing))
         }
       }
@@ -749,7 +726,7 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
     else if (!stack.isEmpty && stack.getCount > 0 && !getLevel.isClientSide) spawnStackInWorld(stack, Option(Direction.UP))
   }
 
-  override def stillValid(player: PlayerEntity): Boolean =
+  override def stillValid(player: Player): Boolean =
     super.stillValid(player) && (!isCreative || player.isCreative)
 
   override def canPlaceItem(slot: Int, stack: ItemStack): Boolean = (slot, Option(Driver.driverFor(stack, getClass))) match {
@@ -772,9 +749,9 @@ class Robot extends TileEntity(TileEntityTypes.ROBOT) with traits.Computer with 
 
   // ----------------------------------------------------------------------- //
 
-  override def getDisplayName = StringTextComponent.EMPTY
+  override def getDisplayName = Component.empty()
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
+  override def createMenu(id: Int, playerInventory:Inventory, player: Player) =
     new container.Robot(ContainerTypes.ROBOT, id, playerInventory, this, new container.RobotInfo(this))
 
   // ----------------------------------------------------------------------- //

@@ -1,31 +1,21 @@
 package li.cil.oc.server.component
 
-import java.util
-import java.util.UUID
-
-import li.cil.oc.Constants
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
-import li.cil.oc.OpenComputers
 import li.cil.oc.api.Network
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network.Node
-import li.cil.oc.api.network.Visibility
-import li.cil.oc.api.prefab
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
+import li.cil.oc.api.network.{Node, Visibility}
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.common.EventHandler
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.entity.Entity
-import net.minecraft.entity.MobEntity
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.StringNBT
-import net.minecraftforge.common.util.Constants.NBT
+import li.cil.oc.{Constants, OpenComputers}
+import net.minecraft.nbt.{CompoundTag, StringTag, Tag}
+import net.minecraft.world.entity.{Entity, Mob}
 
+import java.util
+import java.util.UUID
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
@@ -58,7 +48,7 @@ class UpgradeLeash(val host: Entity) extends AbstractManagedEnvironment with tra
     val nearBounds = position.bounds
     val farBounds = nearBounds.move(side.getStepX * 2.0, side.getStepY * 2.0, side.getStepZ * 2.0)
     val bounds = nearBounds.minmax(farBounds)
-    entitiesInBounds[MobEntity](classOf[MobEntity], bounds).find(_.canBeLeashed(fakePlayer)) match {
+    entitiesInBounds[Mob](classOf[Mob], bounds).find(_.canBeLeashed(fakePlayer)) match {
       case Some(entity) =>
         entity.setLeashedTo(host, true)
         leashedEntities += entity.getUUID
@@ -82,7 +72,7 @@ class UpgradeLeash(val host: Entity) extends AbstractManagedEnvironment with tra
   }
 
   private def unleashAll() {
-    entitiesInBounds(classOf[MobEntity], position.bounds.inflate(5, 5, 5)).foreach(entity => {
+    entitiesInBounds(classOf[Mob], position.bounds.inflate(5, 5, 5)).foreach(entity => {
       if (leashedEntities.contains(entity.getUUID) && entity.getLeashHolder == host) {
         entity.dropLeash(true, false)
       }
@@ -92,15 +82,15 @@ class UpgradeLeash(val host: Entity) extends AbstractManagedEnvironment with tra
 
   private final val LeashedEntitiesTag = "leashedEntities"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundTag) {
     super.loadData(nbt)
-    leashedEntities ++= nbt.getList(LeashedEntitiesTag, NBT.TAG_STRING).
-      map((s: StringNBT) => UUID.fromString(s.getAsString))
+    leashedEntities ++= nbt.getList(LeashedEntitiesTag, Tag.TAG_STRING).
+      map((s: StringTag) => UUID.fromString(s.getAsString))
     // Re-acquire leashed entities. Need to do this manually because leashed
     // entities only remember their leashee if it's an LivingEntity...
     EventHandler.scheduleServer(() => {
       val foundEntities = mutable.Set.empty[UUID]
-      entitiesInBounds(classOf[MobEntity], position.bounds.inflate(5, 5, 5)).foreach(entity => {
+      entitiesInBounds(classOf[Mob], position.bounds.inflate(5, 5, 5)).foreach(entity => {
         if (leashedEntities.contains(entity.getUUID)) {
           entity.setLeashedTo(host, true)
           foundEntities += entity.getUUID
@@ -114,7 +104,7 @@ class UpgradeLeash(val host: Entity) extends AbstractManagedEnvironment with tra
     })
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundTag) {
     super.saveData(nbt)
     nbt.setNewTagList(LeashedEntitiesTag, leashedEntities.map(_.toString))
   }

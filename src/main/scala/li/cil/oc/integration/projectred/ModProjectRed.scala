@@ -7,8 +7,8 @@ import li.cil.oc.integration.util.BundledRedstone
 import li.cil.oc.integration.util.BundledRedstone.RedstoneProvider
 import li.cil.oc.util.BlockPosition
 import mrtjp.projectred.api.ProjectRedAPI
-import net.minecraft.util.Direction
-import net.minecraft.world.World
+import net.minecraft.core.Direction
+import net.minecraft.world.level.Level
 
 object ModProjectRed extends ModProxy with RedstoneProvider {
   override def getMod = Mods.ProjectRedTransmission

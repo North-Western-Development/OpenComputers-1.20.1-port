@@ -3,7 +3,7 @@ package li.cil.oc.common.tileentity.traits
 import li.cil.oc.Settings
 import li.cil.oc.api.network.Connector
 import li.cil.oc.api.network.SidedEnvironment
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 
 trait PowerBalancer extends PowerInformation with SidedEnvironment with Tickable {
   var globalBuffer, globalBufferSize = 0.0

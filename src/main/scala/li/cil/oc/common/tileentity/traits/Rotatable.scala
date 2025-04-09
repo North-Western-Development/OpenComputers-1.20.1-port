@@ -7,10 +7,10 @@ import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedEnumFacing._
 import li.cil.oc.util.ExtendedWorld._
 import li.cil.oc.util.RotationHelper
-import net.minecraft.block.BlockState
-import net.minecraft.entity.Entity
-import net.minecraft.util.Direction
-import net.minecraft.util.Rotation
+import net.minecraft.core.Direction
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.level.block.Rotation
+import net.minecraft.world.level.block.state.BlockState
 
 /** TileEntity base class for rotatable blocks. */
 trait Rotatable extends RotationAware with internal.Rotatable {
@@ -51,8 +51,8 @@ trait Rotatable extends RotationAware with internal.Rotatable {
 
   def setFromEntityPitchAndYaw(entity: Entity) =
     trySetPitchYaw(
-      pitch2Direction((entity.xRot / 90).round + 1),
-      yaw2Direction((entity.yRot / 360 * 4).round & 3))
+      pitch2Direction((entity.getXRot / 90).round + 1),
+      yaw2Direction((entity.getYRot / 360 * 4).round & 3))
 
   def setFromFacing(value: Direction) =
     value match {

@@ -1,32 +1,21 @@
 package li.cil.oc
 
-import java.nio.file.Paths
-
-import li.cil.oc.common.IMC
-import li.cil.oc.common.Proxy
-import li.cil.oc.common.init.Blocks
-import li.cil.oc.common.init.Items
+import li.cil.oc.common.{IMC, Proxy}
+import li.cil.oc.common.init.{Blocks, Items}
 import li.cil.oc.integration.Mods
 import li.cil.oc.util.ThreadPoolFactory
-import net.minecraft.block.Block
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.world.World
-import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.forgespi.Environment
-import net.minecraftforge.fml.InterModComms
-import net.minecraftforge.fml.ModContainer
-import net.minecraftforge.fml.ModLoadingContext
+import net.minecraftforge.fml.{InterModComms, ModContainer, ModLoadingContext}
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent
 import net.minecraftforge.fml.loading.FMLPaths
-import net.minecraftforge.fml.network.simple.SimpleChannel
-import net.minecraftforge.scorge.lang.ScorgeModLoadingContext
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
+import net.minecraftforge.forgespi.Environment
+import net.minecraftforge.network.simple.SimpleChannel
+import net.minecraftforge.registries.{ForgeRegistries, RegisterEvent}
+import org.apache.logging.log4j.{LogManager, Logger}
 
+import java.nio.file.Paths
 import scala.collection.convert.ImplicitConversionsToScala._
 
 object OpenComputers {
@@ -61,24 +50,20 @@ object OpenComputers {
 class OpenComputers {
   val modContainer: ModContainer = ModLoadingContext.get.getActiveContainer
 
-  ScorgeModLoadingContext.get.getModEventBus.register(this)
+  MinecraftForge.EVENT_BUS.register(this)
   OpenComputers.instance = Some(this)
 
   MinecraftForge.EVENT_BUS.register(OpenComputers.proxy)
-  ScorgeModLoadingContext.get.getModEventBus.register(OpenComputers.proxy)
   Settings.load(FMLPaths.CONFIGDIR.get().resolve(Paths.get("opencomputers", "settings.conf")).toFile())
   OpenComputers.proxy.preInit()
   MinecraftForge.EVENT_BUS.register(ThreadPoolFactory)
   Mods.preInit() // Must happen after loading Settings but before registry events are fired.
 
-  @SubscribeEvent
-  def registerBlocks(e: RegistryEvent.Register[Block]) {
-    Blocks.init()
-  }
 
   @SubscribeEvent
-  def registerItems(e: RegistryEvent.Register[Item]) {
-    Items.init()
+  def registerAll(e: RegisterEvent) {
+    e.register(ForgeRegistries.Keys.ITEMS, Items.init)
+    e.register(ForgeRegistries.Keys.BLOCKS, Blocks.init)
   }
 
   @SubscribeEvent

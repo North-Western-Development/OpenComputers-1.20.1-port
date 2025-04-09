@@ -1,11 +1,11 @@
 package li.cil.oc.common.item
 
 import li.cil.oc.Settings
-import net.minecraft.item.Item
-import net.minecraft.item.Item.Properties
-import net.minecraft.item.ItemStack
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.ItemStack
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.Component
 import net.minecraftforge.common.extensions.IForgeItem
 
 class HardDiskDrive(props: Properties, val tier: Int) extends Item(props) with IForgeItem with traits.SimpleItem with traits.ItemTier with traits.FileSystemLike {
@@ -15,7 +15,7 @@ class HardDiskDrive(props: Properties, val tier: Int) extends Item(props) with I
   val kiloBytes: Int = Settings.get.hddSizes(tier)
   val platterCount: Int = Settings.get.hddPlatterCounts(tier)
 
-  override def getName(stack: ItemStack): ITextComponent = {
+  override def getName(stack: ItemStack): Component = {
     val localizedName = super.getName(stack).copy()
     if (kiloBytes >= 1024) {
       localizedName.append(s" (${kiloBytes / 1024}MB)")

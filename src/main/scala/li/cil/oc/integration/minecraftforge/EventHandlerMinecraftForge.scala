@@ -3,15 +3,13 @@ package li.cil.oc.integration.minecraftforge
 import li.cil.oc.OpenComputers
 import li.cil.oc.common.tileentity.traits.PowerAcceptor
 import li.cil.oc.integration.util.Power
-import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.ResourceLocation
-import net.minecraftforge.common.capabilities.Capability
-import net.minecraftforge.common.capabilities.ICapabilityProvider
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceLocation
+import net.minecraftforge.common.capabilities.{Capability, ForgeCapabilities, ICapabilityProvider}
 import net.minecraftforge.common.util.LazyOptional
 import net.minecraftforge.common.util.NonNullSupplier
-import net.minecraftforge.energy.CapabilityEnergy
 import net.minecraftforge.energy.IEnergyStorage
 import net.minecraftforge.event.AttachCapabilitiesEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -19,7 +17,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent
 object EventHandlerMinecraftForge {
 
   @SubscribeEvent
-  def onAttachCapabilities(event: AttachCapabilitiesEvent[TileEntity]): Unit = {
+  def onAttachCapabilities(event: AttachCapabilitiesEvent[BlockEntity]): Unit = {
     event.getObject match {
       case tileEntity: PowerAcceptor =>
         val provider = new Provider(tileEntity)
@@ -32,13 +30,13 @@ object EventHandlerMinecraftForge {
   }
 
   def canCharge(stack: ItemStack): Boolean =
-    stack.getCapability(CapabilityEnergy.ENERGY, null).orElse(null) match {
+    stack.getCapability(ForgeCapabilities.ENERGY, null).orElse(null) match {
       case storage: IEnergyStorage => storage.canReceive
       case _ => false
     }
 
   def charge(stack: ItemStack, amount: Double, simulate: Boolean): Double =
-    stack.getCapability(CapabilityEnergy.ENERGY, null).orElse(null) match {
+    stack.getCapability(ForgeCapabilities.ENERGY, null).orElse(null) match {
       case storage: IEnergyStorage => amount - Power.fromRF(storage.receiveEnergy(Power.toRF(amount), simulate))
       case _ => amount
     }
@@ -60,7 +58,7 @@ object EventHandlerMinecraftForge {
     }
 
     override def getCapability[T](capability: Capability[T], facing: Direction): LazyOptional[T] = {
-      if (capability == CapabilityEnergy.ENERGY) {
+      if (capability == ForgeCapabilities.ENERGY) {
         (if (facing == null) nullProvider.cast[T] else providers(facing.get3DDataValue)).cast[T]
       } else LazyOptional.empty[T]
     }

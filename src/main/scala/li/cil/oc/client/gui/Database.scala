@@ -1,14 +1,13 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.Textures
-import li.cil.oc.common.Tier
-import li.cil.oc.common.container
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.util.text.ITextComponent
+import li.cil.oc.common.{Tier, container}
+import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.network.chat.Component
+import net.minecraft.world.entity.player.Inventory
 
-class Database(state: container.Database, playerInventory: PlayerInventory, name: ITextComponent)
+class Database(state: container.Database, playerInventory:Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name)
   with traits.LockedHotbar[container.Database] {
 
@@ -16,24 +15,21 @@ class Database(state: container.Database, playerInventory: PlayerInventory, name
 
   override def lockedStack = inventoryContainer.container
 
-  override protected def renderLabels(stack: MatrixStack, mouseX: Int, mouseY: Int) =
-    drawSecondaryForegroundLayer(stack, mouseX, mouseY)
+  override protected def renderLabels(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int) =
+    drawSecondaryForegroundLayer(guiGraphics, mouseX, mouseY)
 
-  override def drawSecondaryForegroundLayer(stack: MatrixStack, mouseX: Int, mouseY: Int) {}
+  override def drawSecondaryForegroundLayer(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int) {}
 
-  override protected def renderBg(stack: MatrixStack, dt: Float, mouseX: Int, mouseY: Int) {
-    RenderSystem.color4f(1, 1, 1, 1)
-    Textures.bind(Textures.GUI.Database)
-    blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
+  override protected def renderBg(guiGraphics: GuiGraphics, dt: Float, mouseX: Int, mouseY: Int) {
+    RenderSystem.setShaderColor(1, 1, 1, 1)
+    guiGraphics.blit(Textures.GUI.Database, leftPos, topPos, 0, 0, imageWidth, imageHeight)
 
     if (inventoryContainer.tier > Tier.One) {
-      Textures.bind(Textures.GUI.Database1)
-      blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
+      guiGraphics.blit(Textures.GUI.Database1, leftPos, topPos, 0, 0, imageWidth, imageHeight)
     }
 
     if (inventoryContainer.tier > Tier.Two) {
-      Textures.bind(Textures.GUI.Database2)
-      blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
+      guiGraphics.blit(Textures.GUI.Database2, leftPos, topPos, 0, 0, imageWidth, imageHeight)
     }
   }
 }

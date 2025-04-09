@@ -1,10 +1,7 @@
 package li.cil.oc.util
 
 import com.mojang.blaze3d.systems.RenderSystem
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.RenderHelper
+import li.cil.oc.{OpenComputers, Settings}
 import org.lwjgl.opengl._
 
 // This class has evolved into a wrapper for RenderSystem that basically does
@@ -76,7 +73,7 @@ object RenderState {
   }
 
   def setBlendAlpha(alpha: Float) = {
-    RenderSystem.color4f(1, 1, 1, alpha)
+    RenderSystem.setShaderColor(1, 1, 1, alpha)
     RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE)
   }
 

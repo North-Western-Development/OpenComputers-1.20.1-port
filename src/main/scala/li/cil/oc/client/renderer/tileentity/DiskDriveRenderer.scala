@@ -1,39 +1,37 @@
 package li.cil.oc.client.renderer.tileentity
 
-import java.util.function.Function
-
-import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.math.Axis
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity.DiskDrive
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.client.renderer.model.ItemCameraTransforms
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
-import net.minecraft.util.Direction
-import net.minecraft.util.math.vector.Vector3f
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.block.BlockRenderDispatcher
+import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
+import net.minecraft.core.Direction
+import net.minecraft.world.item.ItemDisplayContext
 
-object DiskDriveRenderer extends Function[TileEntityRendererDispatcher, DiskDriveRenderer] {
-  override def apply(dispatch: TileEntityRendererDispatcher) = new DiskDriveRenderer(dispatch)
+object DiskDriveRenderer extends BlockEntityRendererProvider[DiskDrive] {
+  override def create(dispatch: BlockEntityRendererProvider.Context): BlockEntityRenderer[DiskDrive] = new DiskDriveRenderer(dispatch.getBlockRenderDispatcher)
 }
 
-class DiskDriveRenderer(dispatch: TileEntityRendererDispatcher) extends TileEntityRenderer[DiskDrive](dispatch) {
-  override def render(drive: DiskDrive, dt: Float, matrix: MatrixStack, buffer: IRenderTypeBuffer, light: Int, overlay: Int) {
+class DiskDriveRenderer(dispatch: BlockRenderDispatcher) extends BlockEntityRenderer[DiskDrive](dispatch) {
+  override def render(drive: DiskDrive, dt: Float, matrix: PoseStack, buffer: MultiBufferSource, light: Int, overlay: Int) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
 
     matrix.pushPose()
 
     matrix.translate(0.5, 0.5, 0.5)
 
     drive.yaw match {
-      case Direction.WEST => matrix.mulPose(Vector3f.YP.rotationDegrees(-90))
-      case Direction.NORTH => matrix.mulPose(Vector3f.YP.rotationDegrees(180))
-      case Direction.EAST => matrix.mulPose(Vector3f.YP.rotationDegrees(90))
+      case Direction.WEST => matrix.mulPose(Axis.YP.rotationDegrees(-90))
+      case Direction.NORTH => matrix.mulPose(Axis.YP.rotationDegrees(180))
+      case Direction.EAST => matrix.mulPose(Axis.YP.rotationDegrees(90))
       case _ => // No yaw.
     }
 
@@ -41,10 +39,10 @@ class DiskDriveRenderer(dispatch: TileEntityRendererDispatcher) extends TileEnti
       case stack if !stack.isEmpty =>
         matrix.pushPose()
         matrix.translate(0, 3.5f / 16, 6 / 16f)
-        matrix.mulPose(Vector3f.XN.rotationDegrees(90))
+        matrix.mulPose(Axis.XN.rotationDegrees(90))
         matrix.scale(0.5f, 0.5f, 0.5f)
 
-        Minecraft.getInstance.getItemRenderer.renderStatic(stack, ItemCameraTransforms.TransformType.FIXED, light, overlay, matrix, buffer)
+        Minecraft.getInstance.getItemRenderer.renderStatic(stack, ItemDisplayContext.FIXED, light, overlay, matrix, buffer, drive.getLevel, overlay: Int)
         matrix.popPose()
       case _ =>
     }

@@ -1,42 +1,30 @@
 package li.cil.oc.server.component
 
-import java.util
-
-import li.cil.oc.Constants
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, Settings, api}
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.network.EnvironmentHost
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
 import li.cil.oc.api.event.GeolyzerEvent
 import li.cil.oc.api.event.GeolyzerEvent.Analyze
 import li.cil.oc.api.internal
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network.Message
-import li.cil.oc.api.network.Visibility
-import li.cil.oc.api.prefab
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
+import li.cil.oc.api.network.{EnvironmentHost, Message, Visibility}
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
-import li.cil.oc.common.tileentity.{Robot => EntityRobot, Microcontroller}
 import li.cil.oc.common.entity.{Drone => EntityDrone}
 import li.cil.oc.common.item.TabletWrapper
-import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.DatabaseAccess
+import li.cil.oc.common.tileentity.{Microcontroller, Robot => EntityRobot}
+import li.cil.oc.util.{BlockPosition, DatabaseAccess}
 import li.cil.oc.util.ExtendedArguments._
-import li.cil.oc.util.ExtendedWorld._
-import net.minecraft.block.Block
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.Direction
-import net.minecraft.world.World
-import net.minecraft.world.biome.Biome.RainType
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.core.Direction
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.biome.Biome
+import net.minecraft.world.level.block.Block
 import net.minecraftforge.common.MinecraftForge
 
+import java.util
 import scala.collection.JavaConverters.mapAsJavaMap
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -82,7 +70,7 @@ class Geolyzer(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
 
   private def canSeeSky: Boolean = {
     val blockPos = position.offset(Direction.UP)
-    host.world.dimension != World.NETHER && host.world.canSeeSkyFromBelowWater(blockPos.toBlockPos)
+    host.world.dimension != Level.NETHER && host.world.canSeeSkyFromBelowWater(blockPos.toBlockPos)
   }
 
   @Callback(doc = """function():boolean -- Returns whether there is a clear line of sight to the sky directly above.""")
@@ -96,7 +84,7 @@ class Geolyzer(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
     result(
       host.world.isDay &&
       canSeeSky &&
-        (host.world.getBiome(blockPos.toBlockPos).getPrecipitation == RainType.NONE || (!host.world.isRaining && !host.world.isThundering)))
+        (host.world.getBiome(blockPos.toBlockPos).get().getPrecipitationAt(blockPos.toBlockPos) == Biome.Precipitation.NONE || (!host.world.isRaining && !host.world.isThundering)))
   }
 
   @Callback(doc = """function(x:number, z:number[, y:number, w:number, d:number, h:number][, ignoreReplaceable:boolean|options:table]):table -- Analyzes the density of the column at the specified relative coordinates.""")
@@ -177,7 +165,7 @@ class Geolyzer(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
     val item = blockState.getBlock().asItem()
     if (item == null) result((), "block has no registered item representation")
     else {
-      val stacks = Block.getDrops(blockState, host.world.asInstanceOf[ServerWorld], blockPos.toBlockPos, host.world.getBlockEntity(blockPos.toBlockPos))
+      val stacks = Block.getDrops(blockState, host.world.asInstanceOf[ServerLevel], blockPos.toBlockPos, host.world.getBlockEntity(blockPos.toBlockPos))
       val stack = if (!stacks.isEmpty) {
         val drop = stacks.find(s => s.getItem == item).getOrElse(stacks.get(0))
         drop.setCount(1)
@@ -197,7 +185,7 @@ class Geolyzer(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
     super.onMessage(message)
     if (message.name == "tablet.use") message.source.host match {
       case machine: api.machine.Machine => (machine.host, message.data) match {
-        case (tablet: internal.Tablet, Array(nbt: CompoundNBT, stack: ItemStack, player: PlayerEntity, blockPos: BlockPosition, side: Direction, hitX: java.lang.Float, hitY: java.lang.Float, hitZ: java.lang.Float)) =>
+        case (tablet: internal.Tablet, Array(nbt: CompoundTag, stack: ItemStack, player: Player, blockPos: BlockPosition, side: Direction, hitX: java.lang.Float, hitY: java.lang.Float, hitZ: java.lang.Float)) =>
           if (node.tryChangeBuffer(-Settings.get.geolyzerScanCost)) {
             val event = new Analyze(host, Map.empty[AnyRef, AnyRef], blockPos.toBlockPos)
             MinecraftForge.EVENT_BUS.post(event)

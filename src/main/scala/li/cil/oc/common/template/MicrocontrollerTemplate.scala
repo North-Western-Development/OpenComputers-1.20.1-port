@@ -1,19 +1,15 @@
 package li.cil.oc.common.template
 
-import li.cil.oc.Constants
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, Settings, api}
 import li.cil.oc.api.internal
 import li.cil.oc.api.internal.Microcontroller
-import li.cil.oc.common.Slot
-import li.cil.oc.common.Tier
+import li.cil.oc.common.{Slot, Tier}
 import li.cil.oc.common.item.data.MicrocontrollerData
 import li.cil.oc.util.ItemUtils
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
+import net.minecraft.world.Container
+import net.minecraft.world.item.ItemStack
 
 import scala.collection.JavaConverters.asJavaIterable
-import scala.collection.convert.ImplicitConversionsToJava._
 
 object MicrocontrollerTemplate extends Template {
   override protected val suggestedComponents = Array(
@@ -27,9 +23,9 @@ object MicrocontrollerTemplate extends Template {
 
   def selectTierCreative(stack: ItemStack): Boolean = api.Items.get(stack) == api.Items.get(Constants.ItemName.MicrocontrollerCaseCreative)
 
-  def validate(inventory: IInventory): Array[AnyRef] = validateComputer(inventory)
+  def validate(inventory: Container): Array[AnyRef] = validateComputer(inventory)
 
-  def assemble(inventory: IInventory): Array[Object] = {
+  def assemble(inventory: Container): Array[Object] = {
     val items = (0 until inventory.getContainerSize).map(inventory.getItem)
     val data = new MicrocontrollerData()
     data.tier = caseTier(inventory)
@@ -129,10 +125,10 @@ object MicrocontrollerTemplate extends Template {
       "li.cil.oc.common.template.MicrocontrollerTemplate.disassemble")
   }
 
-  override protected def maxComplexity(inventory: IInventory): Int =
+  override protected def maxComplexity(inventory: Container): Int =
     if (caseTier(inventory) == Tier.Two) 5
     else if (caseTier(inventory) == Tier.Four) 9001 // Creative
     else 4
 
-  override protected def caseTier(inventory: IInventory): Int = ItemUtils.caseTier(inventory.getItem(0))
+  override protected def caseTier(inventory: Container): Int = ItemUtils.caseTier(inventory.getItem(0))
 }

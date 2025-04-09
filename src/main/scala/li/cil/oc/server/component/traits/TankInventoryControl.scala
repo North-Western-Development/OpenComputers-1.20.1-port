@@ -1,17 +1,13 @@
 package li.cil.oc.server.component.traits
 
 import li.cil.oc.Settings
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
 import li.cil.oc.server.component.result
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.FluidUtils
-import li.cil.oc.util.InventoryUtils
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 
 trait TankInventoryControl extends WorldAware with InventoryAware with TankAware {
   @Callback(doc = """function([slot:number]):number -- Get the amount of fluid in the tank item in the specified slot or the selected slot.""")

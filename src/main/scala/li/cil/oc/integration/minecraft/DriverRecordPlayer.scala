@@ -9,24 +9,25 @@ import li.cil.oc.api.network.ManagedEnvironment
 import li.cil.oc.api.prefab.DriverSidedTileEntity
 import li.cil.oc.integration.ManagedTileEntityEnvironment
 import li.cil.oc.util.ResultWrapper.result
-import net.minecraft.block.Block
-import net.minecraft.block.Blocks
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
 import net.minecraft.item.MusicDiscItem
-import net.minecraft.tileentity.JukeboxTileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
+import net.minecraft.tileentity.JukeboxBlockEntity
+import net.minecraft.core.Direction
+import net.minecraft.core.BlockPos
 import net.minecraft.util.text.LanguageMap
-import net.minecraft.world.World
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.entity.JukeboxBlockEntity
 
 object DriverRecordPlayer extends DriverSidedTileEntity {
-  override def getTileEntityClass: Class[_] = classOf[JukeboxTileEntity]
+  override def getTileEntityClass: Class[_] = classOf[JukeboxBlockEntity]
 
-  override def createEnvironment(world: World, pos: BlockPos, side: Direction): ManagedEnvironment =
-    new Environment(world.getBlockEntity(pos).asInstanceOf[JukeboxTileEntity])
+  override def createEnvironment(world: Level, pos: BlockPos, side: Direction): ManagedEnvironment =
+    new Environment(world.getBlockEntity(pos).asInstanceOf[JukeboxBlockEntity])
 
-  final class Environment(tileEntity: JukeboxTileEntity) extends ManagedTileEntityEnvironment[JukeboxTileEntity](tileEntity, "jukebox") with NamedBlock {
+  final class Environment(tileEntity: JukeboxBlockEntity) extends ManagedTileEntityEnvironment[JukeboxBlockEntity](tileEntity, "jukebox") with NamedBlock {
     override def preferredName = "jukebox"
 
     override def priority = 0

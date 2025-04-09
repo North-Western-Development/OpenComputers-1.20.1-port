@@ -1,38 +1,23 @@
 package li.cil.oc.common.component
 
+import li.cil.oc.{Constants, Settings, api}
+import li.cil.oc.api.component.{RackBusConnectable, RackMountable}
+import li.cil.oc.api.driver.DeviceInfo
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
+import li.cil.oc.api.internal.Keyboard.UsabilityChecker
+import li.cil.oc.api.network._
+import li.cil.oc.api.util.{Lifecycle, StateAware}
+import li.cil.oc.api.util.StateAware.State
+import li.cil.oc.common.{Tier, item}
+import li.cil.oc.util.ExtendedNBT._
+import net.minecraft.core.Direction
+import net.minecraft.nbt.{CompoundTag, StringTag, Tag}
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+
 import java.util
 import java.util.UUID
-
-import li.cil.oc.Constants
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
-import li.cil.oc.Settings
-import li.cil.oc.api
-import li.cil.oc.api.component.RackBusConnectable
-import li.cil.oc.api.component.RackMountable
-import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.internal.Keyboard.UsabilityChecker
-import li.cil.oc.api.network.Analyzable
-import li.cil.oc.api.network.Environment
-import li.cil.oc.api.network.EnvironmentHost
-import li.cil.oc.api.network.Message
-import li.cil.oc.api.network.Node
-import li.cil.oc.api.network.Visibility
-import li.cil.oc.api.util.Lifecycle
-import li.cil.oc.api.util.StateAware
-import li.cil.oc.api.util.StateAware.State
-import li.cil.oc.common.Tier
-import li.cil.oc.common.item
-import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.StringNBT
-import net.minecraft.util.Direction
-import net.minecraft.util.Hand
-import net.minecraftforge.common.util.Constants.NBT
-
-import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 
@@ -52,8 +37,8 @@ class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environ
     val keyboardItem = api.Items.get(Constants.BlockName.Keyboard).createItemStack(1)
     val keyboard = api.Driver.driverFor(keyboardItem, getClass).createEnvironment(keyboardItem, this).asInstanceOf[api.internal.Keyboard]
     keyboard.setUsableOverride(new UsabilityChecker {
-      override def isUsableByPlayer(keyboard: api.internal.Keyboard, player: PlayerEntity) = {
-        val stack = player.getItemInHand(Hand.MAIN_HAND)
+      override def isUsableByPlayer(keyboard: api.internal.Keyboard, player: Player) = {
+        val stack = player.getItemInHand(InteractionHand.MAIN_HAND)
         stack.getItem match {
           case t: item.Terminal if stack.hasTag => sidedKeys.contains(stack.getTag.getString(Settings.namespace + "key"))
           case _ => false
@@ -80,7 +65,7 @@ class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environ
 
   def sidedKeys = {
     if (!rack.world.isClientSide) keys
-    else rack.getMountableData(slot).getList("keys", NBT.TAG_STRING).map((tag: StringNBT) => tag.getAsString)
+    else rack.getMountableData(slot).getList("keys", Tag.TAG_STRING).map((tag: StringTag) => tag.getAsString)
   }
 
   // ----------------------------------------------------------------------- //
@@ -132,10 +117,10 @@ class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environ
   // ----------------------------------------------------------------------- //
   // RackMountable
 
-  override def getData: CompoundNBT = {
+  override def getData: CompoundTag = {
     if (node.address == null) api.Network.joinNewNetwork(node)
 
-    val nbt = new CompoundNBT()
+    val nbt = new CompoundTag()
     nbt.setNewTagList("keys", keys)
     nbt.putString("terminalAddress", node.address)
     nbt
@@ -145,7 +130,7 @@ class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environ
 
   override def getConnectableAt(index: Int): RackBusConnectable = null
 
-  override def onActivate(player: PlayerEntity, hand: Hand, heldItem: ItemStack, hitX: Float, hitY: Float): Boolean = {
+  override def onActivate(player: Player, hand: InteractionHand, heldItem: ItemStack, hitX: Float, hitY: Float): Boolean = {
     if (api.Items.get(heldItem) == api.Items.get(Constants.ItemName.Terminal)) {
       if (!world.isClientSide) {
         val key = UUID.randomUUID().toString
@@ -158,7 +143,7 @@ class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environ
         heldItem.getTag.putString(Settings.namespace + "key", key)
         heldItem.getTag.putString(Settings.namespace + "server", node.address)
         rack.markChanged(slot)
-        player.inventory.setChanged()
+        player.getInventory.setChanged()
       }
       true
     }
@@ -172,17 +157,17 @@ class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environ
   private final val KeyboardTag = Settings.namespace + "keyboard"
   private final val KeysTag = Settings.namespace + "keys"
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     if (!rack.world.isClientSide) {
       node.loadData(nbt)
     }
     buffer.loadData(nbt.getCompound(BufferTag))
     keyboard.loadData(nbt.getCompound(KeyboardTag))
     keys.clear()
-    nbt.getList(KeysTag, NBT.TAG_STRING).foreach((tag: StringNBT) => keys += tag.getAsString)
+    nbt.getList(KeysTag, Tag.TAG_STRING).foreach((tag: StringTag) => keys += tag.getAsString)
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     node.saveData(nbt)
     nbt.setNewCompoundTag(BufferTag, buffer.saveData)
     nbt.setNewCompoundTag(KeyboardTag, keyboard.saveData)
@@ -210,7 +195,7 @@ class TerminalServer(val rack: api.internal.Rack, val slot: Int) extends Environ
   // ----------------------------------------------------------------------- //
   // Analyzable
 
-  override def onAnalyze(player: PlayerEntity, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = Array(buffer.node, keyboard.node)
+  override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = Array(buffer.node, keyboard.node)
 
   // ----------------------------------------------------------------------- //
   // LifeCycle

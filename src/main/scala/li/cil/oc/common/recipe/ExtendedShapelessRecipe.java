@@ -1,19 +1,16 @@
 package li.cil.oc.common.recipe;
 
 import com.google.gson.JsonObject;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.ICraftingRecipe;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.ShapelessRecipe;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
-import net.minecraftforge.registries.ForgeRegistryEntry;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.level.Level;
 
-public class ExtendedShapelessRecipe implements ICraftingRecipe {
+public class ExtendedShapelessRecipe implements CraftingRecipe {
     private ShapelessRecipe wrapped;
 
     public ExtendedShapelessRecipe(ShapelessRecipe wrapped) {
@@ -21,13 +18,13 @@ public class ExtendedShapelessRecipe implements ICraftingRecipe {
     }
 
     @Override
-    public boolean matches(CraftingInventory inv, World world) {
+    public boolean matches(CraftingContainer inv, Level world) {
         return wrapped.matches(inv, world);
     }
 
     @Override
-    public ItemStack assemble(CraftingInventory inv) {
-        return ExtendedRecipe.addNBTToResult(this, wrapped.assemble(inv), inv);
+    public ItemStack assemble(CraftingContainer inv, RegistryAccess registryAccess) {
+        return ExtendedRecipe.addNBTToResult(this, wrapped.assemble(inv, registryAccess), inv);
     }
 
     @Override
@@ -36,12 +33,12 @@ public class ExtendedShapelessRecipe implements ICraftingRecipe {
     }
 
     @Override
-    public ItemStack getResultItem() {
-        return wrapped.getResultItem();
+    public ItemStack getResultItem(RegistryAccess registryAccess) {
+        return wrapped.getResultItem(registryAccess);
     }
 
     @Override
-    public NonNullList<ItemStack> getRemainingItems(CraftingInventory inv) {
+    public NonNullList<ItemStack> getRemainingItems(CraftingContainer inv) {
         return wrapped.getRemainingItems(inv);
     }
 
@@ -56,7 +53,7 @@ public class ExtendedShapelessRecipe implements ICraftingRecipe {
     }
 
     @Override
-    public IRecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<?> getSerializer() {
         return RecipeSerializers.CRAFTING_SHAPELESS_EXTENDED;
     }
 
@@ -65,25 +62,29 @@ public class ExtendedShapelessRecipe implements ICraftingRecipe {
         return wrapped.getGroup();
     }
 
-    public static final class Serializer extends ForgeRegistryEntry<IRecipeSerializer<?>>
-        implements IRecipeSerializer<ExtendedShapelessRecipe> {
+    @Override
+    public CraftingBookCategory category() {
+        return wrapped.category();
+    }
+
+    public static final class Serializer implements RecipeSerializer<ExtendedShapelessRecipe> {
 
         @Override
         public ExtendedShapelessRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
-            ShapelessRecipe wrapped = IRecipeSerializer.SHAPELESS_RECIPE.fromJson(recipeId, json);
+            ShapelessRecipe wrapped = RecipeSerializer.SHAPELESS_RECIPE.fromJson(recipeId, json);
             return new ExtendedShapelessRecipe(wrapped);
         }
 
         @Override
-        public ExtendedShapelessRecipe fromNetwork(ResourceLocation recipeId, PacketBuffer buff) {
-            ShapelessRecipe wrapped = IRecipeSerializer.SHAPELESS_RECIPE.fromNetwork(recipeId, buff);
+        public ExtendedShapelessRecipe fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buff) {
+            ShapelessRecipe wrapped = RecipeSerializer.SHAPELESS_RECIPE.fromNetwork(recipeId, buff);
             return new ExtendedShapelessRecipe(wrapped);
         }
 
         @Override
-        public void toNetwork(PacketBuffer buff, ExtendedShapelessRecipe recipe) {
-            IRecipeSerializer<ShapelessRecipe> serializer =
-                (IRecipeSerializer<ShapelessRecipe>) recipe.wrapped.getSerializer();
+        public void toNetwork(FriendlyByteBuf buff, ExtendedShapelessRecipe recipe) {
+            RecipeSerializer<net.minecraft.world.item.crafting.ShapelessRecipe> serializer =
+                    (RecipeSerializer<ShapelessRecipe>) recipe.wrapped.getSerializer();
             serializer.toNetwork(buff, recipe.wrapped);
         }
     }

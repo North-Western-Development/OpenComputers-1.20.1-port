@@ -1,8 +1,8 @@
 package li.cil.oc.api.internal;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import li.cil.oc.api.Persistable;
 import li.cil.oc.api.network.ManagedEnvironment;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -497,7 +497,7 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      * call to this method.
      */
     @OnlyIn(Dist.CLIENT)
-    boolean renderText(GuiGraphics stack);
+    boolean renderText(PoseStack stack);
 
     /**
      * The natural width of the rendered text.

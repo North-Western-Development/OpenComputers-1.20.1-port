@@ -2,17 +2,17 @@ package li.cil.oc.integration.appeng
 
 import java.util.Optional
 import javax.annotation.Nonnull
-
 import appeng.api._
 import appeng.api.networking.IGrid
-import appeng.api.networking.crafting.ICraftingGrid
-import appeng.api.networking.energy.IEnergyGrid
-import appeng.api.networking.storage.IStorageGrid
+import appeng.api.networking.crafting.{ICraftingGrid, ICraftingService}
+import appeng.api.networking.energy.{IEnergyGrid, IEnergyService}
+import appeng.api.networking.storage.{IStorageGrid, IStorageService}
+import appeng.api.stacks.AEKey
 import appeng.api.storage.channels.{IFluidStorageChannel, IItemStorageChannel}
-import appeng.api.storage.data.{IAEFluidStack, IAEItemStack}
+import appeng.api.storage.data.{AEKey, IAEFluidStack}
 import appeng.api.storage.IStorageHelper
 import li.cil.oc.integration.Mods
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import net.minecraftforge.fml.ModList
 import net.minecraftforge.forgespi.language.MavenVersionAdapter
 import org.apache.maven.artifact.versioning.VersionRange
@@ -29,7 +29,7 @@ object AEUtil {
 
   private def onAPIAvailable(aeApi: IAppEngApi) {
     AEUtil.aeApi = Some(aeApi)
-    itemStorageChannel = aeApi.storage.getStorageChannel[IAEItemStack, IItemStorageChannel](classOf[IItemStorageChannel])
+    itemStorageChannel = aeApi.storage.getStorageChannel[AEKey, IItemStorageChannel](classOf[IItemStorageChannel])
     fluidStorageChannel = aeApi.storage.getStorageChannel[IAEFluidStack, IFluidStorageChannel](classOf[IFluidStorageChannel])
   }
 
@@ -71,13 +71,13 @@ object AEUtil {
 
   // ----------------------------------------------------------------------- //
 
-  def getGridStorage(@Nonnull grid: IGrid): IStorageGrid = grid.getCache( classOf[IStorageGrid] )
+  def getGridStorage(@Nonnull grid: IGrid): IStorageService = grid.getStorageService
 
   // ----------------------------------------------------------------------- //
 
-  def getGridCrafting(@Nonnull grid: IGrid): ICraftingGrid = grid.getCache( classOf[ICraftingGrid] )
+  def getGridCrafting(@Nonnull grid: IGrid): ICraftingService = grid.getCraftingService
 
   // ----------------------------------------------------------------------- //
 
-  def getGridEnergy(@Nonnull grid: IGrid): IEnergyGrid = grid.getCache( classOf[IEnergyGrid] )
+  def getGridEnergy(@Nonnull grid: IGrid): IEnergyService = grid.getEnergyService
 }

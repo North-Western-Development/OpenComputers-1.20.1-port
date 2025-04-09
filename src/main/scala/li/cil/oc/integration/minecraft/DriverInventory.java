@@ -8,17 +8,17 @@ import li.cil.oc.api.network.ManagedEnvironment;
 import li.cil.oc.api.prefab.DriverSidedTileEntity;
 import li.cil.oc.integration.ManagedTileEntityEnvironment;
 import li.cil.oc.util.BlockPosition;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.INameable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.Nameable;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -27,28 +27,28 @@ import net.minecraftforge.eventbus.api.Event;
 public final class DriverInventory extends DriverSidedTileEntity {
     @Override
     public Class<?> getTileEntityClass() {
-        return IInventory.class;
+        return Container.class;
     }
 
     @Override
-    public ManagedEnvironment createEnvironment(final World world, final BlockPos pos, final Direction side) {
+    public ManagedEnvironment createEnvironment(final Level world, final BlockPos pos, final Direction side) {
         return new Environment(world.getBlockEntity(pos), world);
     }
 
-    public static final class Environment extends ManagedTileEntityEnvironment<IInventory> {
-        private final PlayerEntity fakePlayer;
+    public static final class Environment extends ManagedTileEntityEnvironment<Container> {
+        private final Player fakePlayer;
         private final BlockPosition position;
 
-        public Environment(final TileEntity tileEntity, final World world) {
-            super((IInventory) tileEntity, "inventory");
-            fakePlayer = FakePlayerFactory.get((ServerWorld) world, Settings.get().fakePlayerProfile());
+        public Environment(final BlockEntity tileEntity, final Level world) {
+            super((Container) tileEntity, "inventory");
+            fakePlayer = FakePlayerFactory.get((ServerLevel) world, Settings.get().fakePlayerProfile());
             position = BlockPosition.apply(tileEntity.getBlockPos(), world);
         }
 
         @Callback(doc = "function():string -- Get the name of this inventory.")
         public Object[] getInventoryName(final Context context, final Arguments args) {
             if (notPermitted()) return new Object[]{null, "permission denied"};
-            if (tileEntity instanceof INameable) return new Object[]{((INameable) tileEntity).getName().getString()};
+            if (tileEntity instanceof Nameable) return new Object[]{((Nameable) tileEntity).getName().getString()};
             return new Object[]{null, "inventory is unnamed"};
         }
 
@@ -182,8 +182,8 @@ public final class DriverInventory extends DriverSidedTileEntity {
         private boolean notPermitted() {
             synchronized (fakePlayer) {
                 fakePlayer.setPos(position.toVec3().x, position.toVec3().y, position.toVec3().z);
-                final BlockRayTraceResult trace = new BlockRayTraceResult(fakePlayer.position(), Direction.DOWN, position.toBlockPos(), false);
-                final PlayerInteractEvent.RightClickBlock event = new PlayerInteractEvent.RightClickBlock(fakePlayer, Hand.MAIN_HAND, position.toBlockPos(), trace);
+                final BlockHitResult trace = new BlockHitResult(fakePlayer.position(), Direction.DOWN, position.toBlockPos(), false);
+                final PlayerInteractEvent.RightClickBlock event = new PlayerInteractEvent.RightClickBlock(fakePlayer, InteractionHand.MAIN_HAND, position.toBlockPos(), trace);
                 MinecraftForge.EVENT_BUS.post(event);
                 return !event.isCanceled() && event.getUseBlock() != Event.Result.DENY && !tileEntity.stillValid(fakePlayer);
             }

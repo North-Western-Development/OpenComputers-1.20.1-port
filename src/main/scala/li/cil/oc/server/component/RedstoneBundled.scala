@@ -1,7 +1,6 @@
 package li.cil.oc.server.component
 
-import java.util
-
+import java.{lang, util}
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -11,7 +10,7 @@ import li.cil.oc.api.machine.Arguments
 import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
 import li.cil.oc.common.tileentity.traits.BundledRedstoneAware
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 
 import scala.collection.convert.ImplicitConversionsToJava._
 
@@ -104,7 +103,7 @@ trait RedstoneBundled extends RedstoneVanilla {
     var ret: AnyRef = null
     if (getBundleAssignment(args) match {
       case (side: Direction, color: Int, value: Int) =>
-        ret = new java.lang.Integer(redstone.getBundledOutput(side, color))
+        ret = lang.Integer.valueOf(redstone.getBundledOutput(side, color))
         redstone.setBundledOutput(side, color, value)
       case (side: Direction, value: util.Map[_, _], _) =>
         ret = redstone.getBundledOutput(side)

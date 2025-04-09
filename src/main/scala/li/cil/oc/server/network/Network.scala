@@ -1,28 +1,18 @@
 package li.cil.oc.server.network
 
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{OpenComputers, Settings, api}
 import li.cil.oc.api.network
-import li.cil.oc.api.network._
-import li.cil.oc.api.network.{Node => ImmutableNode}
+import li.cil.oc.api.network.{Node => ImmutableNode, _}
 import li.cil.oc.common.capabilities.Capabilities
 import li.cil.oc.common.tileentity
-import li.cil.oc.server.network.Component
-import li.cil.oc.server.network.ComponentConnector
-import li.cil.oc.server.network.Connector
-import li.cil.oc.server.network.{Node => MutableNode}
-import li.cil.oc.util.Color
-import li.cil.oc.util.ResultWrapper
-import li.cil.oc.util.SideTracker
-import net.minecraft.item.DyeColor
+import li.cil.oc.server.network.{Component, ComponentConnector, Connector, Node => MutableNode}
+import li.cil.oc.util.{Color, ResultWrapper, SideTracker}
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt._
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.RegistryKey
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.IBlockReader
-import net.minecraft.world.World
+import net.minecraft.resources.ResourceKey
+import net.minecraft.world.item.DyeColor
+import net.minecraft.world.level.{BlockGetter, Level}
+import net.minecraft.world.level.block.entity.BlockEntity
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -448,7 +438,7 @@ private class Network private(private val data: mutable.Map[String, Network.Vert
 }
 
 object Network extends api.detail.NetworkAPI {
-  override def joinOrCreateNetwork(world: IBlockReader, pos: BlockPos): Unit = {
+  override def joinOrCreateNetwork(world: BlockGetter, pos: BlockPos): Unit = {
     val tileEntity = world.getBlockEntity(pos)
     if (tileEntity != null && !tileEntity.isRemoved && tileEntity.getLevel != null && !tileEntity.getLevel.isClientSide) {
       for (side <- Direction.values) {
@@ -477,7 +467,7 @@ object Network extends api.detail.NetworkAPI {
     }
   }
 
-  override def joinOrCreateNetwork(tileEntity: TileEntity): Unit = {
+  override def joinOrCreateNetwork(tileEntity: BlockEntity): Unit = {
     if (tileEntity != null) {
       val world = tileEntity.getLevel
       val pos = tileEntity.getBlockPos
@@ -493,7 +483,7 @@ object Network extends api.detail.NetworkAPI {
     case _ =>
   }
 
-  def getNetworkNode(tileEntity: TileEntity, side: Direction): Option[ImmutableNode] = {
+  def getNetworkNode(tileEntity: BlockEntity, side: Direction): Option[ImmutableNode] = {
     if (tileEntity != null) {
       if (tileEntity.getCapability(Capabilities.SidedEnvironmentCapability, side).isPresent) {
         val host = tileEntity.getCapability(Capabilities.SidedEnvironmentCapability, side).orElse(null)
@@ -509,7 +499,7 @@ object Network extends api.detail.NetworkAPI {
     None
   }
 
-  private def getConnectionColor(tileEntity: TileEntity): Int = {
+  private def getConnectionColor(tileEntity: BlockEntity): Int = {
     if (tileEntity != null) {
       if (tileEntity.getCapability(Capabilities.ColoredCapability, null).isPresent) {
         val colored = tileEntity.getCapability(Capabilities.ColoredCapability, null).orElse(null)
@@ -520,12 +510,12 @@ object Network extends api.detail.NetworkAPI {
     Color.rgbValues(DyeColor.LIGHT_GRAY)
   }
 
-  private def canConnectBasedOnColor(te1: TileEntity, te2: TileEntity) = {
+  private def canConnectBasedOnColor(te1: BlockEntity, te2: BlockEntity) = {
     val (c1, c2) = (getConnectionColor(te1), getConnectionColor(te2))
     c1 == c2 || c1 == Color.rgbValues(DyeColor.LIGHT_GRAY) || c2 == Color.rgbValues(DyeColor.LIGHT_GRAY)
   }
 
-  private def canConnectFromSideIM(tileEntity: TileEntity, side: Direction) =
+  private def canConnectFromSideIM(tileEntity: BlockEntity, side: Direction) =
     tileEntity match {
       case im: tileentity.traits.ImmibisMicroblock => im.ImmibisMicroblocks_isSideOpen(side.ordinal)
       case _ => true
@@ -545,7 +535,7 @@ object Network extends api.detail.NetworkAPI {
     WirelessNetwork.remove(endpoint)
   }
 
-  override def leaveWirelessNetwork(endpoint: WirelessEndpoint, dimension: RegistryKey[World]) {
+  override def leaveWirelessNetwork(endpoint: WirelessEndpoint, dimension: ResourceKey[Level]) {
     WirelessNetwork.remove(endpoint, dimension)
   }
 
@@ -571,7 +561,7 @@ object Network extends api.detail.NetworkAPI {
     packet
   }
 
-  override def newPacket(nbt: CompoundNBT) = {
+  override def newPacket(nbt: CompoundTag) = {
     val source = nbt.getString("source")
     val destination =
       if (nbt.contains("dest")) null
@@ -581,14 +571,14 @@ object Network extends api.detail.NetworkAPI {
     val data = (for (i <- 0 until nbt.getInt("dataLength")) yield {
       if (nbt.contains("data" + i)) {
         nbt.get("data" + i) match {
-          case tag: ByteNBT => Boolean.box(tag.getAsByte == 1)
-          case tag: ShortNBT => Short.box(tag.getAsShort)
-          case tag: IntNBT => Int.box(tag.getAsInt)
-          case tag: LongNBT => Long.box(tag.getAsLong)
-          case tag: FloatNBT => Float.box(tag.getAsFloat)
-          case tag: DoubleNBT => Double.box(tag.getAsDouble)
-          case tag: StringNBT => tag.getAsString: AnyRef
-          case tag: ByteArrayNBT => tag.getAsByteArray
+          case tag: ByteTag => Boolean.box(tag.getAsByte == 1)
+          case tag: ShortTag => Short.box(tag.getAsShort)
+          case tag: IntTag => Int.box(tag.getAsInt)
+          case tag: LongTag => Long.box(tag.getAsLong)
+          case tag: FloatTag => Float.box(tag.getAsFloat)
+          case tag: DoubleTag => Double.box(tag.getAsDouble)
+          case tag: StringTag => tag.getAsString: AnyRef
+          case tag: ByteArrayTag => tag.getAsByteArray
         }
       }
       else null
@@ -732,7 +722,7 @@ object Network extends api.detail.NetworkAPI {
 
     override def hop() = new Packet(source, destination, port, data, ttl - 1)
 
-    override def saveData(nbt: CompoundNBT) {
+    override def saveData(nbt: CompoundTag) {
       nbt.putString("source", source)
       if (destination != null && !destination.isEmpty) {
         nbt.putString("dest", destination)

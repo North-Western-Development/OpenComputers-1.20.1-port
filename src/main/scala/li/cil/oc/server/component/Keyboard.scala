@@ -1,22 +1,15 @@
 package li.cil.oc.server.component
 
-import java.util
-
-import li.cil.oc.Constants
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, Settings, api}
 import li.cil.oc.api.Network
 import li.cil.oc.api.driver.DeviceInfo
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
 import li.cil.oc.api.internal.Keyboard.UsabilityChecker
-import li.cil.oc.api.network.EnvironmentHost
-import li.cil.oc.api.network.Message
-import li.cil.oc.api.network.Visibility
-import li.cil.oc.api.prefab
+import li.cil.oc.api.network.{EnvironmentHost, Message, Visibility}
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
-import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.world.entity.player.Player
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 
@@ -28,7 +21,7 @@ class Keyboard(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
     withComponent("keyboard").
     create()
 
-  val pressedKeys = mutable.Map.empty[PlayerEntity, mutable.Map[Integer, Character]]
+  val pressedKeys = mutable.Map.empty[Player, mutable.Map[Integer, Character]]
 
   var usableOverride: Option[api.internal.Keyboard.UsabilityChecker] = None
 
@@ -47,7 +40,7 @@ class Keyboard(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
 
   // ----------------------------------------------------------------------- //
 
-  def releasePressedKeys(player: PlayerEntity) {
+  def releasePressedKeys(player: Player) {
     pressedKeys.get(player) match {
       case Some(keys) => for ((code, char) <- keys) {
         if (Settings.get.inputUsername) {
@@ -66,7 +59,7 @@ class Keyboard(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
 
   override def onMessage(message: Message) = {
     message.data match {
-      case Array(p: PlayerEntity, char: Character, code: Integer) if message.name == "keyboard.keyDown" =>
+      case Array(p: Player, char: Character, code: Integer) if message.name == "keyboard.keyDown" =>
         if (isUsableByPlayer(p)) {
           pressedKeys.getOrElseUpdate(p, mutable.Map.empty[Integer, Character]) += code -> char
           if (Settings.get.inputUsername) {
@@ -76,7 +69,7 @@ class Keyboard(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
             signal(p, "key_down", char, code)
           }
         }
-      case Array(p: PlayerEntity, char: Character, code: Integer) if message.name == "keyboard.keyUp" =>
+      case Array(p: Player, char: Character, code: Integer) if message.name == "keyboard.keyUp" =>
         pressedKeys.get(p) match {
           case Some(keys) if keys.contains(code) =>
             keys -= code
@@ -88,14 +81,14 @@ class Keyboard(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
             }
           case _ =>
         }
-      case Array(p: PlayerEntity, codePt: Integer) if message.name == "keyboard.textInput" =>
+      case Array(p: Player, codePt: Integer) if message.name == "keyboard.textInput" =>
         if (Settings.get.inputUsername) {
           signal(p, "text_input", new String(Character.toChars(codePt)), p.getName.getString)
         }
         else {
           signal(p, "text_input", new String(Character.toChars(codePt)))
         }
-      case Array(p: PlayerEntity, value: String) if message.name == "keyboard.clipboard" =>
+      case Array(p: Player, value: String) if message.name == "keyboard.clipboard" =>
         if (isUsableByPlayer(p)) {
           for (line <- value.linesWithSeparators) {
             if (Settings.get.inputUsername) {
@@ -112,7 +105,7 @@ class Keyboard(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
 
   // ----------------------------------------------------------------------- //
 
-  def isUsableByPlayer(p: PlayerEntity) = usableOverride match {
+  def isUsableByPlayer(p: Player) = usableOverride match {
     case Some(callback) => callback.isUsableByPlayer(this, p)
     case _ => p.distanceToSqr(host.xPosition, host.yPosition, host.zPosition) <= 64
   }

@@ -1,33 +1,27 @@
 package li.cil.oc.server.component
 
-import java.util
-
-import li.cil.oc.Constants
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, Settings, api}
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
 import li.cil.oc.api.event.SignChangeEvent
 import li.cil.oc.api.internal
-import li.cil.oc.api.network.EnvironmentHost
-import li.cil.oc.api.network.Message
-import li.cil.oc.api.prefab
+import li.cil.oc.api.network.{EnvironmentHost, Message}
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedWorld._
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.tileentity.SignTileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.core.Direction
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.SignBlockEntity
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.FakePlayerFactory
-import net.minecraftforge.event.world.BlockEvent
+import net.minecraftforge.event.level.BlockEvent
 import net.minecraftforge.eventbus.api.Event
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 
 abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
@@ -42,19 +36,19 @@ abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
 
   def host: EnvironmentHost
 
-  protected def getValue(tileEntity: Option[SignTileEntity]): Array[AnyRef] = {
+  protected def getValue(tileEntity: Option[SignBlockEntity]): Array[AnyRef] = {
     tileEntity match {
       case Some(sign) => result(sign.messages.map(_.getString).mkString("\n"))
       case _ => result((), "no sign")
     }
   }
 
-  protected def setValue(tileEntity: Option[SignTileEntity], text: String): Array[AnyRef] = {
+  protected def setValue(tileEntity: Option[SignBlockEntity], text: String): Array[AnyRef] = {
     tileEntity match {
       case Some(sign) =>
         val player = host match {
           case robot: internal.Robot => robot.player
-          case _ => FakePlayerFactory.get(host.world.asInstanceOf[ServerWorld], Settings.get.fakePlayerProfile)
+          case _ => FakePlayerFactory.get(host.world.asInstanceOf[ServerLevel], Settings.get.fakePlayerProfile)
         }
 
         val lines = text.linesIterator.padTo(4, "").map(line => if (line.length > 15) line.substring(0, 15) else line).toArray
@@ -63,7 +57,7 @@ abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
           return result((), "not allowed")
         }
 
-        lines.map(line => new StringTextComponent(line)).copyToArray(sign.messages)
+        lines.map(line => Component.literal(line)).copyToArray(sign.messages)
         host.world.notifyBlockUpdate(sign.getBlockPos)
 
         MinecraftForge.EVENT_BUS.post(new SignChangeEvent.Post(sign, lines))
@@ -76,15 +70,15 @@ abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
   protected def findSign(side: Direction) = {
     val hostPos = BlockPosition(host)
     host.world.getBlockEntity(hostPos) match {
-      case sign: SignTileEntity => Option(sign)
+      case sign: SignBlockEntity => Option(sign)
       case _ => host.world.getBlockEntity(hostPos.offset(side)) match {
-        case sign: SignTileEntity => Option(sign)
+        case sign: SignBlockEntity => Option(sign)
         case _ => None
       }
     }
   }
 
-  private def canChangeSign(player: PlayerEntity, tileEntity: SignTileEntity, lines: Array[String]): Boolean = {
+  private def canChangeSign(player: Player, tileEntity: SignBlockEntity, lines: Array[String]): Boolean = {
     if (!host.world.mayInteract(player, tileEntity.getBlockPos)) {
       return false
     }
@@ -103,9 +97,9 @@ abstract class UpgradeSign extends AbstractManagedEnvironment with DeviceInfo {
     super.onMessage(message)
     if (message.name == "tablet.use") message.source.host match {
       case machine: api.machine.Machine => (machine.host, message.data) match {
-        case (tablet: internal.Tablet, Array(nbt: CompoundNBT, stack: ItemStack, player: PlayerEntity, blockPos: BlockPosition, side: Direction, hitX: java.lang.Float, hitY: java.lang.Float, hitZ: java.lang.Float)) =>
+        case (tablet: internal.Tablet, Array(nbt: CompoundTag, stack: ItemStack, player: Player, blockPos: BlockPosition, side: Direction, hitX: java.lang.Float, hitY: java.lang.Float, hitZ: java.lang.Float)) =>
           host.world.getBlockEntity(blockPos) match {
-            case sign: SignTileEntity =>
+            case sign: SignBlockEntity =>
               nbt.putString("signText", sign.messages.map(_.getString).mkString("\n"))
             case _ =>
           }

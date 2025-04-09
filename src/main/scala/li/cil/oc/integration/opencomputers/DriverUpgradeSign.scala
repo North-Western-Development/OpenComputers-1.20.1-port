@@ -11,7 +11,7 @@ import li.cil.oc.common.Slot
 import li.cil.oc.server.component
 import li.cil.oc.server.component.UpgradeSignInAdapter
 import li.cil.oc.server.component.UpgradeSignInRotatable
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 object DriverUpgradeSign extends Item with HostAware {
   override def worksWith(stack: ItemStack) = isOneOf(stack,

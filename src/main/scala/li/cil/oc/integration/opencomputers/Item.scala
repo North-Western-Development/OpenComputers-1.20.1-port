@@ -1,16 +1,13 @@
 package li.cil.oc.integration.opencomputers
 
-import com.google.common.base.Strings
-import li.cil.oc.Settings
-import li.cil.oc.api
-import li.cil.oc.api.driver
+import li.cil.oc.{Settings, api}
 import li.cil.oc.api.driver.DriverItem
-import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.api.internal
+import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.common.Tier
 import li.cil.oc.server.driver.Registry
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.item.ItemStack
 
 import scala.annotation.tailrec
 
@@ -18,13 +15,13 @@ trait Item extends DriverItem {
   def worksWith(stack: ItemStack, host: Class[_ <: EnvironmentHost]): Boolean =
     worksWith(stack) && !Registry.blacklist.exists {
       case (blacklistedStack, blacklistedHost) =>
-        stack.sameItem(blacklistedStack) &&
+        ItemStack.isSameItem(stack,blacklistedStack) &&
           blacklistedHost.exists(_.isAssignableFrom(host))
     }
 
   override def tier(stack: ItemStack) = Tier.One
 
-  override def dataTag(stack: ItemStack): CompoundNBT = Item.dataTag(stack)
+  override def dataTag(stack: ItemStack): CompoundTag = Item.dataTag(stack)
 
   protected def isOneOf(stack: ItemStack, items: api.detail.ItemInfo*): Boolean = items.filter(_ != null).contains(api.Items.get(stack))
 
@@ -46,22 +43,22 @@ trait Item extends DriverItem {
 }
 
 object Item {
-  def dataTag(stack: ItemStack): CompoundNBT = {
+  def dataTag(stack: ItemStack): CompoundTag = {
     val nbt = stack.getOrCreateTag
     if (!nbt.contains(Settings.namespace + "data")) {
-      nbt.put(Settings.namespace + "data", new CompoundNBT())
+      nbt.put(Settings.namespace + "data", new CompoundTag())
     }
     nbt.getCompound(Settings.namespace + "data")
   }
 
   @tailrec
-  private def getTag(tagCompound: CompoundNBT, keys: Array[String]): Option[CompoundNBT] = {
+  private def getTag(tagCompound: CompoundTag, keys: Array[String]): Option[CompoundTag] = {
     if (keys.length == 0) Option(tagCompound)
     else if (!tagCompound.contains(keys(0))) None
     else getTag(tagCompound.getCompound(keys(0)), keys.drop(1))
   }
 
-  private def getTag(stack: ItemStack, keys: Array[String]): Option[CompoundNBT] = {
+  private def getTag(stack: ItemStack, keys: Array[String]): Option[CompoundTag] = {
     if (stack == null || stack.getCount == 0 || stack == ItemStack.EMPTY) None
     else if (!stack.hasTag) None
     else getTag(stack.getTag, keys)

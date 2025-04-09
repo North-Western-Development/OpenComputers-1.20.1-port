@@ -1,22 +1,22 @@
 package li.cil.oc.client.renderer.block
 
+import li.cil.oc.client.Textures
+import net.minecraft.client.Minecraft
+import net.minecraft.client.renderer.block.model.{BakedQuad, ItemOverrides, ItemTransform, ItemTransforms}
+import net.minecraft.client.renderer.texture.TextureAtlasSprite
+import net.minecraft.client.resources.model.BakedModel
+import net.minecraft.core.Direction
+import net.minecraft.util.RandomSource
+import net.minecraft.world.level.block.state.BlockState
+import org.joml.{Vector3d, Vector3f}
+
 import java.util
 import java.util.Collections
 
-import li.cil.oc.client.Textures
-import net.minecraft.block.BlockState
-import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.model._
-import net.minecraft.client.renderer.texture.TextureAtlasSprite
-import net.minecraft.util.Direction
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.util.math.vector.Vector3f
+trait SmartBlockModelBase extends BakedModel {
+  override def getOverrides: ItemOverrides = ItemOverrides.EMPTY
 
-trait SmartBlockModelBase extends IBakedModel {
-  override def getOverrides: ItemOverrideList = ItemOverrideList.EMPTY
-
-  @Deprecated
-  override def getQuads(state: BlockState, side: Direction, rand: util.Random): util.List[BakedQuad] = Collections.emptyList()
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource): util.List[BakedQuad] = Collections.emptyList()
 
   override def useAmbientOcclusion = true
 
@@ -32,18 +32,18 @@ trait SmartBlockModelBase extends IBakedModel {
   override def getParticleIcon = Textures.getSprite(Textures.Block.GenericTop)
 
   @Deprecated
-  override def getTransforms = DefaultBlockCameraTransforms
+  override def getTransforms: ItemTransforms = DefaultBlockCameraTransforms
 
   @Deprecated
   protected final val DefaultBlockCameraTransforms = {
-    val gui = new ItemTransformVec3f(new Vector3f(30, 225, 0), new Vector3f(0, 0, 0), new Vector3f(0.625f, 0.625f, 0.625f))
-    val ground = new ItemTransformVec3f(new Vector3f(0, 0, 0), new Vector3f(0, 3, 0), new Vector3f(0.25f, 0.25f, 0.25f))
-    val fixed = new ItemTransformVec3f(new Vector3f(0, 0, 0), new Vector3f(0, 0, 0), new Vector3f(0.5f, 0.5f, 0.5f))
-    val thirdperson_righthand = new ItemTransformVec3f(new Vector3f(75, 45, 0), new Vector3f(0, 2.5f, 0), new Vector3f(0.375f, 0.375f, 0.375f))
-    val firstperson_righthand = new ItemTransformVec3f(new Vector3f(0, 45, 0), new Vector3f(0, 0, 0), new Vector3f(0.40f, 0.40f, 0.40f))
-    val firstperson_lefthand = new ItemTransformVec3f(new Vector3f(0, 225, 0), new Vector3f(0, 0, 0), new Vector3f(0.40f, 0.40f, 0.40f))
+    val gui = new ItemTransform(new Vector3f(30, 225, 0), new Vector3f(0, 0, 0), new Vector3f(0.625f, 0.625f, 0.625f))
+    val ground = new ItemTransform(new Vector3f(0, 0, 0), new Vector3f(0, 3, 0), new Vector3f(0.25f, 0.25f, 0.25f))
+    val fixed = new ItemTransform(new Vector3f(0, 0, 0), new Vector3f(0, 0, 0), new Vector3f(0.5f, 0.5f, 0.5f))
+    val thirdperson_righthand = new ItemTransform(new Vector3f(75, 45, 0), new Vector3f(0, 2.5f, 0), new Vector3f(0.375f, 0.375f, 0.375f))
+    val firstperson_righthand = new ItemTransform(new Vector3f(0, 45, 0), new Vector3f(0, 0, 0), new Vector3f(0.40f, 0.40f, 0.40f))
+    val firstperson_lefthand = new ItemTransform(new Vector3f(0, 225, 0), new Vector3f(0, 0, 0), new Vector3f(0.40f, 0.40f, 0.40f))
 
-    // scale(0.0625f): see ItemTransformVec3f.Deserializer.deserialize.
+    // scale(0.0625f): see ItemTransform.Deserializer.deserialize.
     gui.translation.mul(0.0625f)
     ground.translation.mul(0.0625f)
     fixed.translation.mul(0.0625f)
@@ -51,12 +51,12 @@ trait SmartBlockModelBase extends IBakedModel {
     firstperson_righthand.translation.mul(0.0625f)
     firstperson_lefthand.translation.mul(0.0625f)
 
-    new ItemCameraTransforms(
-      ItemTransformVec3f.NO_TRANSFORM,
+    new ItemTransforms(
+      ItemTransform.NO_TRANSFORM,
       thirdperson_righthand,
       firstperson_lefthand,
       firstperson_righthand,
-      ItemTransformVec3f.NO_TRANSFORM,
+      ItemTransform.NO_TRANSFORM,
       gui,
       ground,
       fixed)
@@ -107,7 +107,7 @@ trait SmartBlockModelBase extends IBakedModel {
 
   protected def rotateVector(v: Vector3d, angle: Double, axis: Vector3d) = {
     // vrot = v * cos(angle) + (axis x v) * sin(angle) + axis * (axis dot v)(1 - cos(angle))
-    def scale(v: Vector3d, s: Double) = v.scale(s)
+    def scale(v: Vector3d, s: Double) = v.mul(s)
     val cosAngle = math.cos(angle)
     val sinAngle = math.sin(angle)
     scale(v, cosAngle).
@@ -116,7 +116,7 @@ trait SmartBlockModelBase extends IBakedModel {
   }
 
   protected def rotateFace(face: Array[Vector3d], angle: Double, axis: Vector3d, around: Vector3d = new Vector3d(0.5, 0.5, 0.5)) = {
-    face.map(v => rotateVector(v.subtract(around), angle, axis).add(around))
+    face.map(v => rotateVector(v.sub(around), angle, axis).add(around))
   }
 
   protected def rotateBox(box: Array[Array[Vector3d]], angle: Double, axis: Vector3d = new Vector3d(0, 1, 0), around: Vector3d = new Vector3d(0.5, 0.5, 0.5)) = {
@@ -177,7 +177,7 @@ trait SmartBlockModelBase extends IBakedModel {
     })
   }
 
-  // See FaceBakery#fillVertex, IVertexBuilder#putBulkData and ForgeHooksClient#fillNormal.
+  // See FaceBakery#fillVertex, VertexConsumer#putBulkData and ForgeHooksClient#fillNormal.
   protected def rawData(x: Double, y: Double, z: Double, face: Direction, texture: TextureAtlasSprite, u: Float, v: Float, colorRGB: Int) = {
     val vx = (face.getStepX * 127) & 0xFF
     val vy = (face.getStepY * 127) & 0xFF

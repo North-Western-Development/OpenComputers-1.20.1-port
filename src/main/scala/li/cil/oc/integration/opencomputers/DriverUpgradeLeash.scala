@@ -8,8 +8,8 @@ import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
 import li.cil.oc.server.component
-import net.minecraft.entity.Entity
-import net.minecraft.item.ItemStack
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.item.ItemStack
 
 object DriverUpgradeLeash extends Item with HostAware {
   override def worksWith(stack: ItemStack) = isOneOf(stack,

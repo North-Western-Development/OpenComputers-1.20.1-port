@@ -1,8 +1,8 @@
 package li.cil.oc.integration.enderstorage;
 
-import codechicken.enderstorage.tile.TileFrequencyOwner;
-import codechicken.enderstorage.tile.TileEnderTank;
 import codechicken.enderstorage.api.Frequency;
+import codechicken.enderstorage.tile.TileEnderTank;
+import codechicken.enderstorage.tile.TileFrequencyOwner;
 import codechicken.lib.colour.EnumColour;
 import li.cil.oc.api.driver.NamedBlock;
 import li.cil.oc.api.machine.Arguments;
@@ -11,11 +11,9 @@ import li.cil.oc.api.machine.Context;
 import li.cil.oc.api.network.ManagedEnvironment;
 import li.cil.oc.api.prefab.DriverSidedTileEntity;
 import li.cil.oc.integration.ManagedTileEntityEnvironment;
-import net.minecraft.world.World;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-
-import java.util.Map;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 
 public final class DriverFrequencyOwner extends DriverSidedTileEntity {
     @Override
@@ -24,7 +22,7 @@ public final class DriverFrequencyOwner extends DriverSidedTileEntity {
     }
 
     @Override
-    public ManagedEnvironment createEnvironment(final World world, final BlockPos pos, final Direction side) {
+    public ManagedEnvironment createEnvironment(final Level world, final BlockPos pos, final Direction side) {
         return new Environment((TileFrequencyOwner) world.getBlockEntity(pos));
     }
 

@@ -1,10 +1,9 @@
 package li.cil.oc.common.item
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.Settings
-import li.cil.oc.client.KeyBindings
+import li.cil.oc.client.KeyMappings
 import li.cil.oc.client.renderer.block.DroneModel
 import li.cil.oc.common.item.data.DroneData
 import li.cil.oc.common.entity
@@ -13,15 +12,16 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.Rarity
 import li.cil.oc.util.Tooltip
 import net.minecraft.client.renderer.model.ModelResourceLocation
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.item.Item.Properties
-import net.minecraft.item.ItemGroup
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Direction
-import net.minecraft.util.NonNullList
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.client.resources.model.ModelResourceLocation
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.ItemGroup
+import net.minecraft.world.item.ItemStack
+import net.minecraft.core.Direction
+import net.minecraft.core.NonNullList
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.Component
 import net.minecraftforge.client.event.ModelBakeEvent
 import net.minecraftforge.common.extensions.IForgeItem
 import net.minecraftforge.api.distmarker.Dist
@@ -29,18 +29,18 @@ import net.minecraftforge.api.distmarker.OnlyIn
 
 class Drone(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with CustomModel {
   @OnlyIn(Dist.CLIENT)
-  override def getModelLocation(stack: ItemStack) = new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.ItemName.Drone, "inventory")
+  override def getModelLocation(stack: ItemStack) = new ModelResourceLocation(Settings.resourceDomain, Constants.ItemName.Drone, "inventory")
 
   @OnlyIn(Dist.CLIENT)
   override def bakeModels(bakeEvent: ModelBakeEvent): Unit = {
     bakeEvent.getModelRegistry.put(getModelLocation(createItemStack()), DroneModel)
   }
 
-  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[ITextComponent]): Unit = {
-    if (KeyBindings.showExtendedTooltips) {
+  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[Component]): Unit = {
+    if (KeyMappings.showExtendedTooltips) {
       val info = new DroneData(stack)
       for (component <- info.components if !component.isEmpty) {
-        tooltip.add(new StringTextComponent("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
+        tooltip.add(Component.literal("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
       }
     }
   }
@@ -50,10 +50,7 @@ class Drone(props: Properties) extends Item(props) with IForgeItem with traits.S
     Rarity.byTier(data.tier)
   }
 
-  // Must be assembled to be usable so we hide it in the item list.
-  override def fillItemCategory(tab: ItemGroup, list: NonNullList[ItemStack]) {}
-
-  override def onItemUse(stack: ItemStack, player: PlayerEntity, position: BlockPosition, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = {
+  override def onItemUse(stack: ItemStack, player: Player, position: BlockPosition, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = {
     val world = position.world.get
     if (!world.isClientSide) {
       val drone = entity.EntityTypes.DRONE.create(world)

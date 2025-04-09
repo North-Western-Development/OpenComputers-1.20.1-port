@@ -1,28 +1,22 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.{DefaultVertexFormat, Tesselator, VertexFormat}
 import li.cil.oc.Localization
-import li.cil.oc.client.Textures
 import li.cil.oc.client.gui.widget.ProgressBar
 import li.cil.oc.client.renderer.TextBufferRenderCache
 import li.cil.oc.client.renderer.font.TextBufferRenderData
-import li.cil.oc.client.{PacketSender => ClientPacketSender}
+import li.cil.oc.client.{Textures, PacketSender => ClientPacketSender}
 import li.cil.oc.common.container
-import li.cil.oc.util.PackedColor
-import li.cil.oc.util.RenderState
-import li.cil.oc.util.TextBuffer
-import net.minecraft.client.gui.widget.button.Button
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.util.text.ITextComponent
-import org.lwjgl.opengl.GL11
+import li.cil.oc.util.{PackedColor, RenderState, TextBuffer}
+import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.components.Button
+import net.minecraft.network.chat.Component
+import net.minecraft.world.entity.player.Inventory
 
 import scala.collection.JavaConverters.asJavaCollection
-import scala.collection.convert.ImplicitConversionsToJava._
 
-class Drone(state: container.Drone, playerInventory: PlayerInventory, name: ITextComponent)
+class Drone(state: container.Drone, playerInventory:Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name)
   with traits.DisplayBuffer {
 
@@ -58,7 +52,7 @@ class Drone(state: container.Drone, playerInventory: PlayerInventory, name: ITex
   private val selectionsStates = 17
   private val selectionStepV = 1 / selectionsStates.toFloat
 
-  override def render(stack: MatrixStack, mouseX: Int, mouseY: Int, dt: Float) {
+  override def render(stack: GuiGraphics, mouseX: Int, mouseY: Int, dt: Float) {
     powerButton.toggled = inventoryContainer.isRunning
     bufferRenderer.dirty = inventoryContainer.statusText.linesIterator.zipWithIndex.exists {
       case (line, i) => buffer.set(0, i, line, vertical = false)
@@ -68,30 +62,31 @@ class Drone(state: container.Drone, playerInventory: PlayerInventory, name: ITex
 
   override protected def init() {
     super.init()
-    powerButton = new ImageButton(leftPos + 7, topPos + 45, 18, 18, new Button.IPressable {
+    powerButton = new ImageButton(leftPos + 7, topPos + 45, 18, 18, new Button.OnPress {
       override def onPress(b: Button) = ClientPacketSender.sendDronePower(inventoryContainer, !inventoryContainer.isRunning)
     }, Textures.GUI.ButtonPower, canToggle = true)
-    addButton(powerButton)
+    addWidget(powerButton)
   }
 
-  override protected def drawBuffer(stack: MatrixStack) {
+  override protected def drawBuffer(guiGraphics: GuiGraphics) {
+    val stack = guiGraphics.pose();
     stack.translate(bufferX, bufferY, 0)
     RenderState.disableEntityLighting()
     RenderState.makeItBlend()
     stack.scale(scale.toFloat, scale.toFloat, 1)
     RenderState.pushAttrib()
     RenderSystem.depthMask(false)
-    RenderSystem.color3f(0.5f, 0.5f, 1f)
-    TextBufferRenderCache.render(stack, bufferRenderer)
+    RenderSystem.setShaderColor(0.5f, 0.5f, 1f, 1)
+    TextBufferRenderCache.render(guiGraphics, bufferRenderer)
     RenderState.popAttrib()
   }
 
   override protected def changeSize(w: Double, h: Double) = 2.0
 
-  override protected def renderLabels(stack: MatrixStack, mouseX: Int, mouseY: Int) =
+  override protected def renderLabels(stack: GuiGraphics, mouseX: Int, mouseY: Int) =
     drawSecondaryForegroundLayer(stack, mouseX, mouseY)
 
-  override protected def drawSecondaryForegroundLayer(stack: MatrixStack, mouseX: Int, mouseY: Int) {
+  override protected def drawSecondaryForegroundLayer(stack: GuiGraphics, mouseX: Int, mouseY: Int) {
     drawBufferLayer(stack)
     RenderState.pushAttrib()
     if (isPointInRegion(power.x, power.y, power.width, power.height, mouseX - leftPos, mouseY - topPos)) {
@@ -110,34 +105,34 @@ class Drone(state: container.Drone, playerInventory: PlayerInventory, name: ITex
     RenderState.popAttrib()
   }
 
-  override protected def renderBg(stack: MatrixStack, dt: Float, mouseX: Int, mouseY: Int) {
-    RenderSystem.color3f(1, 1, 1)
-    Textures.bind(Textures.GUI.Drone)
-    blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
+  override protected def renderBg(guiGraphics: GuiGraphics, dt: Float, mouseX: Int, mouseY: Int) {
+    RenderSystem.setShaderColor(1, 1, 1, 1)
+    guiGraphics.blit(Textures.GUI.Drone,leftPos, topPos, 0, 0, imageWidth, imageHeight)
     power.level = inventoryContainer.globalBuffer.toFloat / math.max(inventoryContainer.globalBufferSize.toFloat, 1.0f)
-    drawWidgets(stack)
+    drawWidgets(guiGraphics)
     if (inventoryContainer.otherInventory.getContainerSize > 0) {
-      drawSelection(stack)
+      drawSelection(guiGraphics)
     }
 
-    drawInventorySlots(stack)
+    drawInventorySlots(guiGraphics)
   }
 
   // No custom slots, we just extend DynamicGuiContainer for the highlighting.
-  override protected def drawSlotBackground(stack: MatrixStack, x: Int, y: Int) {}
+  override protected def drawSlotBackground(guiGraphics: GuiGraphics, x: Int, y: Int) {}
 
-  private def drawSelection(stack: MatrixStack) {
+  private def drawSelection(guiGraphics: GuiGraphics) {
     val slot = inventoryContainer.selectedSlot
     if (slot >= 0 && slot < 16) {
+      val stack = guiGraphics.pose()
       Textures.bind(Textures.GUI.RobotSelection)
       val now = System.currentTimeMillis() % 1000 / 1000.0f
       val offsetV = (now * selectionsStates).toInt * selectionStepV
       val x = leftPos + inventoryX - 1 + (slot % 4) * (selectionSize - 2)
       val y = topPos + inventoryY - 1 + (slot / 4) * (selectionSize - 2)
 
-      val t = Tessellator.getInstance
+      val t = Tesselator.getInstance
       val r = t.getBuilder
-      r.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX)
+      r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
       r.vertex(stack.last.pose, x, y, getBlitOffset).uv(0, offsetV).endVertex()
       r.vertex(stack.last.pose, x, y + selectionSize, getBlitOffset).uv(0, offsetV + selectionStepV).endVertex()
       r.vertex(stack.last.pose, x + selectionSize, y + selectionSize, getBlitOffset).uv(1, offsetV + selectionStepV).endVertex()

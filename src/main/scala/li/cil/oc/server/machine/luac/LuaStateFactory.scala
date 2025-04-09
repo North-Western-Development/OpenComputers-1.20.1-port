@@ -15,7 +15,7 @@ import li.cil.oc.api.machine.Architecture
 import li.cil.oc.server.machine.Machine
 import li.cil.oc.util.ExtendedLuaState._
 import li.cil.repack.com.naef.jnlua
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 import org.apache.commons.lang3.SystemUtils
 
 import scala.util.Random

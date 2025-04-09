@@ -1,6 +1,6 @@
 package li.cil.oc.client.gui.widget
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import net.minecraft.client.gui.GuiGraphics
 
 import scala.collection.mutable
 
@@ -20,7 +20,7 @@ trait WidgetContainer {
 
   def windowZ = 0f
 
-  def drawWidgets(stack: MatrixStack) {
-    widgets.foreach(_.draw(stack))
+  def drawWidgets(guiGraphics: GuiGraphics) {
+    widgets.foreach(_.draw(guiGraphics))
   }
 }

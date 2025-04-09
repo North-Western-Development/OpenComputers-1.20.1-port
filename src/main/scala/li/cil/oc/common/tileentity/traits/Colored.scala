@@ -4,10 +4,9 @@ import li.cil.oc.Settings
 import li.cil.oc.api.internal
 import li.cil.oc.server.PacketSender
 import li.cil.oc.util.Color
-import net.minecraft.item.DyeColor
-import net.minecraft.nbt.CompoundNBT
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.item.DyeColor
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
 trait Colored extends TileEntity with internal.Colored {
   private var _color = 0
@@ -34,7 +33,7 @@ trait Colored extends TileEntity with internal.Colored {
   private final val RenderColorTag = Settings.namespace + "renderColorRGB"
   private final val RenderColorTagCompat = Settings.namespace + "renderColor"
 
-  override def loadForServer(nbt: CompoundNBT) {
+  override def loadForServer(nbt: CompoundTag) {
     super.loadForServer(nbt)
     if (nbt.contains(RenderColorTagCompat)) {
       _color = Color.rgbValues(DyeColor.byId(nbt.getInt(RenderColorTagCompat)))
@@ -44,18 +43,18 @@ trait Colored extends TileEntity with internal.Colored {
     }
   }
 
-  override def saveForServer(nbt: CompoundNBT) {
+  override def saveForServer(nbt: CompoundTag) {
     super.saveForServer(nbt)
     nbt.putInt(RenderColorTag, _color)
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def loadForClient(nbt: CompoundNBT) {
+  override def loadForClient(nbt: CompoundTag) {
     super.loadForClient(nbt)
     _color = nbt.getInt(RenderColorTag)
   }
 
-  override def saveForClient(nbt: CompoundNBT) {
+  override def saveForClient(nbt: CompoundTag) {
     super.saveForClient(nbt)
     nbt.putInt(RenderColorTag, _color)
   }

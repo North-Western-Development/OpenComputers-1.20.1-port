@@ -1,16 +1,14 @@
 package li.cil.oc.client.renderer.markdown.segment
 
-import com.mojang.blaze3d.matrix.MatrixStack
-import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.client.renderer.markdown.Document
-import net.minecraft.client.gui.FontRenderer
-import org.lwjgl.opengl.GL11
+import net.minecraft.client.gui.Font
 
 import scala.collection.mutable
 import scala.util.matching.Regex
 
 private[markdown] class TextSegment(val parent: Segment, val text: String) extends BasicTextSegment {
-  override def render(stack: MatrixStack, x: Int, y: Int, indent: Int, maxWidth: Int, renderer: FontRenderer, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = {
+  override def render(stack: PoseStack, x: Int, y: Int, indent: Int, maxWidth: Int, renderer: Font, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = {
     var currentX = x + indent
     var currentY = y
     var chars = text
@@ -64,9 +62,9 @@ private[markdown] class TextSegment(val parent: Segment, val text: String) exten
 
   // ----------------------------------------------------------------------- //
 
-  override protected def lineHeight(renderer: FontRenderer): Int = (super.lineHeight(renderer) * resolvedScale).toInt
+  override protected def lineHeight(renderer: Font): Int = (super.lineHeight(renderer) * resolvedScale).toInt
 
-  override protected def stringWidth(s: String, renderer: FontRenderer): Int = (renderer.width(resolvedFormat + s) * resolvedScale).toInt
+  override protected def stringWidth(s: String, renderer: Font): Int = (renderer.width(resolvedFormat + s) * resolvedScale).toInt
 
   // ----------------------------------------------------------------------- //
 

@@ -6,7 +6,7 @@ import li.cil.oc.api.driver.item.HostAware
 import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.common.Slot
 import li.cil.oc.server.component
-import net.minecraft.item.ItemStack
+import net.minecraft.world.item.ItemStack
 
 object DriverUpgradeTank extends Item with HostAware {
   override def worksWith(stack: ItemStack) = isOneOf(stack,

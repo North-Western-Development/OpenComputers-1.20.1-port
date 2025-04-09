@@ -2,9 +2,7 @@ package li.cil.oc.common.event
 
 import java.io.FileInputStream
 import java.io.FileOutputStream
-
-import com.mojang.blaze3d.matrix.MatrixStack
-import com.mojang.blaze3d.vertex.IVertexBuilder
+import com.mojang.blaze3d.vertex.{DefaultVertexFormat, VertexConsumer, PoseStack, Tesselator, VertexConsumer}
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api
@@ -14,12 +12,9 @@ import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.EventHandler
 import li.cil.oc.common.nanomachines.ControllerImpl
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.IRenderTypeBuffer
-import net.minecraft.client.renderer.Tessellator
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.nbt.CompressedStreamTools
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.world.entity.player.Player
+import net.minecraft.nbt.{CompoundTag, NbtIo, NbtIo}
 import net.minecraftforge.client.event.RenderGameOverlayEvent
 import net.minecraftforge.event.entity.living.LivingEvent
 import net.minecraftforge.event.entity.player.PlayerEvent
@@ -30,8 +25,8 @@ import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent
 object NanomachinesHandler {
 
   object Client {
-    val TexNanomachines = RenderTypes.createTexturedQuad("nanomachines", Textures.GUI.Nanomachines, DefaultVertexFormats.POSITION_TEX, false)
-    val TexNanomachinesBar = RenderTypes.createTexturedQuad("nanomachines_bar", Textures.GUI.NanomachinesBar, DefaultVertexFormats.POSITION_TEX, false)
+    val TexNanomachines = RenderTypes.createTexturedQuad("nanomachines", Textures.GUI.Nanomachines, DefaultVertexFormat.POSITION_TEX, false)
+    val TexNanomachinesBar = RenderTypes.createTexturedQuad("nanomachines_bar", Textures.GUI.NanomachinesBar, DefaultVertexFormat.POSITION_TEX, false)
 
     @SubscribeEvent
     def onRenderGameOverlay(e: RenderGameOverlayEvent.Post): Unit = {
@@ -39,7 +34,7 @@ object NanomachinesHandler {
         val mc = Minecraft.getInstance
         api.Nanomachines.getController(mc.player) match {
           case controller: Controller =>
-            val stack = e.getMatrixStack
+            val stack = e.getPoseStack
             val window = mc.getWindow
             val sizeX = 8
             val sizeY = 12
@@ -57,7 +52,7 @@ object NanomachinesHandler {
                 else if (y < 1) y * height
                 else y)
             val fill = controller.getLocalBuffer / controller.getLocalBufferSize
-            val buffer = IRenderTypeBuffer.immediate(Tessellator.getInstance.getBuilder)
+            val buffer = MultiBufferSource.immediate(Tesselator.getInstance.getBuilder)
             drawRect(stack, buffer.getBuffer(TexNanomachines), left.toInt, top.toInt, sizeX, sizeY, sizeX, sizeY)
             drawRect(stack, buffer.getBuffer(TexNanomachinesBar), left.toInt, top.toInt, sizeX, sizeY, sizeX, sizeY, fill.toFloat)
             buffer.endBatch()
@@ -66,7 +61,7 @@ object NanomachinesHandler {
       }
     }
 
-    private def drawRect(stack: MatrixStack, r: IVertexBuilder, x: Int, y: Int, w: Int, h: Int, tw: Int, th: Int, fill: Float = 1) {
+    private def drawRect(stack: PoseStack, r: VertexConsumer, x: Int, y: Int, w: Int, h: Int, tw: Int, th: Int, fill: Float = 1) {
       val sx = 1f / tw
       val sy = 1f / th
       r.vertex(stack.last.pose, x, y + h, 0).uv(0, h * sy).endVertex()
@@ -79,23 +74,23 @@ object NanomachinesHandler {
   object Common {
     @SubscribeEvent
     def onPlayerRespawn(e: PlayerRespawnEvent): Unit = {
-      api.Nanomachines.getController(e.getPlayer) match {
+      api.Nanomachines.getController(e.getEntity) match {
         case controller: Controller => controller.changeBuffer(-controller.getLocalBuffer)
         case _ => // Not a player with nanomachines.
       }
     }
 
     @SubscribeEvent
-    def onLivingUpdate(e: LivingEvent.LivingUpdateEvent): Unit = {
+    def onLivingUpdate(e: LivingEvent.LivingTickEvent): Unit = {
       e.getEntity match {
-        case player: PlayerEntity => api.Nanomachines.getController(player) match {
+        case player: Player => api.Nanomachines.getController(player) match {
           case controller: ControllerImpl =>
             if (controller.player eq player) {
               controller.update()
             }
             else {
               // Player entity instance changed (e.g. respawn), recreate the controller.
-              val nbt = new CompoundNBT()
+              val nbt = new CompoundTag()
               controller.saveData(nbt)
               api.Nanomachines.uninstallController(controller.player)
               api.Nanomachines.installController(player) match {
@@ -114,13 +109,13 @@ object NanomachinesHandler {
     @SubscribeEvent
     def onPlayerSave(e: PlayerEvent.SaveToFile): Unit = {
       val file = e.getPlayerFile("ocnm")
-      api.Nanomachines.getController(e.getPlayer) match {
+      api.Nanomachines.getController(e.getEntity) match {
         case controller: ControllerImpl =>
           try {
-            val nbt = new CompoundNBT()
+            val nbt = new CompoundTag()
             controller.saveData(nbt)
             val fos = new FileOutputStream(file)
-            try CompressedStreamTools.writeCompressed(nbt, fos) catch {
+            try NbtIo.writeCompressed(nbt, fos) catch {
               case t: Throwable =>
                 OpenComputers.log.warn("Error saving nanomachine state.", t)
             }
@@ -138,11 +133,11 @@ object NanomachinesHandler {
     def onPlayerLoad(e: PlayerEvent.LoadFromFile): Unit = {
       val file = e.getPlayerFile("ocnm")
       if (file.exists()) {
-        api.Nanomachines.getController(e.getPlayer) match {
+        api.Nanomachines.getController(e.getEntity) match {
           case controller: ControllerImpl =>
             try {
               val fis = new FileInputStream(file)
-              try controller.loadData(CompressedStreamTools.readCompressed(fis)) catch {
+              try controller.loadData(NbtIo.readCompressed(fis)) catch {
                 case t: Throwable =>
                   OpenComputers.log.warn("Error loading nanomachine state.", t)
               }
@@ -159,10 +154,10 @@ object NanomachinesHandler {
 
     @SubscribeEvent
     def onPlayerDisconnect(e: PlayerLoggedOutEvent): Unit = {
-      api.Nanomachines.getController(e.getPlayer) match {
+      api.Nanomachines.getController(e.getEntity) match {
         case controller: ControllerImpl =>
           // Wait a tick because saving is done after this event.
-          EventHandler.scheduleServer(() => api.Nanomachines.uninstallController(e.getPlayer))
+          EventHandler.scheduleServer(() => api.Nanomachines.uninstallController(e.getEntity))
         case _ => // Not a player with nanomachines.
       }
     }

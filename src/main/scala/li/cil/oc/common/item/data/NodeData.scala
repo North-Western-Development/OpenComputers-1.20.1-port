@@ -2,8 +2,8 @@ package li.cil.oc.common.item.data
 
 import li.cil.oc.Settings
 import li.cil.oc.api.network.Visibility
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
 
 // Generic one for items that are used as components; gets the items node info.
 class NodeData extends ItemData(null) {
@@ -18,7 +18,7 @@ class NodeData extends ItemData(null) {
 
   private final val DataTag = Settings.namespace + "data"
 
-  override def loadData(nbt: CompoundNBT): Unit = {
+  override def loadData(nbt: CompoundTag): Unit = {
     val nodeNbt = nbt.getCompound(DataTag).getCompound(NodeData.NodeTag)
     if (nodeNbt.contains(NodeData.AddressTag)) {
       address = Option(nodeNbt.getString(NodeData.AddressTag))
@@ -31,13 +31,13 @@ class NodeData extends ItemData(null) {
     }
   }
 
-  override def saveData(nbt: CompoundNBT): Unit = {
+  override def saveData(nbt: CompoundTag): Unit = {
     if (!nbt.contains(DataTag)) {
-      nbt.put(DataTag, new CompoundNBT())
+      nbt.put(DataTag, new CompoundTag())
     }
     val dataNbt = nbt.getCompound(DataTag)
     if (!dataNbt.contains(NodeData.NodeTag)) {
-      dataNbt.put(NodeData.NodeTag, new CompoundNBT())
+      dataNbt.put(NodeData.NodeTag, new CompoundTag())
     }
     val nodeNbt = dataNbt.getCompound(NodeData.NodeTag)
     address.foreach(nodeNbt.putString(NodeData.AddressTag, _))

@@ -1,17 +1,12 @@
 package li.cil.oc.common.item.data
 
-import com.google.common.base.Charsets
-import com.google.common.base.Strings
-import li.cil.oc.Constants
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api
+import com.google.common.base.{Charsets, Strings}
+import li.cil.oc.{Constants, OpenComputers, Settings, api}
 import li.cil.oc.integration.opencomputers.DriverScreen
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.ItemUtils
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.nbt.{CompoundTag, Tag}
+import net.minecraft.world.item.ItemStack
 
 import scala.io.Source
 
@@ -59,7 +54,7 @@ class RobotData extends ItemData(Constants.BlockName.Robot) {
   private final val ContainersTag = Settings.namespace + "containers"
   private final val LightColorTag = Settings.namespace + "lightColor"
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundTag) {
     name = ItemUtils.getDisplayName(nbt).getOrElse("")
     if (Strings.isNullOrEmpty(name)) {
       name = RobotData.randomName
@@ -67,16 +62,16 @@ class RobotData extends ItemData(Constants.BlockName.Robot) {
     totalEnergy = nbt.getInt(StoredEnergyTag)
     robotEnergy = nbt.getInt(RobotEnergyTag)
     tier = nbt.getInt(TierTag)
-    components = nbt.getList(ComponentsTag, NBT.TAG_COMPOUND).
-      toTagArray[CompoundNBT].map(ItemStack.of(_))
-    containers = nbt.getList(ContainersTag, NBT.TAG_COMPOUND).
-      toTagArray[CompoundNBT].map(ItemStack.of(_))
+    components = nbt.getList(ComponentsTag, Tag.TAG_COMPOUND).
+      toTagArray[CompoundTag].map(ItemStack.of(_))
+    containers = nbt.getList(ContainersTag, Tag.TAG_COMPOUND).
+      toTagArray[CompoundTag].map(ItemStack.of(_))
     if (nbt.contains(LightColorTag)) {
       lightColor = nbt.getInt(LightColorTag)
     }
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundTag) {
     if (!Strings.isNullOrEmpty(name)) {
       ItemUtils.setDisplayName(nbt, name)
     }

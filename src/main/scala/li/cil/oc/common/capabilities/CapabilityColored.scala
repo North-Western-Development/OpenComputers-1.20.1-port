@@ -2,11 +2,10 @@ package li.cil.oc.common.capabilities
 
 import li.cil.oc.api.internal.Colored
 import li.cil.oc.integration.Mods
-import net.minecraft.nbt.INBT
-import net.minecraft.nbt.IntNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.ResourceLocation
+import net.minecraft.core.Direction
+import net.minecraft.nbt.{IntTag, Tag}
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.ICapabilityProvider
 import net.minecraftforge.common.util.LazyOptional
@@ -15,7 +14,7 @@ import net.minecraftforge.common.util.NonNullSupplier
 object CapabilityColored {
   final val ProviderColored = new ResourceLocation(Mods.IDs.OpenComputers, "colored")
 
-  class Provider(val tileEntity: TileEntity with Colored) extends ICapabilityProvider with NonNullSupplier[Provider] with Colored {
+  class Provider(val tileEntity: BlockEntity with Colored) extends ICapabilityProvider with NonNullSupplier[Provider] with Colored {
     private val wrapper = LazyOptional.of(this)
 
     def get = this
@@ -44,15 +43,15 @@ object CapabilityColored {
     override def controlsConnectivity = false
   }
 
-  class DefaultStorage extends Capability.IStorage[Colored] {
-    override def writeNBT(capability: Capability[Colored], t: Colored, Direction: Direction): INBT = {
+  class DefaultStorage extends Capability.Storage[Colored] {
+    override def writeTag(capability: Capability[Colored], t: Colored, Direction: Direction): Tag = {
       val color = t.getColor
-      IntNBT.valueOf(color)
+      IntTag.valueOf(color)
     }
 
-    override def readNBT(capability: Capability[Colored], t: Colored, Direction: Direction, nbtBase: INBT): Unit = {
+    override def readTag(capability: Capability[Colored], t: Colored, Direction: Direction, nbtBase: Tag): Unit = {
       nbtBase match {
-        case nbt: IntNBT =>
+        case nbt: IntTag =>
           t.setColor(nbt.getAsInt)
         case _ =>
       }

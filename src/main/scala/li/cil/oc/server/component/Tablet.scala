@@ -1,21 +1,15 @@
 package li.cil.oc.server.component
 
-import java.util
-
-import li.cil.oc.Constants
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
-import li.cil.oc.Settings
+import li.cil.oc.{Constants, Settings}
 import li.cil.oc.api.Network
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
 import li.cil.oc.api.network.Visibility
-import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.common.item.TabletWrapper
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 
 class Tablet(val tablet: TabletWrapper) extends AbstractManagedEnvironment with DeviceInfo {
@@ -37,8 +31,8 @@ class Tablet(val tablet: TabletWrapper) extends AbstractManagedEnvironment with 
   // ----------------------------------------------------------------------- //
 
   @Callback(doc = """function():number -- Gets the pitch of the player holding the tablet.""")
-  def getPitch(context: Context, args: Arguments): Array[AnyRef] = result(tablet.player.xRot)
+  def getPitch(context: Context, args: Arguments): Array[AnyRef] = result(tablet.player.getXRot)
   
   @Callback(doc = """function():number -- Gets the yaw of the player holding the tablet.""")
-  def getYaw(context: Context, args: Arguments): Array[AnyRef] = result(tablet.player.yRot)
+  def getYaw(context: Context, args: Arguments): Array[AnyRef] = result(tablet.player.getYRot)
 }

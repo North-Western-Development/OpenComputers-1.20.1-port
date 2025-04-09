@@ -1,18 +1,17 @@
 package li.cil.oc.common.tileentity
 
-import li.cil.oc.api
+import li.cil.oc.{Constants, api}
 import li.cil.oc.api.network.Visibility
-import li.cil.oc.common
-import li.cil.oc.Constants
-import li.cil.oc.util.Color
-import net.minecraft.item.DyeColor
-import li.cil.oc.util.ItemColorizer
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
+import li.cil.oc.client.renderer.block.CableModel
+import li.cil.oc.util.{Color, ItemColorizer}
+import net.minecraft.core.BlockPos
+import net.minecraft.world.item.{DyeColor, ItemStack}
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraftforge.client.model.data.ModelData
 
-class Cable(selfType: TileEntityType[_ <: Cable]) extends TileEntity(selfType) with traits.Environment with traits.NotAnalyzable with traits.ImmibisMicroblock with traits.Colored {
+class Cable(selfType: BlockEntityType[_ <: Cable], pos: BlockPos, state: BlockState)
+  extends BlockEntity(selfType, pos, state) with traits.Environment with traits.NotAnalyzable with traits.ImmibisMicroblock with traits.Colored {
   val node = api.Network.newNode(this, Visibility.None).create()
 
   setColor(Color.rgbValues(DyeColor.LIGHT_GRAY))
@@ -40,5 +39,9 @@ class Cable(selfType: TileEntityType[_ <: Cable]) extends TileEntity(selfType) w
     if (getLevel != null && isServer) {
       api.Network.joinOrCreateNetwork(this)
     }
+  }
+
+  override def getModelData: ModelData = {
+    ModelData.builder().`with`(CableModel.PropertyColor, getColor).build()
   }
 }

@@ -1,22 +1,17 @@
 package li.cil.oc.server.component
 
-import java.util
-
-import li.cil.oc.Constants
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
-import li.cil.oc.Settings
 import li.cil.oc.api.Network
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.network.EnvironmentHost
-import li.cil.oc.api.network.Visibility
-import li.cil.oc.api.prefab
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
+import li.cil.oc.api.network.{EnvironmentHost, Visibility}
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.BlockPosition
-import net.minecraft.util.Direction
-import net.minecraft.world.World
-import net.minecraft.world.biome.Biome.RainType
+import li.cil.oc.{Constants, Settings}
+import net.minecraft.core.Direction
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.biome.Biome
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 
 class UpgradeSolarGenerator(val host: EnvironmentHost) extends AbstractManagedEnvironment with DeviceInfo {
@@ -57,8 +52,8 @@ class UpgradeSolarGenerator(val host: EnvironmentHost) extends AbstractManagedEn
   private def isSunVisible = {
     val blockPos = BlockPosition(host).offset(Direction.UP)
     host.world.isDay &&
-      (host.world.dimension != World.NETHER) &&
+      (host.world.dimension != Level.NETHER) &&
       host.world.canSeeSkyFromBelowWater(blockPos.toBlockPos) &&
-      (host.world.getBiome(blockPos.toBlockPos).getPrecipitation == RainType.NONE || (!host.world.isRaining && !host.world.isThundering))
+      (host.world.getBiome(blockPos.toBlockPos).get().getPrecipitationAt(blockPos.toBlockPos) == Biome.Precipitation.NONE || (!host.world.isRaining && !host.world.isThundering))
   }
 }

@@ -9,9 +9,8 @@ import li.cil.oc.api.network.Visibility
 import li.cil.oc.common.Slot
 import li.cil.oc.common.item.Tablet
 import li.cil.oc.common.item.data.TabletData
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.{CompoundTag, Tag}
 
 object DriverTablet extends Item {
   override def worksWith(stack: ItemStack) = isOneOf(stack,
@@ -45,20 +44,20 @@ object DriverTablet extends Item {
       case _ => false
     }
     if (index >= 0 && stack.hasTag && stack.getTag.contains(Settings.namespace + "items")) {
-      val baseTag = stack.getTag.getList(Settings.namespace + "items", NBT.TAG_COMPOUND).getCompound(index)
+      val baseTag = stack.getTag.getList(Settings.namespace + "items", Tag.TAG_COMPOUND).getCompound(index)
       if (!baseTag.contains("item")) {
-        baseTag.put("item", new CompoundNBT())
+        baseTag.put("item", new CompoundTag())
       }
       val itemTag = baseTag.getCompound("item")
       if (!itemTag.contains("tag")) {
-        itemTag.put("tag", new CompoundNBT())
+        itemTag.put("tag", new CompoundTag())
       }
       val stackTag = itemTag.getCompound("tag")
       if (!stackTag.contains(Settings.namespace + "data")) {
-        stackTag.put(Settings.namespace + "data", new CompoundNBT())
+        stackTag.put(Settings.namespace + "data", new CompoundTag())
       }
       stackTag.getCompound(Settings.namespace + "data")
     }
-    else new CompoundNBT()
+    else new CompoundTag()
   }
 }

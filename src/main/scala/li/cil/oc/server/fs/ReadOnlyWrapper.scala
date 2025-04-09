@@ -4,7 +4,7 @@ import java.io.FileNotFoundException
 
 import li.cil.oc.api
 import li.cil.oc.api.fs.Mode
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.CompoundTag
 
 private class ReadOnlyWrapper(val fileSystem: api.fs.FileSystem) extends api.fs.FileSystem {
   override def isReadOnly = true
@@ -41,7 +41,7 @@ private class ReadOnlyWrapper(val fileSystem: api.fs.FileSystem) extends api.fs.
 
   override def close() = fileSystem.close()
 
-  override def loadData(nbt: CompoundNBT): Unit = fileSystem.loadData(nbt)
+  override def loadData(nbt: CompoundTag): Unit = fileSystem.loadData(nbt)
 
-  override def saveData(nbt: CompoundNBT): Unit = fileSystem.saveData(nbt)
+  override def saveData(nbt: CompoundTag): Unit = fileSystem.saveData(nbt)
 }

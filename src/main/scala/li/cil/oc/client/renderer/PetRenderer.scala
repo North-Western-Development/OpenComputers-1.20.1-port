@@ -1,24 +1,17 @@
 package li.cil.oc.client.renderer
 
-import java.util.concurrent.Callable
-import java.util.concurrent.TimeUnit
-
 import com.google.common.cache.CacheBuilder
-import com.mojang.blaze3d.matrix.MatrixStack
-import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.math.Axis
 import li.cil.oc.api.event.RobotRenderEvent
 import li.cil.oc.client.renderer.tileentity.RobotRenderer
-import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher
-import net.minecraft.entity.Entity
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.util.math.vector.Vector3f
+import net.minecraft.world.entity.Entity
 import net.minecraftforge.client.event.RenderPlayerEvent
-import net.minecraftforge.eventbus.api.EventPriority
-import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.event.TickEvent.ClientTickEvent
+import net.minecraftforge.eventbus.api.{EventPriority, SubscribeEvent}
 
+import java.util.concurrent.{Callable, TimeUnit}
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 
@@ -52,20 +45,20 @@ object PetRenderer {
 
   @SubscribeEvent
   def onPlayerRender(e: RenderPlayerEvent.Pre) {
-    val uuid = e.getPlayer.getUUID.toString
+    val uuid = e.getEntity.getUUID.toString
     if (hidden.contains(uuid) || !entitledPlayers.contains(uuid)) return
     rendering = Some(entitledPlayers(uuid))
 
-    val worldTime = e.getPlayer.level.getGameTime
-    val timeJitter = e.getPlayer.hashCode ^ 0xFF
+    val worldTime = e.getEntity.level.getGameTime
+    val timeJitter = e.getEntity.hashCode ^ 0xFF
     val offset = timeJitter + worldTime / 20.0
     val hover = (math.sin(timeJitter + (worldTime + e.getPartialRenderTick) / 20.0) * 0.03).toFloat
 
-    val location = petLocations.get(e.getPlayer, new Callable[PetLocation] {
-      override def call() = new PetLocation(e.getPlayer)
+    val location = petLocations.get(e.getEntity, new Callable[PetLocation] {
+      override def call() = new PetLocation(e.getEntity)
     })
 
-    val stack = e.getMatrixStack
+    val stack = e.getPoseStack
     stack.pushPose()
     val self = Minecraft.getInstance.player
     val other = e.getPlayer
@@ -101,7 +94,7 @@ object PetRenderer {
     var x = 0.0
     var y = 0.0
     var z = 0.0
-    var yaw = owner.yRot
+    var yaw = owner.getYRot
 
     var lastX = x
     var lastY = y
@@ -112,7 +105,7 @@ object PetRenderer {
       val dx = owner.xOld - owner.getX
       val dy = owner.yOld - owner.getY
       val dz = owner.zOld - owner.getZ
-      val dYaw = owner.yRot - yaw
+      val dYaw = owner.getYRot - yaw
       lastX = x
       lastY = y
       lastZ = z
@@ -126,7 +119,7 @@ object PetRenderer {
       yaw += dYaw * 0.2f
     }
 
-    def applyInterpolatedTransformations(stack: MatrixStack, dt: Float) {
+    def applyInterpolatedTransformations(stack: PoseStack, dt: Float) {
       val ix = lastX + (x - lastX) * dt
       val iy = lastY + (y - lastY) * dt
       val iz = lastZ + (z - lastZ) * dt
@@ -134,10 +127,10 @@ object PetRenderer {
 
       stack.translate(ix, iy, iz)
       if (!isForInventory) {
-        stack.mulPose(Vector3f.YP.rotationDegrees(-iYaw))
+        stack.mulPose(Axis.YP.rotationDegrees(-iYaw))
       }
       else {
-        stack.mulPose(Vector3f.YP.rotationDegrees(-owner.yRot))
+        stack.mulPose(Axis.YP.rotationDegrees(-owner.getYRot))
       }
       stack.translate(0.3, -0.1, -0.2)
     }

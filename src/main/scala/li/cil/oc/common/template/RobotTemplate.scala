@@ -1,18 +1,14 @@
 package li.cil.oc.common.template
 
-import li.cil.oc.Constants
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, Settings, api}
 import li.cil.oc.api.internal
-import li.cil.oc.common.Slot
-import li.cil.oc.common.Tier
+import li.cil.oc.common.{Slot, Tier}
 import li.cil.oc.common.item.data.RobotData
 import li.cil.oc.util.ItemUtils
-import net.minecraft.inventory.IInventory
-import net.minecraft.item.ItemStack
+import net.minecraft.world.Container
+import net.minecraft.world.item.ItemStack
 
 import scala.collection.JavaConverters.asJavaIterable
-import scala.collection.convert.ImplicitConversionsToJava._
 
 object RobotTemplate extends Template {
   override protected def hostClass = classOf[internal.Robot]
@@ -25,9 +21,9 @@ object RobotTemplate extends Template {
 
   def selectCreative(stack: ItemStack) = api.Items.get(stack) == api.Items.get(Constants.BlockName.CaseCreative)
 
-  def validate(inventory: IInventory): Array[AnyRef] = validateComputer(inventory)
+  def validate(inventory: Container): Array[AnyRef] = validateComputer(inventory)
 
-  def assemble(inventory: IInventory) = {
+  def assemble(inventory: Container) = {
     val items = (1 until inventory.getContainerSize).map(inventory.getItem)
     val data = new RobotData()
     data.tier = caseTier(inventory)
@@ -188,5 +184,5 @@ object RobotTemplate extends Template {
       "li.cil.oc.common.template.RobotTemplate.disassemble")
   }
 
-  override protected def caseTier(inventory: IInventory) = ItemUtils.caseTier(inventory.getItem(0))
+  override protected def caseTier(inventory: Container) = ItemUtils.caseTier(inventory.getItem(0))
 }

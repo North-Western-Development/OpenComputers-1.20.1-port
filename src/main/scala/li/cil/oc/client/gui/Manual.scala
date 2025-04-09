@@ -1,6 +1,6 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.Localization
 import li.cil.oc.api
@@ -9,19 +9,20 @@ import li.cil.oc.client.renderer.markdown.Document
 import li.cil.oc.client.renderer.markdown.segment.InteractiveSegment
 import li.cil.oc.client.renderer.markdown.segment.Segment
 import li.cil.oc.client.{Manual => ManualAPI}
-import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.screen
-import net.minecraft.client.gui.widget.button.Button
+import net.minecraft.client.gui.components.Button
+import net.minecraft.client.{KeyMapping, Minecraft}
+import net.minecraft.client.gui.{GuiGraphics, screens}
+import net.minecraft.client.gui.components.Button
 import net.minecraft.client.util.InputMappings
-import net.minecraft.client.settings.KeyBinding
+import net.minecraft.client.settings.KeyMapping
 import net.minecraft.util.text.ITextProperties
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.network.chat.{Component, MutableComponent}
 import org.lwjgl.glfw.GLFW
 
 import scala.collection.JavaConverters.{asJavaIterable, seqAsJavaList}
 import scala.collection.convert.ImplicitConversionsToScala._
 
-class Manual extends screen.Screen(StringTextComponent.EMPTY) with traits.Window {
+class Manual extends screens.Screen(Component.empty()) with traits.Window {
   final val documentMaxWidth = 230
   final val documentMaxHeight = 176
   final val scrollPosX = 244
@@ -87,26 +88,27 @@ class Manual extends screen.Screen(StringTextComponent.EMPTY) with traits.Window
   override protected def init(): Unit = {
     super.init()
     minecraft.mouseHandler.releaseMouse()
-    KeyBinding.releaseAll()
+    KeyMapping.releaseAll()
 
     for ((tab, i) <- ManualAPI.tabs.zipWithIndex if i < maxTabsPerSide) {
       val x = leftPos + tabPosX
       val y = topPos + tabPosY + i * (tabHeight - 1)
-      addButton(new ImageButton(x, y, tabWidth, tabHeight, new Button.IPressable {
+      addWidget(new ImageButton(x, y, tabWidth, tabHeight, new Button.OnPress {
         override def onPress(b: Button) = api.Manual.navigate(tab.path)
       }, Textures.GUI.ManualTab))
     }
 
-    scrollButton = new ImageButton(leftPos + scrollPosX, topPos + scrollPosY, 6, 13, new Button.IPressable {
+    scrollButton = new ImageButton(leftPos + scrollPosX, topPos + scrollPosY, 6, 13, new Button.OnPress {
       override def onPress(b: Button) = ()
     }, Textures.GUI.ButtonScroll)
-    addButton(scrollButton)
+    addWidget(scrollButton)
 
     refreshPage()
   }
 
-  override def render(stack: MatrixStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
-    super.render(stack, mouseX, mouseY, dt)
+  override def render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, dt: Float): Unit = {
+    super.render(guiGraphics, mouseX, mouseY, dt)
+    val stack = guiGraphics.pose()
 
     scrollButton.active = canScroll
     scrollButton.hoverOverride = isScrolling
@@ -115,13 +117,13 @@ class Manual extends screen.Screen(StringTextComponent.EMPTY) with traits.Window
       val button = buttons.get(i).asInstanceOf[ImageButton]
       stack.pushPose()
       stack.translate(button.x + 5, button.y + 5, getBlitOffset)
-      tab.renderer.render(stack)
+      tab.renderer.render(guiGraphics)
       stack.popPose()
     }
 
     currentSegment = Document.render(stack, document, leftPos + 8, topPos + 8, documentMaxWidth, documentMaxHeight, offset, font, mouseX, mouseY)
-    def localizeAndWrap(text: String): java.util.List[_ <: ITextProperties] = {
-      val lines = Localization.localizeImmediately(text).linesIterator.map(new StringTextComponent(_))
+    def localizeAndWrap(text: String): java.util.List[_ <: MutableComponent] = {
+      val lines = Localization.localizeImmediately(text).linesIterator.map(Component.literal)
       seqAsJavaList(lines.toSeq)
     }
 
@@ -142,7 +144,7 @@ class Manual extends screen.Screen(StringTextComponent.EMPTY) with traits.Window
     }
 
     if (canScroll && (isCoordinateOverScrollBar(mouseX - leftPos, mouseY - topPos) || isScrolling)) {
-      val lines = seqAsJavaList(Seq(new StringTextComponent(s"${100 * offset / maxOffset}%")))
+      val lines = seqAsJavaList(Seq(Component.literal(s"${100 * offset / maxOffset}%")))
       renderWrappedToolTip(stack, lines, leftPos + scrollPosX + scrollWidth, scrollButton.y + scrollButton.getHeight + 1, font)
     }
   }
@@ -218,10 +220,10 @@ class Manual extends screen.Screen(StringTextComponent.EMPTY) with traits.Window
     ManualAPI.history.top.offset = math.max(0, math.min(maxOffset, row))
     val yMin = topPos + scrollPosY
     if (maxOffset > 0) {
-      scrollButton.y = yMin + (scrollHeight - 13) * offset / maxOffset
+      scrollButton.setY(yMin + (scrollHeight - 13) * offset / maxOffset)
     }
     else {
-      scrollButton.y = yMin
+      scrollButton.setY(yMin)
     }
   }
 

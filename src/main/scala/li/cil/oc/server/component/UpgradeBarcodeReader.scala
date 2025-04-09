@@ -1,24 +1,19 @@
 package li.cil.oc.server.component
 
-import java.util
-
-import li.cil.oc.{Constants, OpenComputers, api}
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
 import li.cil.oc.api.internal
 import li.cil.oc.api.network._
-import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedWorld._
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.ListNBT
-import net.minecraft.util.Direction
-import net.minecraft.world.server.ServerWorld
+import li.cil.oc.{Constants, api}
+import net.minecraft.core.Direction
+import net.minecraft.nbt.{CompoundTag, ListTag}
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 
 class UpgradeBarcodeReader(val host: EnvironmentHost) extends AbstractManagedEnvironment with DeviceInfo {
@@ -40,7 +35,7 @@ class UpgradeBarcodeReader(val host: EnvironmentHost) extends AbstractManagedEnv
     super.onMessage(message)
     if (message.name == "tablet.use") message.source.host match {
       case machine: api.machine.Machine => (machine.host, message.data) match {
-        case (tablet: internal.Tablet, Array(nbt: CompoundNBT, stack: ItemStack, player: PlayerEntity, blockPos: BlockPosition, side: Direction, hitX: java.lang.Float, hitY: java.lang.Float, hitZ: java.lang.Float)) =>
+        case (tablet: internal.Tablet, Array(nbt: CompoundTag, stack: ItemStack, player: Player, blockPos: BlockPosition, side: Direction, hitX: java.lang.Float, hitY: java.lang.Float, hitZ: java.lang.Float)) =>
           host.world.getBlockEntity(blockPos) match {
             case analyzable: Analyzable =>
               processNodes(analyzable.onAnalyze(player, side, hitX.toFloat, hitY.toFloat, hitZ.toFloat), nbt)
@@ -56,11 +51,11 @@ class UpgradeBarcodeReader(val host: EnvironmentHost) extends AbstractManagedEnv
     }
   }
 
-  private def processNodes(nodes: Array[Node], nbt: CompoundNBT): Unit = if (nodes != null) {
-    val readerNBT = new ListNBT()
+  private def processNodes(nodes: Array[Node], nbt: CompoundTag): Unit = if (nodes != null) {
+    val readerNBT = new ListTag()
 
     for (node <- nodes if node != null) {
-      val nodeNBT = new CompoundNBT()
+      val nodeNBT = new CompoundTag()
       node match {
         case component: Component =>
           nodeNBT.putString("type", component.name)

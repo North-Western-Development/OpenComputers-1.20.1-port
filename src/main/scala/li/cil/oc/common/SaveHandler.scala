@@ -1,35 +1,23 @@
 package li.cil.oc.common
 
+import li.cil.oc.{OpenComputers, Settings}
+import li.cil.oc.api.machine.MachineHost
+import li.cil.oc.api.network.EnvironmentHost
+import li.cil.oc.util.{BlockPosition, SafeThreadPool, ThreadPoolFactory}
+import net.minecraft.nbt.{CompoundTag, NbtIo}
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.level.storage.LevelResource
+import net.minecraft.world.level.{ChunkPos, Level}
+import net.minecraftforge.event.level.LevelEvent
+import net.minecraftforge.eventbus.api.{EventPriority, SubscribeEvent}
+import net.minecraftforge.server.ServerLifecycleHooks
+
 import java.io
 import java.io._
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
-import java.util.concurrent.CancellationException
-import java.util.concurrent.ConcurrentLinkedDeque
-import java.util.concurrent.Future
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api.machine.MachineHost
-import li.cil.oc.api.network.EnvironmentHost
-import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.SafeThreadPool
-import li.cil.oc.util.ThreadPoolFactory
-import net.minecraft.nbt.CompressedStreamTools
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.ResourceLocation
-import net.minecraft.util.math.ChunkPos
-import net.minecraft.world.World
-import net.minecraft.world.server.ServerWorld
-import net.minecraft.world.storage.FolderName
-import net.minecraftforge.event.world.WorldEvent
-import net.minecraftforge.eventbus.api.EventPriority
-import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.server.ServerLifecycleHooks
-import org.apache.commons.lang3.JavaVersion
-import org.apache.commons.lang3.SystemUtils
-
+import java.util.concurrent._
 import scala.collection.mutable
 
 // Used by the native lua state to store kernel and stack data in auxiliary
@@ -77,34 +65,34 @@ object SaveHandler {
   val chunkDirs = new ConcurrentLinkedDeque[io.File]()
   val saving = mutable.HashMap.empty[String, Future[_]]
 
-  def savePath = ServerLifecycleHooks.getCurrentServer.getWorldPath(new FolderName(Settings.savePath)).toFile
+  def savePath = ServerLifecycleHooks.getCurrentServer.getWorldPath(new LevelResource(Settings.savePath)).toFile
 
   def statePath = new io.File(savePath, "state")
 
-  def scheduleSave(host: MachineHost, nbt: CompoundNBT, name: String, data: Array[Byte]) {
+  def scheduleSave(host: MachineHost, nbt: CompoundTag, name: String, data: Array[Byte]) {
     scheduleSave(BlockPosition(host), nbt, name, data)
   }
 
-  def scheduleSave(host: MachineHost, nbt: CompoundNBT, name: String, save: CompoundNBT => Unit) {
+  def scheduleSave(host: MachineHost, nbt: CompoundTag, name: String, save: CompoundTag => Unit) {
     scheduleSave(host, nbt, name, writeNBT(save))
   }
 
-  def scheduleSave(host: EnvironmentHost, nbt: CompoundNBT, name: String, save: CompoundNBT => Unit) {
+  def scheduleSave(host: EnvironmentHost, nbt: CompoundTag, name: String, save: CompoundTag => Unit) {
     scheduleSave(BlockPosition(host), nbt, name, writeNBT(save))
   }
 
-  def scheduleSave(world: World, x: Double, z: Double, nbt: CompoundNBT, name: String, data: Array[Byte]) {
+  def scheduleSave(world: Level, x: Double, z: Double, nbt: CompoundTag, name: String, data: Array[Byte]) {
     scheduleSave(BlockPosition(x, 0, z, world), nbt, name, data)
   }
 
-  def scheduleSave(world: World, x: Double, z: Double, nbt: CompoundNBT, name: String, save: CompoundNBT => Unit) {
+  def scheduleSave(world: Level, x: Double, z: Double, nbt: CompoundTag, name: String, save: CompoundTag => Unit) {
     scheduleSave(world, x, z, nbt, name, writeNBT(save))
   }
 
-  def scheduleSave(position: BlockPosition, nbt: CompoundNBT, name: String, data: Array[Byte]) {
+  def scheduleSave(position: BlockPosition, nbt: CompoundTag, name: String, data: Array[Byte]) {
     val world = position.world.get
     // Try to exclude wrapped/client-side worlds.
-    if (world.isInstanceOf[ServerWorld]) {
+    if (world.isInstanceOf[ServerLevel]) {
       val dimension = world.dimension.location
       val chunk = new ChunkPos(position.x >> 4, position.z >> 4)
 
@@ -118,31 +106,31 @@ object SaveHandler {
     }
   }
 
-  private def writeNBT(save: CompoundNBT => Unit) = {
-    val tmpNbt = new CompoundNBT()
+  private def writeNBT(save: CompoundTag => Unit) = {
+    val tmpNbt = new CompoundTag()
     save(tmpNbt)
     val baos = new ByteArrayOutputStream()
     val dos = new DataOutputStream(baos)
-    CompressedStreamTools.write(tmpNbt, dos)
+    NbtIo.writeCompressed(tmpNbt, dos)
     baos.toByteArray
   }
 
-  def loadNBT(nbt: CompoundNBT, name: String): CompoundNBT = {
+  def loadNBT(nbt: CompoundTag, name: String): CompoundTag = {
     val data = load(nbt, name)
     if (data.length > 0) try {
       val bais = new ByteArrayInputStream(data)
       val dis = new DataInputStream(bais)
-      CompressedStreamTools.read(dis)
+      NbtIo.readCompressed(dis)
     }
     catch {
       case t: Throwable =>
         OpenComputers.log.warn("There was an error trying to restore a block's state from external data. This indicates that data was somehow corrupted.", t)
-        new CompoundNBT()
+        new CompoundTag()
     }
-    else new CompoundNBT()
+    else new CompoundTag()
   }
 
-  def load(nbt: CompoundNBT, name: String): Array[Byte] = {
+  def load(nbt: CompoundTag, name: String): Array[Byte] = {
     // Since we have no world yet, we rely on the dimension we were saved in.
     // Same goes for the chunk. This also works around issues with computers
     // being moved (e.g. Redstone in Motion).
@@ -223,8 +211,8 @@ object SaveHandler {
   }
 
   @SubscribeEvent(priority = EventPriority.HIGHEST)
-  def onWorldLoad(e: WorldEvent.Load) {
-    if (!e.getWorld.isClientSide) {
+  def onWorldLoad(e: LevelEvent.Load) {
+    if (!e.getLevel.isClientSide) {
       // Touch all externally saved data when loading, to avoid it getting
       // deleted in the next save (because the now - save time will usually
       // be larger than the time out after loading a world again).
@@ -233,7 +221,7 @@ object SaveHandler {
   }
 
   @SubscribeEvent(priority = EventPriority.LOWEST)
-  def onWorldSave(e: WorldEvent.Save) {
+  def onWorldSave(e: LevelEvent.Save) {
     stateSaveHandler.withPool(_.submit(new Runnable {
       override def run(): Unit = cleanSaveData()
     }))

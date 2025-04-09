@@ -1,21 +1,16 @@
 package li.cil.oc.common.tileentity.traits
 
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
 import li.cil.oc.client.Sound
 import li.cil.oc.common.SaveHandler
-import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.SideTracker
-import net.minecraft.block.BlockState
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.network.NetworkManager
-import net.minecraft.network.play.server.SUpdateTileEntityPacket
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import li.cil.oc.util.{BlockPosition, SideTracker}
+import li.cil.oc.{OpenComputers, Settings}
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.protocol.Packet
+import net.minecraft.network.protocol.game.{ClientGamePacketListener, ClientboundBlockEntityDataPacket}
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
-trait TileEntity extends net.minecraft.tileentity.TileEntity {
+trait TileEntity extends BlockEntity {
   private final val IsServerDataTag = Settings.namespace + "isServerData"
 
   def x: Int = getBlockPos.getX
@@ -33,7 +28,7 @@ trait TileEntity extends net.minecraft.tileentity.TileEntity {
   // ----------------------------------------------------------------------- //
 
   def updateEntity() {
-    if (Settings.get.periodicallyForceLightUpdate && getLevel.getGameTime % 40 == 0 && getBlockState.getBlock.getLightValue(getLevel.getBlockState(getBlockPos), getLevel, getBlockPos) > 0) {
+    if (Settings.get.periodicallyForceLightUpdate && getLevel.getGameTime % 40 == 0 && getBlockState.getLightBlock(getLevel, getBlockPos) > 0) {
       getLevel.sendBlockUpdated(getBlockPos, getLevel.getBlockState(getBlockPos), getLevel.getBlockState(getBlockPos), 3)
     }
   }
@@ -67,24 +62,23 @@ trait TileEntity extends net.minecraft.tileentity.TileEntity {
 
   // ----------------------------------------------------------------------- //
 
-  def loadForServer(nbt: CompoundNBT) {}
+  def loadForServer(nbt: CompoundTag) {}
 
-  def saveForServer(nbt: CompoundNBT): Unit = {
+  def saveForServer(nbt: CompoundTag): Unit = {
     nbt.putBoolean(IsServerDataTag, true)
-    super.save(nbt)
   }
 
   @OnlyIn(Dist.CLIENT)
-  def loadForClient(nbt: CompoundNBT) {}
+  def loadForClient(nbt: CompoundTag) {}
 
-  def saveForClient(nbt: CompoundNBT): Unit = {
+  def saveForClient(nbt: CompoundTag): Unit = {
     nbt.putBoolean(IsServerDataTag, false)
   }
 
   // ----------------------------------------------------------------------- //
 
-  override def load(state: BlockState, nbt: CompoundNBT): Unit = {
-    super.load(state, nbt)
+  override def load(nbt: CompoundTag): Unit = {
+    super.load(nbt)
     if (isServer || nbt.getBoolean(IsServerDataTag)) {
       loadForServer(nbt)
     }
@@ -93,20 +87,20 @@ trait TileEntity extends net.minecraft.tileentity.TileEntity {
     }
   }
 
-  override def save(nbt: CompoundNBT): CompoundNBT = {
+  override def saveAdditional(nbt: CompoundTag): CompoundTag = {
     if (isServer) {
       saveForServer(nbt)
     }
     nbt
   }
 
-  override def getUpdatePacket: SUpdateTileEntityPacket = {
+  override def getUpdatePacket: Packet[ClientGamePacketListener] = {
     // Obfuscation workaround. If it works.
-    val te = this.asInstanceOf[net.minecraft.tileentity.TileEntity]
-    new SUpdateTileEntityPacket(te.getBlockPos, 0, te.getUpdateTag)
+    val te = this.asInstanceOf[net.minecraft.world.level.block.entity.BlockEntity]
+    ClientboundBlockEntityDataPacket.create(te)
   }
 
-  override def getUpdateTag: CompoundNBT = {
+  override def getUpdateTag: CompoundTag = {
     val nbt = super.getUpdateTag
 
     // See comment on savingForClients variable.
@@ -121,9 +115,8 @@ trait TileEntity extends net.minecraft.tileentity.TileEntity {
 
     nbt
   }
-
-  override def onDataPacket(manager: NetworkManager, packet: SUpdateTileEntityPacket) {
-    try loadForClient(packet.getTag) catch {
+  override def handleUpdateTag(tag: CompoundTag) {
+    try loadForClient(tag) catch {
       case e: Throwable => OpenComputers.log.warn("There was a problem reading a TileEntity description packet. Please report this if you see it!", e)
     }
   }

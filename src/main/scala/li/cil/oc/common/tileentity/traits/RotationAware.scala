@@ -1,6 +1,6 @@
 package li.cil.oc.common.tileentity.traits
 
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
 
 trait RotationAware extends TileEntity {
   def toLocal(value: Direction) = value

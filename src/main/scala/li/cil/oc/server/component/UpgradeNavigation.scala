@@ -1,32 +1,23 @@
 package li.cil.oc.server.component
 
-import java.util
-
-import li.cil.oc.Constants
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
-import li.cil.oc.Settings
-import li.cil.oc.api
-import li.cil.oc.api.Network
+import li.cil.oc.{Constants, Settings, api}
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.internal
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
+import li.cil.oc.api.{Network, internal}
 import li.cil.oc.api.internal.Rotatable
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network.EnvironmentHost
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
 import li.cil.oc.api.network._
-import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
-import li.cil.oc.common.item.data.NavigationUpgradeData
 import li.cil.oc.common.Tier
+import li.cil.oc.common.item.data.NavigationUpgradeData
 import li.cil.oc.server.network.Waypoints
 import li.cil.oc.util.BlockPosition
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.util.Direction
+import net.minecraft.core.Direction
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 
 class UpgradeNavigation(val host: EnvironmentHost with Rotatable) extends AbstractManagedEnvironment with DeviceInfo {
@@ -53,8 +44,8 @@ class UpgradeNavigation(val host: EnvironmentHost with Rotatable) extends Abstra
   def getPosition(context: Context, args: Arguments): Array[AnyRef] = {
     val info = data.mapData(host.world)
     val size = data.getSize(host.world)
-    val relativeX = host.xPosition - info.x
-    val relativeZ = host.zPosition - info.z
+    val relativeX = host.xPosition - info.centerX
+    val relativeZ = host.zPosition - info.centerZ
 
     if (math.abs(relativeX) <= size / 2 && math.abs(relativeZ) <= size / 2)
       result(relativeX, host.yPosition, relativeZ)
@@ -94,11 +85,11 @@ class UpgradeNavigation(val host: EnvironmentHost with Rotatable) extends Abstra
     super.onMessage(message)
     if (message.name == "tablet.use") message.source.host match {
       case machine: api.machine.Machine => (machine.host, message.data) match {
-        case (tablet: internal.Tablet, Array(nbt: CompoundNBT, stack: ItemStack, player: PlayerEntity, blockPos: BlockPosition, side: Direction, hitX: java.lang.Float, hitY: java.lang.Float, hitZ: java.lang.Float)) =>
+        case (tablet: internal.Tablet, Array(nbt: CompoundTag, stack: ItemStack, player: Player, blockPos: BlockPosition, side: Direction, hitX: java.lang.Float, hitY: java.lang.Float, hitZ: java.lang.Float)) =>
           val info = data.mapData(host.world)
-          nbt.putInt("posX", blockPos.x - info.x)
+          nbt.putInt("posX", blockPos.x - info.centerX)
           nbt.putInt("posY", blockPos.y)
-          nbt.putInt("posZ", blockPos.z - info.z)
+          nbt.putInt("posZ", blockPos.z - info.centerZ)
         case _ => // Ignore.
       }
       case _ => // Ignore.
@@ -107,12 +98,12 @@ class UpgradeNavigation(val host: EnvironmentHost with Rotatable) extends Abstra
 
   // ----------------------------------------------------------------------- //
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundTag) {
     super.loadData(nbt)
     data.loadData(nbt)
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundTag) {
     super.saveData(nbt)
     data.saveData(nbt)
   }

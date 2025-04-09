@@ -191,16 +191,18 @@ dependencies {
     embedded "com.typesafe:config:1.2.1"
 
     compileOnly fg.deobf("curse.maven:cofh-core-69162:5374122")
-    compileOnly fg.deobf("curse.maven:tis-3d-238603:5266276")
+    compileOnly fg.deobf("curse.maven:tis-3d-238603:5266274")
     //compileOnly fg.deobf("curse.maven:hwyla-${config.hwyla.projectId}:${config.hwyla.fileId}")
     compileOnly fg.deobf("curse.maven:cc-tweaked-282001:5379173")
     compileOnly fg.deobf("curse.maven:thermal-foundation-222880:5443583") /* Thermal Foundation */
+    compileOnly fg.deobf("curse.maven:project-red-core-228702:6332076")
 
     //runtimeOnly fg.deobf("curse.maven:modernfix-790626:5425647")
 
     provided fg.deobf("appeng:appliedenergistics2-forge:${config.ae2.version}:api") {
         transitive = false
     }
+    runtimeOnly fg.deobf("appeng:appliedenergistics2-forge:${config.ae2.version}")
 
     provided fg.deobf("mekanism:Mekanism:${config.mekanism.version}:api") {
         transitive = false

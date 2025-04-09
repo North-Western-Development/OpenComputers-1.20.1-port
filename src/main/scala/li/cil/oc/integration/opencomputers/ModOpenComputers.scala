@@ -1,51 +1,30 @@
 package li.cil.oc.integration.opencomputers
 
-import li.cil.oc.Constants
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, OpenComputers, Settings, api}
 import li.cil.oc.api.detail.ItemInfo
 import li.cil.oc.api.driver.item.Chargeable
 import li.cil.oc.api.internal
 import li.cil.oc.api.internal.Wrench
 import li.cil.oc.api.manual.PathProvider
-import li.cil.oc.api.prefab.ItemStackTabIconRenderer
-import li.cil.oc.api.prefab.ResourceContentProvider
-import li.cil.oc.api.prefab.TextureTabIconRenderer
+import li.cil.oc.api.prefab.{ItemStackTabIconRenderer, ResourceContentProvider, TextureTabIconRenderer}
 import li.cil.oc.client.Textures
-import li.cil.oc.client.renderer.markdown.segment.render.BlockImageProvider
-import li.cil.oc.client.renderer.markdown.segment.render.ItemImageProvider
-import li.cil.oc.client.renderer.markdown.segment.render.OreDictImageProvider
-import li.cil.oc.client.renderer.markdown.segment.render.TextureImageProvider
-import li.cil.oc.common.EventHandler
-import li.cil.oc.common.Loot
-import li.cil.oc.common.SaveHandler
+import li.cil.oc.client.renderer.markdown.segment.render.{BlockImageProvider, ItemImageProvider, OreDictImageProvider, TextureImageProvider}
+import li.cil.oc.common.{EventHandler, Loot, SaveHandler}
 import li.cil.oc.common.block.SimpleBlock
 import li.cil.oc.common.event._
-import li.cil.oc.common.item.Analyzer
-import li.cil.oc.common.item.RedstoneCard
-import li.cil.oc.common.item.Tablet
-import li.cil.oc.common.nanomachines.provider.DisintegrationProvider
-import li.cil.oc.common.nanomachines.provider.HungryProvider
-import li.cil.oc.common.nanomachines.provider.MagnetProvider
-import li.cil.oc.common.nanomachines.provider.ParticleProvider
-import li.cil.oc.common.nanomachines.provider.PotionProvider
+import li.cil.oc.common.item.{Analyzer, Tablet}
+import li.cil.oc.common.nanomachines.provider._
 import li.cil.oc.common.template._
-import li.cil.oc.integration.ModProxy
-import li.cil.oc.integration.Mods
+import li.cil.oc.integration.{ModProxy, Mods}
 import li.cil.oc.integration.util.BundledRedstone
-import li.cil.oc.server.machine.luac.LuaStateFactory
-import li.cil.oc.server.machine.luac.NativeLua53Architecture
-import li.cil.oc.server.network.Waypoints
-import li.cil.oc.server.network.WirelessNetwork
+import li.cil.oc.server.network.{Waypoints, WirelessNetwork}
 import li.cil.oc.util.Color
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.core.BlockPos
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.Level
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.world.ForgeChunkManager
 import net.minecraftforge.fml.DistExecutor
@@ -335,8 +314,8 @@ object ModOpenComputers extends ModProxy {
 
   protected[oc] var hasRedstoneCardT2 = false
 
-  def useWrench(player: PlayerEntity, pos: BlockPos, changeDurability: Boolean): Boolean = {
-    player.getItemInHand(Hand.MAIN_HAND).getItem match {
+  def useWrench(player: Player, pos: BlockPos, changeDurability: Boolean): Boolean = {
+    player.getItemInHand(InteractionHand.MAIN_HAND).getItem match {
       case wrench: Wrench => wrench.useWrenchOnBlock(player, player.level, pos, !changeDurability)
       case _ => false
     }
@@ -390,7 +369,7 @@ object ModOpenComputers extends ModProxy {
       case _ => null
     }
 
-    override def pathFor(world: World, pos: BlockPos): String = world.getBlockState(pos).getBlock match {
+    override def pathFor(world: Level, pos: BlockPos): String = world.getBlockState(pos).getBlock match {
       case block: SimpleBlock => checkBlacklisted(api.Items.get(new ItemStack(block)))
       case _ => null
     }

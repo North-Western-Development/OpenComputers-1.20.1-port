@@ -15,8 +15,8 @@ import li.cil.oc.common.SaveHandler
 import li.cil.oc.server.machine.Machine
 import li.cil.oc.util.ExtendedLuaState.extendLuaState
 import li.cil.repack.com.naef.jnlua._
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
+import net.minecraft.world.item.ItemStack
+import net.minecraft.nbt.CompoundTag
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
@@ -346,7 +346,7 @@ abstract class NativeLuaArchitecture(val machine: api.machine.Machine) extends A
   @Deprecated
   private def state = machine.asInstanceOf[Machine].state
 
-  override def loadData(nbt: CompoundNBT) {
+  override def loadData(nbt: CompoundTag) {
     if (!machine.isRunning) return
 
     // Unlimit memory use while unpersisting.
@@ -393,7 +393,7 @@ abstract class NativeLuaArchitecture(val machine: api.machine.Machine) extends A
     recomputeMemory(machine.host.internalComponents)
   }
 
-  override def saveData(nbt: CompoundNBT) {
+  override def saveData(nbt: CompoundTag) {
     // Unlimit memory while persisting.
     if (Settings.get.limitMemory) {
       lua.setTotalMemory(Integer.MAX_VALUE)

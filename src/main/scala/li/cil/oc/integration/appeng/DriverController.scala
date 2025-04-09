@@ -8,20 +8,20 @@ import li.cil.oc.api.driver.NamedBlock
 import li.cil.oc.api.network.ManagedEnvironment
 import li.cil.oc.api.prefab.DriverSidedTileEntity
 import li.cil.oc.integration.ManagedTileEntityEnvironment
-import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.World
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.core.Direction
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.Level
 
 import scala.language.existentials
 
 object DriverController extends DriverSidedTileEntity {
-  private type TileController = TileEntity with IActionHost with IGridHost
+  private type TileController = BlockEntity with IActionHost with IGridHost
 
   def getTileEntityClass = AEUtil.controllerClass
 
-  def createEnvironment(world: World, pos: BlockPos, side: Direction): ManagedEnvironment =
+  def createEnvironment(world: Level, pos: BlockPos, side: Direction): ManagedEnvironment =
     new Environment(world.getBlockEntity(pos).asInstanceOf[TileController])
 
   final class Environment(val tile: TileController) extends ManagedTileEntityEnvironment[TileController](tile, "me_controller") with NamedBlock with NetworkControl[TileController] {

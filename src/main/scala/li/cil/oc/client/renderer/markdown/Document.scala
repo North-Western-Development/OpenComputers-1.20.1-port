@@ -1,17 +1,15 @@
 package li.cil.oc.client.renderer.markdown
 
-import com.mojang.blaze3d.matrix.MatrixStack
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.api
-import li.cil.oc.client.renderer.markdown.segment.InteractiveSegment
-import li.cil.oc.client.renderer.markdown.segment.Segment
+import li.cil.oc.client.renderer.markdown.segment.{InteractiveSegment, Segment}
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.FontRenderer
-import net.minecraft.util.math.vector.Vector4f
+import net.minecraft.client.gui.Font
+import org.joml.Vector4f
 import org.lwjgl.opengl.GL11
 
-import scala.collection.Iterable
 import scala.util.matching.Regex
 
 /**
@@ -48,7 +46,7 @@ object Document {
   /**
    * Compute the overall height of a document, e.g. for computation of scroll offsets.
    */
-  def height(document: Segment, maxWidth: Int, renderer: FontRenderer): Int = {
+  def height(document: Segment, maxWidth: Int, renderer: Font): Int = {
     var currentX = 0
     var currentY = 0
     var segment = document
@@ -63,26 +61,26 @@ object Document {
   /**
    * Line height for a normal line of text.
    */
-  def lineHeight(renderer: FontRenderer): Int = renderer.lineHeight + 1
+  def lineHeight(renderer: Font): Int = renderer.lineHeight + 1
 
   /**
    * Renders a list of segments and tooltips if a segment with a tooltip is hovered.
    * Returns the hovered interactive segment, if any.
    */
-  def render(stack: MatrixStack, document: Segment, x: Int, y: Int, maxWidth: Int, maxHeight: Int, yOffset: Int, renderer: FontRenderer, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = {
+  def render(stack: PoseStack, document: Segment, x: Int, y: Int, maxWidth: Int, maxHeight: Int, yOffset: Int, renderer: Font, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = {
     val window = Minecraft.getInstance.getWindow
 
     RenderState.pushAttrib()
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
     // Clip using the scissor test to not interfere with RenderType-maintained depth testing.
     GL11.glEnable(GL11.GL_SCISSOR_TEST)
     val (x0, y0, x1, y1) = {
       val scale = window.getGuiScale
       val bottomLeft = new Vector4f(x, y + maxHeight, 0, 1)
-      bottomLeft.transform(stack.last.pose)
+      bottomLeft.mul(stack.last.pose)
       val topRight = new Vector4f(x + maxWidth, y, 0, 1)
-      topRight.transform(stack.last.pose)
+      topRight.mul(stack.last.pose)
       ((bottomLeft.x * scale).floor.asInstanceOf[Int],
         (window.getHeight - bottomLeft.y * scale).floor.asInstanceOf[Int],
         (topRight.x * scale).ceil.asInstanceOf[Int],

@@ -1,8 +1,8 @@
 package li.cil.oc.client.renderer.markdown.segment
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.client.renderer.markdown.MarkupFormat
-import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.gui.Font
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -30,7 +30,7 @@ trait Segment {
    *
    * The coordinates in this context are relative to (0,0).
    */
-  def nextX(indent: Int, maxWidth: Int, renderer: FontRenderer): Int
+  def nextX(indent: Int, maxWidth: Int, renderer: Font): Int
 
   /**
    * Get the Y coordinate at which to render the next segment.
@@ -41,13 +41,13 @@ trait Segment {
    *
    * The coordinates in this context are relative to (0,0).
    */
-  def nextY(indent: Int, maxWidth: Int, renderer: FontRenderer): Int
+  def nextY(indent: Int, maxWidth: Int, renderer: Font): Int
 
   /**
    * Render the segment at the specified coordinates with the specified
    * properties.
    */
-  def render(stack: MatrixStack, x: Int, y: Int, indent: Int, maxWidth: Int, renderer: FontRenderer, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = None
+  def render(stack: PoseStack, x: Int, y: Int, indent: Int, maxWidth: Int, renderer: Font, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = None
 
   def renderAsText(format: MarkupFormat.Value): Iterable[String] = {
     var segment = this

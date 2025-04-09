@@ -1,37 +1,31 @@
 package li.cil.oc.util
 
-import java.util.Optional
-import java.util.function.Consumer
-
 import li.cil.oc.OpenComputers
 import li.cil.oc.util.ExtendedWorld._
 import li.cil.oc.util.StackOption._
-import net.minecraft.entity.Entity
-import net.minecraft.entity.item.ItemEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.inventory.IInventory
-import net.minecraft.inventory.ISidedInventory
-import net.minecraft.item.ItemStack
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.util.Direction
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraftforge.common.util.LazyOptional
-import net.minecraftforge.items.CapabilityItemHandler
-import net.minecraftforge.items.IItemHandler
-import net.minecraftforge.items.IItemHandlerModifiable
-import net.minecraftforge.items.wrapper.InvWrapper
-import net.minecraftforge.items.wrapper.SidedInvWrapper
+import net.minecraft.core.Direction
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.item.ItemEntity
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.phys.Vec3
+import net.minecraft.world.{Container, WorldlyContainer}
+import net.minecraftforge.common.capabilities.ForgeCapabilities
+import net.minecraftforge.items.{IItemHandler, IItemHandlerModifiable}
+import net.minecraftforge.items.wrapper.{InvWrapper, SidedInvWrapper}
 
+import java.util.function.Consumer
 import scala.collection.convert.ImplicitConversionsToScala._
 
 object InventoryUtils {
 
-  def asItemHandler(inventory: IInventory, side: Direction): IItemHandlerModifiable = inventory match {
-    case inv: ISidedInventory if side != null => new SidedInvWrapper(inv, side)
+  def asItemHandler(inventory: Container, side: Direction): IItemHandlerModifiable = inventory match {
+    case inv: WorldlyContainer if side != null => new SidedInvWrapper(inv, side)
     case _ => new InvWrapper(inventory)
   }
 
-  def asItemHandler(inventory: IInventory): IItemHandlerModifiable = asItemHandler(inventory, null)
+  def asItemHandler(inventory: Container): IItemHandlerModifiable = asItemHandler(inventory, null)
 
   /**
    * Check if two item stacks are of equal type, ignoring the stack size.
@@ -42,7 +36,7 @@ object InventoryUtils {
     !stackA.isEmpty && !stackB.isEmpty &&
       stackA.getItem == stackB.getItem &&
       (stackA.getDamageValue == stackB.getDamageValue) &&
-      (!checkNBT || ItemStack.tagMatches(stackA, stackB))
+      (!checkNBT || ItemStack.isSameItem(stackA, stackB))
 
   /**
    * Retrieves an actual inventory implementation for a specified world coordinate,
@@ -50,11 +44,11 @@ object InventoryUtils {
    */
   def inventorySourceAt(position: BlockPosition, side: Direction): Option[InventorySource] = position.world match {
     case Some(world) if world.blockExists(position) => world.getBlockEntity(position) match {
-      case tile: TileEntity if tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side).isPresent => Option(BlockInventorySource(position, side, tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side).orElse(null)))
-      case tile: IInventory => Option(BlockInventorySource(position, side, asItemHandler(tile, side)))
+      case tile: BlockEntity if tile.getCapability(ForgeCapabilities.ITEM_HANDLER, side).isPresent => Option(BlockInventorySource(position, side, tile.getCapability(ForgeCapabilities.ITEM_HANDLER, side).orElse(null)))
+      case tile: Container => Option(BlockInventorySource(position, side, asItemHandler(tile, side)))
       case _ => world.getEntitiesOfClass(classOf[Entity], position.bounds)
-        .filter(e => e.isAlive && e.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side).isPresent)
-        .map(a => EntityInventorySource(a, side, a.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side).orElse(null)))
+        .filter(e => e.isAlive && e.getCapability(ForgeCapabilities.ITEM_HANDLER, side).isPresent)
+        .map(a => EntityInventorySource(a, side, a.getCapability(ForgeCapabilities.ITEM_HANDLER, side).orElse(null)))
         .find(a => a != null && a.inventory != null)
     }
     case _ => None
@@ -114,7 +108,7 @@ object InventoryUtils {
       }
     }
 
-  def insertIntoInventorySlot(stack: ItemStack, inventory: IInventory, side: Option[Direction], slot: Int, limit: Int, simulate: Boolean): Boolean =
+  def insertIntoInventorySlot(stack: ItemStack, inventory: Container, side: Option[Direction], slot: Int, limit: Int, simulate: Boolean): Boolean =
     insertIntoInventorySlot(stack, asItemHandler(inventory, side.orNull), slot, limit, simulate)
 
   /**
@@ -166,7 +160,7 @@ object InventoryUtils {
     }
   }
 
-  def extractFromInventorySlot(consumer: (ItemStack, Boolean) => Unit, inventory: IInventory, side: Direction, slot: Int, limit: Int): Int =
+  def extractFromInventorySlot(consumer: (ItemStack, Boolean) => Unit, inventory: Container, side: Direction, slot: Int, limit: Int): Int =
     extractFromInventorySlot(consumer, asItemHandler(inventory, side), slot, limit)
 
     /**
@@ -202,7 +196,7 @@ object InventoryUtils {
       success
     }
 
-  def insertIntoInventory(stack: ItemStack, inventory: IInventory, side: Option[Direction], limit: Int, simulate: Boolean, slots: Option[Iterable[Int]]): Boolean =
+  def insertIntoInventory(stack: ItemStack, inventory: Container, side: Option[Direction], limit: Int, simulate: Boolean, slots: Option[Iterable[Int]]): Boolean =
     insertIntoInventory(stack, asItemHandler(inventory, side.orNull), limit, simulate, slots)
 
   /**
@@ -225,7 +219,7 @@ object InventoryUtils {
     0
   }
 
-  def extractAnyFromInventory(consumer: (ItemStack, Boolean) => Unit, inventory: IInventory, side: Direction, limit: Int): Int =
+  def extractAnyFromInventory(consumer: (ItemStack, Boolean) => Unit, inventory: Container, side: Direction, limit: Int): Int =
     extractAnyFromInventory(consumer, asItemHandler(inventory, side), limit)
 
   /**
@@ -256,7 +250,7 @@ object InventoryUtils {
     remaining
   }
 
-  def extractFromInventory(stack: ItemStack, inventory: IInventory, side: Direction, simulate: Boolean, exact: Boolean): ItemStack =
+  def extractFromInventory(stack: ItemStack, inventory: Container, side: Direction, simulate: Boolean, exact: Boolean): ItemStack =
     extractFromInventory(stack, asItemHandler(inventory, side), simulate, exact)
 
     /**
@@ -295,7 +289,7 @@ object InventoryUtils {
     extractAnyFromInventory(
       insertIntoInventory(_, sink, limit, _), source, limit = limit)
 
-  def transferBetweenInventories(source: IInventory, sourceSide: Direction, sink: IInventory, sinkSide: Option[Direction], limit: Int): Int =
+  def transferBetweenInventories(source: Container, sourceSide: Direction, sink: Container, sinkSide: Option[Direction], limit: Int): Int =
     transferBetweenInventories(asItemHandler(source, sourceSide), asItemHandler(sink, sinkSide.orNull), limit)
 
   /**
@@ -311,7 +305,7 @@ object InventoryUtils {
           insertIntoInventory(_, sink, limit, _), source, sourceSlot, limit = limit)
     }
 
-  def transferBetweenInventoriesSlots(source: IInventory, sourceSide: Direction, sourceSlot: Int, sink: IInventory, sinkSide: Option[Direction], sinkSlot: Option[Int], limit: Int): Int =
+  def transferBetweenInventoriesSlots(source: Container, sourceSide: Direction, sourceSlot: Int, sink: Container, sinkSide: Option[Direction], sinkSlot: Option[Int], limit: Int): Int =
     transferBetweenInventoriesSlots(asItemHandler(source, sourceSide), sourceSlot, asItemHandler(sink, sinkSide.orNull), sinkSlot, limit)
 
   /**
@@ -346,7 +340,7 @@ object InventoryUtils {
    * Utility method mirroring dropAllSlots but instead piping slots into
    * a provided consumer for use with LootContext.
    */
-  def forAllSlots(inventory: IInventory, dst: Consumer[ItemStack]): Unit = {
+  def forAllSlots(inventory: Container, dst: Consumer[ItemStack]): Unit = {
     for (slot <- 0 until inventory.getContainerSize) {
       StackOption(inventory.getItem(slot)) match {
         case SomeStack(stack) if stack.getCount > 0 => dst.accept(stack)
@@ -359,7 +353,7 @@ object InventoryUtils {
    * Utility method for dropping contents from a single inventory slot into
    * the world.
    */
-  def dropSlot(position: BlockPosition, inventory: IInventory, slot: Int, count: Int, direction: Option[Direction] = None): Boolean = {
+  def dropSlot(position: BlockPosition, inventory: Container, slot: Int, count: Int, direction: Option[Direction] = None): Boolean = {
     StackOption(inventory.removeItem(slot, count)) match {
       case SomeStack(stack) if stack.getCount > 0 => spawnStackInWorld(position, stack, direction); true
       case _ => false
@@ -369,7 +363,7 @@ object InventoryUtils {
   /**
    * Utility method for dumping all inventory contents into the world.
    */
-  def dropAllSlots(position: BlockPosition, inventory: IInventory): Unit = {
+  def dropAllSlots(position: BlockPosition, inventory: Container): Unit = {
     for (slot <- 0 until inventory.getContainerSize) {
       StackOption(inventory.getItem(slot)) match {
         case SomeStack(stack) if stack.getCount > 0 =>
@@ -383,10 +377,10 @@ object InventoryUtils {
   /**
    * Try inserting an item stack into a player inventory. If that fails, drop it into the world.
    */
-  def addToPlayerInventory(stack: ItemStack, player: PlayerEntity, spawnInWorld: Boolean = true): Unit = {
+  def addToPlayerInventory(stack: ItemStack, player: Player, spawnInWorld: Boolean = true): Unit = {
     if (!stack.isEmpty) {
-      if (player.inventory.add(stack)) {
-        player.inventory.setChanged()
+      if (player.getInventory.add(stack)) {
+        player.getInventory.setChanged()
         if (player.containerMenu != null) {
           player.containerMenu.broadcastChanges()
         }
@@ -410,7 +404,7 @@ object InventoryUtils {
         0.1 * (rng.nextDouble - 0.5) + oz * 0.65)
       val dropPos = position.offset(0.5 + tx, 0.5 + ty, 0.5 + tz)
       val entity = new ItemEntity(world, dropPos.x, dropPos.y, dropPos.z, stack.copy())
-      entity.setDeltaMovement(new Vector3d(
+      entity.setDeltaMovement(new Vec3(
         0.0125 * (rng.nextDouble - 0.5) + ox * 0.03,
         0.0125 * (rng.nextDouble - 0.5) + oy * 0.08 + (ox + oz) * 0.03,
         0.0125 * (rng.nextDouble - 0.5) + oz * 0.03))

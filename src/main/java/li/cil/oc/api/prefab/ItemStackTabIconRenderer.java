@@ -23,7 +23,7 @@ public class ItemStackTabIconRenderer implements TabIconRenderer {
     @OnlyIn(Dist.CLIENT)
     @Override
     public void render(GuiGraphics matrix) {
-        // Translate manually because ItemRenderer generally can't take a MatrixStack.
+        // Translate manually because ItemRenderer generally can't take a PoseStack.
         RenderSystem.pushMatrix();
         RenderSystem.multMatrix(matrix.last().pose());
         RenderSystem.enableRescaleNormal();

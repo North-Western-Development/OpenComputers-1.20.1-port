@@ -1,48 +1,32 @@
 package li.cil.oc.common.tileentity
 
-import java.util
-
-import li.cil.oc.Settings
-import li.cil.oc.api
-import li.cil.oc.api.Driver
+import li.cil.oc.{Settings, api}
 import li.cil.oc.api.component.RackMountable
-import li.cil.oc.api.internal
-import li.cil.oc.api.network.Analyzable
-import li.cil.oc.api.network.Connector
-import li.cil.oc.api.network.EnvironmentHost
-import li.cil.oc.api.network.Message
-import li.cil.oc.api.network.Node
-import li.cil.oc.api.network.Packet
-import li.cil.oc.api.network.Visibility
+import li.cil.oc.api.{Driver, internal}
+import li.cil.oc.api.network._
 import li.cil.oc.api.util.StateAware
-import li.cil.oc.common.Slot
-import li.cil.oc.common.container
+import li.cil.oc.common.{Slot, container}
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
 import li.cil.oc.integration.opencomputers.DriverRedstoneCard
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import li.cil.oc.util.ExtendedInventory._
 import li.cil.oc.util.ExtendedNBT._
-import li.cil.oc.util.RotationHelper
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.IInventory
-import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.item.ItemStack
-import net.minecraft.nbt.CompoundNBT
-import net.minecraft.nbt.IntArrayNBT
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.tileentity.TileEntityType
-import net.minecraft.util.Direction
-import net.minecraftforge.common.util.Constants.NBT
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.nbt.{CompoundTag, IntArrayTag, Tag}
+import net.minecraft.world.entity.player.{Inventory, Player}
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.{Container, MenuProvider}
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
-class Rack(selfType: TileEntityType[_ <: Rack]) extends TileEntity(selfType) with traits.PowerAcceptor with traits.Hub with traits.PowerBalancer
-  with traits.ComponentInventory with traits.Rotatable with traits.BundledRedstoneAware with Analyzable with internal.Rack with traits.StateAware with INamedContainerProvider {
+import java.util
+
+class Rack(selfType: BlockEntityType[_ <: Rack], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.PowerAcceptor with traits.Hub with traits.PowerBalancer
+  with traits.ComponentInventory with traits.Rotatable with traits.BundledRedstoneAware with Analyzable with internal.Rack with traits.StateAware with MenuProvider {
 
   var isRelayEnabled = false
-  val lastData = new Array[CompoundNBT](getContainerSize)
+  val lastData = new Array[CompoundTag](getContainerSize)
   val hasChanged: Array[Boolean] = Array.fill(getContainerSize)(true)
 
   // Map node connections for each installed mountable. Each mountable may
@@ -262,7 +246,7 @@ class Rack(selfType: TileEntityType[_ <: Rack]) extends TileEntity(selfType) wit
   // ----------------------------------------------------------------------- //
   // Analyzable
 
-  override def onAnalyze(player: PlayerEntity, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
+  override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
     slotAt(side, hitX, hitY, hitZ) match {
       case Some(slot) => components(slot) match {
         case Some(analyzable: Analyzable) => analyzable.onAnalyze(player, side, hitX, hitY, hitZ)
@@ -282,7 +266,7 @@ class Rack(selfType: TileEntityType[_ <: Rack]) extends TileEntity(selfType) wit
     case _ => null
   }
 
-  override def getMountableData(slot: Int): CompoundNBT = lastData(slot)
+  override def getMountableData(slot: Int): CompoundTag = lastData(slot)
 
   override def markChanged(slot: Int): Unit = {
     hasChanged.synchronized(hasChanged(slot) = true)
@@ -346,7 +330,7 @@ class Rack(selfType: TileEntityType[_ <: Rack]) extends TileEntity(selfType) wit
   // ----------------------------------------------------------------------- //
   // INamedContainerProvider
 
-  override def createMenu(id: Int, playerInventory: PlayerInventory, player: PlayerEntity) =
+  override def createMenu(id: Int, playerInventory:Inventory, player: Player) =
     new container.Rack(ContainerTypes.RACK, id, playerInventory, this)
 
   // ----------------------------------------------------------------------- //
@@ -424,11 +408,11 @@ class Rack(selfType: TileEntityType[_ <: Rack]) extends TileEntity(selfType) wit
   private final val LastDataTag = Settings.namespace + "lastData"
   private final val RackDataTag = Settings.namespace + "rackData"
 
-  override def loadForServer(nbt: CompoundNBT): Unit = {
+  override def loadForServer(nbt: CompoundTag): Unit = {
     super.loadForServer(nbt)
 
     isRelayEnabled = nbt.getBoolean(IsRelayEnabledTag)
-    nbt.getList(NodeMappingTag, NBT.TAG_INT_ARRAY).map((buses: IntArrayNBT) =>
+    nbt.getList(NodeMappingTag, Tag.TAG_INT_ARRAY).map((buses: IntArrayTag) =>
       buses.getAsIntArray.map(id => if (id < 0 || id == Direction.SOUTH.ordinal()) None else Option(Direction.from3DDataValue(id)))).
       copyToArray(nodeMapping)
 
@@ -436,7 +420,7 @@ class Rack(selfType: TileEntityType[_ <: Rack]) extends TileEntity(selfType) wit
     _isOutputEnabled = hasRedstoneCard
   }
 
-  override def saveForServer(nbt: CompoundNBT): Unit = {
+  override def saveForServer(nbt: CompoundTag): Unit = {
     super.saveForServer(nbt)
 
     nbt.putBoolean(IsRelayEnabledTag, isRelayEnabled)
@@ -445,20 +429,20 @@ class Rack(selfType: TileEntityType[_ <: Rack]) extends TileEntity(selfType) wit
   }
 
   @OnlyIn(Dist.CLIENT) override
-  def loadForClient(nbt: CompoundNBT): Unit = {
+  def loadForClient(nbt: CompoundTag): Unit = {
     super.loadForClient(nbt)
 
-    val data = nbt.getList(LastDataTag, NBT.TAG_COMPOUND).
-      toTagArray[CompoundNBT]
+    val data = nbt.getList(LastDataTag, Tag.TAG_COMPOUND).
+      toTagArray[CompoundTag]
     data.copyToArray(lastData)
     loadData(nbt.getCompound(RackDataTag))
     connectComponents()
   }
 
-  override def saveForClient(nbt: CompoundNBT): Unit = {
+  override def saveForClient(nbt: CompoundTag): Unit = {
     super.saveForClient(nbt)
 
-    val data = lastData.map(tag => if (tag == null) new CompoundNBT() else tag)
+    val data = lastData.map(tag => if (tag == null) new CompoundTag() else tag)
     nbt.setNewTagList(LastDataTag, data)
     nbt.setNewCompoundTag(RackDataTag, saveData)
   }
@@ -479,7 +463,7 @@ class Rack(selfType: TileEntityType[_ <: Rack]) extends TileEntity(selfType) wit
   def isWorking(mountable: RackMountable): Boolean = mountable.getCurrentState.contains(api.util.StateAware.State.IsWorking)
 
   def hasRedstoneCard: Boolean = components.exists {
-    case Some(mountable: EnvironmentHost with RackMountable with IInventory) if isWorking(mountable) =>
+    case Some(mountable: EnvironmentHost with RackMountable with Container) if isWorking(mountable) =>
       mountable.exists(stack => DriverRedstoneCard.worksWith(stack, mountable.getClass))
     case _ => false
   }

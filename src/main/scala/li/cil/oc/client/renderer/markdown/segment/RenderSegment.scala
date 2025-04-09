@@ -1,14 +1,15 @@
 package li.cil.oc.client.renderer.markdown.segment
 
-import com.mojang.blaze3d.matrix.MatrixStack
+import com.mojang.blaze3d.vertex.{PoseStack, VertexFormat}
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.api.manual.ImageRenderer
 import li.cil.oc.api.manual.InteractiveImageRenderer
 import li.cil.oc.client.renderer.markdown.Document
 import li.cil.oc.client.renderer.markdown.MarkupFormat
-import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.gui.Font
 import net.minecraft.util.math.vector.Matrix4f
 import net.minecraft.util.math.vector.Vector4f
+import org.joml.Vector4f
 import org.lwjgl.opengl.GL11
 
 private[markdown] class RenderSegment(val parent: Segment, val title: String, val imageRenderer: ImageRenderer) extends InteractiveSegment {
@@ -31,11 +32,11 @@ private[markdown] class RenderSegment(val parent: Segment, val title: String, va
 
   def imageHeight(maxWidth: Int) = math.ceil(imageRenderer.getHeight * scale(maxWidth)).toInt + 4
 
-  override def nextY(indent: Int, maxWidth: Int, renderer: FontRenderer): Int = imageHeight(maxWidth) + (if (indent > 0) Document.lineHeight(renderer) else 0)
+  override def nextY(indent: Int, maxWidth: Int, renderer: Font): Int = imageHeight(maxWidth) + (if (indent > 0) Document.lineHeight(renderer) else 0)
 
-  override def nextX(indent: Int, maxWidth: Int, renderer: FontRenderer): Int = 0
+  override def nextX(indent: Int, maxWidth: Int, renderer: Font): Int = 0
 
-  override def render(stack: MatrixStack, x: Int, y: Int, indent: Int, maxWidth: Int, renderer: FontRenderer, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = {
+  override def render(stack: PoseStack, x: Int, y: Int, indent: Int, maxWidth: Int, renderer: Font, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = {
     val width = imageWidth(maxWidth)
     val height = imageHeight(maxWidth)
     val xOffset = (maxWidth - width) / 2
@@ -57,7 +58,7 @@ private[markdown] class RenderSegment(val parent: Segment, val title: String, va
     RenderSystem.enableDepthTest()
 
     if (hovered.isDefined) {
-      RenderSystem.color4f(1, 1, 1, 0.15f)
+      RenderSystem.setShaderColor(1, 1, 1, 0.15f)
       RenderSystem.disableTexture()
       GL11.glBegin(GL11.GL_QUADS)
       val matrix = stack.last.pose
@@ -77,7 +78,7 @@ private[markdown] class RenderSegment(val parent: Segment, val title: String, va
       RenderSystem.enableTexture()
     }
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
 
     imageRenderer.render(stack, mouseX - x, mouseY - y)
 

@@ -1,14 +1,18 @@
 package li.cil.oc.client.renderer.entity
 
-import com.mojang.blaze3d.matrix.MatrixStack
-import com.mojang.blaze3d.vertex.IVertexBuilder
+import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.VertexConsumer
+import com.mojang.math.Axis
 import li.cil.oc.common.entity.Drone
+import net.minecraft.client.model.EntityModel
 import net.minecraft.client.renderer.LightTexture
+import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.model.EntityModel
 import net.minecraft.client.renderer.model.ModelRenderer
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.util.math.vector.Vector3d
 import net.minecraft.util.math.vector.Vector3f
+import org.joml.Vector3d
 
 final class ModelQuadcopter extends EntityModel[Drone] {
   val body = new ModelRenderer(this)
@@ -43,7 +47,7 @@ final class ModelQuadcopter extends EntityModel[Drone] {
 
   private val up = new Vector3d(0, 1, 0)
 
-  private def doRender(drone: Drone, dt: Float, stack: MatrixStack, builder: IVertexBuilder, light: Int, overlay: Int, r: Float, g: Float, b: Float, a: Float) {
+  private def doRender(drone: Drone, dt: Float, stack: PoseStack, builder: VertexConsumer, light: Int, overlay: Int, r: Float, g: Float, b: Float, a: Float) {
     stack.pushPose()
     if (drone.isRunning) {
       val timeJitter = drone.hashCode() ^ 0xFF
@@ -58,7 +62,7 @@ final class ModelQuadcopter extends EntityModel[Drone] {
       stack.mulPose(new Vector3f(rotationAxis).rotationDegrees(relativeSpeed * -20))
     }
 
-    stack.mulPose(Vector3f.YP.rotationDegrees(drone.bodyAngle))
+    stack.mulPose(Axis.YP.rotationDegrees(drone.bodyAngle))
     body.render(stack, builder, light, overlay, r, g, b, a)
 
     wing0.xRot = drone.flapAngles(0)(0)
@@ -109,7 +113,7 @@ final class ModelQuadcopter extends EntityModel[Drone] {
     cachedDt = dt
   }
 
-  override def renderToBuffer(stack: MatrixStack, builder: IVertexBuilder, light: Int, overlay: Int, r: Float, g: Float, b: Float, a: Float): Unit = {
+  override def renderToBuffer(stack: PoseStack, builder: VertexConsumer, light: Int, overlay: Int, r: Float, g: Float, b: Float, a: Float): Unit = {
     doRender(cachedEntity, cachedDt, stack, builder, light: Int, overlay: Int, r: Float, g: Float, b: Float, a: Float)
   }
 }
