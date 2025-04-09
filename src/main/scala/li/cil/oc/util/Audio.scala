@@ -1,21 +1,17 @@
 package li.cil.oc.util
 
-import java.nio.ByteBuffer
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
+import li.cil.oc.{OpenComputers, Settings}
 import net.minecraft.client.Minecraft
-import net.minecraft.client.audio.SimpleSound
+import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.sounds.{SoundEvents, SoundSource}
-import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.SoundEvent
-import net.minecraft.core.BlockPos
-import net.minecraft.util.math.vector.Vector3d
+import net.minecraft.util.RandomSource
 import net.minecraft.world.phys.Vec3
-import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.event.TickEvent.ClientTickEvent
+import net.minecraftforge.eventbus.api.SubscribeEvent
 import org.lwjgl.BufferUtils
 import org.lwjgl.openal.AL10
 
+import java.nio.ByteBuffer
 import scala.collection.mutable
 
 /**
@@ -58,7 +54,10 @@ object Audio {
       val clampedFrequency = ((frequencyInHz - 20) max 0 min 1980) / 1980f + 0.5f
       var delay = 0
       for (ch <- pattern) {
-        val record = new SimpleSound(SoundEvents.NOTE_BLOCK_HARP, SoundSource.BLOCKS, gain, clampedFrequency, new BlockPos(x, y, z))
+        val record = new SimpleSoundInstance(
+          SoundEvents.NOTE_BLOCK_HARP.get(), SoundSource.BLOCKS,
+          gain, clampedFrequency,
+          RandomSource.create(), x, y, z)
         if (delay == 0) mc.getSoundManager.play(record)
         else mc.getSoundManager.playDelayed(record, delay)
         delay += ((if (ch == '.') durationInMilliseconds else 2 * durationInMilliseconds) * 20 / 1000) max 1

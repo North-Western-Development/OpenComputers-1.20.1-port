@@ -54,13 +54,13 @@ object ManualUsageHandler {
     override def getIcon: IDrawable = icon
 
     override def setIngredients(recipeWrapper: ManualUsageRecipe, ingredients: IIngredients) {
-      ingredients.setInput(VanillaTypes.ITEM, recipeWrapper.stack)
+      ingredients.setInput(VanillaTypes.ITEM_STACK, recipeWrapper.stack)
     }
 
     override def setRecipe(recipeLayout: IRecipeLayout, recipeWrapper: ManualUsageRecipe, ingredients: IIngredients) {
     }
 
-    override def draw(recipeWrapper: ManualUsageRecipe, stack: PoseStack, mouseX: Double, mouseY: Double) {
+    override def draw(recipeWrapper: ManualUsageRecipe, gui: PoseStack, mouseX: Double, mouseY: Double) {
       button.render(stack, mouseX.toInt, mouseY.toInt, 0)
     }
 

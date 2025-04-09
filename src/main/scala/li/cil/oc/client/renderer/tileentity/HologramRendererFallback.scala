@@ -6,6 +6,7 @@ import com.mojang.math.Axis
 import li.cil.oc.common.tileentity.Hologram
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.Font
 import net.minecraft.client.renderer.MultiBufferSource
 
 object HologramRendererFallback {
@@ -23,10 +24,10 @@ object HologramRendererFallback {
     stack.scale(1 / 128f, -1 / 128f, 1 / 128f)
 
     fontRenderer.drawInBatch(text, -fontRenderer.width(text) / 2, 0, 0xFFFFFFFF,
-      false, stack.last.pose, buffer, false, 0, light)
+      false, stack.last.pose, buffer, Font.DisplayMode.NORMAL, 0, light)
     stack.mulPose(Axis.YP.rotationDegrees(180))
     fontRenderer.drawInBatch(text, -fontRenderer.width(text) / 2, 0, 0xFFFFFFFF,
-      false, stack.last.pose, buffer, false, 0, light)
+      false, stack.last.pose, buffer, Font.DisplayMode.NORMAL, 0, light)
 
     stack.popPose()
 

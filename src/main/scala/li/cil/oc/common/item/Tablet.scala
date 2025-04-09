@@ -38,19 +38,13 @@ import li.cil.oc.util.Rarity
 import li.cil.oc.util.RotationHelper
 import li.cil.oc.util.Tooltip
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.model.ModelBakery
-import net.minecraft.client.renderer.model.ModelResourceLocation
 import net.minecraft.client.resources.model.ModelResourceLocation
 import net.minecraft.client.server.IntegratedServer
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
-import net.minecraft.entity.player.{Inventory, Player, ServerPlayer}
-import net.minecraft.inventory.container.INamedContainerProvider
-import net.minecraft.{Util, item}
-import net.minecraft.world.item.{Item, ItemGroup, ItemStack, Rarity}
+import net.minecraft.world.item.{Item, ItemStack}
 import net.minecraft.world.item.Item.Properties
 import net.minecraft.nbt.{CompoundTag, Tag}
-import net.minecraft.server.integrated.IntegratedServer
 import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.{InteractionHand, InteractionResult, InteractionResultHolder, MenuProvider}
 import net.minecraft.core.Direction
@@ -67,7 +61,6 @@ import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 import net.minecraftforge.client.model.ModelLoader
 import net.minecraftforge.common.extensions.IForgeItem
-import net.minecraftforge.common.util.Constants.NBT
 import net.minecraftforge.event.TickEvent.ClientTickEvent
 import net.minecraftforge.event.TickEvent.ServerTickEvent
 import net.minecraftforge.event.level.LevelEvent
@@ -99,14 +92,12 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
     }
   }
 
-  override def getRarity(stack: ItemStack): Rarity = {
+  override def getRarity(stack: ItemStack): net.minecraft.world.item.Rarity = {
     val data = new TabletData(stack)
     Rarity.byTier(data.tier)
   }
 
-  override def showDurabilityBar(stack: ItemStack) = true
-
-  override def getDurabilityForDisplay(stack: ItemStack): Double = {
+  override def getUseDuration(stack: ItemStack): Double = {
     if (stack.hasTag) {
       val data = Tablet.Client.getWeak(stack) match {
         case Some(wrapper) => wrapper.data
@@ -125,7 +116,7 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
       case Some(state) => if (state) "_on" else "_off"
       case _ => ""
     }
-    new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.ItemName.Tablet + suffix, "inventory")
+    new ModelResourceLocation(Settings.resourceDomain, Constants.ItemName.Tablet + suffix, "inventory")
   }
 
   @OnlyIn(Dist.CLIENT)
@@ -156,9 +147,6 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
 
   // ----------------------------------------------------------------------- //
 
-  // Must be assembled to be usable so we hide it in the item list.
-  override def fillItemCategory(tab: ItemGroup, list: NonNullList[ItemStack]) {}
-
   override def inventoryTick(stack: ItemStack, world: Level, entity: Entity, slot: Int, selected: Boolean): Unit =
     entity match {
       case player: Player =>
@@ -170,7 +158,7 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
       case _ =>
     }
 
-  override def onItemUseFirst(stack: ItemStack, player: Player, world: Level, pos: BlockPos, side: Direction, hitX: Float, hitY: Float, hitZ: Float, hand: Hand): InteractionResult = {
+  override def onItemUseFirst(stack: ItemStack, player: Player, world: Level, pos: BlockPos, side: Direction, hitX: Float, hitY: Float, hitZ: Float, hand: InteractionHand): InteractionResult = {
     Tablet.currentlyAnalyzing = Some((BlockPosition(pos, world), side, hitX, hitY, hitZ))
     super.onItemUseFirst(stack, player, world, pos, side, hitX, hitY, hitZ, hand)
   }

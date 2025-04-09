@@ -70,13 +70,6 @@ class Print(props: Properties) extends RedstoneAware(props) with IForgeBlock {
       case _ => super.getLightBlock(state, world, pos)
     }
 
-  override def getPickBlock(state: BlockState, target: HitResult, world: BlockGetter, pos: BlockPos, player: Player): ItemStack = {
-    world.getBlockEntity(pos) match {
-      case print: tileentity.Print => print.data.createItemStack()
-      case _ => ItemStack.EMPTY
-    }
-  }
-
   override def getShape(state: BlockState, world: BlockGetter, pos: BlockPos, ctx: CollisionContext): VoxelShape = {
     world.getBlockEntity(pos) match {
       case print: tileentity.Print => print.shape

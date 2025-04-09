@@ -1,10 +1,10 @@
 package li.cil.oc.common.block
 
-import li.cil.oc.{Constants, api}
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.ExtendedEnumFacing._
 import li.cil.oc.util.{BlockPosition, InventoryUtils}
+import li.cil.oc.{Constants, api}
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.RandomSource
@@ -12,9 +12,9 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.context.BlockPlaceContext
-import net.minecraft.world.level.block.{Block, Blocks}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
+import net.minecraft.world.level.block.{Block, Blocks}
 import net.minecraft.world.level.{BlockGetter, Level, LevelReader}
 import net.minecraft.world.phys.shapes.{CollisionContext, Shapes, VoxelShape}
 import net.minecraft.world.ticks.ScheduledTick
@@ -53,7 +53,7 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
 
   override def onPlace(state: BlockState, world: Level, pos: BlockPos, prevState: BlockState, moved: Boolean): Unit = {
     if (!world.isClientSide) {
-      world.asInstanceOf[ServerLevel].getBlockTicks.scheduleTick(pos, this, 10)
+      world.asInstanceOf[ServerLevel].getBlockTicks.schedule(new ScheduledTick(this, pos, 10, 10))
     }
   }
 
@@ -62,7 +62,7 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
       case keyboard: tileentity.Keyboard => api.Network.joinOrCreateNetwork(keyboard)
       case _ =>
     }
-    world.getBlockTicks.scheduleTick(pos, this, 10)
+    world.getBlockTicks.schedule(new ScheduledTick(this, pos, 10, 10))
   }
 
   override def getStateForPlacement(ctx: BlockPlaceContext): BlockState = {

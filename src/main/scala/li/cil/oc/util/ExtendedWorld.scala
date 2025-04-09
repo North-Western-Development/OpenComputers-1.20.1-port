@@ -1,19 +1,12 @@
 package li.cil.oc.util
 
 import li.cil.oc.api.network.EnvironmentHost
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.Blocks
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.block.material.Material
 import net.minecraft.core.{BlockPos, Direction}
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.core.Direction
-import net.minecraft.core.BlockPos
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.block.{Block, Blocks}
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.material.MapColor
 import net.minecraft.world.level.{Level, LevelAccessor}
 
 import scala.language.implicitConversions
@@ -51,7 +44,7 @@ object ExtendedWorld {
     def extinguishFire(player: Player, position: BlockPosition, side: Direction) = {
       val pos = position.toBlockPos
       val state = world.getBlockState(pos)
-      if (state.getMaterial == Material.FIRE) {
+      if (state.getMapColor(world, pos) == MapColor.FIRE) {
         world.setBlock(pos, Blocks.AIR.defaultBlockState, 3)
         true
       }
@@ -59,10 +52,6 @@ object ExtendedWorld {
     }
 
     def getBlockHardness(position: BlockPosition) = world.getBlockState(position.toBlockPos).getDestroySpeed(world, position.toBlockPos)
-
-    def getBlockHarvestLevel(position: BlockPosition) = getBlock(position).getHarvestLevel(getBlockMetadata(position))
-
-    def getBlockHarvestTool(position: BlockPosition) = getBlock(position).getHarvestTool(getBlockMetadata(position))
 
     def computeRedstoneSignal(position: BlockPosition, side: Direction) = math.max(world.isBlockProvidingPowerTo(position.offset(side), side), world.getIndirectPowerLevelTo(position.offset(side), side))
 

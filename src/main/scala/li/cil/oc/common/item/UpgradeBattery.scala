@@ -1,11 +1,9 @@
 package li.cil.oc.common.item
 
 import li.cil.oc.Settings
-import li.cil.oc.api.driver.item.Chargeable
 import li.cil.oc.common.item.data.NodeData
-import net.minecraft.world.item.Item
 import net.minecraft.world.item.Item.Properties
-import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.{Item, ItemStack}
 import net.minecraftforge.common.extensions.IForgeItem
 
 class UpgradeBattery(props: Properties, val tier: Int) extends Item(props) with IForgeItem with traits.SimpleItem with traits.ItemTier with traits.Chargeable {
@@ -16,9 +14,7 @@ class UpgradeBattery(props: Properties, val tier: Int) extends Item(props) with 
 
   override protected def tooltipData = Seq(Settings.get.bufferCapacitorUpgrades(tier).toInt)
 
-  override def showDurabilityBar(stack: ItemStack) = true
-
-  override def getDurabilityForDisplay(stack: ItemStack): Double = {
+  override def getUseDuration(stack: ItemStack): Double = {
     val data = new NodeData(stack)
     1 - data.buffer.getOrElse(0.0) / Settings.get.bufferCapacitorUpgrades(tier)
   }

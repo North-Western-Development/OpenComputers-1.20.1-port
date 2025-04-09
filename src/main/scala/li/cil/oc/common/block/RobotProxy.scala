@@ -1,42 +1,29 @@
 package li.cil.oc.common.block
 
-import java.util
-import li.cil.oc.Constants
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, Settings, api}
 import li.cil.oc.client.KeyMappings
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.item.data.RobotData
 import li.cil.oc.common.tileentity
-import li.cil.oc.server.PacketSender
-import li.cil.oc.server.agent
+import li.cil.oc.server.{PacketSender, agent}
 import li.cil.oc.server.loot.LootFunctions
-import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.InventoryUtils
-import li.cil.oc.util.Tooltip
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.item.TooltipFlag
+import li.cil.oc.util.{BlockPosition, InventoryUtils, Tooltip}
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.fluid.FluidState
-import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.storage.loot.{LootContext, LootParams}
-import net.minecraft.core.Direction
-import net.minecraft.world.InteractionHand
-import net.minecraft.core.BlockPos
-import net.minecraft.world.phys.shapes.CollisionContext
-import net.minecraft.world.phys.shapes.VoxelShape
-import net.minecraft.world.phys.shapes.Shapes
-import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.Component
-import net.minecraft.world.level.BlockGetter
-import net.minecraft.world.level.Level
+import net.minecraft.world.item.{ItemStack, TooltipFlag}
+import net.minecraft.world.level.{BlockGetter, Level}
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.material.FluidState
+import net.minecraft.world.level.storage.loot.LootParams
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams
-import net.minecraft.world.phys.BlockHitResult
+import net.minecraft.world.phys.shapes.{CollisionContext, Shapes, VoxelShape}
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToScala._
 
 class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.StateAware {
@@ -47,14 +34,6 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
   var moving = new ThreadLocal[Option[tileentity.Robot]] {
     override protected def initialValue = None
   }
-
-  // ----------------------------------------------------------------------- //
-
-  override def getPickBlock(state: BlockState, target: BlockHitResult, world: BlockGetter, pos: BlockPos, player: Player): ItemStack =
-    world.getBlockEntity(pos) match {
-      case proxy: tileentity.RobotProxy => proxy.robot.info.copyItemStack()
-      case _ => ItemStack.EMPTY
-    }
 
   override def getShape(state: BlockState, world: BlockGetter, pos: BlockPos, ctx: CollisionContext): VoxelShape = {
     world.getBlockEntity(pos) match {
@@ -224,7 +203,7 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
     }
   }
 
-  override def removedByPlayer(state: BlockState, world: Level, pos: BlockPos, player: Player, willHarvest: Boolean, fluid: FluidState): Boolean = {
+  override def onDestroyedByPlayer(state: BlockState, world: Level, pos: BlockPos, player: Player, willHarvest: Boolean, fluid: FluidState): Boolean = {
     world.getBlockEntity(pos) match {
       case proxy: tileentity.RobotProxy =>
         val robot = proxy.robot
@@ -244,6 +223,6 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
         })
       case _ =>
     }
-    super.removedByPlayer(state, world, pos, player, willHarvest, fluid)
+    super.onDestroyedByPlayer(state, world, pos, player, willHarvest, fluid)
   }
 }

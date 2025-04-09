@@ -101,8 +101,6 @@ abstract class SimpleBlock(props: Properties) extends net.minecraft.world.level.
 
   override def getHarvestTool(state: BlockState): ToolType = null
 
-  override def canBeReplacedByLeaves(state: BlockState, world: LevelAccessor, pos: BlockPos): Boolean = false
-
   def getValidRotations(world: Level, pos: BlockPos): Array[Direction] = validRotations_
 
   override def getDrops(state: BlockState, ctx: LootParams.Builder): util.List[ItemStack] = {
@@ -115,6 +113,7 @@ abstract class SimpleBlock(props: Properties) extends net.minecraft.world.level.
         })
       case _ => ctx
     }
+    ctx.
     super.getDrops(state, newCtx)
   }
 

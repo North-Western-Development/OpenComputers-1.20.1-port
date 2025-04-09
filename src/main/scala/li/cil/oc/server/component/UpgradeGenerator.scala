@@ -59,7 +59,7 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
     val container: ItemStack = stack.getContainerItem()
     val inQueue: ItemStack = inventory match {
       case SomeStack(q) if q != null && q.getCount > 0 =>
-        if (!q.sameItem(stack) || !ItemStack.tagMatches(q, stack)) {
+        if (!ItemStack.isSameItemSameTags(q, stack)) {
           return result((), "different fuel type already queued")
         }
         q

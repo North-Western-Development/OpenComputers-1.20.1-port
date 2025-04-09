@@ -1,29 +1,29 @@
 package li.cil.oc.common.entity
 
-import li.cil.oc.{Constants, Localization, Settings, api}
 import li.cil.oc.api.driver.item
-import li.cil.oc.api.{Driver, Machine, internal}
 import li.cil.oc.api.internal.MultiTank
 import li.cil.oc.api.machine.{Context, MachineHost}
 import li.cil.oc.api.network._
-import li.cil.oc.common.{EventHandler, container}
+import li.cil.oc.api.{Driver, Machine, internal}
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.inventory.{ComponentInventory, Inventory}
 import li.cil.oc.common.item.data.DroneData
+import li.cil.oc.common.{EventHandler, container}
 import li.cil.oc.integration.util.Wrench
 import li.cil.oc.server.{agent, component}
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.ExtendedWorld._
 import li.cil.oc.util.{BlockPosition, InventoryUtils}
+import li.cil.oc.{Constants, Localization, Settings, api}
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat
 import net.minecraft.network.syncher.{EntityDataAccessor, EntityDataSerializers, SynchedEntityData}
 import net.minecraft.server.level.{ServerLevel, ServerPlayer}
 import net.minecraft.world.entity.Entity.RemovalReason
-import net.minecraft.world.entity.{Entity, EntityType, MoverType}
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.entity.{Entity, EntityType, MoverType}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.state.BlockState
@@ -445,7 +445,7 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
     }
     else {
       val groundDrag = world.getBlock(BlockPosition(this: Entity).offset(Direction.DOWN)).getFriction * drag
-      setDeltaMovement(getDeltaMovement.multiply(groundDrag, drag * (if (isOnGround) -0.5 else 1), groundDrag))
+      setDeltaMovement(getDeltaMovement.multiply(groundDrag, drag * (if (onGround) -0.5 else 1), groundDrag))
     }
   }
 
@@ -476,7 +476,7 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
     if (player.isCrouching) {
       if (Wrench.isWrench(player.getItemInHand(InteractionHand.MAIN_HAND))) {
         if(!world.isClientSide) {
-          outOfWorld()
+          onBelowWorld()
         }
       }
       else if (!world.isClientSide && !machine.isRunning) {
@@ -543,9 +543,9 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
     }
   }
 
-  override def outOfWorld(): Unit = {
+  override def onBelowWorld(): Unit = {
     if (!isAlive) return
-    super.outOfWorld()
+    super.onBelowWorld()
     if (!world.isClientSide) {
       val stack = api.Items.get(Constants.ItemName.Drone).createItemStack(1)
       info.storedEnergy = control.node.localBuffer.toInt

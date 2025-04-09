@@ -34,14 +34,6 @@ class Microcontroller(props: Properties)
 
   // ----------------------------------------------------------------------- //
 
-  override def getPickBlock(state: BlockState, target: HitResult, world: BlockGetter, pos: BlockPos, player: Player): ItemStack =
-    world.getBlockEntity(pos) match {
-      case mcu: tileentity.Microcontroller => mcu.info.copyItemStack()
-      case _ => ItemStack.EMPTY
-    }
-
-  // ----------------------------------------------------------------------- //
-
   override protected def tooltipTail(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], advanced: TooltipFlag) {
     super.tooltipTail(stack, world, tooltip, advanced)
     if (KeyMappings.showExtendedTooltips) {

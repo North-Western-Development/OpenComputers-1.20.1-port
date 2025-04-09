@@ -1,10 +1,10 @@
 package li.cil.oc.common.component
 
+import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.api
 import li.cil.oc.api.internal.TextBuffer.ColorDepth
 import li.cil.oc.api.network.{Message, Node}
 import li.cil.oc.common.component.traits.{TextBufferProxy, VideoRamRasterizer}
-import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.entity.player.Player
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
@@ -54,7 +54,7 @@ class GpuTextBuffer(val owner: String, val id: Int, val data: li.cil.oc.util.Tex
   override def setMaximumColorDepth(depth: ColorDepth): Unit = {}
   override def getMaximumColorDepth: ColorDepth = data.format.depth
   @OnlyIn(Dist.CLIENT)
-  override def renderText(guiGraphics: GuiGraphics): Boolean = false
+  override def renderText(poseStack: PoseStack): Boolean = false
   override def renderWidth: Int = 0
   override def renderHeight: Int = 0
   override def setRenderingEnabled(enabled: Boolean): Unit = {}

@@ -1,24 +1,19 @@
 package li.cil.oc.server.component
 
-import java.util
-
-import li.cil.oc.{Constants, OpenComputers, api}
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
 import li.cil.oc.api.internal
 import li.cil.oc.api.network._
-import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedWorld._
+import li.cil.oc.{Constants, api}
+import net.minecraft.core.Direction
+import net.minecraft.nbt.{CompoundTag, ListTag}
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.ListNBT
-import net.minecraft.core.Direction
-import net.minecraft.server.level.ServerLevel
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 
 class UpgradeBarcodeReader(val host: EnvironmentHost) extends AbstractManagedEnvironment with DeviceInfo {
@@ -57,7 +52,7 @@ class UpgradeBarcodeReader(val host: EnvironmentHost) extends AbstractManagedEnv
   }
 
   private def processNodes(nodes: Array[Node], nbt: CompoundTag): Unit = if (nodes != null) {
-    val readerNBT = new ListNBT()
+    val readerNBT = new ListTag()
 
     for (node <- nodes if node != null) {
       val nodeNBT = new CompoundTag()

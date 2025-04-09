@@ -1,15 +1,11 @@
 package li.cil.oc.util
 
-import li.cil.oc.Localization
-import li.cil.oc.Settings
+import li.cil.oc.{Localization, Settings}
 import li.cil.oc.client.KeyMappings
 import net.minecraft.ChatFormatting
-import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Font
+import net.minecraft.client.{Minecraft, StringSplitter}
 import net.minecraft.network.chat.Style
-import net.minecraft.util.text.CharacterManager.ISliceAcceptor
-import net.minecraft.util.text.Style
-import net.minecraft.ChatFormatting
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -52,7 +48,7 @@ object Tooltip {
 
   private def wrap(font: Font, line: String, width: Int): java.util.List[String] = {
     val list = new java.util.ArrayList[String]
-    font.getSplitter.splitLines(line, width, net.minecraft.util.text.Style.EMPTY, true, new ISliceAcceptor {
+    font.getSplitter.splitLines(line, width, Style.EMPTY, true, new StringSplitter.LinePosConsumer {
       override def accept(style: Style, start: Int, end: Int) = list.add(line.substring(start, end))
     })
     list

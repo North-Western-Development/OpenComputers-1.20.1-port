@@ -29,7 +29,7 @@ class Charger(props: Properties) extends RedstoneAware(props) with traits.PowerA
     case _ =>
   }
 
-  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Charger(tileentity.TileEntityTypes.CHARGER)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Charger(tileentity.TileEntityTypes.CHARGER.get(), pos, state)
 
   // ----------------------------------------------------------------------- //
 

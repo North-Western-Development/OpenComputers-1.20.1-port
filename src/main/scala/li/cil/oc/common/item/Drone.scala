@@ -50,9 +50,6 @@ class Drone(props: Properties) extends Item(props) with IForgeItem with traits.S
     Rarity.byTier(data.tier)
   }
 
-  // Must be assembled to be usable so we hide it in the item list.
-  override def fillItemCategory(tab: ItemGroup, list: NonNullList[ItemStack]) {}
-
   override def onItemUse(stack: ItemStack, player: Player, position: BlockPosition, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = {
     val world = position.world.get
     if (!world.isClientSide) {

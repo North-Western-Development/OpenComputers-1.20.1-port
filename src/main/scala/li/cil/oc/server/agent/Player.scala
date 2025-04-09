@@ -179,7 +179,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
         override def get = new PlayerMainInvWrapper(getInventory)
       }))
       Player.playerEquipmentHandler.set(this, LazyOptional.of(new NonNullSupplier[IItemHandler] {
-        override def get = new CombinedInvWrapper(new PlayerArmorInvWrapper(getInventory), new PlayerOffhandInvWrapper(inventory))
+        override def get = new CombinedInvWrapper(new PlayerArmorInvWrapper(getInventory), new PlayerOffhandInvWrapper(getInventory))
       }))
       Player.playerJoinedHandler.set(this, LazyOptional.of(new NonNullSupplier[IItemHandler] {
         override def get = new PlayerInvWrapper(getInventory)

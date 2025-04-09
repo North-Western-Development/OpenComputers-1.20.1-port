@@ -6,15 +6,13 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.util.{Color, ItemColorizer}
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.context.BlockPlaceContext
 import net.minecraft.world.item.{DyeColor, ItemStack}
-import net.minecraft.world.level.{BlockGetter, Level, LevelAccessor}
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
-import net.minecraft.world.phys.BlockHitResult
+import net.minecraft.world.level.{BlockGetter, Level, LevelAccessor}
 import net.minecraft.world.phys.shapes.{CollisionContext, Shapes, VoxelShape}
 import net.minecraftforge.common.extensions.IForgeBlock
 
@@ -50,12 +48,6 @@ class Cable(props: Properties) extends SimpleBlock(props) with IForgeBlock {
       Cable.updateState(state, null, color, fromSide, fromState, ctx.getLevel, fromPos)
     })
   }
-
-  override def getPickBlock(state: BlockState, target: BlockHitResult, world: LevelAccessor, pos: BlockPos, player: Player) =
-    world.getBlockEntity(pos) match {
-      case t: tileentity.Cable => t.createItemStack()
-      case _ => createItemStack()
-    }
 
   override def getShape(state: BlockState, world: BlockGetter, pos: BlockPos, ctx: CollisionContext): VoxelShape = Cable.shape(state)
 

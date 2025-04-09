@@ -1,27 +1,21 @@
 package li.cil.oc.server.component
 
-import java.util
-
-import li.cil.oc.Constants
-import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
+import li.cil.oc.{Constants, Settings, api}
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
+import li.cil.oc.api.driver.{DeviceInfo, DriverBlock}
 import li.cil.oc.api.network._
-import li.cil.oc.api.prefab
+import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.common.event.BlockChangeHandler
 import li.cil.oc.common.event.BlockChangeHandler.ChangeListener
 import li.cil.oc.server.network
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedWorld._
-import li.cil.oc.Settings
-import li.cil.oc.api
-import li.cil.oc.api.driver.DriverBlock
-import li.cil.oc.api.prefab.AbstractManagedEnvironment
+import net.minecraft.core.Direction
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.core.Direction
-import net.minecraft.util.math.vector.Vector3d
+import net.minecraft.world.phys.Vec3
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 
 /**
@@ -49,7 +43,7 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
 
   override def getDeviceInfo: util.Map[String, String] = deviceInfo
 
-  private def otherNode(tile: TileEntity, f: (Node) => Unit) {
+  private def otherNode(tile: BlockEntity, f: (Node) => Unit) {
     network.Network.getNetworkNode(tile, dir) match {
       case Some(otherNode) => f(otherNode)
       case _ => // Nothing to do here
@@ -58,11 +52,11 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
 
   private def updateBoundState() {
     if (node != null && node.network != null && coord.world.exists(_.dimension == host.world.dimension)
-      && coord.toVec3.distanceTo(new Vector3d(host.xPosition, host.yPosition, host.zPosition)) <= Settings.get.mfuRange) {
+      && coord.toVec3.distanceTo(new Vec3(host.xPosition, host.yPosition, host.zPosition)) <= Settings.get.mfuRange) {
       host.world.getBlockEntity(coord) match {
-        case env: TileEntity with api.network.Environment =>
+        case env: BlockEntity with api.network.Environment =>
           otherEnv match {
-            case Some(environment: TileEntity) =>
+            case Some(environment: BlockEntity) =>
               otherNode(environment, node.disconnect)
               otherEnv = None
             case _ => // Nothing to do here.
@@ -81,7 +75,7 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
         case _ =>
           // Remove any environment that might have been there.
           otherEnv match {
-            case Some(environment: TileEntity) =>
+            case Some(environment: BlockEntity) =>
               otherNode(environment, node.disconnect)
               otherEnv = None
             case _ => // Nothing to do here.
@@ -135,7 +129,7 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
 
   private def disconnect() {
     otherEnv match {
-      case Some(environment: TileEntity) =>
+      case Some(environment: BlockEntity) =>
         otherNode(environment, node.disconnect)
         otherEnv = None
       case _ => // Nothing to do here.
@@ -160,7 +154,7 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
     }
     if (host.world.getGameTime % Settings.get.tickFrequency == 0) {
       if (!node.tryChangeBuffer(-Settings.get.mfuCost * Settings.get.tickFrequency
-        * coord.toVec3.distanceTo(new Vector3d(host.xPosition, host.yPosition, host.zPosition)))) {
+        * coord.toVec3.distanceTo(new Vec3(host.xPosition, host.yPosition, host.zPosition)))) {
         disconnect()
       }
     }
@@ -179,7 +173,7 @@ class UpgradeMF(val host: EnvironmentHost, val coord: BlockPosition, val dir: Di
   override def onDisconnect(node: Node) {
     super.onDisconnect(node)
     otherEnv match {
-      case Some(env: TileEntity) => otherNode(env, (otherNode) => if (node == otherNode) otherEnv = None)
+      case Some(env: BlockEntity) => otherNode(env, (otherNode) => if (node == otherNode) otherEnv = None)
       case _ => // No environment
     }
     otherDrv match {

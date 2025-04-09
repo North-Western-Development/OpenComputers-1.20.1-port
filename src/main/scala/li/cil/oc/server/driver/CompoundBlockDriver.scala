@@ -1,16 +1,13 @@
 package li.cil.oc.server.driver
 
 import com.google.common.base.Strings
-import li.cil.oc.api.driver
-import li.cil.oc.api.driver.DriverBlock
-import li.cil.oc.api.driver.NamedBlock
+import li.cil.oc.api.driver.{DriverBlock, NamedBlock}
 import li.cil.oc.api.network.ManagedEnvironment
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.core.Direction
-import net.minecraft.core.BlockPos
-import net.minecraft.core.registries.Registries
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraftforge.registries.ForgeRegistries
 
 class CompoundBlockDriver(val sidedBlocks: Array[DriverBlock]) extends DriverBlock {
   override def createEnvironment(world: Level, pos: BlockPos, side: Direction): CompoundBlockEnvironment = {
@@ -53,7 +50,7 @@ class CompoundBlockDriver(val sidedBlocks: Array[DriverBlock]) extends DriverBlo
     }
     try world.getBlockEntity(pos) match {
       case tileEntity: BlockEntity =>
-        return tileEntity.getType.getRegistryName.getPath
+        return ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(tileEntity.getType).toString
     } catch {
       case _: Throwable =>
     }

@@ -3,16 +3,17 @@ package li.cil.oc.client.renderer.tileentity
 import com.google.common.base.Strings
 import com.mojang.blaze3d.vertex.{PoseStack, VertexConsumer}
 import com.mojang.math.Axis
-import li.cil.oc.{OpenComputers, Settings}
 import li.cil.oc.api.driver.item.UpgradeRenderer
 import li.cil.oc.api.driver.item.UpgradeRenderer.MountPointName
 import li.cil.oc.api.event.RobotRenderEvent
 import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.{EventHandler, tileentity}
-import li.cil.oc.util.{RenderState, StackOption}
 import li.cil.oc.util.StackOption._
+import li.cil.oc.util.{RenderState, StackOption}
+import li.cil.oc.{OpenComputers, Settings}
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.Font
 import net.minecraft.client.renderer._
 import net.minecraft.client.renderer.block.BlockRenderDispatcher
 import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
@@ -384,7 +385,7 @@ class RobotRenderer(dispatch: BlockRenderDispatcher) extends BlockEntityRenderer
       matrix.scale(-scale, -scale, scale)
 
       f.drawInBatch((if (EventHandler.isItTime) ChatFormatting.OBFUSCATED.toString else "") + name,
-        -halfWidth, 0, -1, false, matrix.last.pose, buffer, false, bgColor, light)
+        -halfWidth, 0, -1, false, matrix.last.pose, buffer, Font.DisplayMode.NORMAL, bgColor, light)
     }
 
     matrix.popPose()

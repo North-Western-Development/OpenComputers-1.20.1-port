@@ -1,12 +1,12 @@
 package li.cil.oc.server.component
 
-import li.cil.oc.api.Driver
 import li.cil.oc.api.component.{RackBusConnectable, RackMountable}
 import li.cil.oc.api.driver.DeviceInfo
 import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
 import li.cil.oc.api.machine.{Arguments, Callback, Context}
 import li.cil.oc.api.network._
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
+import li.cil.oc.api.{Driver, network}
 import li.cil.oc.common.container.{ContainerTypes, DiskDrive => DiskDriveContainer}
 import li.cil.oc.common.inventory.{ComponentInventory, ItemStackInventory}
 import li.cil.oc.common.{Slot, Sound}
@@ -48,7 +48,7 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) extends Abs
   // ----------------------------------------------------------------------- //
   // Environment
 
-  override val node: Component = api.Network.newNode(this, Visibility.Network).
+  override val node: network.Component = api.Network.newNode(this, Visibility.Network).
     withComponent("disk_drive").
     create()
 
@@ -113,7 +113,7 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) extends Abs
     super.onItemAdded(slot, stack)
     components(slot) match {
       case Some(environment) => environment.node match {
-        case component: Component => component.setVisibility(Visibility.Network)
+        case component: network.Component => component.setVisibility(Visibility.Network)
       }
       case _ =>
     }

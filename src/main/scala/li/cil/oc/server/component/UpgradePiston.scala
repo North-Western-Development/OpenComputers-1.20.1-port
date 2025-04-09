@@ -15,6 +15,7 @@ import net.minecraft.sounds.{SoundEvents, SoundSource}
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.piston.PistonBaseBlock
 import net.minecraft.world.level.material.PushReaction
+import net.minecraftforge.registries.{ForgeRegistries, ForgeRegistry}
 
 import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
@@ -64,7 +65,7 @@ abstract class UpgradePiston(val host: EnvironmentHost) extends AbstractManagedE
   def isSticky(context: Context, args: Arguments): Array[AnyRef] = result(isSticky)
 
   protected def doPistonAction(context: Context, side: Direction, extending: Boolean): Array[AnyRef] = {
-    val sound = if (extending) SoundEvents.PISTON_EXTEND.getRegistryName else SoundEvents.PISTON_CONTRACT.getRegistryName
+    val sound = if (extending) ForgeRegistries.SOUND_EVENTS.getKey(SoundEvents.PISTON_EXTEND) else ForgeRegistries.SOUND_EVENTS.getKey(SoundEvents.PISTON_CONTRACT)
     val hostPos = pushOrigin(side).toBlockPos
     val piston = (if (isSticky) Blocks.STICKY_PISTON else Blocks.PISTON).asInstanceOf[PistonBaseBlock]
 

@@ -1,11 +1,10 @@
 package li.cil.oc.common.event
 
-import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.Settings
 import li.cil.oc.common.item.HoverBoots
 import net.minecraft.world.entity.player.Player
 import net.minecraftforge.common.util.FakePlayer
-import net.minecraftforge.event.entity.living.LivingEvent.{LivingJumpEvent, LivingTickEvent, LivingUpdateEvent}
+import net.minecraftforge.event.entity.living.LivingEvent.{LivingJumpEvent, LivingTickEvent}
 import net.minecraftforge.event.entity.living.LivingFallEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
@@ -20,7 +19,7 @@ object HoverBootsHandler {
       val hasHoverBoots = !player.isCrouching && equippedArmor(player).exists(stack => stack.getItem match {
         case boots: HoverBoots =>
           Settings.get.ignorePower || {
-            if (player.isOnGround && !player.isCreative && player.level.getGameTime % Settings.get.tickFrequency == 0) {
+            if (player.onGround && !player.isCreative && player.level.getGameTime % Settings.get.tickFrequency == 0) {
               val velocity = player.getDeltaMovement.lengthSqr
               if (velocity > 0.015f) {
                 boots.charge(stack, -Settings.get.hoverBootMove, simulate = false)
@@ -34,7 +33,7 @@ object HoverBootsHandler {
         nbt.putBoolean(Settings.namespace + "hasHoverBoots", hasHoverBoots)
         player.maxUpStep = if (hasHoverBoots) 1f else 0.5f
       }
-      if (hasHoverBoots && !player.isOnGround && player.fallDistance < 5 && player.getDeltaMovement.y < 0) {
+      if (hasHoverBoots && !player.onGround && player.fallDistance < 5 && player.getDeltaMovement.y < 0) {
         player.setDeltaMovement(player.getDeltaMovement.multiply(1, 0.9, 1))
       }
     case _ => // Ignore.

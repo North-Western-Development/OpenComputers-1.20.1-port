@@ -1,69 +1,45 @@
 package li.cil.oc.common
 
-import java.util.Calendar
-import appeng.api.networking.IGridBlock
-import appeng.api.util.AEPartLocation
 import li.cil.oc._
 import li.cil.oc.api.Network
 import li.cil.oc.api.detail.ItemInfo
-import li.cil.oc.api.internal.Colored
-import li.cil.oc.api.internal.Rack
-import li.cil.oc.api.internal.Server
+import li.cil.oc.api.internal.{Colored, Rack, Server}
 import li.cil.oc.api.machine.MachineHost
-import li.cil.oc.api.network.Environment
-import li.cil.oc.api.network.SidedComponent
-import li.cil.oc.api.network.SidedEnvironment
+import li.cil.oc.api.network.{Environment, SidedComponent, SidedEnvironment}
 import li.cil.oc.client.renderer.PetRenderer
-import li.cil.oc.common.capabilities.CapabilityColored
-import li.cil.oc.common.capabilities.CapabilityEnvironment
-import li.cil.oc.common.capabilities.CapabilitySidedComponent
-import li.cil.oc.common.capabilities.CapabilitySidedEnvironment
+import li.cil.oc.common.capabilities.{CapabilityColored, CapabilityEnvironment, CapabilitySidedComponent, CapabilitySidedEnvironment}
 import li.cil.oc.common.component.TerminalServer
-import li.cil.oc.common.item.data.MicrocontrollerData
-import li.cil.oc.common.item.data.RobotData
-import li.cil.oc.common.item.data.TabletData
+import li.cil.oc.common.item.data.{MicrocontrollerData, RobotData, TabletData}
 import li.cil.oc.common.item.traits
 import li.cil.oc.common.tileentity.Robot
 import li.cil.oc.common.tileentity.traits.power
-import li.cil.oc.integration.Mods
 import li.cil.oc.integration.util
 import li.cil.oc.server.component.Keyboard
-import li.cil.oc.server.machine.Callbacks
-import li.cil.oc.server.machine.Machine
 import li.cil.oc.server.machine.luac.LuaStateFactory
+import li.cil.oc.server.machine.{Callbacks, Machine}
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedWorld._
 import li.cil.oc.util.StackOption._
 import li.cil.oc.util._
-import net.minecraft.world.entity.player.Player
-import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.level.{ChunkHolder, ChunkMap, ServerLevel, ServerPlayer}
 import net.minecraft.sounds.{SoundEvents, SoundSource}
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.util.SoundCategory
-import net.minecraft.Util
-import net.minecraft.world.chunk.Chunk
-import net.minecraft.world.server.ChunkHolder
-import net.minecraft.world.server.ChunkManager
-import net.minecraft.server.level.{ChunkHolder, ServerLevel, ServerPlayer}
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.world.level.chunk.LevelChunk
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent
-import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.FakePlayer
-import net.minecraftforge.event.AttachCapabilitiesEvent
-import net.minecraftforge.event.TickEvent
-import net.minecraftforge.event.TickEvent.ClientTickEvent
-import net.minecraftforge.event.TickEvent.ServerTickEvent
+import net.minecraftforge.event.TickEvent.{ClientTickEvent, ServerTickEvent}
 import net.minecraftforge.event.entity.EntityJoinLevelEvent
 import net.minecraftforge.event.entity.player.PlayerEvent._
 import net.minecraftforge.event.level.{BlockEvent, ChunkEvent, LevelEvent}
-import net.minecraftforge.event.world.ChunkEvent
+import net.minecraftforge.event.{AttachCapabilitiesEvent, TickEvent}
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper
 import net.minecraftforge.server.ServerLifecycleHooks
 
+import java.util.Calendar
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -381,7 +357,7 @@ object EventHandler {
           e.getEntity.getRandom.nextFloat() < Settings.get.presentChance && timeForPresents) {
           // Presents!
           val present = api.Items.get(Constants.ItemName.Present).createItemStack(1)
-          e.getEntity.level.playSound(e.getEntity, e.getEntity.getX, e.getEntity.getY, e.getEntity.getZ, SoundEvents.NOTE_BLOCK_PLING, SoundSource.MASTER, 0.2f, 1f)
+          e.getEntity.level.playSound(e.getEntity, e.getEntity.getX, e.getEntity.getY, e.getEntity.getZ, SoundEvents.NOTE_BLOCK_PLING.get(), SoundSource.MASTER, 0.2f, 1f)
           InventoryUtils.addToPlayerInventory(present, e.getEntity)
         }
       case _ => // Nope.
@@ -435,7 +411,7 @@ object EventHandler {
     else false
   }
 
-  private val getChunks = ObfuscationReflectionHelper.findMethod(classOf[ChunkManager], "func_223491_f")
+  private val getChunks = ObfuscationReflectionHelper.findMethod(classOf[ChunkMap], "func_223491_f")
 
   private def getChunks(world: ServerLevel): Iterable[ChunkHolder] = try {
     getChunks.invoke(world.getChunkSource.chunkMap).asInstanceOf[java.lang.Iterable[ChunkHolder]]
@@ -453,16 +429,14 @@ object EventHandler {
   def onWorldUnload(e: LevelEvent.Unload): Unit = this.synchronized {
     if (!e.getLevel.isClientSide) {
       val world = e.getLevel.asInstanceOf[ServerLevel]
-      world.blockEntityList.collect {
-        case te: tileentity.traits.TileEntity => te.dispose()
-      }
 
       getChunks(world).foreach(holder => {
         val chunk = holder.getTickingChunk
-        if (chunk != null) chunk.getEntitySections.foreach {
-          _.iterator.collect {
-            case host: MachineHost => host.machine.stop()
-          }
+        if (chunk != null) {
+          chunk.getBlockEntities.values().foreach( _ => {
+            case host: MachineHost => host.machine.stop()})
+          chunk.getBlockEntities.values().foreach( _ => {
+            case te: tileentity.traits.TileEntity => te.dispose()})
         }
       })
 
@@ -476,10 +450,11 @@ object EventHandler {
   @SubscribeEvent
   def onChunkUnloaded(e: ChunkEvent.Unload): Unit = {
     if (!e.getLevel.isClientSide) e.getChunk match {
-      case chunk: Chunk => {
-        chunk.getEntitySections.foreach(_.collect {
+      case chunk: LevelChunk => {
+        chunk.getBlockEntities.values().foreach( _ => {
           case host: MachineHost => host.machine match {
-            case machine: Machine => scheduleClose(machine)
+            case machine: Machine =>
+              scheduleClose(machine)
             case _ => // Dafuq?
           }
           case rack: Rack =>

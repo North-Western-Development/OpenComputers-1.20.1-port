@@ -1,29 +1,23 @@
 package li.cil.oc.common.block
 
-import java.util
 import li.cil.oc.Settings
-import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.block.property.PropertyRotatable
+import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.Tooltip
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.item.TooltipFlag
-import net.minecraft.world.entity.player.Player
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.fluid.FluidState
-import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.block.state.StateDefinition
-import net.minecraft.core.Direction
 import net.minecraft.world.InteractionHand
-import net.minecraft.core.BlockPos
-import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.Component
-import net.minecraft.world.level.BlockGetter
-import net.minecraft.world.level.Level
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.{ItemStack, TooltipFlag}
+import net.minecraft.world.level.{BlockGetter, Level}
+import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
+import net.minecraft.world.level.material.FluidState
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToScala._
 
 class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with traits.PowerAcceptor with traits.StateAware with traits.GUI {
@@ -69,11 +63,11 @@ class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with t
     else super.localOnBlockActivated(world, pos, player, hand, heldItem, side, hitX, hitY, hitZ)
   }
 
-  override def removedByPlayer(state: BlockState, world: Level, pos: BlockPos, player: Player, willHarvest: Boolean, fluid: FluidState): Boolean =
+  override def onDestroyedByPlayer(state: BlockState, world: Level, pos: BlockPos, player: Player, willHarvest: Boolean, fluid: FluidState): Boolean =
     world.getBlockEntity(pos) match {
       case c: tileentity.Case =>
         if (c.isCreative && (!player.isCreative || !c.canInteract(player.getName.getString))) false
-        else c.canInteract(player.getName.getString) && super.removedByPlayer(state, world, pos, player, willHarvest, fluid)
-      case _ => super.removedByPlayer(state, world, pos, player, willHarvest, fluid)
+        else c.canInteract(player.getName.getString) && super.onDestroyedByPlayer(state, world, pos, player, willHarvest, fluid)
+      case _ => super.onDestroyedByPlayer(state, world, pos, player, willHarvest, fluid)
     }
 }

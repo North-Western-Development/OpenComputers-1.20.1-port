@@ -1,27 +1,17 @@
 package li.cil.oc.server.component
 
-import java.util
-
-import li.cil.oc.Constants
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, OpenComputers, Settings, api}
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
-import li.cil.oc.api.network.EnvironmentHost
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
 import li.cil.oc.api.network._
-import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.common.event.ChunkloaderUpgradeHandler
-import net.minecraft.world.entity.Entity
-import net.minecraft.world.level.ChunkPos
-import net.minecraft.world.level.Level
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.level.{ChunkPos, Level}
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 
 class UpgradeChunkloader(val host: EnvironmentHost) extends AbstractManagedEnvironment with DeviceInfo {
@@ -126,9 +116,9 @@ class UpgradeChunkloader(val host: EnvironmentHost) extends AbstractManagedEnvir
   @Deprecated
   private def isDimensionAllowed: Boolean = {
     val id: Int = host.world().dimension match {
-      case World.OVERWORLD => 0
-      case World.NETHER => -1
-      case World.END => 1
+      case Level.OVERWORLD => 0
+      case Level.NETHER => -1
+      case Level.END => 1
       case _ => throw new Error("deprecated")
     }
     val whitelist = Settings.get.chunkloadDimensionWhitelist

@@ -38,25 +38,26 @@ class TextureImageRenderer(val location: ResourceLocation) extends ImageRenderer
   override def getHeight: Int = texture.height
 
   override def render(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int): Unit = {
+    var stack: PoseStack = guiGraphics.pose()
     Textures.bind(location)
     RenderSystem.setShaderColor(1, 1, 1, 1)
     GL11.glBegin(GL11.GL_QUADS)
     GL11.glTexCoord2f(0, 0)
     val matrix = stack.last.pose
     val vec = new Vector4f(0, 0, 0, 1)
-    vec.transform(matrix)
+    vec.mul(matrix)
     GL11.glVertex3f(vec.x, vec.y, vec.z)
     GL11.glTexCoord2f(0, 1)
     vec.set(0, texture.height, 0, 1)
-    vec.transform(matrix)
+    vec.mul(matrix)
     GL11.glVertex3f(vec.x, vec.y, vec.z)
     GL11.glTexCoord2f(1, 1)
     vec.set(texture.width, texture.height, 0, 1)
-    vec.transform(matrix)
+    vec.mul(matrix)
     GL11.glVertex3f(vec.x, vec.y, vec.z)
     GL11.glTexCoord2f(1, 0)
     vec.set(texture.width, 0, 0, 1)
-    vec.transform(matrix)
+    vec.mul(matrix)
     GL11.glVertex3f(vec.x, vec.y, vec.z)
     GL11.glEnd()
   }
@@ -71,7 +72,7 @@ class TextureImageRenderer(val location: ResourceLocation) extends ImageRenderer
       var is: InputStream = null
       try {
         val resource = manager.getResource(location)
-        is = resource.getInputStream
+        is = resource.get().open()
         val bi = ImageIO.read(is)
         val data = MemoryUtil.memAllocInt(bi.getWidth * bi.getHeight)
         val tempArr = Array.ofDim[Int]((1024 * 1024) min data.capacity)

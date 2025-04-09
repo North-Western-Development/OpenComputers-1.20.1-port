@@ -21,11 +21,10 @@ import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEnti
 import net.minecraft.client.renderer.block.BlockRenderDispatcher
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.core.Direction
-import net.minecraft.util.math.vector.Vector3f
 import net.minecraftforge.client.event.RenderLevelStageEvent
 import net.minecraftforge.event.TickEvent.ClientTickEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import org.joml.Vector3f
+import org.joml.{Quaternionf, Vector3f}
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL15
@@ -130,9 +129,9 @@ object HologramRenderer extends BlockEntityRendererProvider[Hologram]
       case _ => // No pitch.
     }
 
-    stack.mulPose(new Vector3f(hologram.rotationX, hologram.rotationY, hologram.rotationZ).rotationDegrees(hologram.rotationAngle))
-    stack.mulPose(new Vector3f(hologram.rotationSpeedX, hologram.rotationSpeedY, hologram.rotationSpeedZ)
-      .rotationDegrees(hologram.rotationSpeed * (hologram.getLevel.getGameTime % (360 * 20 - 1) + f) / 20f))
+    stack.mulPose(new Quaternionf(hologram.rotationX, hologram.rotationY, hologram.rotationZ, hologram.rotationAngle))
+    stack.mulPose(new Quaternionf(hologram.rotationSpeedX, hologram.rotationSpeedY, hologram.rotationSpeedZ,
+      hologram.rotationSpeed * (hologram.getLevel.getGameTime % (360 * 20 - 1) + f) / 20f))
 
     stack.scale(1.001f, 1.001f, 1.001f) // Avoid z-fighting with other blocks.
     stack.translate(

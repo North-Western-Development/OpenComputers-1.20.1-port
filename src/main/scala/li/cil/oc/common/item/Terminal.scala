@@ -12,8 +12,6 @@ import li.cil.oc.common.component
 import li.cil.oc.common.tileentity.traits.TileEntity
 import li.cil.oc.util.Tooltip
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.model.ModelBakery
-import net.minecraft.client.renderer.model.ModelResourceLocation
 import net.minecraft.client.resources.model.ModelResourceLocation
 import net.minecraft.world.item.TooltipFlag
 import net.minecraft.world.entity.player.Player
@@ -25,7 +23,6 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Component
-import net.minecraft.world.{InteractionHand, InteractionResultHolder, World}
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.Level
 import net.minecraftforge.api.distmarker.Dist

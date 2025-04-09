@@ -19,7 +19,7 @@ class UpgradeTank(props: Properties) extends Item(props) with IForgeItem with tr
     if (stack.hasTag) {
       FluidStack.loadFluidStackFromNBT(stack.getTag.getCompound(Settings.namespace + "data")) match {
         case stack: FluidStack =>
-          tooltip.add(Component.literal(stack.getFluid.getFluidType.getAttributes.getDisplayName(stack).getString + ": " + stack.getAmount + "/16000").setStyle(Tooltip.DefaultStyle))
+          tooltip.add(Component.literal(stack.getDisplayName.getString + ": " + stack.getAmount + "/16000").setStyle(Tooltip.DefaultStyle))
         case _ =>
       }
     }

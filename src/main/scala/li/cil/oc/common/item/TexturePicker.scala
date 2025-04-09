@@ -3,17 +3,13 @@ package li.cil.oc.common.item
 import li.cil.oc.Localization
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedWorld._
-import net.minecraft.Util
-import net.minecraft.world.level.block.Block
 import net.minecraft.client.Minecraft
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.Item
-import net.minecraft.world.item.Item.Properties
-import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
-import net.minecraft.Util
 import net.minecraft.world.entity.player.Player
-import net.minecraftforge.client.model.ModelDataManager
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.{Item, ItemStack}
+import net.minecraft.world.level.block.Block
+import net.minecraftforge.client.model.data.ModelData
 import net.minecraftforge.common.extensions.IForgeItem
 
 class TexturePicker(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem {
@@ -23,9 +19,9 @@ class TexturePicker(props: Properties) extends Item(props) with IForgeItem with 
         if (player.level.isClientSide) {
           val pos = position.toBlockPos
           val model = Minecraft.getInstance.getBlockRenderer.getBlockModel(player.level.getBlockState(pos))
-          val particle = if (model != null) model.getParticleTexture(ModelDataManager.getModelData(player.level, pos)) else null
-          if (particle != null && particle.getName != null) {
-            player.sendSystemMessage(Localization.Chat.TextureName(particle.getName.toString))
+          val particle = if (model != null) model.getParticleIcon(ModelData.EMPTY) else null
+          if (particle != null && particle.atlasLocation() != null) {
+            player.sendSystemMessage(Localization.Chat.TextureName(particle.atlasLocation().toString))
           }
         }
         true

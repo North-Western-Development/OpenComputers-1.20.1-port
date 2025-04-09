@@ -49,11 +49,6 @@ class HoverBoots(props: Properties) extends ArmorItem(ArmorMaterials.DIAMOND, Ar
     })
   }
 
-  override def fillItemCategory(tab: ItemGroup, list: NonNullList[ItemStack]): Unit = {
-    super.fillItemCategory(tab, list)
-    if (allowdedIn(tab)) list.add(Items.createChargedHoverBoots())
-  }
-
   @OnlyIn(Dist.CLIENT)
   override def getArmorModel[A <: BipedModel[_]](entityLiving: LivingEntity, itemStack: ItemStack, armorSlot: EquipmentSlotType, _default: A): A = {
     if (armorSlot == slot) {
@@ -90,10 +85,7 @@ class HoverBoots(props: Properties) extends ArmorItem(ArmorMaterials.DIAMOND, Ar
     }
     super.onEntityItemUpdate(stack, entity)
   }
-
-  override def showDurabilityBar(stack: ItemStack): Boolean = true
-
-  override def getDurabilityForDisplay(stack: ItemStack): Double = {
+  override def getUseDuration(stack: ItemStack): Double = {
     val data = new HoverBootsData(stack)
     1 - data.charge / Settings.get.bufferHoverBoots
   }

@@ -1,10 +1,8 @@
 package li.cil.oc.client.renderer.markdown.segment
 
 import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.renderer.markdown.Document
 import net.minecraft.client.gui.Font
-import org.lwjgl.opengl.GL11
 
 import scala.collection.mutable
 import scala.util.matching.Regex

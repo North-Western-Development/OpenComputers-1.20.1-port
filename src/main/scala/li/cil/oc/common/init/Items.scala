@@ -8,7 +8,6 @@ import li.cil.oc.common.item.traits.SimpleItem
 import li.cil.oc.common.{Loot, Tier, item}
 import li.cil.oc.server.machine.luac.LuaStateFactory
 import li.cil.oc.{Constants, OpenComputers, Settings, common}
-import net.minecraft.core.NonNullList
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.item._
@@ -503,12 +502,12 @@ object Items extends ItemAPI {
     registerItem(new item.Present(defaultProps), Constants.ItemName.Present)
   }
 
-  def decorateCreativeTab(list: NonNullList[ItemStack]) {
-    list.add(Items.createConfiguredDrone())
-    list.add(Items.createConfiguredMicrocontroller())
-    list.add(Items.createConfiguredRobot())
-    list.add(Items.createConfiguredTablet())
-    Loot.disksForClient.foreach(list.add)
-    registeredItems.foreach(list.add)
+  def decorateCreativeTab(list: CreativeModeTab.Output) {
+    list.accept(Items.createConfiguredDrone())
+    list.accept(Items.createConfiguredMicrocontroller())
+    list.accept(Items.createConfiguredRobot())
+    list.accept(Items.createConfiguredTablet())
+    Loot.disksForClient.foreach(list.accept)
+    registeredItems.foreach(list.accept)
   }
 }

@@ -348,7 +348,7 @@ class TextBuffer(val host: EnvironmentHost) extends AbstractManagedEnvironment w
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def renderText(guiGraphics: GuiGraphics): Boolean = relativeLitArea != 0 && proxy.render(stack)
+  override def renderText(stack: PoseStack): Boolean = relativeLitArea != 0 && proxy.render(stack)
 
   @OnlyIn(Dist.CLIENT)
   override def renderWidth: Int = TextBufferRenderCache.renderer.charRenderWidth * getViewportWidth

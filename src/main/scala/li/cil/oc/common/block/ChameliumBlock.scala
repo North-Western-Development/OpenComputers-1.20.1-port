@@ -1,15 +1,12 @@
 package li.cil.oc.common.block
 
-import java.util.List
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.item.{DyeColor, ItemGroup, ItemStack}
-import net.minecraft.world.level.block.state.StateDefinition
-import net.minecraft.core.NonNullList
 import net.minecraft.core.BlockPos
 import net.minecraft.world.item.context.BlockPlaceContext
+import net.minecraft.world.item.{DyeColor, ItemStack}
 import net.minecraft.world.level.BlockGetter
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
 import net.minecraft.world.level.block.state.properties.EnumProperty
 
 object ChameliumBlock {
@@ -30,10 +27,4 @@ class ChameliumBlock(props: Properties) extends SimpleBlock(props) {
 
   override def getStateForPlacement(ctx: BlockPlaceContext): BlockState =
     defaultBlockState.setValue(ChameliumBlock.Color, DyeColor.byId(ctx.getItemInHand.getDamageValue))
-
-  override def fillItemCategory(tab: ItemGroup, list: NonNullList[ItemStack]) {
-    val stack = new ItemStack(this, 1)
-    stack.setDamageValue(defaultBlockState.getValue(ChameliumBlock.Color).getId)
-    list.add(stack)
-  }
 }
