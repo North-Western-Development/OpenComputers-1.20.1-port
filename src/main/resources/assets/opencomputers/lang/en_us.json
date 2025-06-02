@@ -220,6 +220,7 @@
     "oc:gui.Rack.Enabled": "Enabled",
     "oc:gui.Rack.Disabled": "Disabled",
     "oc:gui.Rack.RelayModeTooltip": "Relay Mode",
+    "oc:gui.Rack.OrientationTooltip": "Note: If facing the front\nof the Rack, the right\nside of the Rack is to\nyour left.",
     "oc:gui.Rack.Top": "Top",
     "oc:gui.Switch.PacketsPerCycle": "Packets / cycle",
     "oc:gui.Switch.QueueSize": "Queue size",

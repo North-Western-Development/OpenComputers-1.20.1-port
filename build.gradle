@@ -239,7 +239,7 @@ dependencies {
     embedded name: 'OC-JNLua-Natives', version: '20220928.1', ext: 'jar'
 
     testImplementation "org.scala-lang:scala-library:2.13.4"
-    testImplementation "junit:junit:4.13"
+    testImplementation "junit:junit:4.13.2"
     testImplementation "org.mockito:mockito-core:3.4.0"
     testImplementation "org.scalactic:scalactic_2.13:3.2.6"
     testImplementation "org.scalatest:scalatest_2.13:3.2.6"

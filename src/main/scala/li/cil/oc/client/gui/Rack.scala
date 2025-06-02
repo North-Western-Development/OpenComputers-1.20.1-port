@@ -242,6 +242,12 @@ class Rack(state: container.Rack, playerInventory: PlayerInventory, name: ITextC
         x, y, 0x404040)
     }
 
+    if (mouseX >= leftPos + 122 && mouseY >= topPos + 20 && mouseX < leftPos + 158 && mouseY < topPos + 20 + 5 * 11) {
+      val tooltip = new java.util.ArrayList[String]
+      tooltip.addAll(asJavaCollection(Localization.Rack.OrientationTooltip.linesIterator.toIterable))
+      copiedDrawHoveringText(stack, tooltip, mouseX - leftPos, mouseY - topPos, font)
+    }
+
     if (relayButton.isMouseOver(mouseX, mouseY)) {
       val tooltip = new java.util.ArrayList[String]
       tooltip.addAll(asJavaCollection(Localization.Rack.RelayModeTooltip.linesIterator.toIterable))
