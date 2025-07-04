@@ -21,8 +21,25 @@ file "build.properties" withReader {
     prop.load(it)
     ext.config = new ConfigSlurper().parse prop
 }
-if (!project.hasProperty("mod_version")) {
-    project.ext.mod_version = config.mod.version
+if (project.hasProperty("release_tag")) {
+	def rtag = project.getProperty("release_tag");
+	def verIdx = rtag.indexOf("/");
+	if (verIdx <= 0 || verIdx >= rtag.length() - 1) throw new Error("malformed release tag " + rtag);
+	def baseVer = rtag.substring(0, verIdx);
+	def ldrIdx = baseVer.indexOf("-");
+	if (ldrIdx <= 0 || ldrIdx >= baseVer.length() - 1) throw new Error("malformed base version " + baseVer);
+	if (baseVer.substring(0, ldrIdx) != config.minecraft.version)
+	{
+		throw new Error("incorrect minecraft version " + baseVer.substring(0, ldrIdx) + ", expected " + config.minecraft.version);
+	}
+	if (baseVer.substring(ldrIdx + 1) != "forge")
+	{
+		throw new Error("incorrect mod loader " + baseVer.substring(ldrIdx + 1) + ", expected forge");
+	}
+	ext.mod_version = rtag.substring(verIdx + 1);
+}
+else if (!project.hasProperty("mod_version")) {
+    ext.mod_version = config.mod.version
 }
 
 version = "${mod_version}"
