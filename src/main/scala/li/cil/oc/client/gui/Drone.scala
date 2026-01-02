@@ -14,14 +14,14 @@ import li.cil.oc.util.RenderState
 import li.cil.oc.util.TextBuffer
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.Button.OnPress
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.world.entity.player.Inventory
 import org.lwjgl.opengl.GL11
 
 import scala.collection.JavaConverters.asJavaCollection
 import scala.collection.convert.ImplicitConversionsToJava._
 
-class Drone(state: container.Drone, playerInventory: Inventory, name: TextComponent)
+class Drone(state: container.Drone, playerInventory: Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name)
   with traits.DisplayBuffer {
 

@@ -339,7 +339,7 @@ class Rack(selfType: BlockEntityType[_ <: Rack], pos: BlockPos, state: BlockStat
   }
 
   // ----------------------------------------------------------------------- //
-  // INamedContainerProvider
+  // MenuProvider
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
     new container.Rack(ContainerTypes.RACK, id, playerInventory, this)

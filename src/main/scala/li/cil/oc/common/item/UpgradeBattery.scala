@@ -16,11 +16,11 @@ class UpgradeBattery(props: Properties, val tier: Int) extends Item(props) with 
 
   override protected def tooltipData = Seq(Settings.get.bufferCapacitorUpgrades(tier).toInt)
 
-  override def showDurabilityBar(stack: ItemStack) = true
+  override def isDamaged(stack: ItemStack): Boolean = true
 
-  override def getDurabilityForDisplay(stack: ItemStack): Double = {
+  override def getDamage(stack: ItemStack): Int = {
     val data = new NodeData(stack)
-    1 - data.buffer.getOrElse(0.0) / Settings.get.bufferCapacitorUpgrades(tier)
+    getMaxDamage(stack) - data.buffer.getOrElse(0.0).toInt
   }
 
   // ----------------------------------------------------------------------- //

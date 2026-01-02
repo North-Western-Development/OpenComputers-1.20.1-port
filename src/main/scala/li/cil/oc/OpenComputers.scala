@@ -19,6 +19,7 @@ import net.minecraftforge.forgespi.Environment
 import net.minecraftforge.fml.InterModComms
 import net.minecraftforge.fml.ModContainer
 import net.minecraftforge.fml.ModLoadingContext
+import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent
 import net.minecraftforge.fml.loading.FMLPaths
 import net.minecraftforge.network.simple.SimpleChannel
@@ -55,7 +56,7 @@ object OpenComputers {
     case _ => throw new IllegalStateException("not initialized")
   }
 }
-
+@Mod(OpenComputers.ID)
 class OpenComputers {
   val modContainer: ModContainer = ModLoadingContext.get.getActiveContainer
 

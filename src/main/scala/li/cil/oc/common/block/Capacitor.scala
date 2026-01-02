@@ -1,15 +1,14 @@
 package li.cil.oc.common.block
 
-import java.util.Random
-
 import li.cil.oc.common.tileentity
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.core.BlockPos
-import net.minecraft.world.level.BlockGetter
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.Level
-import net.minecraft.world.server.ServerLevel
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.BlockState
+
+import java.util.Random
 
 class Capacitor(props: Properties) extends SimpleBlock(props) {
   @Deprecated
@@ -17,7 +16,7 @@ class Capacitor(props: Properties) extends SimpleBlock(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(world: BlockGetter) = new tileentity.Capacitor(tileentity.BlockEntityTypes.CAPACITOR)
+  override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Capacitor(tileentity.BlockEntityTypes.CAPACITOR, pos, state)
 
   // ----------------------------------------------------------------------- //
 

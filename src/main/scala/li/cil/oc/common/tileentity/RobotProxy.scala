@@ -19,7 +19,8 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.core.{BlockPos, Direction}
-import net.minecraft.network.chat.Component
+import net.minecraft.network.chat
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.AABB
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
@@ -28,7 +29,7 @@ import net.minecraftforge.common.util.LazyOptional
 class RobotProxy(selfType: BlockEntityType[_ <: RobotProxy], pos: BlockPos, state: BlockState, val robot: Robot) extends BlockEntity(selfType, pos, state)
   with traits.Computer with traits.PowerInformation with traits.RotatableTile with IFluidHandler with internal.Robot {
 
-  def this(selfType: BlockEntityType[_ <: RobotProxy], pos: BlockPos, state: BlockState) = this(selfType, pos, state, new Robot())
+  def this(selfType: BlockEntityType[_ <: RobotProxy], pos: BlockPos, state: BlockState) = this(selfType, pos, state, new Robot(state, pos))
 
   // ----------------------------------------------------------------------- //
 
@@ -78,7 +79,7 @@ class RobotProxy(selfType: BlockEntityType[_ <: RobotProxy], pos: BlockPos, stat
 
   override def setSelectedTank(index: Int): Unit = robot.setSelectedTank(index)
 
-  override def player: Player = robot.player()
+  override def player: ServerPlayer = robot.player()
 
   override def name: String = robot.name
 
@@ -147,31 +148,30 @@ class RobotProxy(selfType: BlockEntityType[_ <: RobotProxy], pos: BlockPos, stat
 
   override def setChanged(): Unit = robot.setChanged()
 
-  override def tick(): Unit = robot.updateEntity()
+//  override def tick(): Unit = robot.updateEntity()
 
   override def load(nbt: CompoundTag): Unit = {
     super.load(nbt)
     robot.loadForServer(nbt)
   }
 
-  override def save(nbt: CompoundTag): CompoundTag = {
-    super.save(nbt)
+  override def saveAdditional(nbt: CompoundTag): Unit = {
+    super.saveAdditional(nbt)
     robot.saveForServer(nbt)
-    nbt
   }
 
-  @OnlyIn(Dist.CLIENT)
-  override def loadClientData(nbt: CompoundTag): Unit = robot.loadForClient(nbt)
-
-  @OnlyIn(Dist.CLIENT)
-  override def saveClientData(nbt: CompoundTag): Unit = robot.saveForClient(nbt)
+//  @OnlyIn(Dist.CLIENT)
+//  override def loadClientData(nbt: CompoundTag): Unit = robot.loadForClient(nbt)
+//
+//  @OnlyIn(Dist.CLIENT)
+//  override def saveClientData(nbt: CompoundTag): Unit = robot.saveForClient(nbt)
 
   @OnlyIn(Dist.CLIENT)
   override def getRenderBoundingBox: AABB = robot.getRenderBoundingBox
 
   // ----------------------------------------------------------------------- //
 
-  override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = robot.onAnalyze(player, side, hitX, hitY, hitZ)
+//  override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = robot.onAnalyze(player, side, hitX, hitY, hitZ)
 
   // ----------------------------------------------------------------------- //
 
@@ -225,13 +225,13 @@ class RobotProxy(selfType: BlockEntityType[_ <: RobotProxy], pos: BlockPos, stat
 
   override def removeItemNoUpdate(slot: Int): ItemStack = robot.removeItemNoUpdate(slot)
 
-  override def startOpen(player: Player): Unit = robot.startOpen(player)
+//  override def startOpen(player: Player): Unit = robot.startOpen(player)
 
-  override def stopOpen(player: Player): Unit = robot.stopOpen(player)
+//  override def stopOpen(player: Player): Unit = robot.stopOpen(player)
 
   override def hasCustomName: Boolean = robot.hasCustomName
 
-  override def stillValid(player: Player): Boolean = robot.stillValid(player)
+//  override def stillValid(player: Player): Boolean = robot.stillValid(player)
 
   override def forAllLoot(dst: Consumer[ItemStack]): Unit = robot.forAllLoot(dst)
 
@@ -243,7 +243,7 @@ class RobotProxy(selfType: BlockEntityType[_ <: RobotProxy], pos: BlockPos, stat
 
   override def componentSlot(address: String): Int = robot.componentSlot(address)
 
-  override def getName: Component = robot.getName
+  override def getName: chat.Component = robot.getName
 
   override def getContainerSize: Int = robot.getContainerSize
 

@@ -176,7 +176,7 @@ trait SmartBlockModelBase extends BakedModel {
     })
   }
 
-  // See FaceBakery#fillVertex, IVertexBuilder#putBulkData and ForgeHooksClient#fillNormal.
+  // See FaceBakery#fillVertex, VertexConsumer#putBulkData and ForgeHooksClient#fillNormal.
   protected def rawData(x: Double, y: Double, z: Double, face: Direction, texture: TextureAtlasSprite, u: Float, v: Float, colorRGB: Int) = {
     val vx = (face.getStepX * 127) & 0xFF
     val vy = (face.getStepY * 127) & 0xFF

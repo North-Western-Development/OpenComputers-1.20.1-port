@@ -5,16 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferBuilder.DrawState;
-import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import com.mojang.blaze3d.vertex.Tesselator;
-import org.lwjgl.system.MemoryUtil;
 
 public class RenderCache implements MultiBufferSource {
     public static class DrawEntry {
@@ -28,9 +25,9 @@ public class RenderCache implements MultiBufferSource {
             if (copy)
             {
                 int bufferCap = state.format().getVertexSize() * state.vertexCount();
-                ByteBuffer temp = GLAllocation.createByteBuffer(bufferCap);
-                temp.put(data).flip();
-                data = temp;
+//                ByteBuffer temp = GLAllocation.createByteBuffer(bufferCap);
+//                temp.put(data).flip();
+//                data = temp;
             }
             this.data = data;
         }
@@ -76,7 +73,7 @@ public class RenderCache implements MultiBufferSource {
     }
 
     @Override
-    public IVertexBuilder getBuffer(RenderType type) {
+    public VertexConsumer getBuffer(RenderType type) {
         if (type == null) throw new NullPointerException(); // Same as vanilla.
         if (activeType != null) {
             if (activeType == type) return activeBuilder;
@@ -96,18 +93,17 @@ public class RenderCache implements MultiBufferSource {
 
     public void render(PoseStack stack) {
         // Apply transform globally so we don't have to update stored vertices.
-        RenderSystem.pushMatrix();
-        RenderSystem.multMatrix(stack.last().pose());
+        stack.pushPose();
 
         cached.forEach(frame -> {
             frame.type().setupRenderState();
             DrawState state = frame.state();
-            state.format().setupBufferState(MemoryUtil.memAddress(frame.data()));
-            RenderSystem.drawArrays(state.mode(), 0, state.vertexCount());
+//            state.format().setupBufferState(MemoryUtil.memAddress(frame.data()));
+//            RenderSystem.drawArrays(state.mode(), 0, state.vertexCount());
             state.format().clearBufferState();
             frame.type().clearRenderState();
         });
 
-        RenderSystem.popMatrix();
+        stack.popPose();
     }
 }

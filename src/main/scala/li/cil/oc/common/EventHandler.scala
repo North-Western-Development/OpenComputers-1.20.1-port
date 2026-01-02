@@ -109,13 +109,13 @@ object EventHandler {
     }
   }
 
-  object AE2 {
-    def scheduleAE2Add(tileEntity: power.AppliedEnergistics2): Unit = {
-      if (SideTracker.isServer) pendingServer.synchronized {
-        pendingServer += (() => tileEntity.updateGridNodeState())
-      }
-    }
-  }
+//  object AE2 {
+//    def scheduleAE2Add(tileEntity: power.AppliedEnergistics2): Unit = {
+//      if (SideTracker.isServer) pendingServer.synchronized {
+//        pendingServer += (() => tileEntity.updateGridNodeState())
+//      }
+//    }
+//  }
 
   def scheduleWirelessRedstone(rs: server.component.RedstoneWireless) {
     if (SideTracker.isServer) pendingServer.synchronized {

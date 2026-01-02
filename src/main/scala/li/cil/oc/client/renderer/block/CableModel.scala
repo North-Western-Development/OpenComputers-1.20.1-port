@@ -10,11 +10,11 @@ import li.cil.oc.util.Color
 import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.ItemColorizer
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.client.renderer.model.BakedQuad
-import net.minecraft.client.renderer.model.IBakedModel
-import net.minecraft.client.renderer.model.ItemOverrideList
-import net.minecraft.client.world.ClientLevel
-import net.minecraft.entity.LivingEntity
+import net.minecraft.client.renderer.block.model.BakedQuad
+import net.minecraft.client.resources.model.BakedModel
+import net.minecraft.client.renderer.block.model.ItemOverrides
+import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
@@ -26,7 +26,7 @@ import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 
 object CableModel extends SmartBlockModelBase {
-  override def getOverrides: ItemOverrideList = ItemOverride
+  override def getOverrides: ItemOverrides = ItemOverride
 
   override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] = {
     data match {
@@ -102,8 +102,10 @@ object CableModel extends SmartBlockModelBase {
 
   protected def cableCapTexture = Array.fill(6)(Textures.getSprite(Textures.Block.CableCap))
 
-  object ItemOverride extends ItemOverrideList {
+  object ItemOverride extends ItemOverrides {
     class ItemModel(val stack: ItemStack) extends SmartBlockModelBase {
+      override def getOverrides: ItemOverrides = CableModel.ItemOverride
+
       override def getQuads(state: BlockState, side: Direction, rand: util.Random): util.List[BakedQuad] = {
         val faces = mutable.ArrayBuffer.empty[BakedQuad]
 
@@ -119,7 +121,7 @@ object CableModel extends SmartBlockModelBase {
       }
     }
 
-    override def resolve(originalModel: IBakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity): IBakedModel = new ItemModel(stack)
+    override def resolve(originalModel: BakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity, seed: Int): BakedModel = new ItemModel(stack)
   }
 
 }

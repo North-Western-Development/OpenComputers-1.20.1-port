@@ -8,22 +8,22 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.util.Tooltip
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.client.util.ITooltipFlag
+import net.minecraft.world.item.TooltipFlag
 import net.minecraft.world.entity.player.Player
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.BlockPos
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.TextComponent
 import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.Level
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
 class Disassembler(props: Properties) extends SimpleBlock(props) with traits.PowerAcceptor with traits.StateAware with traits.GUI {
-  override protected def tooltipBody(stack: ItemStack, world: BlockGetter, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) {
+  override protected def tooltipBody(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], advanced: TooltipFlag) {
     for (curr <- Tooltip.get(getClass.getSimpleName.toLowerCase, (Settings.get.disassemblerBreakChance * 100).toInt.toString)) {
-      tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 
@@ -36,5 +36,5 @@ class Disassembler(props: Properties) extends SimpleBlock(props) with traits.Pow
     case _ =>
   }
 
-  override def newBlockEntity(world: BlockGetter) = new tileentity.Disassembler(tileentity.BlockEntityTypes.DISASSEMBLER)
+  override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Disassembler(tileentity.BlockEntityTypes.DISASSEMBLER, pos, state)
 }

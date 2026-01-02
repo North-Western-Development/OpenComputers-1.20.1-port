@@ -1,37 +1,23 @@
 package li.cil.oc.common
 
+import li.cil.oc.{OpenComputers, Settings}
+import li.cil.oc.api.machine.MachineHost
+import li.cil.oc.api.network.EnvironmentHost
+import li.cil.oc.util.{BlockPosition, SafeThreadPool, ThreadPoolFactory}
+import net.minecraft.nbt.{CompoundTag, NbtIo}
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.level.{ChunkPos, Level}
+import net.minecraft.world.level.storage.LevelResource
+import net.minecraftforge.event.world.WorldEvent
+import net.minecraftforge.eventbus.api.{EventPriority, SubscribeEvent}
+import net.minecraftforge.server.ServerLifecycleHooks
+
 import java.io
 import java.io._
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
-import java.util.concurrent.CancellationException
-import java.util.concurrent.ConcurrentLinkedDeque
-import java.util.concurrent.Future
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api.machine.MachineHost
-import li.cil.oc.api.network.EnvironmentHost
-import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.SafeThreadPool
-import li.cil.oc.util.ThreadPoolFactory
-import net.minecraft.nbt.{CompoundTag, CompressedStreamTools, NbtIo}
-import net.minecraft.resources.ResourceLocation
-import net.minecraft.server.level.ServerLevel
-import net.minecraft.world.level.ChunkPos
-import net.minecraft.world.level.Level
-import net.minecraft.world.level.storage.LevelResource
-import net.minecraft.world.server.ServerLevel
-import net.minecraft.world.storage.FolderName
-import net.minecraftforge.event.world.{LevelEvent, WorldEvent}
-import net.minecraftforge.eventbus.api.EventPriority
-import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.server.ServerLifecycleHooks
-import net.minecraftforge.server.ServerLifecycleHooks
-import org.apache.commons.lang3.JavaVersion
-import org.apache.commons.lang3.SystemUtils
-
+import java.util.concurrent._
 import scala.collection.mutable
 
 // Used by the native lua state to store kernel and stack data in auxiliary

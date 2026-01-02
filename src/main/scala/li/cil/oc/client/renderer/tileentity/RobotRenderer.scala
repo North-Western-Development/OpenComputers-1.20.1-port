@@ -17,7 +17,7 @@ import li.cil.oc.util.StackOption._
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer._
 import net.minecraft.world.item.{BlockItem, ItemStack, Items}
-import net.minecraft.core.Direction
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.world.phys.Vec3
 import com.mojang.math.{Matrix3f, Vector3f}
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType
@@ -278,7 +278,7 @@ class RobotRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntit
 
     if (robot.isAnimatingMove) {
       val remaining = (robot.animationTicksLeft - f) / robot.animationTicksTotal.toDouble
-      val delta = robot.moveFrom.get.subtract(robot.getBlockPos)
+      val delta: BlockPos = robot.moveFrom.get.subtract(robot.getBlockPos)
       matrix.translate(delta.getX * remaining, delta.getY * remaining, delta.getZ * remaining)
     }
 

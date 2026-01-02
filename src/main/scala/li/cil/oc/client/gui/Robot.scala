@@ -15,7 +15,8 @@ import li.cil.oc.common.container
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.Button.OnPress
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.client.gui.components.events.ContainerEventHandler
+import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.world.entity.player.Inventory
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11
@@ -23,9 +24,9 @@ import org.lwjgl.opengl.GL11
 import scala.collection.JavaConverters.asJavaCollection
 import scala.collection.convert.ImplicitConversionsToJava._
 
-class Robot(state: container.Robot, playerInventory: Inventory, name: TextComponent)
+class Robot(state: container.Robot, playerInventory: Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name)
-  with traits.InputBuffer {
+  with traits.InputBuffer with ContainerEventHandler {
 
   override protected val buffer: TextBuffer = inventoryContainer.info.screenBuffer
     .flatMap(ComponentTracker.get(Minecraft.getInstance.level, _))

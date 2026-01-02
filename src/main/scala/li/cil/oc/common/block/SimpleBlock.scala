@@ -1,43 +1,27 @@
 package li.cil.oc.common.block
 
-import java.util
-import li.cil.oc.CreativeTab
 import li.cil.oc.common.tileentity
-import li.cil.oc.common.tileentity.traits.Colored
-import li.cil.oc.common.tileentity.traits.Inventory
-import li.cil.oc.common.tileentity.traits.Rotatable
+import li.cil.oc.common.tileentity.traits.{Colored, Inventory, Rotatable}
 import li.cil.oc.server.loot.LootFunctions
-import li.cil.oc.util.Color
-import li.cil.oc.util.Tooltip
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.level.block.{Block, EntityBlock, RenderShape}
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.level.material.Material
-import net.minecraft.client.Minecraft
+import li.cil.oc.util.{Color, Tooltip}
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.world.{InteractionHand, InteractionResult}
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.{DyeColor, ItemStack, TooltipFlag}
+import net.minecraft.world.item.{ItemStack, TooltipFlag}
+import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.core.{BlockPos, Direction}
-import net.minecraft.world.level.{BlockGetter, Level, LevelReader}
-import net.minecraft.world.phys.BlockHitResult
-import net.minecraft.world.item.context.BlockPlaceContext
-import net.minecraft.world.InteractionResult
-import net.minecraft.world.InteractionHand
-import net.minecraft.world.level.block.state.StateDefinition
-import net.minecraft.world.level.block.state.properties.BlockStateProperties
-import net.minecraft.world.phys.shapes.VoxelShape
-import net.minecraft.world.phys.shapes.CollisionContext
-import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TextComponent
-import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.{Block, EntityBlock, RenderShape}
 import net.minecraft.world.level.storage.loot.LootContext
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraftforge.common.ToolActions
-
+import net.minecraft.world.level.{BlockGetter, Level}
+import net.minecraft.world.phys.BlockHitResult
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 import scala.jdk.CollectionConverters._
+
+import java.util
 
 abstract class SimpleBlock(props: Properties) extends Block(props) with EntityBlock {
   @Deprecated
@@ -72,7 +56,7 @@ abstract class SimpleBlock(props: Properties) extends Block(props) with EntityBl
   }
 
   protected def tooltipBody(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], flag: TooltipFlag): Unit = {
-    for (curr <- Tooltip.get(getClass.getSimpleName.toLowerCase)) {
+    for (curr <- Tooltip.get(getClass.getSimpleName.toLowerCase).asScala) {
       tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
@@ -130,12 +114,12 @@ abstract class SimpleBlock(props: Properties) extends Block(props) with EntityBl
     super.getDrops(state, newBuilder)
   }
 
-  override def playerWillDestroy(world: Level, pos: BlockPos, state: BlockState, player: Player): Unit = {
+  override def playerDestroy(world: Level, player: Player, pos: BlockPos, state: BlockState, blockEntity : BlockEntity, tool : ItemStack): Unit = {
     if (!world.isClientSide && player.isCreative) world.getBlockEntity(pos) match {
       case inventory: Inventory => inventory.dropAllSlots()
       case _ => // Ignore.
     }
-    super.playerWillDestroy(world, pos, state, player)
+    super.playerDestroy(world, player, pos, state, blockEntity, tool)
   }
 
   // ----------------------------------------------------------------------- //

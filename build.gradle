@@ -1,7 +1,7 @@
 plugins {
     id 'scala'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '5.1.+'
+    id 'net.minecraftforge.gradle' version '6.0.+'
     id 'wtf.gofancy.fancygradle' version '1.1.+'
     id "com.matthewprenger.cursegradle" version "1.4.0"
     id 'com.modrinth.minotaur' version '2.8.7'
@@ -199,9 +199,8 @@ dependencies {
     minecraft "net.minecraftforge:forge:${config.minecraft.version}-${config.forge.version}"
 
     // required for tests but cannot use implementation as that would clash with scorge at runtime
-    compileOnly "org.scala-lang:scala-library:2.13.4"
+    compileOnly "org.scala-lang:scala-library:2.13.10"
     //implementation "net.minecraftforge:Scorge:${config.scorge.version}"
-    compileOnly(group: 'org.scala-lang', name: 'scala-library', version: '2.13.8')
     compileOnly(group: 'org.typelevel', name: "cats-core_2.13", version: '2.8.1-kotori')
 
     embedded "com.typesafe:config:1.2.1"
@@ -241,15 +240,15 @@ dependencies {
     embedded name: 'OC-JNLua', version: '20230530.0', ext: 'jar'
     embedded name: 'OC-JNLua-Natives', version: '20220928.1', ext: 'jar'
 
-    testImplementation "org.scala-lang:scala-library:2.13.4"
-    testImplementation "junit:junit:4.13"
+    testImplementation "junit:junit:4.13.2"
     testImplementation "org.mockito:mockito-core:3.4.0"
-    testImplementation "org.scalactic:scalactic_2.13:3.2.6"
-    testImplementation "org.scalatest:scalatest_2.13:3.2.6"
+    testImplementation "org.scalactic:scalactic_2.13:3.2.19"
+    testImplementation "org.scalatest:scalatest_2.13:3.2.19"
     testImplementation "org.scalatestplus:junit-4-13_2.13:3.2.6.+"
     testImplementation "org.scalatestplus:mockito-3-4_2.13:3.2.6.+"
 
     runtimeOnly(fg.deobf("mezz.jei:jei-${config.minecraft.version}-forge:${config.jei.version}"))
+    compileOnly(group: 'org.typelevel', name: "cats-core_2.13", version: '2.8.1-kotori')
 
     runtimeOnly(group: "com.kotori316", name: "ScalableCatsForce".toLowerCase(), version: "2.13.8-build-4", classifier: "with-library") {
         transitive(false)
@@ -263,7 +262,7 @@ processResources {
     inputs.property "mcversion", config.minecraft.version
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     filesMatching(['META-INF/mods.toml']) {
-        expand 'version':"${mod_version}", 'mcversion':config.minecraft.version, 'sversion':reducedScorgeVer
+        expand 'version':"${mod_version}", 'mcversion':config.minecraft.version, 'forgeVersion': config.forge.version
     }
     filesMatching(['application.conf']) {
         filter { line ->

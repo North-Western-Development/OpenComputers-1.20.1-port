@@ -2,7 +2,6 @@ package li.cil.oc.server.machine
 
 import java.util
 import java.util.concurrent.TimeUnit
-
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.api.Driver
@@ -42,9 +41,8 @@ import net.minecraft.client.Minecraft
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt._
-import net.minecraft.server.integrated.IntegratedServer
-import net.minecraftforge.common.util.Constants.NBT
-import net.minecraftforge.fml.server.ServerLifecycleHooks
+import net.minecraft.client.server.IntegratedServer
+import net.minecraftforge.server.ServerLifecycleHooks
 
 import scala.collection.JavaConverters.mapAsJavaMap
 import scala.collection.convert.ImplicitConversionsToJava._
@@ -754,12 +752,12 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     super.loadData(nbt)
 
     state.pushAll(nbt.getIntArray(StateTag).reverseMap(Machine.State(_)))
-    nbt.getList(UsersTag, NBT.TAG_STRING).foreach((tag: StringTag) => _users += tag.getAsString)
+    nbt.getList(UsersTag, Tag.TAG_STRING).foreach((tag: StringTag) => _users += tag.getAsString)
     if (nbt.contains(MessageTag)) {
       message = Some(nbt.getString(MessageTag))
     }
 
-    _components ++= nbt.getList(ComponentsTag, NBT.TAG_COMPOUND).map((tag: CompoundTag) =>
+    _components ++= nbt.getList(ComponentsTag, Tag.TAG_COMPOUND).map((tag: CompoundTag) =>
       tag.getString(AddressTag) -> tag.getString(NameTag))
 
     tmp.foreach(fs => {
@@ -770,17 +768,17 @@ class Machine(val host: MachineHost) extends AbstractManagedEnvironment with mac
     if (state.nonEmpty && isRunning && init()) try {
       architecture.loadData(nbt)
 
-      signals ++= nbt.getList(SignalsTag, NBT.TAG_COMPOUND).map((signalNbt: CompoundTag) => {
+      signals ++= nbt.getList(SignalsTag, Tag.TAG_COMPOUND).map((signalNbt: CompoundTag) => {
         val argsNbt = signalNbt.getCompound(ArgsTag)
         val argsLength = argsNbt.getInt(LengthTag)
         new Machine.Signal(signalNbt.getString(NameTag),
           (0 until argsLength).map(ArgPrefixTag + _).map(argsNbt.get).map {
-            case tag: ByteNBT if tag.getAsByte == -1 => null
-            case tag: ByteNBT => Boolean.box(tag.getAsByte == 1)
-            case tag: LongNBT => Long.box(tag.getAsLong)
-            case tag: DoubleNBT => Double.box(tag.getAsDouble)
+            case tag: ByteTag if tag.getAsByte == -1 => null
+            case tag: ByteTag => Boolean.box(tag.getAsByte == 1)
+            case tag: LongTag => Long.box(tag.getAsLong)
+            case tag: DoubleTag => Double.box(tag.getAsDouble)
             case tag: StringTag => tag.getAsString
-            case tag: ByteArrayNBT => tag.getAsByteArray
+            case tag: ByteArrayTag => tag.getAsByteArray
             case tag: ListTag =>
               val data = mutable.Map.empty[String, String]
               for (i <- 0 until tag.size by 2) {

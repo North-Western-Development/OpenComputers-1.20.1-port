@@ -1,30 +1,22 @@
 package li.cil.oc.common
 
-import java.io
-import java.util.Random
-import java.util.concurrent.Callable
-import li.cil.oc.Constants
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, OpenComputers, Settings, api}
 import li.cil.oc.api.fs.FileSystem
 import li.cil.oc.common.init.Items
 import li.cil.oc.util.Color
-import net.minecraft.world.item.DyeColor
-import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.{CompoundTag, Tag}
 import net.minecraft.network.chat.TextComponent
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.world.item.{DyeColor, ItemStack}
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.storage.LevelResource
-import net.minecraft.world.server.ServerLevel
-import net.minecraft.world.storage.FolderName
-import net.minecraftforge.common.util.Constants.NBT
-import net.minecraftforge.event.world.{LevelEvent, WorldEvent}
+import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
+import java.io
+import java.util.Random
+import java.util.concurrent.Callable
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 

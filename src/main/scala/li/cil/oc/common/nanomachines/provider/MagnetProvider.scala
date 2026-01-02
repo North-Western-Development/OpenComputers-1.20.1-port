@@ -3,7 +3,7 @@ package li.cil.oc.common.nanomachines.provider
 import li.cil.oc.Settings
 import li.cil.oc.api
 import li.cil.oc.api.prefab.AbstractBehavior
-import net.minecraft.entity.item.ItemEntity
+import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.phys.Vec3

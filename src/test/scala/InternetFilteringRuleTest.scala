@@ -24,7 +24,7 @@ class InternetFilteringRuleTest extends AnyFunSpec with MockitoSugar {
     // Many of these payloads are pulled from PayloadsAllTheThings
     // https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Server%20Side%20Request%20Forgery/README.md
     it("should accept a valid external address") {
-      isUriBlacklisted("https://google.com") should be(false)
+      isUriBlacklisted("https://google.com") shouldBe false
     }
     it("should reject localhost") {
       isUriBlacklisted("http://localhost") should be(true)

@@ -23,6 +23,7 @@ import net.minecraft.world.item.Item
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
 import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent
 import net.minecraftforge.event.RegistryEvent.MissingMappings
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
@@ -94,10 +95,14 @@ class Proxy {
       Mods.init()
 
       OpenComputers.log.info("Initializing capabilities.")
-      Capabilities.init()
 
       api.API.isPowerEnabled = !Settings.get.ignorePower
     }): Runnable)
+  }
+
+  @SubscribeEvent
+  def register(event: RegisterCapabilitiesEvent): Unit = {
+    Capabilities.init(event)
   }
 
   @SubscribeEvent

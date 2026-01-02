@@ -7,10 +7,10 @@ import li.cil.oc.client.gui.widget.ProgressBar
 import li.cil.oc.common.container
 import li.cil.oc.common.container.ComponentSlot
 import li.cil.oc.util.RenderState
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.world.entity.player.Inventory
 
-class Printer(state: container.Printer, playerInventory: Inventory, name: TextComponent)
+class Printer(state: container.Printer, playerInventory: Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name) {
 
   imageWidth = 176

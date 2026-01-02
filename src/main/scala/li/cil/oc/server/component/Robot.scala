@@ -24,7 +24,7 @@ import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.particles.ParticleTypes
+import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
 
@@ -149,7 +149,7 @@ class Robot(val agent: tileentity.Robot) extends AbstractManagedEnvironment with
   override def onMessage(message: Message) {
     super.onMessage(message)
     if (message.name == "network.message" && message.source != agent.node) message.data match {
-      case Array(packet: Packet) => agent.proxy.node.sendToReachable(message.name, packet)
+//      case Array(packet: Packet) => agent.proxy.node.sendToReachable(message.name, packet)
       case _ =>
     }
   }

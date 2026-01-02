@@ -1,37 +1,28 @@
 package li.cil.oc.common.block
 
+import li.cil.oc.{Constants, Settings, api}
+import li.cil.oc.common.tileentity
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.{InteractionHand, InteractionResult}
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.level.{BlockGetter, Level}
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.phys.BlockHitResult
+import net.minecraft.world.phys.shapes.{CollisionContext, VoxelShape}
+
 import java.util.Random
 
-import li.cil.oc.Constants
-import li.cil.oc.Settings
-import li.cil.oc.api
-import li.cil.oc.common.tileentity
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.Blocks
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.entity.player.Player
-import net.minecraft.fluid.FluidState
-import net.minecraft.world.item.ItemStack
-import net.minecraft.util.ActionResultType
-import net.minecraft.core.Direction
-import net.minecraft.util.Hand
-import net.minecraft.core.BlockPos
-import net.minecraft.world.phys.BlockHitResult
-import net.minecraft.util.math.RayTraceResult
-import net.minecraft.util.math.shapes.ISelectionContext
-import net.minecraft.util.math.shapes.VoxelShape
-import net.minecraft.world.level.BlockGetter
-import net.minecraft.world.level.Level
-import net.minecraft.world.server.ServerLevel
-
 class RobotAfterimage(props: Properties) extends SimpleBlock(props) {
-  override def getPickBlock(state: BlockState, target: RayTraceResult, world: BlockGetter, pos: BlockPos, player: Player): ItemStack =
-    findMovingRobot(world, pos) match {
-      case Some(robot) => robot.info.createItemStack()
-      case _ => ItemStack.EMPTY
-    }
+//  override def getPickBlock(state: BlockState, target: HitResult, world: BlockGetter, pos: BlockPos, player: Player): ItemStack =
+//    findMovingRobot(world, pos) match {
+//      case Some(robot) => robot.info.createItemStack()
+//      case _ => ItemStack.EMPTY
+//    }
 
-  override def getShape(state: BlockState, world: BlockGetter, pos: BlockPos, ctx: ISelectionContext): VoxelShape = {
+  override def getShape(state: BlockState, world: BlockGetter, pos: BlockPos, ctx: CollisionContext): VoxelShape = {
     findMovingRobot(world, pos) match {
       case Some(robot) =>
         val block = robot.getBlockState.getBlock.asInstanceOf[SimpleBlock]
@@ -49,7 +40,7 @@ class RobotAfterimage(props: Properties) extends SimpleBlock(props) {
 
   override def onPlace(state: BlockState, world: Level, pos: BlockPos, prevState: BlockState, moved: Boolean): Unit = {
     if (!world.isClientSide) {
-      world.asInstanceOf[ServerLevel].getBlockTicks.scheduleTick(pos, this, Math.max((Settings.get.moveDelay * 20).toInt, 1) - 1)
+      world.asInstanceOf[ServerLevel].scheduleTick(pos, this, Math.max((Settings.get.moveDelay * 20).toInt, 1) - 1)
     }
   }
 
@@ -57,25 +48,25 @@ class RobotAfterimage(props: Properties) extends SimpleBlock(props) {
     world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState)
   }
 
-  override def removedByPlayer(state: BlockState, world: Level, pos: BlockPos, player: Player, willHarvest: Boolean, fluid: FluidState): Boolean = {
-    findMovingRobot(world, pos) match {
-      case Some(robot) if robot.isAnimatingMove && robot.moveFrom.contains(pos) =>
-        robot.proxy.getBlockState.getBlock.removedByPlayer(state, world, pos, player, false, fluid)
-      case _ => super.removedByPlayer(state, world, pos, player, willHarvest, fluid) // Probably broken by the robot we represent.
-    }
-  }
+//  override def removedByPlayer(state: BlockState, world: Level, pos: BlockPos, player: Player, willHarvest: Boolean, fluid: FluidState): Boolean = {
+//    findMovingRobot(world, pos) match {
+//      case Some(robot) if robot.isAnimatingMove && robot.moveFrom.contains(pos) =>
+//        robot.proxy.getBlockState.getBlock.removedByPlayer(state, world, pos, player, false, fluid)
+//      case _ => super.removedByPlayer(state, world, pos, player, willHarvest, fluid) // Probably broken by the robot we represent.
+//    }
+//  }
 
   @Deprecated
-  override def use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: Hand, trace: BlockHitResult): ActionResultType = {
+  override def use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: InteractionHand, trace: BlockHitResult): InteractionResult = {
     findMovingRobot(world, pos) match {
       case Some(robot) => api.Items.get(Constants.BlockName.Robot).block.use(world.getBlockState(robot.getBlockPos), world, robot.getBlockPos, player, hand, trace)
-      case _ => if (world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState)) ActionResultType.sidedSuccess(world.isClientSide) else ActionResultType.PASS
+      case _ => if (world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState)) InteractionResult.sidedSuccess(world.isClientSide) else InteractionResult.PASS
     }
   }
 
   def findMovingRobot(world: BlockGetter, pos: BlockPos): Option[tileentity.Robot] = {
     for (side <- Direction.values) {
-      val tpos = pos.relative(side)
+      val tpos: BlockPos = pos.relative(side)
       if (world match {
         case world: Level => world.isLoaded(tpos)
         case _ => true

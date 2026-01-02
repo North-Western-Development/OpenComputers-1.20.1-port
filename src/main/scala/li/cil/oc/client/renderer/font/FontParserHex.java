@@ -6,8 +6,8 @@ import li.cil.oc.OpenComputers;
 import li.cil.oc.Settings;
 import li.cil.oc.util.FontUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.IResource;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
 import org.lwjgl.BufferUtils;
 
 import java.io.BufferedReader;
@@ -45,7 +45,7 @@ public class FontParserHex implements IGlyphProvider {
             int glyphCount = 0;
 
             ResourceLocation loc = new ResourceLocation(Settings.resourceDomain(), "font.hex");
-            for (IResource resource : (List<IResource>) Minecraft.getInstance().getResourceManager().getResources(loc)) {
+            for (Resource resource : Minecraft.getInstance().getResourceManager().getResources(loc)) {
                 final InputStream font = resource.getInputStream();
                 try {
                     final BufferedReader input = new BufferedReader(new InputStreamReader(font));

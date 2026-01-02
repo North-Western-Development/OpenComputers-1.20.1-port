@@ -1,32 +1,28 @@
 package li.cil.oc.common.tileentity
 
 import li.cil.oc.Settings
-import li.cil.oc.api.network.Analyzable
 import li.cil.oc.api.network._
 import li.cil.oc.client.gui
 import li.cil.oc.common.component.TextBuffer
 import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
-import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.Color
+import li.cil.oc.util.{BlockPosition, Color}
 import li.cil.oc.util.ExtendedLevel._
 import net.minecraft.client.Minecraft
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.Player
-import net.minecraft.entity.projectile.ArrowEntity
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
-import net.minecraft.util.math.AxisAlignedBB
+import net.minecraft.world.entity.projectile.Arrow
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.AABB
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
 import scala.collection.mutable
 import scala.language.postfixOps
 
-class Screen(selfType: BlockEntityType[_ <: Screen], var tier: Int) extends BlockEntity(selfType) with traits.TextBuffer with SidedEnvironment with traits.Rotatable with traits.RedstoneAware with traits.Colored with Analyzable with Ordered[Screen] {
-  def this(selfType: BlockEntityType[_ <: Screen]) = this(selfType, 0)
+class Screen(selfType: BlockEntityType[_ <: Screen], var tier: Int, pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.TextBuffer with SidedEnvironment with traits.Rotatable with traits.RedstoneAware with traits.Colored with Analyzable with Ordered[Screen] {
+  def this(selfType: BlockEntityType[_ <: Screen],pos: BlockPos, state: BlockState) = this(selfType, 0, pos, state)
 
   // Enable redstone functionality.
   _isOutputEnabled = true
@@ -60,7 +56,7 @@ class Screen(selfType: BlockEntityType[_ <: Screen], var tier: Int) extends Bloc
 
   var invertTouchMode = false
 
-  private val arrows = mutable.Set.empty[ArrowEntity]
+  private val arrows = mutable.Set.empty[Arrow]
 
   private val lastWalked = mutable.WeakHashMap.empty[Entity, (Int, Int)]
 
@@ -181,7 +177,7 @@ class Screen(selfType: BlockEntityType[_ <: Screen], var tier: Int) extends Bloc
     }
   }
 
-  def shot(arrow: ArrowEntity) {
+  def shot(arrow: Arrow) {
     arrows.add(arrow)
   }
 
@@ -346,8 +342,8 @@ class Screen(selfType: BlockEntityType[_ <: Screen], var tier: Int) extends Bloc
         b
     }
 
-  @OnlyIn(Dist.CLIENT)
-  override def getViewDistance = if (isOrigin) super.getViewDistance else 0
+//  @OnlyIn(Dist.CLIENT)
+//  override def getViewDistance = if (isOrigin) super.getViewDistance else 0
 
   // ----------------------------------------------------------------------- //
 

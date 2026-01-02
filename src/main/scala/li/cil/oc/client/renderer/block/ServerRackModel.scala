@@ -9,11 +9,11 @@ import li.cil.oc.client.Textures
 import li.cil.oc.common.block
 import li.cil.oc.common.tileentity
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.client.world.ClientLevel
-import net.minecraft.client.renderer.model.BakedQuad
-import net.minecraft.client.renderer.model.IBakedModel
-import net.minecraft.client.renderer.model.ItemOverrideList
-import net.minecraft.entity.LivingEntity
+import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.client.renderer.block.model.BakedQuad
+import net.minecraft.client.resources.model.BakedModel
+import net.minecraft.client.renderer.block.model.ItemOverrides
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
 import net.minecraft.world.phys.Vec3
@@ -23,8 +23,8 @@ import net.minecraftforge.client.model.data.IModelData
 import scala.collection.JavaConverters.bufferAsJavaList
 import scala.collection.mutable
 
-class ServerRackModel(val parent: IBakedModel) extends SmartBlockModelBase {
-  override def getOverrides: ItemOverrideList = ItemOverride
+class ServerRackModel(val parent: BakedModel) extends SmartBlockModelBase {
+  override def getOverrides: ItemOverrides = ItemOverride
 
   override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] =
     data match {
@@ -91,8 +91,8 @@ class ServerRackModel(val parent: IBakedModel) extends SmartBlockModelBase {
     makeBox(new Vec3(0.5f / 16f, 2 / 16f, 0.5f / 16f), new Vec3(15.5f / 16f, 5 / 16f, 15.5f / 16f))
   )
 
-  object ItemOverride extends ItemOverrideList {
-    override def resolve(originalModel: IBakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity): IBakedModel = parent
+  object ItemOverride extends ItemOverrides {
+    override def resolve(originalModel: BakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity, seed: Int): BakedModel = parent
   }
 
 }

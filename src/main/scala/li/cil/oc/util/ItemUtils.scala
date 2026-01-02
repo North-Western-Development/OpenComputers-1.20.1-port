@@ -10,7 +10,7 @@ import li.cil.oc.api
 import li.cil.oc.common.Tier
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.item.{BlockItem, BucketItem, Item, ItemStack}
-import net.minecraft.world.item.crafting.{CraftingRecipe, Recipe, RecipeManager, RecipeType, ShapedRecipe, ShapelessRecipe}
+import net.minecraft.world.item.crafting.{CraftingRecipe, Ingredient, Recipe, RecipeManager, RecipeType, ShapedRecipe, ShapelessRecipe}
 import net.minecraft.nbt.{CompoundTag, NbtIo}
 import net.minecraft.world.inventory.CraftingContainer
 import net.minecraftforge.registries.ForgeRegistries

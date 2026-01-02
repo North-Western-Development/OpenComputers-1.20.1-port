@@ -14,7 +14,7 @@ import li.cil.oc.integration.util.ItemSearch
 import li.cil.oc.util.RenderState
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.world.Container
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.{AbstractContainerMenu, Slot}
@@ -23,7 +23,7 @@ import org.lwjgl.opengl.GL11
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 
-abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv: Inventory, title: TextComponent)
+abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv: Inventory, title: Component)
   extends CustomGuiContainer(container, inv, title) {
 
   protected var hoveredStackNEI: StackOption = EmptyStack

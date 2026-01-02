@@ -2,7 +2,6 @@ package li.cil.oc.integration.util
 
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
-import net.minecraft.client.gui.screen.inventory.ContainerScreen
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 
 import scala.collection.mutable

@@ -3,18 +3,15 @@ package li.cil.oc.common.block
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.tileentity
 import li.cil.oc.integration.util.Wrench
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.entity.player.Player
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
-import net.minecraft.core.Direction
-import net.minecraft.util.Hand
-import net.minecraft.core.BlockPos
-import net.minecraft.world.level.BlockGetter
-import net.minecraft.world.ILevelReader
-import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.{Level, LevelReader}
 
 class Adapter(props: Properties) extends SimpleBlock(props) with traits.GUI {
   override def openGui(player: ServerPlayer, world: Level, pos: BlockPos): Unit = world.getBlockEntity(pos) match {
@@ -22,7 +19,7 @@ class Adapter(props: Properties) extends SimpleBlock(props) with traits.GUI {
     case _ =>
   }
 
-  override def newBlockEntity(world: BlockGetter) = new tileentity.Adapter(tileentity.BlockEntityTypes.ADAPTER)
+  override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Adapter(tileentity.BlockEntityTypes.ADAPTER, pos, state)
 
   // ----------------------------------------------------------------------- //
 
@@ -33,23 +30,23 @@ class Adapter(props: Properties) extends SimpleBlock(props) with traits.GUI {
       case _ => // Ignore.
     }
 
-  override def onNeighborChange(state: BlockState, world: ILevelReader, pos: BlockPos, neighbor: BlockPos) =
+  override def onNeighborChange(state: BlockState, world: LevelReader, pos: BlockPos, neighbor: BlockPos) =
     world.getBlockEntity(pos) match {
       case adapter: tileentity.Adapter =>
         // TODO can we just pass the blockpos?
         val side =
           if (neighbor == (pos.below():BlockPos)) Direction.DOWN
           else if (neighbor == (pos.above():BlockPos)) Direction.UP
-          else if (neighbor == pos.north()) Direction.NORTH
-          else if (neighbor == pos.south()) Direction.SOUTH
-          else if (neighbor == pos.west()) Direction.WEST
-          else if (neighbor == pos.east()) Direction.EAST
+          else if (neighbor ==(pos.north(): BlockPos)) Direction.NORTH
+          else if (neighbor ==(pos.south(): BlockPos)) Direction.SOUTH
+          else if (neighbor ==(pos.west(): BlockPos)) Direction.WEST
+          else if (neighbor ==(pos.east(): BlockPos)) Direction.EAST
           else throw new IllegalArgumentException("not a neighbor") // TODO wat
         adapter.neighborChanged(side)
       case _ => // Ignore.
     }
 
-  override def localOnBlockActivated(world: Level, pos: BlockPos, player: Player, hand: Hand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Boolean = {
+  override def localOnBlockActivated(world: Level, pos: BlockPos, player: Player, hand: InteractionHand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Boolean = {
     if (Wrench.holdsApplicableWrench(player, pos)) {
       val sideToToggle = if (player.isCrouching) side.getOpposite else side
       world.getBlockEntity(pos) match {

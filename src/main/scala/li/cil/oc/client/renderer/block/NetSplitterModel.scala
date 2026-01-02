@@ -7,13 +7,13 @@ import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.renderer.block.model.{BakedQuad, ItemOverrides}
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.renderer.texture.{TextureAtlas, TextureAtlasSprite}
+import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.client.event.TextureStitchEvent
-import net.minecraftforge.client.model.SeparatePerspectiveModel.BakedModel
 import net.minecraftforge.client.model.data.IModelData
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
@@ -112,7 +112,7 @@ object NetSplitterModel extends SmartBlockModelBase {
   }
 
   object ItemOverride extends ItemOverrides {
-    override def resolve(originalModel: BakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity, i: Int): BakedModel = ItemModel
+    override def resolve(originalModel: BakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity, seed: Int): BakedModel = ItemModel
   }
 
 }

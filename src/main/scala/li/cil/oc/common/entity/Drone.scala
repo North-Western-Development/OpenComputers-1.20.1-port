@@ -162,7 +162,7 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
 
   override def tier: Int = info.tier
 
-  override def player(): Player = {
+  override def player(): ServerPlayer = {
     agent.Player.updatePositionAndRotation(player_, facing, facing)
     agent.Player.setPlayerInventoryItems(player_)
     player_
@@ -526,7 +526,7 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
     }
     finally {
       isChangingDimension = false
-      remove() // Again, to actually close old machine state after copying it.
+      remove(RemovalReason.DISCARDED) // Again, to actually close old machine state after copying it.
     }
   }
 
@@ -574,9 +574,9 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
 
   override def getName: MutableComponent = Localization.localizeLater("entity.oc.Drone.name")
 
-  override protected def getAddEntityPacket = NetworkHooks.getEntitySpawningPacket(this)
+  override def getAddEntityPacket = NetworkHooks.getEntitySpawningPacket(this)
 
-  override protected def readAdditionalSaveData(nbt: CompoundTag) {
+  override def readAdditionalSaveData(nbt: CompoundTag) {
     info.loadData(nbt.getCompound("info"))
     inventorySize = computeInventorySize()
     if (!world.isClientSide) {
