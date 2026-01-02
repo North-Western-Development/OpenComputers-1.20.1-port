@@ -24,7 +24,7 @@ public final class SetColor implements LootItemFunction {
 
     @Override
     public @NotNull LootItemFunctionType getType() {
-        return LootFunctions.SET_COLOR;
+        return LootFunctions.SET_COLOR_REG.get();
     }
 
     @Override

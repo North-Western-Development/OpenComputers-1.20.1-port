@@ -203,7 +203,7 @@ dependencies {
     //implementation "net.minecraftforge:Scorge:${config.scorge.version}"
     compileOnly(group: 'org.typelevel', name: "cats-core_2.13", version: '2.8.1-kotori')
 
-    embedded "com.typesafe:config:1.2.1"
+    minecraftLibrary "com.typesafe:config:1.2.1"
 
     compileOnly fg.deobf("curse.maven:tis-3d-238603:3738437")
     //compileOnly fg.deobf("curse.maven:hwyla-${config.hwyla.projectId}:${config.hwyla.fileId}")
@@ -236,9 +236,9 @@ dependencies {
 
     provided fg.deobf("curse.maven:project-red-integration-229045:5452529")
 
-    embedded name: 'OC-LuaJ', version: '20220907.1', ext: 'jar'
-    embedded name: 'OC-JNLua', version: '20230530.0', ext: 'jar'
-    embedded name: 'OC-JNLua-Natives', version: '20220928.1', ext: 'jar'
+    minecraftLibrary name: 'OC-LuaJ', version: '20220907.1', ext: 'jar'
+    minecraftLibrary name: 'OC-JNLua', version: '20230530.0', ext: 'jar'
+    minecraftLibrary name: 'OC-JNLua-Natives', version: '20220928.1', ext: 'jar'
 
     testImplementation "junit:junit:4.13.2"
     testImplementation "org.mockito:mockito-core:3.4.0"

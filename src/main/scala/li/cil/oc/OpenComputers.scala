@@ -59,6 +59,8 @@ object OpenComputers {
 @Mod(OpenComputers.ID)
 class OpenComputers {
   val modContainer: ModContainer = ModLoadingContext.get.getActiveContainer
+  protected val modEventBus = net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext.get().getModEventBus
+  modEventBus.register(this)
 
   OpenComputers.instance = Some(this)
 

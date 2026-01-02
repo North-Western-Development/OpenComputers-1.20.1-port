@@ -22,17 +22,20 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.item.Item
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent
+import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.event.RegistryEvent.MissingMappings
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
+import net.minecraftforge.fml.InterModComms
+import net.minecraftforge.fml.event.lifecycle.{FMLCommonSetupEvent, FMLLoadCompleteEvent, InterModProcessEvent}
 import net.minecraftforge.network.{NetworkEvent, NetworkRegistry}
 import net.minecraftforge.registries.ForgeRegistries
 
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
+import scala.collection.convert.ImplicitConversionsToScala._
 
 class Proxy {
   protected val modBus = MinecraftForge.EVENT_BUS
@@ -40,7 +43,7 @@ class Proxy {
   modBus.register(classOf[EntityTypes])
   modBus.register(classOf[BlockEntityTypes])
   modBus.register(classOf[RecipeSerializers])
-  LootFunctions.init()
+  LootFunctions.init(modBus)
 
   def preInit() {
     OpenComputers.log.info("Initializing OpenComputers API.")

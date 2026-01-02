@@ -21,7 +21,7 @@ public final class CopyColor implements LootItemFunction {
 
     @Override
     public @NotNull LootItemFunctionType getType() {
-        return LootFunctions.COPY_COLOR;
+        return LootFunctions.COPY_COLOR_REG.get();
     }
 
     public static class Builder implements LootItemFunction.Builder {
