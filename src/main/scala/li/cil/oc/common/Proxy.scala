@@ -39,11 +39,12 @@ import scala.collection.convert.ImplicitConversionsToScala._
 
 class Proxy {
   protected val modBus = MinecraftForge.EVENT_BUS
-  modBus.register(classOf[ContainerTypes])
-  modBus.register(classOf[EntityTypes])
-  modBus.register(classOf[BlockEntityTypes])
-  modBus.register(classOf[RecipeSerializers])
-  LootFunctions.init(modBus)
+  protected val modEventBus = net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext.get().getModEventBus
+  modEventBus.register(classOf[ContainerTypes])
+  modEventBus.register(classOf[EntityTypes])
+  modEventBus.register(classOf[BlockEntityTypes])
+  modEventBus.register(classOf[RecipeSerializers])
+  LootFunctions.init(modEventBus)
 
   def preInit() {
     OpenComputers.log.info("Initializing OpenComputers API.")

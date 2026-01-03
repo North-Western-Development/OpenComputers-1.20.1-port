@@ -3,16 +3,16 @@ package li.cil.oc.common.capabilities
 import li.cil.oc.api.internal.Colored
 import li.cil.oc.integration.Mods
 import net.minecraft.core.Direction
-import net.minecraft.nbt.{IntTag, Tag}
+import net.minecraft.nbt.IntTag
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraftforge.common.capabilities.{Capability, ICapabilityProvider}
+import net.minecraftforge.common.capabilities.{Capability, ICapabilitySerializable}
 import net.minecraftforge.common.util.{LazyOptional, NonNullSupplier}
 
 object CapabilityColored {
   final val ProviderColored = new ResourceLocation(Mods.IDs.OpenComputers, "colored")
 
-  class Provider(val tileEntity: BlockEntity with Colored) extends ICapabilityProvider with NonNullSupplier[Provider] with Colored {
+  class Provider(val tileEntity: BlockEntity with Colored) extends ICapabilitySerializable[IntTag] with NonNullSupplier[Provider] with Colored {
     private val wrapper = LazyOptional.of(this)
 
     def get = this
@@ -24,11 +24,21 @@ object CapabilityColored {
       else LazyOptional.empty[T]
     }
 
-    override def getColor = tileEntity.getColor
+    override def getColor: Int = tileEntity.getColor
 
-    override def setColor(value: Int) = tileEntity.setColor(value)
+    override def setColor(value: Int): Unit = tileEntity.setColor(value)
 
-    override def controlsConnectivity = tileEntity.controlsConnectivity
+    override def controlsConnectivity: Boolean = tileEntity.controlsConnectivity
+
+    override def serializeNBT(): IntTag = IntTag.valueOf(tileEntity.getColor)
+
+    override def deserializeNBT(nbt: IntTag): Unit = {
+      nbt match {
+        case nbt: IntTag =>
+          tileEntity.setColor(nbt.getAsInt)
+        case _ =>
+      }
+    }
   }
 
   class DefaultImpl extends Colored {
@@ -40,20 +50,4 @@ object CapabilityColored {
 
     override def controlsConnectivity = false
   }
-
-//  class DefaultStorage extends Capability.IStorage[Colored] {
-//    override def writeNBT(capability: Capability[Colored], t: Colored, Direction: Direction): Tag = {
-//      val color = t.getColor
-//      IntTag.valueOf(color)
-//    }
-//
-//    override def readNBT(capability: Capability[Colored], t: Colored, Direction: Direction, nbtBase: Tag): Unit = {
-//      nbtBase match {
-//        case nbt: IntTag =>
-//          t.setColor(nbt.getAsInt)
-//        case _ =>
-//      }
-//    }
-//  }
-
 }

@@ -3,7 +3,6 @@ package li.cil.oc.common.capabilities
 import li.cil.oc.api.network.{Node, SidedEnvironment}
 import li.cil.oc.integration.Mods
 import net.minecraft.core.Direction
-import net.minecraft.nbt.Tag
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraftforge.common.capabilities.{Capability, ICapabilityProvider}
@@ -34,11 +33,4 @@ object CapabilitySidedEnvironment {
 
     override def canConnect(side: Direction): Boolean = false
   }
-
-//  class DefaultStorage extends Capability.IStorage[SidedEnvironment] {
-//    override def writeNBT(capability: Capability[SidedEnvironment], t: SidedEnvironment, Direction: Direction): Tag = null
-//
-//    override def readNBT(capability: Capability[SidedEnvironment], t: SidedEnvironment, Direction: Direction, nbtBase: Tag): Unit = {}
-//  }
-
 }

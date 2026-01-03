@@ -64,7 +64,7 @@ class OpenComputers {
 
   OpenComputers.instance = Some(this)
 
-  MinecraftForge.EVENT_BUS.register(OpenComputers.proxy)
+  modEventBus.register(OpenComputers.proxy)
   Settings.load(FMLPaths.CONFIGDIR.get().resolve(Paths.get("opencomputers", "settings.conf")).toFile())
   OpenComputers.proxy.preInit()
   MinecraftForge.EVENT_BUS.register(ThreadPoolFactory)
