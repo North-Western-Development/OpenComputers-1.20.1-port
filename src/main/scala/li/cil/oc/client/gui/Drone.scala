@@ -14,6 +14,7 @@ import li.cil.oc.util.RenderState
 import li.cil.oc.util.TextBuffer
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.Button.OnPress
+import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.world.entity.player.Inventory
 import org.lwjgl.opengl.GL11
@@ -108,6 +109,7 @@ class Drone(state: container.Drone, playerInventory: Inventory, name: Component)
   }
 
   override protected def renderBg(stack: PoseStack, dt: Float, mouseX: Int, mouseY: Int) {
+    RenderSystem.setShader(GameRenderer.getPositionTexColorShader _)
     RenderSystem.setShaderColor(1, 1, 1, 1)
     Textures.bind(Textures.GUI.Drone)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)

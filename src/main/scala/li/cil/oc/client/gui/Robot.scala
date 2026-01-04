@@ -16,6 +16,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.Button.OnPress
 import net.minecraft.client.gui.components.events.ContainerEventHandler
+import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.world.entity.player.Inventory
 import org.lwjgl.glfw.GLFW
@@ -150,6 +151,7 @@ class Robot(state: container.Robot, playerInventory: Inventory, name: Component)
   }
 
   override protected def renderBg(stack: PoseStack, dt: Float, mouseX: Int, mouseY: Int) {
+    RenderSystem.setShader(GameRenderer.getPositionTexColorShader _)
     RenderSystem.setShaderColor(1, 1, 1, 1)
     if (buffer != null) Textures.bind(Textures.GUI.Robot)
     else Textures.bind(Textures.GUI.RobotNoScreen)

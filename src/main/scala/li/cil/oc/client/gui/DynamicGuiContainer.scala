@@ -14,6 +14,7 @@ import li.cil.oc.integration.util.ItemSearch
 import li.cil.oc.util.RenderState
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
+import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.world.Container
 import net.minecraft.world.entity.player.Inventory
@@ -52,6 +53,7 @@ abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv
   protected def drawSecondaryBackgroundLayer(stack: PoseStack) {}
 
   override protected def renderBg(stack: PoseStack, dt: Float, mouseX: Int, mouseY: Int) {
+    RenderSystem.setShader(GameRenderer.getPositionTexColorShader _)
     RenderSystem.setShaderColor(1, 1, 1, 1)
     Textures.bind(Textures.GUI.Background)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)

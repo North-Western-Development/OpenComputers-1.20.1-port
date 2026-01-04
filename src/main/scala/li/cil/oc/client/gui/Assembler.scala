@@ -10,6 +10,7 @@ import li.cil.oc.common.container.ComponentSlot
 import li.cil.oc.common.template.AssemblerTemplates
 import li.cil.oc.util.RenderState
 import net.minecraft.client.gui.components.Button
+import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.Slot
@@ -98,6 +99,7 @@ class Assembler(state: container.Assembler, playerInventory: Inventory, name: Co
   }
 
   override protected def renderBg(stack: PoseStack, dt: Float, mouseX: Int, mouseY: Int) {
+    RenderSystem.setShader(GameRenderer.getPositionTexColorShader _)
     RenderSystem.setShaderColor(1, 1, 1, 1) // Required under Linux.
     Textures.bind(Textures.GUI.RobotAssembler)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)

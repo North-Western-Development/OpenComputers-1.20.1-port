@@ -115,7 +115,7 @@ object ModelInitialization {
           case original: BakedModel => {
             val overrides = new ItemOverrides {
               override def resolve(base: BakedModel, stack: ItemStack, world: ClientLevel, holder: LivingEntity, seed: Int) =
-                Option(custom.getModelLocation(stack)).map(registry).getOrElse(original)
+                Option(custom.getModelLocation(stack)).map(loc =>registry.getOrElse(loc, original)).getOrElse(original)
             }
             val fake = new IDynamicBakedModel {
               @Deprecated
