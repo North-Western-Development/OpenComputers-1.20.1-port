@@ -8,6 +8,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.platform.GlStateManager;
 import li.cil.oc.OpenComputers;
 import li.cil.oc.client.Textures;
+import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderType.CompositeState;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -33,14 +34,14 @@ public class RenderTypes extends RenderType {
             .createCompositeState(true));
 
     public static final RenderType ROBOT_LIGHT = create(OpenComputers.ID() + ":robot_light",
-        DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.TRIANGLES, 256, CompositeState.builder()
+        DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.QUADS, 256, CompositeState.builder()
             .setTextureState(ROBOT_CHASSIS_TEXTURE)
             .setTransparencyState(LIGHTNING_TRANSPARENCY)
             .createCompositeState(true));
 
     private static final RenderType createUpgrade(String name, ResourceLocation texture) {
         return create(OpenComputers.ID() + ":upgrade_" + name,
-            POSITION_TEX_NORMAL, VertexFormat.Mode.TRIANGLES, 1024, CompositeState.builder()
+            POSITION_TEX_NORMAL, VertexFormat.Mode.QUADS, 1024, CompositeState.builder()
                 .setTextureState(new TextureStateShard(texture, false, false))
                 .createCompositeState(true));
     }
@@ -60,7 +61,7 @@ public class RenderTypes extends RenderType {
                 .createCompositeState(false));
 
     public static final RenderType MFU_QUADS = create(OpenComputers.ID() + ":mfu_quads",
-            DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES, 256, CompositeState.builder()
+            DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 256, CompositeState.builder()
                 .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                 .setDepthTestState(NO_DEPTH_TEST)
                 .setCullState(NO_CULL)
@@ -69,21 +70,23 @@ public class RenderTypes extends RenderType {
                 .createCompositeState(false));
 
     public static final RenderType BLOCK_OVERLAY = create(OpenComputers.ID() + ":overlay_block",
-            DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.TRIANGLES, 1024, CompositeState.builder()
+            DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.QUADS, 1024, CompositeState.builder()
+                .setShaderState(RenderStateShard.POSITION_TEX_SHADER)
                 .setTextureState(BLOCK_SHEET_MIPPED)
                 .setTransparencyState(LIGHTNING_TRANSPARENCY)
 //                .setAlphaState(DEFAULT_ALPHA)
                 .createCompositeState(false));
 
     public static final RenderType BLOCK_OVERLAY_COLOR = create(OpenComputers.ID() + ":overlay_block",
-            DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.TRIANGLES, 1024, CompositeState.builder()
+            DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.QUADS, 1024, CompositeState.builder()
                 .setTextureState(BLOCK_SHEET_MIPPED)
                 .setTransparencyState(LIGHTNING_TRANSPARENCY)
 //                .setAlphaState(DEFAULT_ALPHA)
                 .createCompositeState(false));
 
     public static final RenderType FONT_QUAD = create(OpenComputers.ID() + ":font_quad",
-            DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES, 1024, CompositeState.builder()
+            DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 1024, CompositeState.builder()
+                .setShaderState(RenderStateShard.POSITION_COLOR_SHADER)
                 .setWriteMaskState(COLOR_WRITE)
                 .createCompositeState(false));
 
@@ -114,7 +117,7 @@ public class RenderTypes extends RenderType {
 
     public static final RenderType createFontTex(String name, ResourceLocation texture, boolean linear) {
         return create(OpenComputers.ID() + ":font_stat_" + name,
-            DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.TRIANGLES, 1024, CompositeState.builder()
+            DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.QUADS, 1024, CompositeState.builder()
                 // First parameter is blur (i.e. linear filter).
                 // We can't use it because it's also MAG_FILTER.
                 .setTextureState(new TextureStateShard(texture, false, false))
@@ -126,7 +129,7 @@ public class RenderTypes extends RenderType {
 
     public static final RenderType createFontTex(int id) {
         return create(OpenComputers.ID() + ":font_dyn_" + id,
-            DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.TRIANGLES, 1024, CompositeState.builder()
+            DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.QUADS, 1024, CompositeState.builder()
                 .setTexturingState(new CustomTextureState(id))
                 .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
 //                .setAlphaState(DEFAULT_ALPHA)
@@ -135,7 +138,7 @@ public class RenderTypes extends RenderType {
 
     public static final RenderType createTexturedQuad(String name, ResourceLocation texture, VertexFormat format, boolean additive) {
         return create(OpenComputers.ID() + ":tex_quad_" + name,
-            format, VertexFormat.Mode.TRIANGLES, 1024, CompositeState.builder()
+            format, VertexFormat.Mode.QUADS, 1024, CompositeState.builder()
                 .setTextureState(new TextureStateShard(texture, false, false))
                 .setTransparencyState(additive ? LIGHTNING_TRANSPARENCY : TRANSLUCENT_TRANSPARENCY)
 //                .setAlphaState(DEFAULT_ALPHA)

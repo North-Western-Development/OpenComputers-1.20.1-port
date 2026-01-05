@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.level.LevelReader
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.client.model.ForgeModelBakery
 import net.minecraftforge.common.extensions.IForgeItem
 
 class FloppyDisk(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with CustomModel with traits.FileSystemLike {
@@ -40,7 +41,7 @@ class FloppyDisk(props: Properties) extends Item(props) with IForgeItem with tra
   override def registerModelLocations(): Unit = {
     for (dye <- DyeColor.values) {
       val location = modelLocationFromDyeName(dye)
-//      ModelLoader.addSpecialModel(location)
+      ForgeModelBakery.addSpecialModel(location)
     }
   }
 

@@ -15,6 +15,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.projectile.Arrow
 import net.minecraft.world.item.{ItemStack, TooltipFlag}
 import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
 import net.minecraft.world.level.{BlockGetter, Level}
@@ -122,4 +123,12 @@ class Screen(props: Properties, val tier: Int) extends RedstoneAware(props) {
         }
       case _ => super.getValidRotations(world, pos)
     }
+
+  override def getTicker[T <: BlockEntity](p_153212_ : Level, p_153213_ : BlockState, p_153214_ : BlockEntityType[T]): BlockEntityTicker[T] = {
+    (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
+      entity match {
+        case screenEntity: tileentity.Screen => screenEntity.updateEntity()
+        case _ =>
+      }
+  }
 }

@@ -13,7 +13,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.{ItemStack, TooltipFlag}
 import net.minecraft.world.level.{BlockGetter, Level}
 import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
 import net.minecraft.world.level.material.FluidState
@@ -62,6 +62,15 @@ class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with t
       true
     }
     else super.localOnBlockActivated(world, pos, player, hand, heldItem, side, hitX, hitY, hitZ)
+  }
+  override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
+//    if (level.isClientSide) null
+//    else
+      (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
+      entity match {
+        case caseEntity: tileentity.Case => caseEntity.updateEntity()
+        case _ =>
+      }
   }
 
 //  override def removedByPlayer(state: BlockState, world: Level, pos: BlockPos, player: Player, willHarvest: Boolean, fluid: FluidState): Boolean =

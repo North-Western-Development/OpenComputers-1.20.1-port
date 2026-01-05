@@ -15,7 +15,7 @@ object TextBufferRenderCache {
     if (Settings.get.fontRenderer == "texture") new font.StaticFont()
     else new font.DynamicFont()
 
-  private val cache = com.google.common.cache.CacheBuilder.newBuilder().
+  private val cache = com.google.common.cache.CacheBuilder.newBuilder(). // video memory leak
     expireAfterAccess(2, TimeUnit.SECONDS).
     build[TextBufferRenderData, RenderCache]()
 

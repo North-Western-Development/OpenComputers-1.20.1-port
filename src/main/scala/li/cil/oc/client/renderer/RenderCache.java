@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Pair;
@@ -98,8 +99,8 @@ public class RenderCache implements MultiBufferSource {
         cached.forEach(frame -> {
             frame.type().setupRenderState();
             DrawState state = frame.state();
-//            state.format().setupBufferState(MemoryUtil.memAddress(frame.data()));
-//            RenderSystem.drawArrays(state.mode(), 0, state.vertexCount());
+            state.format().setupBufferState();
+            RenderSystem.drawElements(state.mode().asGLMode, state.vertexCount(), state.indexType().asGLType);
             state.format().clearBufferState();
             frame.type().clearRenderState();
         });

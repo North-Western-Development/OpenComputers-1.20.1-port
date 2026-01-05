@@ -22,7 +22,7 @@ trait Environment extends BlockEntity with network.Environment with network.Envi
 
   override def zPosition = z + 0.5
 
-  override def markChanged() = if (this.isInstanceOf[Tickable]) isChangeScheduled = true else getLevel.blockEntityChanged(getBlockPos)
+  override def markChanged() = if (this.isInstanceOf[Tickable]) isChangeScheduled = true else setChanged()
 
   protected def isConnected = node != null && node.address != null && node.network != null
 
@@ -38,7 +38,7 @@ trait Environment extends BlockEntity with network.Environment with network.Envi
   override def updateEntity() {
     super.updateEntity()
     if (isChangeScheduled) {
-      getLevel.blockEntityChanged(getBlockPos)
+      setChanged()
       isChangeScheduled = false
     }
   }

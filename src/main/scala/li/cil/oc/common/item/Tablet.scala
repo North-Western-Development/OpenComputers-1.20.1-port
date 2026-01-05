@@ -32,6 +32,7 @@ import net.minecraft.world.item.{CreativeModeTab, Item, ItemStack, Rarity}
 import net.minecraft.world.level.Level
 import net.minecraft.world.{InteractionHand, InteractionResult, InteractionResultHolder, MenuProvider}
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
+import net.minecraftforge.client.model.ForgeModelBakery
 import net.minecraftforge.common.extensions.IForgeItem
 import net.minecraftforge.event.TickEvent.{ClientTickEvent, ServerTickEvent}
 import net.minecraftforge.event.world.WorldEvent
@@ -114,7 +115,7 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
   @OnlyIn(Dist.CLIENT)
   override def registerModelLocations(): Unit = {
     for (state <- Seq(None, Some(true), Some(false))) {
-      Minecraft.getInstance().getItemRenderer.getItemModelShaper.register(this, modelLocationFromState(state))
+      ForgeModelBakery.addSpecialModel(modelLocationFromState(state))
     }
   }
 

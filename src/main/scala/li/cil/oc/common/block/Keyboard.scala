@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
 import net.minecraft.world.phys.shapes.{CollisionContext, Shapes, VoxelShape}
 
+import java.lang.Math.{max, min}
 import java.util.Random
 
 class Keyboard(props: Properties) extends SimpleBlock(props) {
@@ -42,7 +43,10 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
     val y1 = up.getStepY * sizes(1) + side.getStepY * sizes(2) - forward.getStepY * 0.5f
     val z0 = -up.getStepZ * sizes(1) - side.getStepZ * sizes(2) - forward.getStepZ * sizes(0)
     val z1 = up.getStepZ * sizes(1) + side.getStepZ * sizes(2) - forward.getStepZ * 0.5f
-    Shapes.box(0.5 + x0, 0.5 + y0, 0.5 + z0, 0.5 + x1, 0.5 + y1, 0.5 + z1)
+    Shapes.box(
+      0.5 + min(x0, x1), 0.5 + min(y0, y1), 0.5 + min(z0, z1),
+      0.5 + max(x0, x1), 0.5 + max(y0, y1), 0.5 + max(z0, z1),
+    )
   }
 
   // ----------------------------------------------------------------------- //

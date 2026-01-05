@@ -150,9 +150,9 @@ abstract class TextureFont {
     val r = ((color >> 16) & 0xFF) / 255f
     val g = ((color >> 8) & 0xFF) / 255f
     val b = (color & 0xFF) / 255f
-    builder.vertex(matrix, x0, y1, 0).color(r, g, b, 1f).endVertex()
-    builder.vertex(matrix, x1, y1, 0).color(r, g, b, 1f).endVertex()
-    builder.vertex(matrix, x1, y0, 0).color(r, g, b, 1f).endVertex()
     builder.vertex(matrix, x0, y0, 0).color(r, g, b, 1f).endVertex()
+    builder.vertex(matrix, x1, y0, 0).color(r, g, b, 1f).endVertex()
+    builder.vertex(matrix, x1, y1, 0).color(r, g, b, 1f).endVertex()
+    builder.vertex(matrix, x0, y1, 0).color(r, g, b, 1f).endVertex()
   }
 }

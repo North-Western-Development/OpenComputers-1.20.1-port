@@ -14,6 +14,7 @@ import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.item.{Item, ItemStack, TooltipFlag}
 import net.minecraft.world.level.Level
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
+import net.minecraftforge.client.model.ForgeModelBakery
 import net.minecraftforge.common.extensions.IForgeItem
 
 import java.util
@@ -43,7 +44,7 @@ class Terminal(props: Properties) extends Item(props) with IForgeItem with trait
   @OnlyIn(Dist.CLIENT)
   override def registerModelLocations(): Unit = {
     for (state <- Seq(true, false)) {
-//      ModelLoader.addSpecialModel(modelLocationFromState(state))
+      ForgeModelBakery.addSpecialModel(modelLocationFromState(state))
     }
   }
 
