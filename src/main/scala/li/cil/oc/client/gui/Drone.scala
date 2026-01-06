@@ -14,7 +14,7 @@ import li.cil.oc.util.RenderState
 import li.cil.oc.util.TextBuffer
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.Button.OnPress
-import net.minecraft.client.renderer.GameRenderer
+import net.minecraft.client.renderer.{GameRenderer, MultiBufferSource}
 import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.world.entity.player.Inventory
 import org.lwjgl.opengl.GL11
@@ -72,7 +72,7 @@ class Drone(state: container.Drone, playerInventory: Inventory, name: Component)
     addRenderableWidget(powerButton)
   }
 
-  override protected def drawBuffer(stack: PoseStack) {
+  override protected def drawBuffer(stack: PoseStack, buffer: MultiBufferSource) {
     stack.translate(bufferX, bufferY, 0)
     RenderState.disableEntityLighting()
     RenderState.makeItBlend()
@@ -80,7 +80,7 @@ class Drone(state: container.Drone, playerInventory: Inventory, name: Component)
     RenderState.pushAttrib()
     RenderSystem.depthMask(false)
     RenderSystem.setShaderColor(0.5f, 0.5f, 1f, 1)
-    TextBufferRenderCache.render(stack, bufferRenderer)
+    TextBufferRenderCache.render(stack, bufferRenderer, buffer)
     RenderState.popAttrib()
   }
 
@@ -90,7 +90,10 @@ class Drone(state: container.Drone, playerInventory: Inventory, name: Component)
     drawSecondaryForegroundLayer(stack, mouseX, mouseY)
 
   override protected def drawSecondaryForegroundLayer(stack: PoseStack, mouseX: Int, mouseY: Int) {
-    drawBufferLayer(stack)
+    val buffer = MultiBufferSource.immediate(Tesselator.getInstance.getBuilder)
+    drawBufferLayer(stack, buffer)
+    buffer.endBatch()
+
     RenderState.pushAttrib()
     if (isPointInRegion(power.x, power.y, power.width, power.height, mouseX - leftPos, mouseY - topPos)) {
       val tooltip = new java.util.ArrayList[String]

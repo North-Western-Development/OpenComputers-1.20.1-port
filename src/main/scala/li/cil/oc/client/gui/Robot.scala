@@ -16,7 +16,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.Button.OnPress
 import net.minecraft.client.gui.components.events.ContainerEventHandler
-import net.minecraft.client.renderer.GameRenderer
+import net.minecraft.client.renderer.{GameRenderer, MultiBufferSource}
 import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.world.entity.player.Inventory
 import org.lwjgl.glfw.GLFW
@@ -102,7 +102,7 @@ class Robot(state: container.Robot, playerInventory: Inventory, name: Component)
     addRenderableWidget(scrollButton)
   }
 
-  override def drawBuffer(stack: PoseStack) {
+  override def drawBuffer(stack: PoseStack, buffer2: MultiBufferSource) {
     if (buffer != null) {
       stack.translate(bufferX, bufferY, 0)
       stack.pushPose()
@@ -121,7 +121,7 @@ class Robot(state: container.Robot, playerInventory: Inventory, name: Component)
       }
       stack.scale(scale, scale, scale)
       stack.scale(this.scale.toFloat, this.scale.toFloat, 1)
-      BufferRenderer.drawText(stack, buffer)
+      BufferRenderer.drawText(stack, buffer, buffer2)
     }
   }
 
@@ -134,7 +134,9 @@ class Robot(state: container.Robot, playerInventory: Inventory, name: Component)
   }
 
   override protected def drawSecondaryForegroundLayer(stack: PoseStack, mouseX: Int, mouseY: Int) {
-    drawBufferLayer(stack)
+    val buffer = MultiBufferSource.immediate(Tesselator.getInstance.getBuilder)
+    drawBufferLayer(stack, buffer)
+    buffer.endBatch()
     if (isPointInRegion(power.x, power.y, power.width, power.height, mouseX - leftPos, mouseY - topPos)) {
       val tooltip = new java.util.ArrayList[String]
       val format = Localization.Computer.Power + ": %d%% (%d/%d)"

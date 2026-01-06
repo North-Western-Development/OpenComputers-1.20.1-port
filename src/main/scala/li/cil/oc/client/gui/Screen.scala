@@ -1,11 +1,12 @@
 package li.cil.oc.client.gui
 
-import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.{PoseStack, Tesselator}
 import li.cil.oc.api
 import li.cil.oc.client.renderer.TextBufferRenderCache
 import li.cil.oc.client.renderer.gui.BufferRenderer
 import net.minecraft.client.KeyMapping
 import net.minecraft.client.gui.components.events.ContainerEventHandler
+import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.network.chat.TextComponent
 import org.lwjgl.glfw.GLFW
 
@@ -106,16 +107,18 @@ class Screen(val buffer: api.internal.TextBuffer, val hasMouse: Boolean, val has
 
   override def render(stack: PoseStack, mouseX: Int, mouseY: Int, dt: Float): Unit = {
     super.render(stack, mouseX, mouseY, dt)
-    drawBufferLayer(stack)
+    val buffer = MultiBufferSource.immediate(Tesselator.getInstance.getBuilder)
+    drawBufferLayer(stack, buffer)
+    buffer.endBatch()
   }
 
-  override def drawBuffer(stack: PoseStack) {
+  override def drawBuffer(stack: PoseStack, buffer2: MultiBufferSource) {
     stack.translate(x, y, 0)
     BufferRenderer.drawBackground(stack, innerWidth, innerHeight)
     if (hasPower()) {
       stack.translate(bufferMargin, bufferMargin, 0)
       stack.scale(scale.toFloat, scale.toFloat, 1)
-      BufferRenderer.drawText(stack, buffer)
+      BufferRenderer.drawText(stack, buffer, buffer2)
     }
   }
 

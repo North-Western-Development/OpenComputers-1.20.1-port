@@ -76,5 +76,5 @@ object BufferRenderer {
     builder.vertex(matrix, x, y, 0).uv(u1f, v1f).endVertex()
   }
 
-  def drawText(stack: PoseStack, screen: api.internal.TextBuffer) = screen.renderText(stack)
+  def drawText(stack: PoseStack, screen: api.internal.TextBuffer, bufferSource: MultiBufferSource) = screen.renderText(stack, bufferSource)
 }

@@ -87,6 +87,7 @@ public class RenderTypes extends RenderType {
     public static final RenderType FONT_QUAD = create(OpenComputers.ID() + ":font_quad",
             DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 1024, CompositeState.builder()
                 .setShaderState(RenderStateShard.POSITION_COLOR_SHADER)
+                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                 .setWriteMaskState(COLOR_WRITE)
                 .createCompositeState(false));
 
@@ -95,7 +96,7 @@ public class RenderTypes extends RenderType {
             super("custom_tex_" + id, () -> {
                 // Should already be enabled, but vanilla does it too.
                 RenderSystem.enableTexture();
-                RenderSystem.bindTexture(id);
+                RenderSystem.setShaderTexture(0, id);
             }, () -> {});
         }
     }
@@ -130,6 +131,7 @@ public class RenderTypes extends RenderType {
     public static final RenderType createFontTex(int id) {
         return create(OpenComputers.ID() + ":font_dyn_" + id,
             DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.QUADS, 1024, CompositeState.builder()
+                .setShaderState(RenderStateShard.POSITION_COLOR_TEX_SHADER)
                 .setTexturingState(new CustomTextureState(id))
                 .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
 //                .setAlphaState(DEFAULT_ALPHA)

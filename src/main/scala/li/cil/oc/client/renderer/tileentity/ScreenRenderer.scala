@@ -181,7 +181,7 @@ class ScreenRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEnti
     RenderState.checkError(getClass.getName + ".draw: setup")
 
     // Render the actual text.
-    screen.buffer.renderText(stack)
+    screen.buffer.renderText(stack, buffer)
 
     RenderState.checkError(getClass.getName + ".draw: text")
   }

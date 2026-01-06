@@ -1,21 +1,21 @@
 package li.cil.oc.client.renderer
 
-import java.util.concurrent.TimeUnit
-import com.google.common.cache.CacheBuilder
-import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.Settings
 import li.cil.oc.client.renderer.font.TextBufferRenderData
 import li.cil.oc.util.RenderState
+import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraftforge.event.TickEvent.ClientTickEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
+
+import java.util.concurrent.TimeUnit
 
 object TextBufferRenderCache {
   val renderer =
     if (Settings.get.fontRenderer == "texture") new font.StaticFont()
     else new font.DynamicFont()
 
-  private val cache = com.google.common.cache.CacheBuilder.newBuilder(). // video memory leak
+  private val cache = com.google.common.cache.CacheBuilder.newBuilder(). // TODO: video memory leak
     expireAfterAccess(2, TimeUnit.SECONDS).
     build[TextBufferRenderData, RenderCache]()
 
@@ -23,26 +23,33 @@ object TextBufferRenderCache {
   // Rendering
   // ----------------------------------------------------------------------- //
 
-  def render(stack: PoseStack, buffer: TextBufferRenderData) {
+  def render(stack: PoseStack, buffer: TextBufferRenderData, buffer2: MultiBufferSource) {
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
-
-    val cached = cache.get(buffer, () => new RenderCache)
-    if (buffer.dirty || cached.isEmpty) {
-      for (line <- buffer.data.buffer) {
-        renderer.generateChars(line)
-      }
-
-      buffer.dirty = false
-
-      cached.clear()
-      renderer.drawBuffer(new PoseStack(), cached, buffer.data, buffer.viewport._1, buffer.viewport._2)
-      cached.finish()
-
-      RenderState.checkError(getClass.getName + ".render: compiled buffer")
+//TODO: return render cache
+//    val cached = cache.get(buffer, () => new RenderCache)
+//    if (buffer.dirty || cached.isEmpty) {
+//      for (line <- buffer.data.buffer) {
+//        renderer.generateChars(line)
+//      }
+//
+//      buffer.dirty = false
+//
+//      cached.clear()
+//      renderer.drawBuffer(new PoseStack(), cached, buffer.data, buffer.viewport._1, buffer.viewport._2)
+//      cached.finish()
+//
+//      RenderState.checkError(getClass.getName + ".render: compiled buffer")
+//    }
+//
+//    cached.render(stack)
+    for (line <- buffer.data.buffer) {
+      renderer.generateChars(line)
     }
 
-    cached.render(stack)
 
+    renderer.drawBuffer(stack, buffer2, buffer.data, buffer.viewport._1, buffer.viewport._2)
+
+    RenderState.checkError(getClass.getName + ".render: compiled buffer")
     RenderState.checkError(getClass.getName + ".render: leaving")
   }
 
