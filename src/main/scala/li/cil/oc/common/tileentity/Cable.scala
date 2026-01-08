@@ -1,12 +1,14 @@
 package li.cil.oc.common.tileentity
 
-import li.cil.oc.{Constants, api}
 import li.cil.oc.api.network.Visibility
+import li.cil.oc.client.renderer.block.CableModel
 import li.cil.oc.util.{Color, ItemColorizer}
+import li.cil.oc.{Constants, api}
 import net.minecraft.core.BlockPos
 import net.minecraft.world.item.{DyeColor, ItemStack}
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockState
+import net.minecraftforge.client.model.data.ModelDataMap
 
 class Cable(selfType: BlockEntityType[_ <: Cable], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Environment with traits.NotAnalyzable with traits.ImmibisMicroblock with traits.Colored {
   val node = api.Network.newNode(this, Visibility.None).create()
@@ -36,5 +38,13 @@ class Cable(selfType: BlockEntityType[_ <: Cable], pos: BlockPos, state: BlockSt
     if (getLevel != null && isServer) {
       api.Network.joinOrCreateNetwork(this)
     }
+  }
+
+  // ----------------------------------------------------------------------- //
+
+  override def getModelData() = {
+    (new ModelDataMap.Builder)
+      .withInitial(CableModel.COLOR_PROPERTY, getColor)
+      .build;
   }
 }

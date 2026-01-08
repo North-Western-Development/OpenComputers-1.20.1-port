@@ -30,9 +30,9 @@ object ScreenModel extends SmartBlockModelBase {
   override def getOverrides: ItemOverrides = ItemOverride
 
   override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] = {
-    if (side == null){
+    if (side == null)
       return Collections.emptyList()
-    }
+
     val pitch = state.getValue(PropertyRotatable.Pitch)
     val yaw = state.getValue(PropertyRotatable.Yaw)
     val color: Int = Option(data.getData(COLOR_PROPERTY)).getOrElse(Color.rgbValues(Color.byTier(0)))
@@ -102,7 +102,7 @@ object ScreenModel extends SmartBlockModelBase {
       case _ => Color.byTier(Tier.One)
     }
 
-    override def getQuads(state: BlockState, side: Direction, rand: util.Random): util.List[BakedQuad] = {
+    override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] = {
       val result =
         if (side == Direction.NORTH || side == null)
           Textures.Block.Screen.SingleFront(0)

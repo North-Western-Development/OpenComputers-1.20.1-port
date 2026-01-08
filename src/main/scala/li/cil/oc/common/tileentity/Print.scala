@@ -1,11 +1,12 @@
 package li.cil.oc.common.tileentity
 
-import li.cil.oc.{Constants, Settings, api}
+import li.cil.oc.client.renderer.block.PrintModel
 import li.cil.oc.common.block.{Print => PrintBlock}
 import li.cil.oc.common.item.data.PrintData
 import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
 import li.cil.oc.util.ExtendedAABB.extendedAABB
 import li.cil.oc.util.ExtendedNBT._
+import li.cil.oc.{Constants, Settings, api}
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.server.level.ServerLevel
@@ -14,12 +15,12 @@ import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.shapes.{BooleanOp, Shapes, VoxelShape}
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
-import net.minecraftforge.client.model.data.{IModelData, ModelProperty}
+import net.minecraftforge.client.model.data.ModelDataMap
 
 import java.util
 
 class Print(selfType: BlockEntityType[_ <: Print], val canToggle: Option[() => Boolean], val scheduleUpdate: Option[Int => Unit], val onStateChange: Option[() => Unit], pos: BlockPos, blockState: BlockState)
-  extends BlockEntity(selfType, pos, blockState) with traits.BlockEntity with traits.RedstoneAware with traits.RotatableTile with IModelData {
+  extends BlockEntity(selfType, pos, blockState) with traits.BlockEntity with traits.RedstoneAware with traits.RotatableTile {
 
   def this(selfType: BlockEntityType[_ <: Print], pos: BlockPos, blockState: BlockState) = this(selfType, None, None, None, pos, blockState)
   def this(selfType: BlockEntityType[_ <: Print], canToggle: () => Boolean, scheduleUpdate: Int => Unit, onStateChange: () => Unit, pos: BlockPos, blockState: BlockState) =
@@ -71,6 +72,9 @@ class Print(selfType: BlockEntityType[_ <: Print], val canToggle: Option[() => B
         }
       }
       onStateChange.foreach(_.apply())
+      if (!isServer){
+        this.requestModelDataUpdate()
+      }
     }
   }
 
@@ -153,15 +157,9 @@ class Print(selfType: BlockEntityType[_ <: Print], val canToggle: Option[() => B
 
   // ----------------------------------------------------------------------- //
 
-  @Deprecated
-  override def getModelData() = this
-
-  @Deprecated
-  override def hasProperty(prop: ModelProperty[_]) = false
-
-  @Deprecated
-  override def getData[T](prop: ModelProperty[T]): T = null.asInstanceOf[T]
-
-  @Deprecated
-  override def setData[T](prop: ModelProperty[T], value: T): T = null.asInstanceOf[T]
+  override def getModelData() = {
+    (new ModelDataMap.Builder)
+      .withInitial(PrintModel.PRINT_PROPERTY, this)
+      .build;
+  }
 }

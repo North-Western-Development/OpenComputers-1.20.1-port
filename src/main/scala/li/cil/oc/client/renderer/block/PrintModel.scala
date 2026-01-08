@@ -5,8 +5,8 @@ import li.cil.oc.Settings
 import li.cil.oc.client.{KeyBindings, Textures}
 import li.cil.oc.common.item.data.PrintData
 import li.cil.oc.common.tileentity
-import li.cil.oc.util.{Color, ExtendedAABB}
 import li.cil.oc.util.ExtendedAABB._
+import li.cil.oc.util.{Color, ExtendedAABB}
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.renderer.block.model.{BakedQuad, ItemOverrides}
 import net.minecraft.client.renderer.texture.{MissingTextureAtlasSprite, TextureAtlasSprite}
@@ -16,29 +16,37 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.{DyeColor, ItemStack}
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraftforge.client.model.data.IModelData
+import net.minecraftforge.client.model.data.{IModelData, ModelProperty}
 
 import java.util
-import scala.collection.JavaConverters.bufferAsJavaList
+import java.util.Collections
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 object PrintModel extends SmartBlockModelBase {
+  final val PRINT_PROPERTY: ModelProperty[tileentity.Print] = new ModelProperty[tileentity.Print]()
+
   override def getOverrides: ItemOverrides = ItemOverride
 
-  override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] =
-    data match {
-      case t: tileentity.Print =>
-        val faces = mutable.ArrayBuffer.empty[BakedQuad]
+  override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] = {
+    if (side != null)
+      return Collections.emptyList()
 
-        for (shape <- t.shapes if !Strings.isNullOrEmpty(shape.texture)) {
-          val bounds = shape.bounds.rotateTowards(t.facing)
-          val texture = resolveTexture(shape.texture)
-          faces ++= bakeQuads(makeBox(bounds.minVec, bounds.maxVec), Array.fill(6)(texture), shape.tint.getOrElse(White))
-        }
-
-        bufferAsJavaList(faces)
-      case _ => super.getQuads(state, side, rand)
+    val t = data.getData(PRINT_PROPERTY)
+    if (t == null) {
+      return Collections.emptyList()
     }
+
+    val faces = mutable.ArrayBuffer.empty[BakedQuad]
+
+    for (shape <- t.shapes if !Strings.isNullOrEmpty(shape.texture)) {
+      val bounds = shape.bounds.rotateTowards(t.facing)
+      val texture = resolveTexture(shape.texture)
+      faces ++= bakeQuads(makeBox(bounds.minVec, bounds.maxVec), Array.fill(6)(texture), shape.tint.getOrElse(White))
+    }
+
+    faces.asJava
+  }
 
   private def resolveTexture(name: String): TextureAtlasSprite = try {
     val texture = Textures.getSprite(new ResourceLocation(name))
@@ -54,7 +62,10 @@ object PrintModel extends SmartBlockModelBase {
 
     val data = new PrintData(stack)
 
-    override def getQuads(state: BlockState, side: Direction, rand: util.Random): util.List[BakedQuad] = {
+    override def getQuads(state: BlockState, side: Direction, rand: util.Random, data2: IModelData): util.List[BakedQuad] = {
+      if (side != null)
+        return Collections.emptyList()
+
       val faces = mutable.ArrayBuffer.empty[BakedQuad]
 
       val shapes =
@@ -73,7 +84,7 @@ object PrintModel extends SmartBlockModelBase {
         faces ++= bakeQuads(makeBox(bounds.minVec, bounds.maxVec), Array.fill(6)(texture), Color.rgbValues(DyeColor.LIME))
       }
 
-      bufferAsJavaList(faces)
+      faces.asJava
     }
   }
 

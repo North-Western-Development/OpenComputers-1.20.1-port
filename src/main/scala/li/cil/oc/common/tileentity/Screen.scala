@@ -435,13 +435,4 @@ class Screen(selfType: BlockEntityType[_ <: Screen], var tier: Int, pos: BlockPo
       .withInitial(ScreenModel.WIDTH_HEIGHT_LOCAL_POSITION_PROPERTY, (width, height, x, y))
       .build;
   }
-
-  @Deprecated
-  override def hasProperty(prop: ModelProperty[_]) = false
-
-  @Deprecated
-  override def getData[T](prop: ModelProperty[T]): T = null.asInstanceOf[T]
-
-  @Deprecated
-  override def setData[T](prop: ModelProperty[T], value: T): T = null.asInstanceOf[T]
 }

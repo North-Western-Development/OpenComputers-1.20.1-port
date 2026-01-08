@@ -1,67 +1,59 @@
 package li.cil.oc.client.renderer.block
 
-import java.util
-import java.util.Collections
-
 import li.cil.oc.client.Textures
 import li.cil.oc.common.block.property.PropertyCableConnection
-import li.cil.oc.common.tileentity
-import li.cil.oc.util.Color
-import li.cil.oc.util.ExtendedLevel._
-import li.cil.oc.util.ItemColorizer
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.client.renderer.block.model.BakedQuad
-import net.minecraft.client.resources.model.BakedModel
-import net.minecraft.client.renderer.block.model.ItemOverrides
+import li.cil.oc.util.{Color, ItemColorizer}
 import net.minecraft.client.multiplayer.ClientLevel
-import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.item.DyeColor
-import net.minecraft.world.item.ItemStack
+import net.minecraft.client.renderer.block.model.{BakedQuad, ItemOverrides}
+import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.core.Direction
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.item.{DyeColor, ItemStack}
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.Vec3
-import net.minecraftforge.client.model.data.IModelData
+import net.minecraftforge.client.model.data.{IModelData, ModelProperty}
 
-import scala.collection.JavaConverters.bufferAsJavaList
-import scala.collection.convert.ImplicitConversionsToJava._
+import java.util
+import java.util.Collections
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 object CableModel extends SmartBlockModelBase {
+  final val COLOR_PROPERTY: ModelProperty[Int] = new ModelProperty[Int]()
   override def getOverrides: ItemOverrides = ItemOverride
 
   override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] = {
-    data match {
-      case cable: tileentity.Cable if side == null =>
-        val color = cable.getColor
-        val faces = mutable.ArrayBuffer.empty[BakedQuad]
+    if (side != null)
+      return Collections.emptyList()
+    val color: Int = Option(data.getData(COLOR_PROPERTY)).getOrElse(Color.rgbValues(DyeColor.LIGHT_GRAY))
+    val faces = mutable.ArrayBuffer.empty[BakedQuad]
 
-        faces ++= bakeQuads(Middle, cableTexture, color)
-        val directions = Direction.values
-        val numConnected = directions.count(d => state.getValue(PropertyCableConnection.BY_DIRECTION.get(d)) != PropertyCableConnection.Shape.NONE)
-        for (side <- directions) {
-          val shape = state.getValue(PropertyCableConnection.BY_DIRECTION.get(side))
-          val connected = shape != PropertyCableConnection.Shape.NONE
-          val isCableOnSide = shape == PropertyCableConnection.Shape.CABLE
-          val (plug, shortBody, longBody) = Connected(side.get3DDataValue)
-          if (connected) {
-            if (isCableOnSide) {
-              faces ++= bakeQuads(longBody, cableTexture, color)
-            }
-            else {
-              faces ++= bakeQuads(shortBody, cableTexture, color)
-              faces ++= bakeQuads(plug, cableCapTexture, None)
-            }
-          }
-          else {
-            val otherConn = state.getValue(PropertyCableConnection.BY_DIRECTION.get(side.getOpposite)) != PropertyCableConnection.Shape.NONE
-            if ((otherConn && numConnected == 1) || numConnected == 0) {
-              faces ++= bakeQuads(Disconnected(side.get3DDataValue), cableCapTexture, None)
-            }
-          }
+    faces ++= bakeQuads(Middle, cableTexture, color)
+    val directions = Direction.values
+    val numConnected = directions.count(d => state.getValue(PropertyCableConnection.BY_DIRECTION.get(d)) != PropertyCableConnection.Shape.NONE)
+    for (side <- directions) {
+      val shape = state.getValue(PropertyCableConnection.BY_DIRECTION.get(side))
+      val connected = shape != PropertyCableConnection.Shape.NONE
+      val isCableOnSide = shape == PropertyCableConnection.Shape.CABLE
+      val (plug, shortBody, longBody) = Connected(side.get3DDataValue)
+      if (connected) {
+        if (isCableOnSide) {
+          faces ++= bakeQuads(longBody, cableTexture, color)
         }
-
-        bufferAsJavaList(faces)
-      case _ => super.getQuads(state, side, rand)
+        else {
+          faces ++= bakeQuads(shortBody, cableTexture, color)
+          faces ++= bakeQuads(plug, cableCapTexture, None)
+        }
+      }
+      else {
+        val otherConn = state.getValue(PropertyCableConnection.BY_DIRECTION.get(side.getOpposite)) != PropertyCableConnection.Shape.NONE
+        if ((otherConn && numConnected == 1) || numConnected == 0) {
+          faces ++= bakeQuads(Disconnected(side.get3DDataValue), cableCapTexture, None)
+        }
+      }
     }
+
+    faces.asJava
   }
 
   protected final val Middle = makeBox(new Vec3(6 / 16f, 6 / 16f, 6 / 16f), new Vec3(10 / 16f, 10 / 16f, 10 / 16f))
@@ -104,9 +96,12 @@ object CableModel extends SmartBlockModelBase {
 
   object ItemOverride extends ItemOverrides {
     class ItemModel(val stack: ItemStack) extends SmartBlockModelBase {
-      override def getOverrides: ItemOverrides = CableModel.ItemOverride
+      override def getOverrides: ItemOverrides = ItemOverrides.EMPTY
 
-      override def getQuads(state: BlockState, side: Direction, rand: util.Random): util.List[BakedQuad] = {
+      override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] = {
+        if (side != null)
+          return Collections.emptyList();
+
         val faces = mutable.ArrayBuffer.empty[BakedQuad]
 
         val color = if (ItemColorizer.hasColor(stack)) ItemColorizer.getColor(stack) else Color.rgbValues(DyeColor.LIGHT_GRAY)
@@ -117,7 +112,7 @@ object CableModel extends SmartBlockModelBase {
         faces ++= bakeQuads(Connected(0)._1, cableCapTexture, None)
         faces ++= bakeQuads(Connected(1)._1, cableCapTexture, None)
 
-        bufferAsJavaList(faces)
+        faces.asJava
       }
     }
 

@@ -4,6 +4,7 @@ import li.cil.oc.api.driver.DeviceInfo
 import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
 import li.cil.oc.api.machine.{Arguments, Callback, Context}
 import li.cil.oc.api.network.{Node, Visibility}
+import li.cil.oc.client.renderer.block.NetSplitterModel
 import li.cil.oc.common.EventHandler
 import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
@@ -14,6 +15,7 @@ import net.minecraft.sounds.{SoundEvents, SoundSource}
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
+import net.minecraftforge.client.model.data.ModelDataMap
 
 import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
@@ -129,6 +131,8 @@ class NetSplitter(selfType: BlockEntityType[_ <: NetSplitter], pos: BlockPos, st
   def setSide(side: Direction, state: Boolean): Boolean = {
     val previous = isSideOpen(side) // isSideOpen uses inverter
     setSideOpen(side, if (isInverted) !state else state) // but setSideOpen does not
+    if (previous != state && !isServer)
+      this.requestModelDataUpdate()
     previous != state
   }
 
@@ -165,4 +169,12 @@ class NetSplitter(selfType: BlockEntityType[_ <: NetSplitter], pos: BlockPos, st
 
   @Callback(doc = "function(side: number):boolean -- Close the side, returns true if it changed to close.")
   def close(context: Context, args: Arguments): Array[AnyRef] = setSideHelper(args, value = false)
+
+  // ----------------------------------------------------------------------- //
+
+  override def getModelData() = {
+    (new ModelDataMap.Builder)
+      .withInitial(NetSplitterModel.OPEN_SIDES_PROPERTY, Map(Direction.values().map(d => d -> isSideOpen(d)).toSeq: _*))
+      .build;
+  }
 }

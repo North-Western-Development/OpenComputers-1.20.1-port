@@ -12,6 +12,7 @@ import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
 import net.minecraft.world.phys.Vec3
+import net.minecraftforge.client.model.data.IModelData
 
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
@@ -19,7 +20,10 @@ import scala.jdk.CollectionConverters._
 object DroneModel extends SmartBlockModelBase {
   override def getOverrides: ItemOverrides = ItemOverride
 
-  override def getQuads(state: BlockState, side: Direction, rand: util.Random): util.List[BakedQuad] = {
+  override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] = {
+    if (side != null)
+      return Collections.emptyList()
+
     val faces = mutable.ArrayBuffer.empty[BakedQuad]
 
     faces ++= Boxes.flatMap(box => bakeQuads(box, Array.fill(6)(droneTexture), None).toSeq)

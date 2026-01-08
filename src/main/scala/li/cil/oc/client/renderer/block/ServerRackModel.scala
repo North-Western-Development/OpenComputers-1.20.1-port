@@ -1,61 +1,74 @@
 package li.cil.oc.client.renderer.block
 
-import java.util
-import java.util.Collections
-
 import li.cil.oc.api.component.RackMountable
 import li.cil.oc.api.event.RackMountableRenderEvent
 import li.cil.oc.client.Textures
-import li.cil.oc.common.block
 import li.cil.oc.common.tileentity
-import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.multiplayer.ClientLevel
-import net.minecraft.client.renderer.block.model.BakedQuad
+import net.minecraft.client.renderer.block.model.{BakedQuad, ItemOverrides}
 import net.minecraft.client.resources.model.BakedModel
-import net.minecraft.client.renderer.block.model.ItemOverrides
+import net.minecraft.core.Direction
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemStack
-import net.minecraft.core.Direction
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.Vec3
+import net.minecraftforge.client.model.data.{IModelData, ModelProperty}
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.client.model.data.IModelData
 
-import scala.collection.JavaConverters.bufferAsJavaList
+import java.util
+import java.util.Collections
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
+
+object ServerRackModel {
+  final val RACK_PROPERTY: ModelProperty[tileentity.Rack] = new ModelProperty[tileentity.Rack]()
+}
 
 class ServerRackModel(val parent: BakedModel) extends SmartBlockModelBase {
   override def getOverrides: ItemOverrides = ItemOverride
 
-  override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] =
-    data match {
-      case rack: tileentity.Rack =>
-        val facing = rack.facing
+  override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] = {
+    val rack = data.getData(ServerRackModel.RACK_PROPERTY)
+    if (rack == null) {
+      if (side == null) {
         val faces = mutable.ArrayBuffer.empty[BakedQuad]
-
-        for (side <- Direction.values if side != facing) {
+        for (side <- Direction.values) {
           faces ++= bakeQuads(Case(side.get3DDataValue), serverRackTexture, None)
         }
-
-        val textures = serverTexture
-        val defaultFront = Textures.getSprite(Textures.Block.RackFront)
-        for (slot <- 0 until 4) rack.getMountable(slot) match {
-          case mountable: RackMountable =>
-            val event = new RackMountableRenderEvent.Block(rack, slot, rack.lastData(slot), side)
-            MinecraftForge.EVENT_BUS.post(event)
-            if (!event.isCanceled) {
-              if (event.getFrontTextureOverride != null) {
-                (2 until 6).foreach(textures(_) = event.getFrontTextureOverride)
-              } else {
-                (2 until 6).foreach(textures(_) = defaultFront)
-              }
-              faces ++= bakeQuads(Servers(slot), textures, None)
-            }
-          case _ =>
-        }
-
-        bufferAsJavaList(faces)
-      case _ => super.getQuads(state, side, rand)
+        return faces.asJava
+      } else {
+        return Collections.emptyList()
+      }
     }
+
+    val facing = rack.facing
+    val faces = mutable.ArrayBuffer.empty[BakedQuad]
+    if (side == null)
+      for (side <- Direction.values if side != facing) {
+        faces ++= bakeQuads(Case(side.get3DDataValue), serverRackTexture, None)
+      }
+
+    if (side == facing) {
+      val textures = serverTexture
+      val defaultFront = Textures.getSprite(Textures.Block.RackFront)
+      for (slot <- 0 until 4) rack.getMountable(slot) match {
+        case mountable: RackMountable =>
+          val event = new RackMountableRenderEvent.Block(rack, slot, rack.lastData(slot), facing)
+          MinecraftForge.EVENT_BUS.post(event)
+          if (!event.isCanceled) {
+            if (event.getFrontTextureOverride != null) {
+              (2 until 6).foreach(textures(_) = event.getFrontTextureOverride)
+            } else {
+              (2 until 6).foreach(textures(_) = defaultFront)
+            }
+            faces ++= bakeQuads(Servers(slot), textures, None)
+          }
+        case _ =>
+      }
+    }
+
+    faces.asJava
+  }
 
   protected def serverRackTexture = Array(
     Textures.getSprite(Textures.Block.GenericTop),

@@ -11,7 +11,7 @@ import net.minecraft.core.Direction
 import net.minecraftforge.client.model.data.IModelData
 import net.minecraftforge.client.model.data.ModelProperty
 
-trait Environment extends BlockEntity with network.Environment with network.EnvironmentHost with IModelData {
+trait Environment extends BlockEntity with network.Environment with network.EnvironmentHost {
   protected var isChangeScheduled = false
 
   override def world = getLevel
@@ -97,18 +97,4 @@ trait Environment extends BlockEntity with network.Environment with network.Envi
   // ----------------------------------------------------------------------- //
 
   protected def result(args: Any*) = li.cil.oc.util.ResultWrapper.result(args: _*)
-
-  // ----------------------------------------------------------------------- //
-
-  @Deprecated
-  override def getModelData():IModelData = this
-
-  @Deprecated
-  override def hasProperty(prop: ModelProperty[_]) = false
-
-  @Deprecated
-  override def getData[T](prop: ModelProperty[T]): T = null.asInstanceOf[T]
-
-  @Deprecated
-  override def setData[T](prop: ModelProperty[T], value: T): T = null.asInstanceOf[T]
 }
