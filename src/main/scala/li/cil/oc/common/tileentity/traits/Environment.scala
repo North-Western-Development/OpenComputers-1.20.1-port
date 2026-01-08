@@ -101,7 +101,7 @@ trait Environment extends BlockEntity with network.Environment with network.Envi
   // ----------------------------------------------------------------------- //
 
   @Deprecated
-  override def getModelData() = this
+  override def getModelData():IModelData = this
 
   @Deprecated
   override def hasProperty(prop: ModelProperty[_]) = false

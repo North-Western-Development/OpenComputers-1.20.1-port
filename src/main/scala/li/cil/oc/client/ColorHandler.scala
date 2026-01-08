@@ -57,11 +57,11 @@ object ColorHandler {
     register(0,(stack, tintIndex) => if (ItemColorizer.hasColor(stack)) ItemColorizer.getColor(stack) else tintIndex,
       api.Items.get(Constants.BlockName.Cable).block())
 
-    register(0,(stack, tintIndex) => Color.rgbValues(Color.byTier(ItemUtils.caseTier(stack))),
-      api.Items.get(Constants.BlockName.CaseTier1).block(),
-      api.Items.get(Constants.BlockName.CaseTier2).block(),
-      api.Items.get(Constants.BlockName.CaseTier3).block(),
-      api.Items.get(Constants.BlockName.CaseCreative).block())
+    register((stack, tintIndex) => Color.rgbValues(Color.byTier(ItemUtils.caseTier(stack))),
+      api.Items.get(Constants.BlockName.CaseTier1).item(),
+      api.Items.get(Constants.BlockName.CaseTier2).item(),
+      api.Items.get(Constants.BlockName.CaseTier3).item(),
+      api.Items.get(Constants.BlockName.CaseCreative).item())
 
     register(0,(stack, tintIndex) => Color.rgbValues(DyeColor.byId(stack.getDamageValue)),
       api.Items.get(Constants.BlockName.ChameliumBlock).block())

@@ -1,8 +1,10 @@
 package li.cil.oc.common.tileentity
 
+import cofh.core.client.renderer.model.ModelUtils
 import li.cil.oc.Settings
 import li.cil.oc.api.network._
 import li.cil.oc.client.gui
+import li.cil.oc.client.renderer.block.ScreenModel
 import li.cil.oc.common.component.TextBuffer
 import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
 import li.cil.oc.util.{BlockPosition, Color}
@@ -17,6 +19,7 @@ import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.AABB
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
+import net.minecraftforge.client.model.data.{ModelDataMap, ModelProperty}
 
 import scala.collection.mutable
 import scala.language.postfixOps
@@ -97,6 +100,7 @@ class Screen(selfType: BlockEntityType[_ <: Screen], var tier: Int, pos: BlockPo
     screens += this
     cachedBounds = None
     invertTouchMode = false
+    requestModelDataUpdate()
   }
 
   def toScreenCoordinates(hitX: Double, hitY: Double, hitZ: Double): (Boolean, Option[(Double, Double)]) = {
@@ -263,6 +267,7 @@ class Screen(selfType: BlockEntityType[_ <: Screen], var tier: Int, pos: BlockPo
       screens.foreach(screen => {
         val pos = screen.getBlockPos
         renderer.setSectionDirty(pos.getX >> 4, pos.getY >> 4, pos.getZ >> 4)
+        screen.requestModelDataUpdate()
       })
     }
   }
@@ -420,4 +425,23 @@ class Screen(selfType: BlockEntityType[_ <: Screen], var tier: Int, pos: BlockPo
     def dot(f: Direction) = f.getStepX * x + f.getStepY * y + f.getStepZ * z
     BlockPosition(dot(toLocal(Direction.EAST)), dot(toLocal(Direction.UP)), dot(toLocal(Direction.SOUTH)))
   }
+
+  // ----------------------------------------------------------------------- //
+
+  override def getModelData() = {
+    val (x, y) = localPosition
+    (new ModelDataMap.Builder)
+      .withInitial(ScreenModel.COLOR_PROPERTY, getColor)
+      .withInitial(ScreenModel.WIDTH_HEIGHT_LOCAL_POSITION_PROPERTY, (width, height, x, y))
+      .build;
+  }
+
+  @Deprecated
+  override def hasProperty(prop: ModelProperty[_]) = false
+
+  @Deprecated
+  override def getData[T](prop: ModelProperty[T]): T = null.asInstanceOf[T]
+
+  @Deprecated
+  override def setData[T](prop: ModelProperty[T], value: T): T = null.asInstanceOf[T]
 }

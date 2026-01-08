@@ -14,6 +14,7 @@ import li.cil.oc.integration.util.ItemSearch
 import li.cil.oc.util.RenderState
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
+import net.minecraft.client.gui.GuiComponent
 import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.world.Container
@@ -99,11 +100,11 @@ abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv
             case component: ComponentSlot =>
               if (component.tierIcon != null) {
                 Textures.bind(component.tierIcon)
-                blit(stack, slot.x, slot.y, 0, 0, 16, 16)
+                GuiComponent.blit(stack, slot.x, slot.y, getBlitOffset, 0, 0, 16, 16, 16, 16)
               }
               if (component.hasBackground) {
                 Textures.bind(component.getBackgroundLocation)
-                blit(stack, slot.x, slot.y, 0, 0, 16, 16)
+                GuiComponent.blit(stack, slot.x, slot.y, getBlitOffset, 0, 0, 16, 16, 16, 16)
               }
             case _ =>
           }
