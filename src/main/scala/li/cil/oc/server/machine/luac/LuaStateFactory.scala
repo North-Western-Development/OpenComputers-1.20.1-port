@@ -315,7 +315,7 @@ abstract class LuaStateFactory {
 
     try {
       LuaStateFactory.synchronized {
-        System.load(currentLib)
+        System.load(currentLib) //TODO: Force LuaState to load the DLL. The libraries and the mod use different loaders, and without shadow, everything breaks.
         create().close()
       }
       OpenComputers.log.info(s"Found a compatible native library: '${tmpLibFile.getName}'.")
