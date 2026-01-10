@@ -15,7 +15,7 @@ package li.cil.oc.api.network;
  * <li>{@link Connector}, used for consuming of producing energy.</li>
  * </ul>
  * <br>
- * See <tt>Node</tt> for more details on the behavior of single nodes, and in
+ * See {@code Node} for more details on the behavior of single nodes, and in
  * particular how nodes represented by tile entities should be added.
  * <br>
  * Another important concept of node networks is reachability and visibility,
@@ -105,15 +105,15 @@ public interface Network {
     /**
      * The list of addressed nodes in the network reachable by the specified node.
      * <br>
-     * This does <em>not</em> include nodes with a visibility of <tt>None</tt>
-     * or a visibility of <tt>Neighbors</tt> when there is no direct connection
+     * This does <em>not</em> include nodes with a visibility of {@code None}
+     * or a visibility of {@code Neighbors} when there is no direct connection
      * between that node and the reference node.
      * <br>
      * This does <em>not</em> include the node itself.
      * <br>
      * This can be useful when performing a delayed initialization of a node.
      * For example, computers will use this when starting up to generate
-     * <tt>component_added</tt> signals for all visible components in the
+     * {@code component_added} signals for all visible components in the
      * network.
      *
      * @param reference the node to get the visible other nodes for.
@@ -124,7 +124,7 @@ public interface Network {
     /**
      * The list of nodes the specified node is directly connected to.
      * <br>
-     * This <em>does</em> include nodes with a visibility of <tt>None</tt>.
+     * This <em>does</em> include nodes with a visibility of {@code None}.
      * <br>
      * This does <em>not</em> include the node itself.
      * <br>
@@ -142,17 +142,17 @@ public interface Network {
     /**
      * Sends a message to the node with the specified address.
      * <br>
-     * If the target node with that address has a visibility of <tt>None</tt>
+     * If the target node with that address has a visibility of {@code None}
      * the message will <em>not</em> be delivered to that node. If the target
-     * node with that address has a visibility of <tt>Neighbors</tt> and the
+     * node with that address has a visibility of {@code Neighbors} and the
      * source node is not directly connected to the target the message will
      * <em>not</em> be delivered to that node.
      * <br>
      * Messages should have a unique name to allow differentiating them when
      * handling them in a network node. For example, computers will try to parse
-     * messages named <tt>computer.signal</tt> by converting the message data to
+     * messages named {@code computer.signal} by converting the message data to
      * a signal and inject that signal into the machine, so no message not used
-     * for this purpose should be named <tt>computer.signal</tt>.
+     * for this purpose should be named {@code computer.signal}.
      *
      * @param source the node that sends the message.
      * @param target the id of the node to send the message to.
@@ -170,9 +170,9 @@ public interface Network {
      * <br>
      * Messages should have a unique name to allow differentiating them when
      * handling them in a network node. For example, computers will try to parse
-     * messages named <tt>computer.signal</tt> by converting the message data to
+     * messages named {@code computer.signal} by converting the message data to
      * a signal and inject that signal into the machine, so no message not used
-     * for this purpose should be named <tt>computer.signal</tt>.
+     * for this purpose should be named {@code computer.signal}.
      *
      * @param source the node that sends the message.
      * @param name   the name of the message.
@@ -189,9 +189,9 @@ public interface Network {
      * <br>
      * Messages should have a unique name to allow differentiating them when
      * handling them in a network node. For example, computers will try to parse
-     * messages named <tt>computer.signal</tt> by converting the message data to
+     * messages named {@code computer.signal} by converting the message data to
      * a signal and inject that signal into the machine, so no message not used
-     * for this purpose should be named <tt>computer.signal</tt>.
+     * for this purpose should be named {@code computer.signal}.
      *
      * @param source the node that sends the message.
      * @param data   the message to send.
@@ -211,9 +211,9 @@ public interface Network {
      * <br>
      * Messages should have a unique name to allow differentiating them when
      * handling them in a network node. For example, computers will try to parse
-     * messages named <tt>computer.signal</tt> by converting the message data to
+     * messages named {@code computer.signal} by converting the message data to
      * a signal and inject that signal into the machine, so no message not used
-     * for this purpose should be named <tt>computer.signal</tt>.
+     * for this purpose should be named {@code computer.signal}.
      *
      * @param source the node that sends the message.
      * @param data   the message to send.

@@ -14,15 +14,15 @@ import net.minecraft.world.item.ItemStack;
  * <br>
  * Implementations returned by {@link #getInventory} should save changes
  * back to the item stack when {@link Container#setChanged()} is called.
- * Return <tt>null</tt> if the specified stack is not supported.
+ * Return {@code null} if the specified stack is not supported.
  */
 public interface InventoryProvider {
     /**
      * Checks whether this provider works for the specified item stack.
      *
      * @param stack  the item stack to check for.
-     * @param player the player holding the item, may be <tt>null</tt>.
-     * @return <tt>true</tt> if the stack is supported, <tt>false</tt> otherwise.
+     * @param player the player holding the item, may be {@code null}.
+     * @return {@code true} if the stack is supported, {@code false} otherwise.
      */
     boolean worksWith(ItemStack stack, Player player);
 
@@ -30,13 +30,13 @@ public interface InventoryProvider {
      * Get an inventory implementation that allows interfacing with the
      * item inventory represented by the specified item stack.
      * <br>
-     * Note that the specified player may be <tt>null</tt>, but will
+     * Note that the specified player may be {@code null}, but will
      * usually be the <em>fake player</em> of the agent using the
      * inventory controller upgrade to access the item inventory.
      *
      * @param stack  the item stack to get the inventory for.
-     * @param player the player holding the item, may be <tt>null</tt>.
-     * @return the inventory representing the contents, or <tt>null</tt>.
+     * @param player the player holding the item, may be {@code null}.
+     * @return the inventory representing the contents, or {@code null}.
      */
     Container getInventory(ItemStack stack, Player player);
 }

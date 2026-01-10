@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
  * or a hash in your component's callback function, the address being that of
  * a database component in the same network as your component. Alternatively
  * you can omit requiring an address and just loop through the other nodes on
- * the network to look for one those that have a <tt>Database</tt> as host.
+ * the network to look for one those that have a {@code Database} as host.
  */
 public interface Database {
     /**
@@ -25,7 +25,7 @@ public interface Database {
     /**
      * Get an item stack stored in the specified slot of this database.
      * <br>
-     * This will return <tt>null</tt> if there is no entry for the specified
+     * This will return {@code null} if there is no entry for the specified
      * slot. If there is an entry, this will return a <em>copy</em> of that
      * item stack, so it is safe to modify the returned stack.
      *
@@ -40,7 +40,7 @@ public interface Database {
      * Use this to change the configuration of a database upgrade.
      *
      * @param slot  the slot to configure.
-     * @param stack the stack to configure the slot to, <tt>null</tt> to clear.
+     * @param stack the stack to configure the slot to, {@code null} to clear.
      */
     void setStackInSlot(int slot, ItemStack stack);
 

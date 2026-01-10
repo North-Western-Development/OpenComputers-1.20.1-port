@@ -18,7 +18,7 @@ public class RobotPlaceInAirEvent extends RobotEvent {
     }
 
     /**
-     * Whether the placement is allowed. Defaults to <tt>false</tt>.
+     * Whether the placement is allowed. Defaults to {@code false}.
      */
     public boolean isAllowed() {
         return isAllowed;
