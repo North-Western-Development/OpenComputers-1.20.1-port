@@ -51,7 +51,8 @@ abstract class TextureFont {
 
     // Background first. We try to merge adjacent backgrounds of the same
     // color to reduce the number of quads we have to draw.
-    var quadBuilder: VertexConsumer = null
+    lazy val quadBuilder = renderBuff.getBuffer(RenderTypes.FONT_QUAD)
+
     for (y <- 0 until (viewportHeight min buffer.height)) {
       val color = buffer.color(y)
       var cbg = 0x000000
@@ -59,7 +60,6 @@ abstract class TextureFont {
       var width = 0
       for (col <- color.map(PackedColor.unpackBackground(_, format)) if x + width < viewportWidth) {
         if (col != cbg) {
-          if (quadBuilder == null) quadBuilder = renderBuff.getBuffer(RenderTypes.FONT_QUAD)
           drawQuad(quadBuilder, stack.last.pose, cbg, x, y, width)
           cbg = col
           x += width
@@ -151,8 +151,8 @@ abstract class TextureFont {
     val g = ((color >> 8) & 0xFF) / 255f
     val b = (color & 0xFF) / 255f
     builder.vertex(matrix, x0, y0, 0).color(r, g, b, 1f).endVertex()
-    builder.vertex(matrix, x1, y0, 0).color(r, g, b, 1f).endVertex()
-    builder.vertex(matrix, x1, y1, 0).color(r, g, b, 1f).endVertex()
     builder.vertex(matrix, x0, y1, 0).color(r, g, b, 1f).endVertex()
+    builder.vertex(matrix, x1, y1, 0).color(r, g, b, 1f).endVertex()
+    builder.vertex(matrix, x1, y0, 0).color(r, g, b, 1f).endVertex()
   }
 }
