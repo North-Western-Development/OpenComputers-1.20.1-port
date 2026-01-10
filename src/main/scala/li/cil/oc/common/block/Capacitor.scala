@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
 
@@ -39,4 +40,12 @@ class Capacitor(props: Properties) extends SimpleBlock(props) {
       case capacitor: tileentity.Capacitor => capacitor.recomputeCapacity()
       case _ =>
     }
+
+  override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
+    (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
+      entity match {
+        case tileEntity: tileentity.Capacitor => tileEntity.updateEntity()
+        case _ =>
+      }
+  }
 }

@@ -3,16 +3,14 @@ package li.cil.oc.common.block
 import li.cil.oc.Settings
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.tileentity
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.core.BlockPos
-import net.minecraft.world.phys.shapes.CollisionContext
-import net.minecraft.world.phys.shapes.VoxelShape
-import net.minecraft.world.phys.shapes.Shapes
-import net.minecraft.world.level.BlockGetter
-import net.minecraft.world.level.Level
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.level.{BlockGetter, Level}
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.phys.shapes.{CollisionContext, Shapes, VoxelShape}
 
 class Assembler(props: Properties) extends SimpleBlock(props) with traits.PowerAcceptor with traits.StateAware with traits.GUI {
   override def energyThroughput = Settings.get.assemblerRate
@@ -32,4 +30,12 @@ class Assembler(props: Properties) extends SimpleBlock(props) with traits.PowerA
   }
 
   override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Assembler(tileentity.BlockEntityTypes.ASSEMBLER, pos, state)
+
+  override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
+    (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
+      entity match {
+        case tileEntity: tileentity.Assembler => tileEntity.updateEntity()
+        case _ =>
+      }
+  }
 }

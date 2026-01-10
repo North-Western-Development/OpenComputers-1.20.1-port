@@ -1,6 +1,5 @@
 package li.cil.oc.common.block
 
-import li.cil.oc.{Constants, Settings, api}
 import li.cil.oc.client.KeyBindings
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.item.data.MicrocontrollerData
@@ -9,19 +8,20 @@ import li.cil.oc.integration.util.Wrench
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.StackOption._
 import li.cil.oc.util.{InventoryUtils, Tooltip}
+import li.cil.oc.{Constants, Settings, api}
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.{ItemStack, TooltipFlag}
-import net.minecraft.world.level.{BlockGetter, Level}
 import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
 import net.minecraft.world.level.storage.loot.LootContext
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams
+import net.minecraft.world.level.{BlockGetter, Level}
 import net.minecraftforge.common.extensions.IForgeBlock
 
 import java.util
@@ -58,6 +58,13 @@ class Microcontroller(props: Properties)
 
   override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Microcontroller(tileentity.BlockEntityTypes.MICROCONTROLLER, pos, state)
 
+  override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
+    (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
+      entity match {
+        case tileEntity: tileentity.Microcontroller => tileEntity.updateEntity()
+        case _ =>
+      }
+  }
   // ----------------------------------------------------------------------- //
 
   override def localOnBlockActivated(world: Level, pos: BlockPos, player: Player, hand: InteractionHand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Boolean = {

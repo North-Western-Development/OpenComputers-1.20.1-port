@@ -4,10 +4,11 @@ import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.tileentity
 import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.level.{BlockGetter, Level}
 import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.{BlockGetter, Level}
 import net.minecraft.world.phys.shapes.{BooleanOp, CollisionContext, Shapes, VoxelShape}
 
 class Printer(props: Properties) extends SimpleBlock(props) with traits.StateAware with traits.GUI {
@@ -28,4 +29,12 @@ class Printer(props: Properties) extends SimpleBlock(props) with traits.StateAwa
   }
 
   override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Printer(tileentity.BlockEntityTypes.PRINTER, pos, state)
+
+  override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
+    (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
+      entity match {
+        case tileEntity: tileentity.Printer => tileEntity.updateEntity()
+        case _ =>
+      }
+  }
 }

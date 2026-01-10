@@ -1,13 +1,13 @@
 package li.cil.oc.common.block
 
-import li.cil.oc.{Constants, Settings, api}
+import li.cil.oc.Settings
 import li.cil.oc.client.KeyBindings
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.item.data.RobotData
 import li.cil.oc.common.tileentity
-import li.cil.oc.server.{PacketSender, agent}
 import li.cil.oc.server.loot.LootFunctions
-import li.cil.oc.util.{BlockPosition, InventoryUtils, Tooltip}
+import li.cil.oc.server.{PacketSender, agent}
+import li.cil.oc.util.Tooltip
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.server.level.ServerPlayer
@@ -15,12 +15,12 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.{ItemStack, TooltipFlag}
-import net.minecraft.world.level.{BlockGetter, Level}
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.level.material.FluidState
 import net.minecraft.world.level.storage.loot.LootContext
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams
+import net.minecraft.world.level.{BlockGetter, Level}
 import net.minecraft.world.phys.shapes.{CollisionContext, Shapes, VoxelShape}
 
 import java.util
@@ -117,6 +117,14 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
       case Some(robot) => new tileentity.RobotProxy(tileentity.BlockEntityTypes.ROBOT, pos, state, robot)
       case _ => new tileentity.RobotProxy(tileentity.BlockEntityTypes.ROBOT, pos, state)
     }
+  }
+
+  override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
+    (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
+      entity match {
+        case tileEntity: tileentity.RobotProxy => tileEntity.updateEntity()
+        case _ =>
+      }
   }
 
   // ----------------------------------------------------------------------- //

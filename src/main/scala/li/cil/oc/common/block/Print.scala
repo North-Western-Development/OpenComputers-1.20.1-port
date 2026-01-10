@@ -1,25 +1,25 @@
 package li.cil.oc.common.block
 
-import li.cil.oc.{Localization, Settings}
 import li.cil.oc.common.item.data.PrintData
 import li.cil.oc.common.tileentity
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.Tooltip
+import li.cil.oc.{Localization, Settings}
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.world.{InteractionHand, InteractionResult}
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.{ItemStack, TooltipFlag}
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.level.{BlockGetter, Level}
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.storage.loot.LootContext
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams
+import net.minecraft.world.level.{BlockGetter, Level}
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.shapes.{CollisionContext, VoxelShape}
+import net.minecraft.world.{InteractionHand, InteractionResult}
 import net.minecraftforge.common.extensions.IForgeBlock
 
 import java.util
@@ -106,6 +106,14 @@ class Print(props: Properties) extends RedstoneAware(props) with IForgeBlock {
   // ----------------------------------------------------------------------- //
 
   override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Print(tileentity.BlockEntityTypes.PRINT, pos, state)
+
+  override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
+    (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
+      entity match {
+        case tileEntity: tileentity.Print => tileEntity.updateEntity()
+        case _ =>
+      }
+  }
 
   // ----------------------------------------------------------------------- //
 

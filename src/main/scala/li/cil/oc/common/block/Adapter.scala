@@ -9,6 +9,7 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.{Level, LevelReader}
@@ -20,6 +21,14 @@ class Adapter(props: Properties) extends SimpleBlock(props) with traits.GUI {
   }
 
   override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Adapter(tileentity.BlockEntityTypes.ADAPTER, pos, state)
+
+  override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
+    (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
+      entity match {
+        case tileEntity: tileentity.Adapter => tileEntity.updateEntity()
+        case _ =>
+      }
+  }
 
   // ----------------------------------------------------------------------- //
 

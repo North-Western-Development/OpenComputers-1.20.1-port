@@ -5,9 +5,10 @@ import li.cil.oc.util.Tooltip
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.world.item.{ItemStack, TooltipFlag}
-import net.minecraft.world.level.BlockGetter
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.{BlockGetter, Level}
 import net.minecraft.world.phys.shapes.{CollisionContext, Shapes, VoxelShape}
 
 import java.util
@@ -31,4 +32,12 @@ class Hologram(props: Properties, val tier: Int) extends SimpleBlock(props) {
   // ----------------------------------------------------------------------- //
 
   override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Hologram(tileentity.BlockEntityTypes.HOLOGRAM, pos, state, tier)
+
+  override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
+    (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
+      entity match {
+        case tileEntity: tileentity.Adapter => tileEntity.updateEntity()
+        case _ =>
+      }
+  }
 }

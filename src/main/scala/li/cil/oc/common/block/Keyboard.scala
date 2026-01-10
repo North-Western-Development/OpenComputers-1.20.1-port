@@ -1,20 +1,21 @@
 package li.cil.oc.common.block
 
-import li.cil.oc.{Constants, api}
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.ExtendedEnumFacing._
 import li.cil.oc.util.{BlockPosition, InventoryUtils}
+import li.cil.oc.{Constants, api}
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.context.BlockPlaceContext
-import net.minecraft.world.level.{BlockGetter, Level, LevelReader}
-import net.minecraft.world.level.block.{Block, Blocks}
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
+import net.minecraft.world.level.block.{Block, Blocks}
+import net.minecraft.world.level.{BlockGetter, Level, LevelReader}
 import net.minecraft.world.phys.shapes.{CollisionContext, Shapes, VoxelShape}
 
 import java.lang.Math.{max, min}
@@ -52,6 +53,14 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
   // ----------------------------------------------------------------------- //
 
   override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Keyboard(tileentity.BlockEntityTypes.KEYBOARD, pos, state)
+
+  override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
+    (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
+      entity match {
+        case tileEntity: tileentity.Keyboard => tileEntity.updateEntity()
+        case _ =>
+      }
+  }
 
   // ----------------------------------------------------------------------- //
 

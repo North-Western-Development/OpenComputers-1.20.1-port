@@ -5,13 +5,14 @@ import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
 import net.minecraft.client.Minecraft
 import net.minecraft.core.{BlockPos, Direction}
-import net.minecraft.world.{InteractionHand, InteractionResult}
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
 import net.minecraft.world.phys.BlockHitResult
+import net.minecraft.world.{InteractionHand, InteractionResult}
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
 class Waypoint(props: Properties) extends RedstoneAware(props) {
@@ -21,6 +22,14 @@ class Waypoint(props: Properties) extends RedstoneAware(props) {
   // ----------------------------------------------------------------------- //
 
   override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Waypoint(tileentity.BlockEntityTypes.WAYPOINT, pos, state)
+
+  override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
+    (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
+      entity match {
+        case tileEntity: tileentity.Waypoint => tileEntity.updateEntity()
+        case _ =>
+      }
+  }
 
   // ----------------------------------------------------------------------- //
 

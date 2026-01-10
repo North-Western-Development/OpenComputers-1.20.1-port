@@ -11,12 +11,11 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.{ItemStack, TooltipFlag}
-import net.minecraft.world.level.{BlockGetter, Level}
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
-import net.minecraft.world.level.material.FluidState
+import net.minecraft.world.level.{BlockGetter, Level}
 
 import java.util
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -51,6 +50,16 @@ class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with t
 
   override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Case(tileentity.BlockEntityTypes.CASE, pos, state, tier)
 
+  override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
+    //    if (level.isClientSide) null
+    //    else
+    (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
+      entity match {
+        case caseEntity: tileentity.Case => caseEntity.updateEntity()
+        case _ =>
+      }
+  }
+
   // ----------------------------------------------------------------------- //
 
   override def localOnBlockActivated(world: Level, pos: BlockPos, player: Player, hand: InteractionHand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = {
@@ -62,15 +71,6 @@ class Case(props: Properties, val tier: Int) extends RedstoneAware(props) with t
       true
     }
     else super.localOnBlockActivated(world, pos, player, hand, heldItem, side, hitX, hitY, hitZ)
-  }
-  override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
-//    if (level.isClientSide) null
-//    else
-      (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
-      entity match {
-        case caseEntity: tileentity.Case => caseEntity.updateEntity()
-        case _ =>
-      }
   }
 
 //  override def removedByPlayer(state: BlockState, world: Level, pos: BlockPos, player: Player, willHarvest: Boolean, fluid: FluidState): Boolean =

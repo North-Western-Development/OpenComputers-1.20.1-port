@@ -6,10 +6,10 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.util.{Color, ItemColorizer}
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.item.{DyeColor, ItemStack}
 import net.minecraft.world.item.context.BlockPlaceContext
+import net.minecraft.world.item.{DyeColor, ItemStack}
 import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
 import net.minecraft.world.level.{BlockGetter, Level, LevelAccessor}
@@ -79,6 +79,14 @@ class Cable(props: Properties) extends SimpleBlock(props) with IForgeBlock {
   // ----------------------------------------------------------------------- //
 
   override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Cable(tileentity.BlockEntityTypes.CABLE, pos, state)
+
+  override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
+    (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
+      entity match {
+        case tileEntity: tileentity.Cable => tileEntity.updateEntity()
+        case _ =>
+      }
+  }
 
   // ----------------------------------------------------------------------- //
 
