@@ -33,8 +33,10 @@ object PrintModel extends SmartBlockModelBase {
       return Collections.emptyList()
 
     val t = data.getData(PRINT_PROPERTY)
-    if (t == null) {
-      return Collections.emptyList()
+    if (t == null || t.shapes.isEmpty) {
+      val bounds = ExtendedAABB.unitBounds
+      val texture = resolveTexture(Settings.resourceDomain + ":blocks/white")
+      return bakeQuads(makeBox(bounds.minVec, bounds.maxVec), Array.fill(6)(texture), Color.rgbValues(DyeColor.LIME))
     }
 
     val faces = mutable.ArrayBuffer.empty[BakedQuad]
@@ -50,17 +52,15 @@ object PrintModel extends SmartBlockModelBase {
 
   private def resolveTexture(name: String): TextureAtlasSprite = try {
     val texture = Textures.getSprite(new ResourceLocation(name))
-    if (texture.getName == MissingTextureAtlasSprite.getLocation) Textures.getSprite(new ResourceLocation("minecraft:blocks/" + name))
+    if (texture.getName == MissingTextureAtlasSprite.getLocation) Textures.getSprite(new ResourceLocation("minecraft", "block/" + name))
     else texture
   }
   catch {
     case _: Throwable => Textures.getSprite(MissingTextureAtlasSprite.getLocation)
   }
 
-  class ItemModel(val stack: ItemStack) extends SmartBlockModelBase {
+  class ItemModel(val data: PrintData) extends SmartBlockModelBase {
     override def getOverrides: ItemOverrides = ItemOverrides.EMPTY
-
-    val data = new PrintData(stack)
 
     override def getQuads(state: BlockState, side: Direction, rand: util.Random, data2: IModelData): util.List[BakedQuad] = {
       if (side != null)
@@ -89,7 +89,7 @@ object PrintModel extends SmartBlockModelBase {
   }
 
   object ItemOverride extends ItemOverrides {
-    override def resolve(originalModel: BakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity, seed: Int): BakedModel = new ItemModel(stack)
+    override def resolve(originalModel: BakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity, seed: Int): BakedModel = new ItemModel(new PrintData(stack))
   }
 
 }

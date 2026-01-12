@@ -20,13 +20,11 @@ import net.minecraft.world.level.{BlockGetter, Level}
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.shapes.{CollisionContext, VoxelShape}
 import net.minecraft.world.{InteractionHand, InteractionResult}
-import net.minecraftforge.common.extensions.IForgeBlock
 
 import java.util
 import java.util.Random
-import scala.collection.convert.ImplicitConversionsToJava._
 
-class Print(props: Properties) extends RedstoneAware(props) with IForgeBlock {
+class Print(props: Properties) extends RedstoneAware(props) {
   @Deprecated
   override def propagatesSkylightDown(state: BlockState, world: BlockGetter, pos: BlockPos) = false
 
@@ -35,7 +33,7 @@ class Print(props: Properties) extends RedstoneAware(props) with IForgeBlock {
   override protected def tooltipBody(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], advanced: TooltipFlag) = {
     super.tooltipBody(stack, world, tooltip, advanced)
     val data = new PrintData(stack)
-    data.tooltip.foreach(s => tooltip.addAll(s.linesIterator.map(new TextComponent(_).setStyle(Tooltip.DefaultStyle)).toIterable))
+    data.tooltip.foreach(s => tooltip.addAll(s.linesIterator.map(new TextComponent(_).setStyle(Tooltip.DefaultStyle)).iterator.to(Iterable)))
   }
 
   override protected def tooltipTail(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], advanced: TooltipFlag) = {

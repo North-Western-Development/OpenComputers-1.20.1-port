@@ -185,7 +185,7 @@ configurations {
     embedded
     embeddedResource
 
-    compileOnly.extendsFrom provided
+    compileOnly.extendsFrom provided, embedded
     minecraftLibrary.extendsFrom jarJar
 }
 
