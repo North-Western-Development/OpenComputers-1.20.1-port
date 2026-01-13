@@ -23,6 +23,7 @@ import net.minecraft.world.{InteractionHand, InteractionResult}
 
 import java.util
 import java.util.Random
+import scala.jdk.CollectionConverters._
 
 class Print(props: Properties) extends RedstoneAware(props) {
   @Deprecated
@@ -33,7 +34,7 @@ class Print(props: Properties) extends RedstoneAware(props) {
   override protected def tooltipBody(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], advanced: TooltipFlag) = {
     super.tooltipBody(stack, world, tooltip, advanced)
     val data = new PrintData(stack)
-    data.tooltip.foreach(s => tooltip.addAll(s.linesIterator.map(new TextComponent(_).setStyle(Tooltip.DefaultStyle)).iterator.to(Iterable)))
+    data.tooltip.foreach(s => tooltip.addAll(s.linesIterator.map(new TextComponent(_).setStyle(Tooltip.DefaultStyle)).toList.asJava))
   }
 
   override protected def tooltipTail(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], advanced: TooltipFlag) = {

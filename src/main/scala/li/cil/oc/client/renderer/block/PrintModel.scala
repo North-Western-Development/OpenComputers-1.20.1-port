@@ -36,7 +36,7 @@ object PrintModel extends SmartBlockModelBase {
     if (t == null || t.shapes.isEmpty) {
       val bounds = ExtendedAABB.unitBounds
       val texture = resolveTexture(Settings.resourceDomain + ":blocks/white")
-      return bakeQuads(makeBox(bounds.minVec, bounds.maxVec), Array.fill(6)(texture), Color.rgbValues(DyeColor.LIME))
+      return bakeQuads(makeBox(bounds.minVec, bounds.maxVec), Array.fill(6)(texture), Color.rgbValues(DyeColor.LIME)).toList.asJava
     }
 
     val faces = mutable.ArrayBuffer.empty[BakedQuad]
