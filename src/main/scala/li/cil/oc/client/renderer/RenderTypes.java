@@ -1,21 +1,19 @@
 package li.cil.oc.client.renderer;
 
-import java.util.OptionalDouble;
-
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormatElement;
 import li.cil.oc.OpenComputers;
 import li.cil.oc.client.Textures;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderType.CompositeState;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormatElement;
 import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.opengl.GL11;
+
+import java.util.OptionalDouble;
 
 public class RenderTypes extends RenderType {
     public static final VertexFormat POSITION_TEX_NORMAL = new VertexFormat(new ImmutableMap.Builder<String, VertexFormatElement>()
@@ -29,12 +27,14 @@ public class RenderTypes extends RenderType {
 
     public static final RenderType ROBOT_CHASSIS = create(OpenComputers.ID() + ":robot_chassis",
         DefaultVertexFormat.BLOCK, VertexFormat.Mode.TRIANGLES, 1024, CompositeState.builder()
+            .setShaderState(ShaderStateShard.POSITION_COLOR_TEX_LIGHTMAP_SHADER)
             .setTextureState(ROBOT_CHASSIS_TEXTURE)
             .setLightmapState(LIGHTMAP)
             .createCompositeState(true));
 
     public static final RenderType ROBOT_LIGHT = create(OpenComputers.ID() + ":robot_light",
         DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.QUADS, 256, CompositeState.builder()
+            .setShaderState(ShaderStateShard.POSITION_COLOR_SHADER)
             .setTextureState(ROBOT_CHASSIS_TEXTURE)
             .setTransparencyState(LIGHTNING_TRANSPARENCY)
             .createCompositeState(true));
@@ -42,6 +42,7 @@ public class RenderTypes extends RenderType {
     private static final RenderType createUpgrade(String name, ResourceLocation texture) {
         return create(OpenComputers.ID() + ":upgrade_" + name,
             POSITION_TEX_NORMAL, VertexFormat.Mode.QUADS, 1024, CompositeState.builder()
+                .setShaderState(ShaderStateShard.POSITION_TEX_SHADER)
                 .setTextureState(new TextureStateShard(texture, false, false))
                 .createCompositeState(true));
     }

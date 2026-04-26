@@ -2,24 +2,24 @@ package li.cil.oc.server.agent
 
 import com.mojang.authlib.GameProfile
 import com.mojang.datafixers.util.Either
-import li.cil.oc.{OpenComputers, Settings}
 import li.cil.oc.api.event._
 import li.cil.oc.api.internal
 import li.cil.oc.api.network.Connector
 import li.cil.oc.common.EventHandler
 import li.cil.oc.util.{BlockPosition, InventoryUtils}
+import li.cil.oc.{OpenComputers, Settings}
 import net.minecraft.core.{BlockPos, Direction, NonNullList}
 import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.server.network.ServerGamePacketListenerImpl
 import net.minecraft.server.players.ServerOpListEntry
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.entity.Entity.RemovalReason
+import net.minecraft.world.entity._
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.Player.BedSleepingProblem
-import net.minecraft.world.entity._
+import net.minecraft.world.inventory.InventoryMenu
 import net.minecraft.world.item.context.UseOnContext
 import net.minecraft.world.item.trading.MerchantOffers
 import net.minecraft.world.item.{BlockItem, ItemStack, Items}
@@ -30,13 +30,11 @@ import net.minecraft.world.level.{BaseCommandBlock, Level}
 import net.minecraft.world.phys.{BlockHitResult, Vec3}
 import net.minecraft.world.{Container, InteractionHand, InteractionResult, MenuProvider}
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.common.util.{FakePlayer, LazyOptional, NonNullSupplier}
+import net.minecraftforge.common.util.{FakePlayer, LazyOptional}
 import net.minecraftforge.event.ForgeEventFactory
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
 import net.minecraftforge.eventbus.api.{Event, EventPriority, SubscribeEvent}
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper
-import net.minecraftforge.items.IItemHandler
 import net.minecraftforge.items.wrapper._
 
 import java.util
@@ -45,11 +43,11 @@ import scala.jdk.CollectionConverters._
 
 object Player {
   // These use unobfuscated names because they're added by forge (LazyOptional / capabilities).
-  private val playerMainHandler = ObfuscationReflectionHelper.findField(classOf[Player], "playerMainHandler")
-
-  private val playerEquipmentHandler = ObfuscationReflectionHelper.findField(classOf[Player], "playerEquipmentHandler")
-
-  private val playerJoinedHandler = ObfuscationReflectionHelper.findField(classOf[Player], "playerJoinedHandler")
+//  private val playerMainHandler = ObfuscationReflectionHelper.findField(classOf[Player], "playerMainHandler")
+//
+//  private val playerEquipmentHandler = ObfuscationReflectionHelper.findField(classOf[Player], "playerEquipmentHandler")
+//
+//  private val playerJoinedHandler = ObfuscationReflectionHelper.findField(classOf[Player], "playerJoinedHandler")
 
   def profileFor(agent: internal.Agent): GameProfile = {
     val uuid = agent.ownerUUID
@@ -146,21 +144,17 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
   refreshDimensions()
 
   {
-//    this.inventory = new AgentInventory(this, agent)
+    this.inventory = new SimpleContainer(this, agent)
     // because the inventory was just overwritten, the container is now detached
-//    this.inventoryMenu = new PlayerContainer(inventory, !level.isClientSide, this)
+    this.inventoryMenu = new InventoryMenu(inventory, !level.isClientSide, this)
     this.containerMenu = this.inventoryMenu
 
     try {
-      Player.playerMainHandler.set(this, LazyOptional.of(new NonNullSupplier[IItemHandler] {
-        override def get = new PlayerMainInvWrapper(inventory)
-      }))
-      Player.playerEquipmentHandler.set(this, LazyOptional.of(new NonNullSupplier[IItemHandler] {
-        override def get = new CombinedInvWrapper(new PlayerArmorInvWrapper(inventory), new PlayerOffhandInvWrapper(inventory))
-      }))
-      Player.playerJoinedHandler.set(this, LazyOptional.of(new NonNullSupplier[IItemHandler] {
-        override def get = new PlayerInvWrapper(inventory)
-      }))
+      playerMainHandler = LazyOptional.of(() => new PlayerMainInvWrapper(inventory))
+      playerEquipmentHandler = LazyOptional.of(() => new CombinedInvWrapper(
+        new PlayerArmorInvWrapper(inventory),
+        new PlayerOffhandInvWrapper(inventory)))
+      playerJoinedHandler = LazyOptional.of(() => new PlayerInvWrapper(inventory))
     } catch {
       case _: Exception =>
     }

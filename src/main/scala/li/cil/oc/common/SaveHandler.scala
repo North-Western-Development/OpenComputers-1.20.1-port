@@ -1,14 +1,14 @@
 package li.cil.oc.common
 
-import li.cil.oc.{OpenComputers, Settings}
 import li.cil.oc.api.machine.MachineHost
 import li.cil.oc.api.network.EnvironmentHost
 import li.cil.oc.util.{BlockPosition, SafeThreadPool, ThreadPoolFactory}
+import li.cil.oc.{OpenComputers, Settings}
 import net.minecraft.nbt.{CompoundTag, NbtIo}
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.world.level.{ChunkPos, Level}
 import net.minecraft.world.level.storage.LevelResource
+import net.minecraft.world.level.{ChunkPos, Level}
 import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.eventbus.api.{EventPriority, SubscribeEvent}
 import net.minecraftforge.server.ServerLifecycleHooks
@@ -90,6 +90,10 @@ object SaveHandler {
   }
 
   def scheduleSave(position: BlockPosition, nbt: CompoundTag, name: String, data: Array[Byte]) {
+    if (position.world.isEmpty) {
+      OpenComputers.log.warn("Tried to save auxiliary tile entity data without a world context. This is not supported.")
+      return
+    }
     val world = position.world.get
     // Try to exclude wrapped/client-side worlds.
     if (world.isInstanceOf[ServerLevel]) {

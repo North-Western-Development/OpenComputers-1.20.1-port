@@ -1,33 +1,20 @@
 package li.cil.oc.common
 
-import java.util.Calendar
 import li.cil.oc._
 import li.cil.oc.api.Network
 import li.cil.oc.api.detail.ItemInfo
 import li.cil.oc.api.internal.Colored
-import li.cil.oc.api.internal.Rack
-import li.cil.oc.api.internal.Server
 import li.cil.oc.api.machine.MachineHost
-import li.cil.oc.api.network.Environment
-import li.cil.oc.api.network.SidedComponent
-import li.cil.oc.api.network.SidedEnvironment
+import li.cil.oc.api.network.{Environment, SidedComponent, SidedEnvironment}
 import li.cil.oc.client.renderer.PetRenderer
-import li.cil.oc.common.capabilities.CapabilityColored
-import li.cil.oc.common.capabilities.CapabilityEnvironment
-import li.cil.oc.common.capabilities.CapabilitySidedComponent
-import li.cil.oc.common.capabilities.CapabilitySidedEnvironment
+import li.cil.oc.common.capabilities.{CapabilityColored, CapabilityEnvironment, CapabilitySidedComponent, CapabilitySidedEnvironment}
 import li.cil.oc.common.component.TerminalServer
-import li.cil.oc.common.item.data.MicrocontrollerData
-import li.cil.oc.common.item.data.RobotData
-import li.cil.oc.common.item.data.TabletData
+import li.cil.oc.common.item.data.{MicrocontrollerData, RobotData, TabletData}
 import li.cil.oc.common.item.traits
 import li.cil.oc.common.tileentity.Robot
-import li.cil.oc.common.tileentity.traits.power
-import li.cil.oc.integration.Mods
 import li.cil.oc.integration.util
 import li.cil.oc.server.component.Keyboard
-import li.cil.oc.server.machine.Callbacks
-import li.cil.oc.server.machine.Machine
+import li.cil.oc.server.machine.{Callbacks, Machine}
 import li.cil.oc.server.machine.luac.LuaStateFactory
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedLevel._
@@ -35,27 +22,24 @@ import li.cil.oc.util.StackOption._
 import li.cil.oc.util._
 import net.minecraft.Util
 import net.minecraft.core.BlockPos
-import net.minecraft.world.entity.player.Player
 import net.minecraft.server.level.{ChunkHolder, ChunkMap, ServerLevel, ServerPlayer}
 import net.minecraft.sounds.{SoundEvents, SoundSource}
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.level.chunk.ChunkAccess
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent
 import net.minecraftforge.common.util.FakePlayer
-import net.minecraftforge.event.AttachCapabilitiesEvent
-import net.minecraftforge.event.TickEvent
-import net.minecraftforge.event.TickEvent.ClientTickEvent
-import net.minecraftforge.event.TickEvent.ServerTickEvent
+import net.minecraftforge.event.{AttachCapabilitiesEvent, TickEvent}
+import net.minecraftforge.event.TickEvent.{ClientTickEvent, ServerTickEvent}
 import net.minecraftforge.event.entity.EntityJoinWorldEvent
 import net.minecraftforge.event.entity.player.PlayerEvent._
-import net.minecraftforge.event.world.{BlockEvent, ChunkEvent, WorldEvent}
+import net.minecraftforge.event.world.{BlockEvent, WorldEvent}
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper
 import net.minecraftforge.server.ServerLifecycleHooks
 
+import java.util.Calendar
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -468,22 +452,22 @@ object EventHandler {
     }
   }
 
-  @SubscribeEvent
-  def onChunkUnloaded(e: ChunkEvent.Unload): Unit = {
-    if (!e.getWorld.isClientSide) e.getChunk match {
-      case chunk: ChunkAccess =>
-        chunk.getBlockEntitiesPos.foreach(e.getWorld.getBlockEntity(_) match {
-          case host: MachineHost => host.machine match {
-            case machine: Machine => scheduleClose(machine)
-            case _ => // Dafuq?
-          }
-          case rack: Rack =>
-            (0 until rack.getContainerSize).
-              map(rack.getMountable).
-              collect { case server: Server if server.machine != null => server.machine.stop() }
-          case _ => {}
-        })
-      case _ =>
-    }
-  }
+//  @SubscribeEvent
+//  def onChunkUnloaded(e: ChunkEvent.Unload): Unit = {
+//    if (!e.getWorld.isClientSide) e.getChunk match {
+//      case chunk: ChunkAccess =>
+//        chunk.getBlockEntitiesPos.foreach(e.getWorld.getBlockEntity(_) match {
+//          case host: MachineHost => host.machine match {
+//            case machine: Machine => scheduleClose(machine)
+//            case _ => // Dafuq?
+//          }
+//          case rack: Rack =>
+//            (0 until rack.getContainerSize).
+//              map(rack.getMountable).
+//              collect { case server: Server if server.machine != null => server.machine.stop() }
+//          case _ => {}
+//        })
+//      case _ =>
+//    }
+//  }
 }
