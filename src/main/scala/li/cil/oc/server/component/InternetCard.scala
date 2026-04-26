@@ -32,7 +32,7 @@ import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.api.prefab.AbstractValue
 import li.cil.oc.util.ThreadPoolFactory
-import net.minecraftforge.fml.server.ServerLifecycleHooks
+import net.minecraftforge.server.ServerLifecycleHooks
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -511,7 +511,7 @@ object InternetCard {
     private class RequestSender(val url: URL, val post: Option[String], val headers: Map[String, String], val method: Option[String]) extends Callable[InputStream] {
       override def call() = try {
         checkLists(InetAddress.getByName(url.getHost), url.getHost)
-        val proxy = ServerLifecycleHooks.getCurrentServer.proxy
+        val proxy = ServerLifecycleHooks.getCurrentServer.getProxy
         url.openConnection(proxy) match {
           case http: HttpURLConnection => try {
             http.setDoInput(true)

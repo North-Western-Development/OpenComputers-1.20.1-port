@@ -34,10 +34,10 @@ import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 
 private[oc] class Proxy extends CommonProxy {
-  modBus.register(classOf[GuiTypes])
-  modBus.register(ModelInitialization)
-  modBus.register(NetSplitterModel)
-  modBus.register(Textures)
+  modEventBus.register(classOf[GuiTypes])
+  modEventBus.register(ModelInitialization)
+  modEventBus.register(NetSplitterModel)
+  modEventBus.register(Textures)
 
   override def preInit() {
     super.preInit()
@@ -56,7 +56,7 @@ private[oc] class Proxy extends CommonProxy {
       ColorHandler.init()
 
       EntityRenderers.register(EntityTypes.DRONE, new EntityRendererProvider[Drone] {
-        override def create(manager: Context): EntityRenderer[_ >: Drone] = new DroneRenderer(manager)
+        override def create(manager: Context): EntityRenderer[Drone] = new DroneRenderer(manager)
       })
       
       BlockEntityRenderers.register(tileentity.BlockEntityTypes.ADAPTER, AdapterRenderer.apply)

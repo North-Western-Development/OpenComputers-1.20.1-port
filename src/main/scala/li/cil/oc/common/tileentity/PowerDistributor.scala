@@ -1,18 +1,15 @@
 package li.cil.oc.common.tileentity
 
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Settings, api}
 import li.cil.oc.api.network._
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
-import net.minecraftforge.common.util.Constants.NBT
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.nbt.{CompoundTag, Tag}
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
-class PowerDistributor(selfType: BlockEntityType[_ <: PowerDistributor]) extends BlockEntity(selfType) with traits.Environment with traits.PowerBalancer with traits.NotAnalyzable {
+class PowerDistributor(selfType: BlockEntityType[_ <: PowerDistributor], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Environment with traits.PowerBalancer with traits.NotAnalyzable {
   val node = null
 
   private val nodes = Array.fill(6)(api.Network.newNode(this, Visibility.None).
@@ -34,7 +31,7 @@ class PowerDistributor(selfType: BlockEntityType[_ <: PowerDistributor]) extends
 
   override def loadForServer(nbt: CompoundTag) {
     super.loadForServer(nbt)
-    nbt.getList(ConnectorTag, NBT.TAG_COMPOUND).toTagArray[CompoundTag].
+    nbt.getList(ConnectorTag, Tag.TAG_COMPOUND).toTagArray[CompoundTag].
       zipWithIndex.foreach {
       case (tag, index) => nodes(index).loadData(tag)
     }

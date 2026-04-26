@@ -1,32 +1,31 @@
 package li.cil.oc.common.tileentity
 
+import cofh.core.client.renderer.model.ModelUtils
 import li.cil.oc.Settings
-import li.cil.oc.api.network.Analyzable
 import li.cil.oc.api.network._
 import li.cil.oc.client.gui
+import li.cil.oc.client.renderer.block.ScreenModel
 import li.cil.oc.common.component.TextBuffer
 import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
-import li.cil.oc.util.BlockPosition
-import li.cil.oc.util.Color
+import li.cil.oc.util.{BlockPosition, Color}
 import li.cil.oc.util.ExtendedLevel._
 import net.minecraft.client.Minecraft
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.Player
-import net.minecraft.entity.projectile.ArrowEntity
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
-import net.minecraft.util.math.AxisAlignedBB
+import net.minecraft.world.entity.projectile.Arrow
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.AABB
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
+import net.minecraftforge.client.model.data.{ModelDataMap, ModelProperty}
 
 import scala.collection.mutable
 import scala.language.postfixOps
 
-class Screen(selfType: BlockEntityType[_ <: Screen], var tier: Int) extends BlockEntity(selfType) with traits.TextBuffer with SidedEnvironment with traits.Rotatable with traits.RedstoneAware with traits.Colored with Analyzable with Ordered[Screen] {
-  def this(selfType: BlockEntityType[_ <: Screen]) = this(selfType, 0)
+class Screen(selfType: BlockEntityType[_ <: Screen], var tier: Int, pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.TextBuffer with SidedEnvironment with traits.Rotatable with traits.RedstoneAware with traits.Colored with Analyzable with Ordered[Screen] {
+  def this(selfType: BlockEntityType[_ <: Screen],pos: BlockPos, state: BlockState) = this(selfType, 0, pos, state)
 
   // Enable redstone functionality.
   _isOutputEnabled = true
@@ -60,7 +59,7 @@ class Screen(selfType: BlockEntityType[_ <: Screen], var tier: Int) extends Bloc
 
   var invertTouchMode = false
 
-  private val arrows = mutable.Set.empty[ArrowEntity]
+  private val arrows = mutable.Set.empty[Arrow]
 
   private val lastWalked = mutable.WeakHashMap.empty[Entity, (Int, Int)]
 
@@ -101,6 +100,7 @@ class Screen(selfType: BlockEntityType[_ <: Screen], var tier: Int) extends Bloc
     screens += this
     cachedBounds = None
     invertTouchMode = false
+    requestModelDataUpdate()
   }
 
   def toScreenCoordinates(hitX: Double, hitY: Double, hitZ: Double): (Boolean, Option[(Double, Double)]) = {
@@ -181,7 +181,7 @@ class Screen(selfType: BlockEntityType[_ <: Screen], var tier: Int) extends Bloc
     }
   }
 
-  def shot(arrow: ArrowEntity) {
+  def shot(arrow: Arrow) {
     arrows.add(arrow)
   }
 
@@ -267,6 +267,7 @@ class Screen(selfType: BlockEntityType[_ <: Screen], var tier: Int) extends Bloc
       screens.foreach(screen => {
         val pos = screen.getBlockPos
         renderer.setSectionDirty(pos.getX >> 4, pos.getY >> 4, pos.getZ >> 4)
+        screen.requestModelDataUpdate()
       })
     }
   }
@@ -346,8 +347,8 @@ class Screen(selfType: BlockEntityType[_ <: Screen], var tier: Int) extends Bloc
         b
     }
 
-  @OnlyIn(Dist.CLIENT)
-  override def getViewDistance = if (isOrigin) super.getViewDistance else 0
+//  @OnlyIn(Dist.CLIENT)
+//  override def getViewDistance = if (isOrigin) super.getViewDistance else 0
 
   // ----------------------------------------------------------------------- //
 
@@ -423,5 +424,15 @@ class Screen(selfType: BlockEntityType[_ <: Screen], var tier: Int) extends Bloc
   private def unproject(x: Int, y: Int, z: Int) = {
     def dot(f: Direction) = f.getStepX * x + f.getStepY * y + f.getStepZ * z
     BlockPosition(dot(toLocal(Direction.EAST)), dot(toLocal(Direction.UP)), dot(toLocal(Direction.SOUTH)))
+  }
+
+  // ----------------------------------------------------------------------- //
+
+  override def getModelData() = {
+    val (x, y) = localPosition
+    (new ModelDataMap.Builder)
+      .withInitial(ScreenModel.COLOR_PROPERTY, getColor)
+      .withInitial(ScreenModel.WIDTH_HEIGHT_LOCAL_POSITION_PROPERTY, (width, height, x, y))
+      .build;
   }
 }

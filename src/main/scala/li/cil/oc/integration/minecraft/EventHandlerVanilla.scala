@@ -4,6 +4,7 @@ import li.cil.oc.Settings
 import li.cil.oc.api.event.GeolyzerEvent
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedLevel._
+import net.minecraft.core.BlockPos
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.{Item, ItemStack}
 import net.minecraft.world.level.block.{Block, Blocks, CropBlock, StemBlock}
@@ -32,7 +33,7 @@ object EventHandlerVanilla {
     val w = e.maxX - e.minX + 1
     val d = e.maxZ - e.minZ + 1
     for (ry <- e.minY to e.maxY; rz <- e.minZ to e.maxZ; rx <- e.minX to e.maxX) {
-      val pos = blockPos.toBlockPos.offset(rx, ry, rz)
+      val pos: BlockPos = blockPos.toBlockPos.offset(rx, ry, rz)
       val index = (rx - e.minX) + ((rz - e.minZ) + (ry - e.minY) * d) * w
       if (world.isLoaded(pos) && !world.isEmptyBlock(pos)) {
         val blockState = world.getBlockState(pos)

@@ -1,37 +1,24 @@
 package li.cil.oc.common.nanomachines
 
-import java.lang
-import java.util.UUID
-import com.google.common.base.Charsets
-import com.google.common.base.Strings
-import li.cil.oc.Constants
-import li.cil.oc.Settings
-import li.cil.oc.api
-import li.cil.oc.api.nanomachines.Behavior
-import li.cil.oc.api.nanomachines.Controller
-import li.cil.oc.api.nanomachines.DisableReason
-import li.cil.oc.api.network.Packet
-import li.cil.oc.api.network.WirelessEndpoint
-import li.cil.oc.common.item.data.NanomachineData
+import com.google.common.base.{Charsets, Strings}
+import li.cil.oc.api.nanomachines.{Behavior, Controller, DisableReason}
+import li.cil.oc.api.network.{Packet, WirelessEndpoint}
 import li.cil.oc.common.Tier
+import li.cil.oc.common.item.data.NanomachineData
 import li.cil.oc.integration.util.DamageSourceWithRandomCause
 import li.cil.oc.server.PacketSender
-import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedNBT._
-import li.cil.oc.util.InventoryUtils
-import li.cil.oc.util.PlayerUtils
+import li.cil.oc.util.{BlockPosition, InventoryUtils, PlayerUtils}
+import li.cil.oc.{Constants, Settings, api}
 import net.minecraft.core.particles.ParticleTypes
-import net.minecraft.world.entity.player.Player
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.particles.ParticleTypes
-import net.minecraft.potion.Effect
-import net.minecraft.potion.Effects
-import net.minecraft.potion.EffectInstance
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.effect.{MobEffectInstance, MobEffects}
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.Level
 
+import java.lang
+import java.util.UUID
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable

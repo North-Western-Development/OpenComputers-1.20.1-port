@@ -1,36 +1,25 @@
 package li.cil.oc.server.agent
 
-import net.minecraft.network.play.client.CPlayerDiggingPacket
-import net.minecraft.core.Direction
-import net.minecraft.core.BlockPos
 import li.cil.oc.OpenComputers
 import li.cil.oc.api.network.Node
-import net.minecraft.server.management.PlayerInteractionManager
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.entity.player.PlayerEvent
 import net.minecraftforge.event.world.BlockEvent
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper
 import net.minecraftforge.eventbus.api.{EventPriority, SubscribeEvent}
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
 object PlayerInteractionManagerHelper {
-  private val isDestroyingBlock = ObfuscationReflectionHelper.findField(classOf[PlayerInteractionManager], "field_73088_d")
-
-  private def isDestroyingBlock(player: Player): Boolean = {
-    try {
-      isDestroyingBlock.getBoolean(player.gameMode)
-    } catch {
-      case _: Exception => true
-    }
-  }
+  private def isDestroyingBlock(player: Player): Boolean = player.gameMode.isDestroyingBlock
 
   def onBlockClicked(player: Player, pos: BlockPos, side: Direction): Boolean = {
-    val buildLimit = player.server.getMaxBuildHeight();
+    val buildLimit = player.getLevel.getMaxBuildHeight();
     if (isDestroyingBlock(player)) {
-      player.gameMode.handleBlockBreakAction(pos, CPlayerDiggingPacket.Action.ABORT_DESTROY_BLOCK, side, buildLimit)
+      player.gameMode.handleBlockBreakAction(pos, ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, side, buildLimit)
     }
-    player.gameMode.handleBlockBreakAction(pos, CPlayerDiggingPacket.Action.START_DESTROY_BLOCK, side, buildLimit)
+    player.gameMode.handleBlockBreakAction(pos, ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK, side, buildLimit)
     isDestroyingBlock(player)
   }
 
@@ -80,14 +69,14 @@ object PlayerInteractionManagerHelper {
     }
 
     MinecraftForge.EVENT_BUS.register(infBreaker)
-    val buildLimit = player.server.getMaxBuildHeight();
+    val buildLimit = player.level.getMaxBuildHeight();
     try {
-      player.gameMode.handleBlockBreakAction(pos, CPlayerDiggingPacket.Action.STOP_DESTROY_BLOCK, null, buildLimit)
+      player.gameMode.handleBlockBreakAction(pos, ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK, null, buildLimit)
       infBreaker.expToDrop
     } catch {
       case e: Exception => {
         OpenComputers.log.info(s"an exception was thrown while trying to call handleBlockBreakAction: ${e.getMessage}")
-        player.gameMode.handleBlockBreakAction(pos, CPlayerDiggingPacket.Action.ABORT_DESTROY_BLOCK, null, buildLimit)
+        player.gameMode.handleBlockBreakAction(pos, ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, null, buildLimit)
         -1
       }
     } finally {

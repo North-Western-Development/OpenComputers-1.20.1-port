@@ -54,8 +54,8 @@ public interface FileSystem extends Persistable {
      * This function should never throw.
      *
      * @param path the path to check at.
-     * @return <tt>true</tt> if the path points to a file or directory;
-     * <tt>false</tt> otherwise.
+     * @return {@code true} if the path points to a file or directory;
+     * {@code false} otherwise.
      */
     boolean exists(String path);
 
@@ -104,9 +104,9 @@ public interface FileSystem extends Persistable {
      * Gets a list of all items in the specified folder.
      * <br>
      * This must return the actual object names in the specified parent folder,
-     * not their full path. For example, for a file at <tt>/home/test</tt>, when
-     * doing <tt>list("/home/")</tt> this should return <tt>["test"]</tt>,
-     * <em>not</em> <tt>["/home/test"]</tt>.
+     * not their full path. For example, for a file at {@code /home/test}, when
+     * doing {@code list("/home/")</tt> this should return <tt>["test"]},
+     * <em>not</em> {@code ["/home/test"]}.
      * <br>
      * Sub-folders should be returned with a trailing slash, to indicate that
      * they are folders.
@@ -115,7 +115,7 @@ public interface FileSystem extends Persistable {
      *
      * @param path the path to the folder to get the contents of.
      * @return an array with the names of all objects in that folder;
-     * <tt>null</tt> if the specified object does not exist or is not a
+     * {@code null} if the specified object does not exist or is not a
      * folder.
      */
     String[] list(String path);
@@ -126,15 +126,15 @@ public interface FileSystem extends Persistable {
      * Deletes a file or folder.
      * <br>
      * This only has to support deleting single files and empty folders. If a
-     * directory is non-empty this may return <tt>false</tt>. If the target
-     * object does not exists it should return <tt>false</tt>.
+     * directory is non-empty this may return {@code false}. If the target
+     * object does not exists it should return {@code false}.
      * <br>
      * This is only available for writable file systems. For read-only systems
-     * it should always return <tt>false</tt>.
+     * it should always return {@code false}.
      *
      * @param path the path to the object to delete.
-     * @return <tt>true</tt> if the object was successfully deleted;
-     * <tt>false</tt> otherwise.
+     * @return {@code true} if the object was successfully deleted;
+     * {@code false} otherwise.
      */
     boolean delete(String path);
 
@@ -142,11 +142,11 @@ public interface FileSystem extends Persistable {
      * Create the specified directory.
      * <br>
      * This should always only create a single directory. If the parent
-     * directory does not exists it should return <tt>false</tt>. If the target
-     * object already exists it should also return <tt>false</tt>.
+     * directory does not exists it should return {@code false}. If the target
+     * object already exists it should also return {@code false}.
      * <br>
      * This is only available for writable file systems. For read-only systems
-     * it should always return <tt>false</tt>.
+     * it should always return {@code false}.
      *
      * @param path the path to the directory to create.
      * @return true if the directory was created; false otherwise.
@@ -161,8 +161,8 @@ public interface FileSystem extends Persistable {
      *
      * @param from the name of the file or folder to move.
      * @param to   the location to move the file or folder to.
-     * @return <tt>true</tt> if the object was renamed;
-     * <tt>false</tt> otherwise.
+     * @return {@code true} if the object was renamed;
+     * {@code false} otherwise.
      * @throws FileNotFoundException if the source is not a file or folder.
      */
     boolean rename(String from, String to) throws FileNotFoundException;
@@ -179,8 +179,8 @@ public interface FileSystem extends Persistable {
      *
      * @param path the path of the object for which to set the modification time.
      * @param time the time the object was supposedly last modified.
-     * @return <tt>true</tt> if the modification time was adjusted;
-     * <tt>false</tt> otherwise.
+     * @return {@code true} if the modification time was adjusted;
+     * {@code false} otherwise.
      */
     boolean setLastModified(String path, long time);
 
@@ -218,11 +218,11 @@ public interface FileSystem extends Persistable {
      * The wrapper allows interaction with the underlying file (stream) based
      * on the mode it was opened in. See {@link Handle} for more details.
      * <br>
-     * If there is no such handle, this should return <tt>null</tt>, but never
+     * If there is no such handle, this should return {@code null}, but never
      * throw.
      *
      * @param handle the ID of the handle to get the wrapper for.
-     * @return the wrapper for that handle ID; <tt>null</tt> if there is no
+     * @return the wrapper for that handle ID; {@code null} if there is no
      * handle with the specified ID.
      */
     Handle getHandle(int handle);

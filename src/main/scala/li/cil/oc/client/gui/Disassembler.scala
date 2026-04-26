@@ -5,10 +5,11 @@ import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.Textures
 import li.cil.oc.client.gui.widget.ProgressBar
 import li.cil.oc.common.container
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.client.renderer.GameRenderer
+import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.world.entity.player.Inventory
 
-class Disassembler(state: container.Disassembler, playerInventory: Inventory, name: TextComponent)
+class Disassembler(state: container.Disassembler, playerInventory: Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name) {
 
   val progress = addCustomWidget(new ProgressBar(18, 65))
@@ -23,6 +24,7 @@ class Disassembler(state: container.Disassembler, playerInventory: Inventory, na
   }
 
   override def renderBg(stack: PoseStack, dt: Float, mouseX: Int, mouseY: Int) {
+    RenderSystem.setShader(GameRenderer.getPositionTexColorShader _)
     RenderSystem.setShaderColor(1, 1, 1, 1)
     Textures.bind(Textures.GUI.Disassembler)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)

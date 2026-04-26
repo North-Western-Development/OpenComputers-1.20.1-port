@@ -24,8 +24,8 @@ public interface InteractiveImageRenderer extends ImageRenderer {
      * This only fires for left-clicks, because right-clicks are reserved for
      * navigating back in the manual.
      * <br>
-     * If this returns <tt>false</tt> and the element is a link, the link will
-     * be followed. If it returns <tt>true</tt>, it will not.
+     * If this returns {@code false} and the element is a link, the link will
+     * be followed. If it returns {@code true}, it will not.
      *
      * @param mouseX the X coordinate of the mouse, relative to the element.
      * @param mouseY the Y coordinate of the mouse, relative to the element.

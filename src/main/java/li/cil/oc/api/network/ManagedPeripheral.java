@@ -15,7 +15,7 @@ public interface ManagedPeripheral {
      * Get the list of methods provided by this environment, in
      * <em>addition</em> to methods marked as callbacks.
      * <br>
-     * Returning <tt>null</tt> has the same meaning as returning an empty array,
+     * Returning {@code null} has the same meaning as returning an empty array,
      * that being that there are no methods - in which case you don't need this
      * interface!
      *

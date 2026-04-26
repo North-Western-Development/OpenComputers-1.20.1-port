@@ -6,7 +6,7 @@ import li.cil.oc.api.machine.Value;
 import net.minecraft.nbt.CompoundTag;
 
 /**
- * Basic implementation for the <tt>Value</tt> interface.
+ * Basic implementation for the {@code Value} interface.
  */
 public class AbstractValue implements Value {
     @Override

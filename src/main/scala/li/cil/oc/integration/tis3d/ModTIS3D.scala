@@ -6,7 +6,6 @@ import li.cil.tis3d.api.serial.SerialInterfaceProvider
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.scorge.lang.ScorgeModLoadingContext
 
 object ModTIS3D extends ModProxy {
   override def getMod = Mods.TIS3D

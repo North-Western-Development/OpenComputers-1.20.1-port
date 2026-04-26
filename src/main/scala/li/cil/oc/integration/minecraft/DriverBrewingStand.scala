@@ -11,7 +11,6 @@ import li.cil.oc.integration.ManagedBlockEntityEnvironment
 import li.cil.oc.util.ResultWrapper.result
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.ItemStack
-import net.minecraft.tileentity.BrewingStandBlockEntity
 import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.Level

@@ -89,7 +89,7 @@ class Adapter(selfType: BlockEntityType[_ <: Adapter], pos: BlockPos, state: Blo
 
   def neighborChanged(d: Direction) {
     if (node != null && node.network != null) {
-      val blockPos = getBlockPos.relative(d)
+      val blockPos: BlockPos = getBlockPos.relative(d)
       getLevel.getBlockEntity(blockPos) match {
         case _: traits.Environment =>
         // Don't provide adaption for our stuffs. This is mostly to avoid

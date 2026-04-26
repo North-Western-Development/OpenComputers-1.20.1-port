@@ -5,10 +5,11 @@ import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.Textures
 import li.cil.oc.common.Tier
 import li.cil.oc.common.container
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.client.renderer.GameRenderer
+import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.world.entity.player.Inventory
 
-class Database(state: container.Database, playerInventory: Inventory, name: TextComponent)
+class Database(state: container.Database, playerInventory: Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name)
   with traits.LockedHotbar[container.Database] {
 
@@ -22,6 +23,7 @@ class Database(state: container.Database, playerInventory: Inventory, name: Text
   override def drawSecondaryForegroundLayer(stack: PoseStack, mouseX: Int, mouseY: Int) {}
 
   override protected def renderBg(stack: PoseStack, dt: Float, mouseX: Int, mouseY: Int) {
+    RenderSystem.setShader(GameRenderer.getPositionTexColorShader _)
     RenderSystem.setShaderColor(1, 1, 1, 1)
     Textures.bind(Textures.GUI.Database)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)

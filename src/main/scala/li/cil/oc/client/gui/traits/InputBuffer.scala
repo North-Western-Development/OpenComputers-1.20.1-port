@@ -11,6 +11,7 @@ import li.cil.oc.integration.util.ItemSearch
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
+import net.minecraft.client.renderer.MultiBufferSource
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11
 
@@ -80,8 +81,8 @@ trait InputBuffer extends DisplayBuffer {
     Minecraft.getInstance.keyboardHandler.setSendRepeatsToGui(true)
   }
 
-  override protected def drawBufferLayer(stack: PoseStack) {
-    super.drawBufferLayer(stack)
+  override protected def drawBufferLayer(stack: PoseStack, buffer2: MultiBufferSource) {
+    super.drawBufferLayer(stack, buffer2)
 
     if (System.currentTimeMillis() - showKeyboardMissing < 1000) {
       Textures.bind(Textures.GUI.KeyboardMissing)
@@ -102,10 +103,10 @@ trait InputBuffer extends DisplayBuffer {
     }
   }
 
-  override def tick(): Unit = {
-    super.tick()
-    flushQueuedKey()
-  }
+//  override def tick(): Unit = {
+//    super.tick()
+//    flushQueuedKey()
+//  }
 
   override def removed() = {
     super.removed()

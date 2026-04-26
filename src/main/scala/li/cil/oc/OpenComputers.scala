@@ -19,6 +19,7 @@ import net.minecraftforge.forgespi.Environment
 import net.minecraftforge.fml.InterModComms
 import net.minecraftforge.fml.ModContainer
 import net.minecraftforge.fml.ModLoadingContext
+import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent
 import net.minecraftforge.fml.loading.FMLPaths
 import net.minecraftforge.network.simple.SimpleChannel
@@ -55,13 +56,15 @@ object OpenComputers {
     case _ => throw new IllegalStateException("not initialized")
   }
 }
-
+@Mod(OpenComputers.ID)
 class OpenComputers {
   val modContainer: ModContainer = ModLoadingContext.get.getActiveContainer
+  protected val modEventBus = net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext.get().getModEventBus
+  modEventBus.register(this)
 
   OpenComputers.instance = Some(this)
 
-  MinecraftForge.EVENT_BUS.register(OpenComputers.proxy)
+  modEventBus.register(OpenComputers.proxy)
   Settings.load(FMLPaths.CONFIGDIR.get().resolve(Paths.get("opencomputers", "settings.conf")).toFile())
   OpenComputers.proxy.preInit()
   MinecraftForge.EVENT_BUS.register(ThreadPoolFactory)

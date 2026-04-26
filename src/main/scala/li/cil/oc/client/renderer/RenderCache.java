@@ -1,51 +1,18 @@
 package li.cil.oc.client.renderer
 ;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import com.mojang.datafixers.util.Pair;
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.blaze3d.vertex.BufferBuilder.DrawState;
-import net.minecraft.client.renderer.GLAllocation;
+import com.mojang.math.Matrix4f;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import com.mojang.blaze3d.vertex.Tesselator;
-import org.lwjgl.system.MemoryUtil;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 
 public class RenderCache implements MultiBufferSource {
-    public static class DrawEntry {
-        private final RenderType type;
-        private final DrawState state;
-        private final ByteBuffer data;
-
-        public DrawEntry(RenderType type, DrawState state, ByteBuffer data, boolean copy) {
-            this.type = type;
-            this.state = state;
-            if (copy)
-            {
-                int bufferCap = state.format().getVertexSize() * state.vertexCount();
-                ByteBuffer temp = GLAllocation.createByteBuffer(bufferCap);
-                temp.put(data).flip();
-                data = temp;
-            }
-            this.data = data;
-        }
-
-        public RenderType type() {
-            return type;
-        }
-
-        public DrawState state() {
-            return state;
-        }
-
-        public ByteBuffer data() {
-            return data;
-        }
+    public record DrawEntry(RenderType type, VertexBuffer vertexBuffer) {
     }
 
     private final List<DrawEntry> cached;
@@ -67,16 +34,18 @@ public class RenderCache implements MultiBufferSource {
     private void flush(RenderType type) {
         if (type == activeType) {
             activeBuilder.end();
-            Pair<DrawState, ByteBuffer> rendered = activeBuilder.popNextBuffer();
-            if (rendered.getSecond().hasRemaining()) {
-                cached.add(new DrawEntry(type, rendered.getFirst(), rendered.getSecond(), true));
-            }
+
+            var vertexBuffer = new VertexBuffer();
+            vertexBuffer.bind();
+            vertexBuffer.upload(activeBuilder);
+            cached.add(new DrawEntry(type, vertexBuffer));
+
             activeType = null;
         }
     }
 
     @Override
-    public IVertexBuilder getBuffer(RenderType type) {
+    public VertexConsumer getBuffer(RenderType type) {
         if (type == null) throw new NullPointerException(); // Same as vanilla.
         if (activeType != null) {
             if (activeType == type) return activeBuilder;
@@ -96,18 +65,17 @@ public class RenderCache implements MultiBufferSource {
 
     public void render(PoseStack stack) {
         // Apply transform globally so we don't have to update stored vertices.
-        RenderSystem.pushMatrix();
-        RenderSystem.multMatrix(stack.last().pose());
+        stack.pushPose();
 
         cached.forEach(frame -> {
+            RenderSystem.bindTexture(MissingTextureAtlasSprite.getTexture().getId());
             frame.type().setupRenderState();
-            DrawState state = frame.state();
-            state.format().setupBufferState(MemoryUtil.memAddress(frame.data()));
-            RenderSystem.drawArrays(state.mode(), 0, state.vertexCount());
-            state.format().clearBufferState();
+            var identity = new Matrix4f();
+            identity.setIdentity();
+            frame.vertexBuffer.drawWithShader(identity, identity, RenderSystem.getShader());
             frame.type().clearRenderState();
         });
 
-        RenderSystem.popMatrix();
+        stack.popPose();
     }
 }

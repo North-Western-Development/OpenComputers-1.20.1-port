@@ -47,8 +47,8 @@ public final class IMC {
      * boolean callback(ItemStack stack)
      * </pre>
      * <br>
-     * Callbacks must be declared as <tt>packagePath.className.methodName</tt>.
-     * For example: <tt>com.example.Integration.callbackMethod</tt>.
+     * Callbacks must be declared as {@code packagePath.className.methodName}.
+     * For example: {@code com.example.Integration.callbackMethod}.
      *
      * @param callback the callback to register as a filtering method.
      */
@@ -65,7 +65,7 @@ public final class IMC {
      * Object[] validate(Container inventory)
      * Object[] assemble(Container inventory)
      * </pre>
-     * Values in the array returned by <tt>validate</tt> must be one of the following:
+     * Values in the array returned by {@code validate} must be one of the following:
      * <pre>
      * // Valid or not.
      * new Object[]{Boolean}
@@ -74,7 +74,7 @@ public final class IMC {
      * // Valid or not, text for progess bar, warnings for start button tooltip (one per line).
      * new Object[]{Boolean, IChatComponent, IChatComponent[]}
      * </pre>
-     * Values in the array returned by <tt>assemble</tt> must be one of the following:
+     * Values in the array returned by {@code assemble} must be one of the following:
      * <pre>
      * // The assembled device.
      * new Object[]{ItemStack}
@@ -82,8 +82,8 @@ public final class IMC {
      * new Object[]{ItemStack, Number}
      * </pre>
      * <br>
-     * Callbacks must be declared as <tt>packagePath.className.methodName</tt>.
-     * For example: <tt>com.example.Integration.callbackMethod</tt>.
+     * Callbacks must be declared as {@code packagePath.className.methodName}.
+     * For example: {@code com.example.Integration.callbackMethod}.
      *
      * @param name           the name of the device created using the
      *                       template. Optional, only used in logging.
@@ -107,10 +107,10 @@ public final class IMC {
      *                       template. The length determines the number of
      *                       upgrades. Maximum number is nine.
      * @param componentSlots the types and tiers of component slots provided by
-     *                       this template. May contain <tt>null</tt> entries
+     *                       this template. May contain {@code null} entries
      *                       to skip slots (slots are ordered top-to-bottom,
      *                       left-to-right). For example, a robot template
-     *                       with only two card slots will pass <tt>null</tt>
+     *                       with only two card slots will pass {@code null}
      *                       for the third component slot. Up to nine.
      */
     public static void registerAssemblerTemplate(final String name, final String select, final String validate, final String assemble, final Class host, final int[] containerTiers, final int[] upgradeTiers, final Iterable<Pair<String, Integer>> componentSlots) {
@@ -172,7 +172,7 @@ public final class IMC {
     /**
      * Register a new template for the disassembler.
      * <br>
-     * The <tt>disassemble</tt> callback gets passed the item stack to
+     * The {@code disassemble} callback gets passed the item stack to
      * disassemble, and a list of inferred ingredients (based on crafting
      * recipes). This is useful for not having to compute those yourself when
      * you just want to add a number of items from an internal inventory to
@@ -192,8 +192,8 @@ public final class IMC {
      * random failure, the second being guaranteed drops (e.g. for item inventory contents).</li>
      * </ul>
      * <br>
-     * Callbacks must be declared as <tt>packagePath.className.methodName</tt>.
-     * For example: <tt>com.example.Integration.callbackMethod</tt>.
+     * Callbacks must be declared as {@code packagePath.className.methodName}.
+     * For example: {@code com.example.Integration.callbackMethod}.
      *
      * @param name        the name of the handler (e.g. name of the item
      *                    being handled). Optional, only used in logging.
@@ -216,9 +216,9 @@ public final class IMC {
     /**
      * Register a callback for providing tool durability information.
      * <br>
-     * If your provider does not handle a tool/item, return <tt>Double.NaN</tt>
+     * If your provider does not handle a tool/item, return {@code Double.NaN}
      * to indicate that another provider should be queried. The first value
-     * that isn't <tt>NaN</tt> will be used as the durability.
+     * that isn't {@code NaN} will be used as the durability.
      * <br>
      * The returned value must be the <em>relative</em> durability of the tool,
      * in a range of [0,1], with 0 being broken, 1 being new/fully repaired.
@@ -228,8 +228,8 @@ public final class IMC {
      * double callback(ItemStack stack)
      * </pre>
      * <br>
-     * Callbacks must be declared as <tt>packagePath.className.methodName</tt>.
-     * For example: <tt>com.example.Integration.callbackMethod</tt>.
+     * Callbacks must be declared as {@code packagePath.className.methodName}.
+     * For example: {@code com.example.Integration.callbackMethod}.
      *
      * @param callback the callback to register as a durability provider.
      */
@@ -244,16 +244,16 @@ public final class IMC {
      * interacting with certain blocks while the player is holding such an item,
      * for example to avoid rotating blocks when opening their GUI.
      * <br>
-     * The returned value must be <tt>true</tt> if the wrench was used/usable,
-     * <tt>false</tt> otherwise.
+     * The returned value must be {@code true} if the wrench was used/usable,
+     * {@code false} otherwise.
      * <br>
      * Signature of callbacks must be:
      * <pre>
      * boolean callback(Player player, BlockPos pos, boolean changeDurability)
      * </pre>
      * <br>
-     * Callbacks must be declared as <tt>packagePath.className.methodName</tt>.
-     * For example: <tt>com.example.Integration.callbackMethod</tt>.
+     * Callbacks must be declared as {@code packagePath.className.methodName}.
+     * For example: {@code com.example.Integration.callbackMethod}.
      *
      * @param callback the callback to register as a wrench tool handler.
      */
@@ -267,16 +267,16 @@ public final class IMC {
      * This is used to determine whether certain item stacks are wrench items,
      * which is used, for example, when "itemizing" a drone.
      * <br>
-     * The returned value must <tt>true</tt> if the item stack is a wrench,
-     * <tt>false</tt> otherwise.
+     * The returned value must {@code true} if the item stack is a wrench,
+     * {@code false} otherwise.
      * <br>
      * Signature of callbacks must be:
      * <pre>
      * boolean callback(ItemStack stack)
      * </pre>
      * <br>
-     * Callbacks must be declared as <tt>packagePath.className.methodName</tt>.
-     * For example: <tt>com.example.Integration.callbackMethod</tt>.
+     * Callbacks must be declared as {@code packagePath.className.methodName}.
+     * For example: {@code com.example.Integration.callbackMethod}.
      *
      * @param callback the callback to register as a wrench tool tester.
      */
@@ -288,7 +288,7 @@ public final class IMC {
      * Register a handler for items that can be charged.
      * <br>
      * This is used by the charger to determine whether items can be charged
-     * by it (<tt>canCharge</tt>) and to actually charge them (<tt>charge</tt>).
+     * by it ({@code canCharge}) and to actually charge them ({@code charge}).
      * <br>
      * Note that OpenComputers comes with a few built-in handlers for third-
      * party charged items, such as Redstone Flux and IndustrialCraft 2.
@@ -299,8 +299,8 @@ public final class IMC {
      * double charge(ItemStack stack, double amount, boolean simulate)
      * </pre>
      * <br>
-     * Callbacks must be declared as <tt>packagePath.className.methodName</tt>.
-     * For example: <tt>com.example.Integration.callbackMethod</tt>.
+     * Callbacks must be declared as {@code packagePath.className.methodName}.
+     * For example: {@code com.example.Integration.callbackMethod}.
      *
      * @param name      the name of the energy system/item type handled.
      * @param canCharge the callback to register for checking chargeability.
@@ -329,8 +329,8 @@ public final class IMC {
      * int callback(ItemStack stack)
      * </pre>
      * <br>
-     * Callbacks must be declared as <tt>packagePath.className.methodName</tt>.
-     * For example: <tt>com.example.Integration.callbackMethod</tt>.
+     * Callbacks must be declared as {@code packagePath.className.methodName}.
+     * For example: {@code com.example.Integration.callbackMethod}.
      *
      * @param callback the callback to register as an ink provider.
      */

@@ -1,40 +1,35 @@
 package li.cil.oc.common.block
 
-import java.util
-
-import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.block.property.PropertyRotatable
+import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.tileentity
 import li.cil.oc.integration.Mods
 import li.cil.oc.util.Tooltip
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.world.entity.player.Player
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.network.chat.{Component, TextComponent}
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.item.ItemStack
-import net.minecraft.state.StateContainer
-import net.minecraft.core.Direction
-import net.minecraft.util.Hand
-import net.minecraft.core.BlockPos
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.level.BlockGetter
-import net.minecraft.world.level.Level
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.{ItemStack, TooltipFlag}
+import net.minecraft.world.level.{BlockGetter, Level}
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToScala._
 
 class DiskDrive(props: Properties) extends SimpleBlock(props) with traits.GUI {
-  protected override def createBlockStateDefinition(builder: StateContainer.Builder[Block, BlockState]) =
+  protected override def createBlockStateDefinition(builder: StateDefinition.Builder[Block, BlockState]) =
     builder.add(PropertyRotatable.Facing)
 
   // ----------------------------------------------------------------------- //
 
-  override protected def tooltipTail(stack: ItemStack, world: BlockGetter, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
+  override protected def tooltipTail(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], flag: TooltipFlag) {
     super.tooltipTail(stack, world, tooltip, flag)
     if (Mods.ComputerCraft.isModAvailable) {
-      for (curr <- Tooltip.get(getClass.getSimpleName + ".CC")) tooltip.add(new StringTextComponent(curr).setStyle(Tooltip.DefaultStyle))
+      for (curr <- Tooltip.get(getClass.getSimpleName + ".CC")) tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 
@@ -45,7 +40,15 @@ class DiskDrive(props: Properties) extends SimpleBlock(props) with traits.GUI {
     case _ =>
   }
 
-  override def newBlockEntity(world: BlockGetter) = new tileentity.DiskDrive(tileentity.BlockEntityTypes.DISK_DRIVE)
+  override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.DiskDrive(tileentity.BlockEntityTypes.DISK_DRIVE, pos, state)
+
+  override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
+    (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
+      entity match {
+        case tileEntity: tileentity.DiskDrive => tileEntity.updateEntity()
+        case _ =>
+      }
+  }
 
   // ----------------------------------------------------------------------- //
 
@@ -59,7 +62,7 @@ class DiskDrive(props: Properties) extends SimpleBlock(props) with traits.GUI {
 
   // ----------------------------------------------------------------------- //
 
-  override def localOnBlockActivated(world: Level, pos: BlockPos, player: Player, hand: Hand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Boolean = {
+  override def localOnBlockActivated(world: Level, pos: BlockPos, player: Player, hand: InteractionHand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Boolean = {
     // Behavior: sneaking -> Insert[+Eject], not sneaking -> GUI.
     if (player.isCrouching) world.getBlockEntity(pos) match {
       case drive: tileentity.DiskDrive =>

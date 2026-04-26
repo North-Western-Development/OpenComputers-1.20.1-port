@@ -1,15 +1,13 @@
 package li.cil.oc.common
 
-import com.google.common.cache.Cache
-import com.google.common.cache.CacheBuilder
+import com.google.common.cache.{Cache, CacheBuilder}
 import li.cil.oc.api.network.ManagedEnvironment
 import net.minecraft.resources.ResourceKey
 import net.minecraft.world.level.Level
-import net.minecraftforge.event.world.{LevelEvent, WorldEvent}
+import net.minecraftforge.event.world.WorldEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
 import scala.collection.JavaConverters.asJavaIterable
-import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 

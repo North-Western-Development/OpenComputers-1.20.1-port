@@ -20,10 +20,10 @@ public interface ContentProvider {
      * subset of "normal" Markdown).
      * <br>
      * If this provider cannot provide the requested path, it should return
-     * <tt>null</tt> to indicate so, allowing other providers to be queried.
+     * {@code null} to indicate so, allowing other providers to be queried.
      *
      * @param path the path to the manual page we're looking for.
-     * @return the content of the document at that path, or <tt>null</tt>.
+     * @return the content of the document at that path, or {@code null}.
      */
     Iterable<String> getContent(String path);
 }

@@ -1,64 +1,53 @@
 package li.cil.oc.common.block
 
-import java.util
-
-import li.cil.oc.Constants
-import li.cil.oc.Settings
-import li.cil.oc.api
 import li.cil.oc.client.KeyBindings
-import li.cil.oc.common.Tier
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.item.data.MicrocontrollerData
-import li.cil.oc.common.tileentity
+import li.cil.oc.common.{Tier, tileentity}
 import li.cil.oc.integration.util.Wrench
 import li.cil.oc.server.loot.LootFunctions
-import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.StackOption._
-import li.cil.oc.util.Tooltip
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.entity.LivingEntity
+import li.cil.oc.util.{InventoryUtils, Tooltip}
+import li.cil.oc.{Constants, Settings, api}
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.ItemStack
-import net.minecraft.loot.LootContext
-import net.minecraft.loot.LootParameters
-import net.minecraft.state.StateContainer
-import net.minecraft.core.Direction
-import net.minecraft.util.Hand
-import net.minecraft.core.BlockPos
-import net.minecraft.util.math.RayTraceResult
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.level.BlockGetter
-import net.minecraft.world.level.Level
+import net.minecraft.world.item.{ItemStack, TooltipFlag}
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
+import net.minecraft.world.level.storage.loot.LootContext
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams
+import net.minecraft.world.level.{BlockGetter, Level}
 import net.minecraftforge.common.extensions.IForgeBlock
 
-import scala.reflect.ClassTag
+import java.util
 
 class Microcontroller(props: Properties)
   extends RedstoneAware(props) with IForgeBlock with traits.PowerAcceptor with traits.StateAware {
 
-  protected override def createBlockStateDefinition(builder: StateContainer.Builder[Block, BlockState]) =
+  protected override def createBlockStateDefinition(builder: StateDefinition.Builder[Block, BlockState]) =
     builder.add(PropertyRotatable.Facing)
 
   // ----------------------------------------------------------------------- //
 
-  override def getPickBlock(state: BlockState, target: RayTraceResult, world: BlockGetter, pos: BlockPos, player: Player): ItemStack =
-    world.getBlockEntity(pos) match {
-      case mcu: tileentity.Microcontroller => mcu.info.copyItemStack()
-      case _ => ItemStack.EMPTY
-    }
+//  override def getPickBlock(state: BlockState, target: HitResult, world: BlockGetter, pos: BlockPos, player: Player): ItemStack =
+//    world.getBlockEntity(pos) match {
+//      case mcu: tileentity.Microcontroller => mcu.info.copyItemStack()
+//      case _ => ItemStack.EMPTY
+//    }
 
   // ----------------------------------------------------------------------- //
 
-  override protected def tooltipTail(stack: ItemStack, world: BlockGetter, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) {
+  override protected def tooltipTail(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], advanced: TooltipFlag) {
     super.tooltipTail(stack, world, tooltip, advanced)
     if (KeyBindings.showExtendedTooltips) {
       val info = new MicrocontrollerData(stack)
       for (component <- info.components if !component.isEmpty) {
-        tooltip.add(new StringTextComponent("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
+        tooltip.add(new TextComponent("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
       }
     }
   }
@@ -67,11 +56,18 @@ class Microcontroller(props: Properties)
 
   override def energyThroughput: Double = Settings.get.caseRate(Tier.One)
 
-  override def newBlockEntity(world: BlockGetter) = new tileentity.Microcontroller(tileentity.BlockEntityTypes.MICROCONTROLLER)
+  override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Microcontroller(tileentity.BlockEntityTypes.MICROCONTROLLER, pos, state)
 
+  override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
+    (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
+      entity match {
+        case tileEntity: tileentity.Microcontroller => tileEntity.updateEntity()
+        case _ =>
+      }
+  }
   // ----------------------------------------------------------------------- //
 
-  override def localOnBlockActivated(world: Level, pos: BlockPos, player: Player, hand: Hand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Boolean = {
+  override def localOnBlockActivated(world: Level, pos: BlockPos, player: Player, hand: InteractionHand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Boolean = {
     if (!Wrench.holdsApplicableWrench(player, pos)) {
       if (!player.isCrouching) {
         if (!world.isClientSide) {
@@ -115,7 +111,7 @@ class Microcontroller(props: Properties)
 
   override def getDrops(state: BlockState, ctx: LootContext.Builder): util.List[ItemStack] = {
     val newCtx = ctx.withDynamicDrop(LootFunctions.DYN_ITEM_DATA, (c, f) => {
-      c.getParamOrNull(LootParameters.BLOCK_ENTITY) match {
+      c.getParamOrNull(LootContextParams.BLOCK_ENTITY) match {
         case tileEntity: tileentity.Microcontroller => {
           tileEntity.saveComponents()
           tileEntity.info.storedEnergy = tileEntity.snooperNode.localBuffer.toInt
@@ -127,7 +123,7 @@ class Microcontroller(props: Properties)
     super.getDrops(state, newCtx)
   }
 
-  override def playerWillDestroy(world: Level, pos: BlockPos, state: BlockState, player: Player) {
+  override def playerDestroy(world: Level, player: Player, pos: BlockPos, state: BlockState, blockEntity : BlockEntity, tool : ItemStack) {
     if (!world.isClientSide && player.isCreative) {
       world.getBlockEntity(pos) match {
         case tileEntity: tileentity.Microcontroller =>
@@ -135,6 +131,6 @@ class Microcontroller(props: Properties)
         case _ =>
       }
     }
-    super.playerWillDestroy(world, pos, state, player)
+    super.playerDestroy(world, player, pos, state, blockEntity, tool)
   }
 }

@@ -22,24 +22,29 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.item.Item
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType
 import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent
+import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.event.RegistryEvent.MissingMappings
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent
+import net.minecraftforge.fml.InterModComms
+import net.minecraftforge.fml.event.lifecycle.{FMLCommonSetupEvent, FMLLoadCompleteEvent, InterModProcessEvent}
 import net.minecraftforge.network.{NetworkEvent, NetworkRegistry}
 import net.minecraftforge.registries.ForgeRegistries
 
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
+import scala.collection.convert.ImplicitConversionsToScala._
 
 class Proxy {
   protected val modBus = MinecraftForge.EVENT_BUS
-  modBus.register(classOf[ContainerTypes])
-  modBus.register(classOf[EntityTypes])
-  modBus.register(classOf[BlockEntityTypes])
-  modBus.register(classOf[RecipeSerializers])
-  LootFunctions.init()
+  protected val modEventBus = net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext.get().getModEventBus
+  modEventBus.register(classOf[ContainerTypes])
+  modEventBus.register(classOf[EntityTypes])
+  modEventBus.register(classOf[BlockEntityTypes])
+  modEventBus.register(classOf[RecipeSerializers])
+  LootFunctions.init(modEventBus)
 
   def preInit() {
     OpenComputers.log.info("Initializing OpenComputers API.")
@@ -94,10 +99,14 @@ class Proxy {
       Mods.init()
 
       OpenComputers.log.info("Initializing capabilities.")
-      Capabilities.init()
 
       api.API.isPowerEnabled = !Settings.get.ignorePower
     }): Runnable)
+  }
+
+  @SubscribeEvent
+  def register(event: RegisterCapabilitiesEvent): Unit = {
+    Capabilities.init(event)
   }
 
   @SubscribeEvent

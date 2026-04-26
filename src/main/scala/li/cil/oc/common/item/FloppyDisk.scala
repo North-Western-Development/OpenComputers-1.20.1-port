@@ -2,8 +2,7 @@ package li.cil.oc.common.item
 
 import li.cil.oc.Constants
 import li.cil.oc.Settings
-import net.minecraft.client.renderer.model.ModelBakery
-import net.minecraft.client.renderer.model.ModelResourceLocation
+import net.minecraft.client.resources.model.ModelResourceLocation
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.Item
@@ -11,10 +10,10 @@ import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.item.ItemStack
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.core.BlockPos
-import net.minecraft.world.ILevelReader
+import net.minecraft.world.level.LevelReader
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraftforge.client.model.ModelLoader
+import net.minecraftforge.client.model.ForgeModelBakery
 import net.minecraftforge.common.extensions.IForgeItem
 
 class FloppyDisk(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with CustomModel with traits.FileSystemLike {
@@ -42,9 +41,9 @@ class FloppyDisk(props: Properties) extends Item(props) with IForgeItem with tra
   override def registerModelLocations(): Unit = {
     for (dye <- DyeColor.values) {
       val location = modelLocationFromDyeName(dye)
-      ModelLoader.addSpecialModel(location)
+      ForgeModelBakery.addSpecialModel(location)
     }
   }
 
-  override def doesSneakBypassUse(stack: ItemStack, world: ILevelReader, pos: BlockPos, player: Player): Boolean = true
+  override def doesSneakBypassUse(stack: ItemStack, world: LevelReader, pos: BlockPos, player: Player): Boolean = true
 }

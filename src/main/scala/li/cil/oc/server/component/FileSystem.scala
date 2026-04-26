@@ -3,7 +3,6 @@ package li.cil.oc.server.component
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -24,10 +23,7 @@ import li.cil.oc.api.prefab.AbstractValue
 import li.cil.oc.common.SaveHandler
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.IntArrayNBT
-import net.minecraft.nbt.ListTag
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.nbt.{CompoundTag, IntArrayTag, ListTag, Tag}
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
@@ -306,7 +302,7 @@ class FileSystem(val fileSystem: IFileSystem, var label: Label, val host: Option
   override def loadData(nbt: CompoundTag) {
     super.loadData(nbt)
 
-    nbt.getList("owners", NBT.TAG_COMPOUND).foreach((ownerNbt: CompoundTag) => {
+    nbt.getList("owners", Tag.TAG_COMPOUND).foreach((ownerNbt: CompoundTag) => {
       val address = ownerNbt.getString("address")
       if (address != "") {
         owners += address -> ownerNbt.getIntArray("handles").to(mutable.Set)
@@ -331,7 +327,7 @@ class FileSystem(val fileSystem: IFileSystem, var label: Label, val host: Option
       for ((address, handles) <- owners) {
         val ownerNbt = new CompoundTag()
         ownerNbt.putString("address", address)
-        ownerNbt.put("handles", new IntArrayNBT(handles.toArray))
+        ownerNbt.put("handles", new IntArrayTag(handles.toArray))
         ownersNbt.add(ownerNbt)
       }
       nbt.put("owners", ownersNbt)

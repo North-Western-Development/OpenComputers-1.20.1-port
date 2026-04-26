@@ -26,7 +26,7 @@ class Database(selfType: MenuType[_ <: Database], id: Int, playerInventory: Inve
     if (slot >= databaseInventory.getContainerSize() || slot < 0) {
       // if the slot interaction is with the user inventory use
       // default behavior
-      return super.clicked(slot, dragType, clickType, player)
+      super.clicked(slot, dragType, clickType, player)
     }
     // remove the ghost item
     val ghostSlot = this.slots.get(slot);
