@@ -200,13 +200,13 @@ dependencies {
 
     jarJar "com.typesafe:config:[1.2.1,1.3)"
 
-    compileOnly fg.deobf("curse.maven:tis-3d-238603:3738437")
+    compileOnly fg.deobf("curse.maven:tis-3d-238603:4755445")
     //compileOnly fg.deobf("curse.maven:hwyla-${config.hwyla.projectId}:${config.hwyla.fileId}")
-    compileOnly fg.deobf("curse.maven:cc-tweaked-282001:4630521")
-    compileOnly fg.deobf("curse.maven:cofh-core-69162:4801048")
-    compileOnly fg.deobf("curse.maven:thermal-foundation-222880:4788649")
+    compileOnly fg.deobf("curse.maven:cc-tweaked-282001:5005332")
+    compileOnly fg.deobf("curse.maven:cofh-core-69162:4801049")
+    compileOnly fg.deobf("curse.maven:thermal-foundation-222880:4782926")
 
-    runtimeOnly fg.deobf("curse.maven:modernfix-790626:5399365")
+    runtimeOnly fg.deobf("curse.maven:modernfix-790626:5803581")
 
     provided fg.deobf("appeng:appliedenergistics2-forge:${config.ae2.version}:api") {
         transitive = false
@@ -227,7 +227,7 @@ dependencies {
 
     provided fg.deobf("codechicken:CodeChickenLib:${config.ccl.version}:universal")
 
-    provided fg.deobf("curse.maven:project-red-core-228702:4956039")
+    provided fg.deobf("curse.maven:project-red-core-228702:5452524")
 
     provided fg.deobf("curse.maven:project-red-integration-229045:5452529")
 
@@ -245,7 +245,7 @@ dependencies {
     runtimeOnly(fg.deobf("mezz.jei:jei-${config.minecraft.version}-forge:${config.jei.version}"))
     compileOnly(group: 'org.typelevel', name: "cats-core_2.13", version: '2.8.1-kotori')
 
-    runtimeOnly (group: "com.kotori316", name: "ScalableCatsForce".toLowerCase(), version: "2.13.10-build-12", classifier: "with-library") {
+    runtimeOnly (group: "com.kotori316", name: "ScalableCatsForce".toLowerCase(), version: "2.13.10-build-10", classifier: "with-library") {
         transitive(false)
     }
 
