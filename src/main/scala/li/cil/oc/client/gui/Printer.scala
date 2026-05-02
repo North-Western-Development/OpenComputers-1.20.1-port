@@ -8,7 +8,7 @@ import li.cil.oc.common.container
 import li.cil.oc.common.container.ComponentSlot
 import li.cil.oc.util.RenderState
 import net.minecraft.client.renderer.GameRenderer
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Inventory
 
 class Printer(state: container.Printer, playerInventory: Inventory, name: Component)

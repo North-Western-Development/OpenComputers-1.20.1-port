@@ -8,9 +8,10 @@ import net.minecraft.client.resources.sounds.{AbstractTickableSoundInstance, Tic
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.sounds.{SoundEvent, SoundSource}
+import net.minecraft.util.RandomSource
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.event.TickEvent.ClientTickEvent
-import net.minecraftforge.event.world.WorldEvent
+import net.minecraftforge.event.level.LevelEvent
 
 import scala.collection.mutable
 
@@ -75,7 +76,7 @@ object Sound {
   }
 
   @SubscribeEvent
-  def onLevelUnload(event: WorldEvent.Unload): Unit = {
+  def onLevelUnload(event: LevelEvent.Unload): Unit = {
     commandQueue.synchronized(commandQueue.clear())
     sources.synchronized(try sources.foreach(_._2.doStop()) catch {
       case _: Throwable => // Ignore.
@@ -130,7 +131,7 @@ object Sound {
   }
 
   private class PseudoLoopingStream(val tileEntity: BlockEntity, val subVolume: Float, name: String)
-    extends AbstractTickableSoundInstance(new SoundEvent(new ResourceLocation(OpenComputers.ID, name)), SoundSource.BLOCKS) {
+    extends AbstractTickableSoundInstance(new SoundEvent(ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, name)), SoundSource.BLOCKS, RandomSource.create()) {
 
     var stopped = false
     volume = subVolume * Settings.get.soundVolume

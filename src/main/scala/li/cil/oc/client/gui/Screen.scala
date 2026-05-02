@@ -7,11 +7,11 @@ import li.cil.oc.client.renderer.gui.BufferRenderer
 import net.minecraft.client.KeyMapping
 import net.minecraft.client.gui.components.events.ContainerEventHandler
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.network.chat.Component
 import org.lwjgl.glfw.GLFW
 
 class Screen(val buffer: api.internal.TextBuffer, val hasMouse: Boolean, val hasKeyboardCallback: () => Boolean, val hasPower: () => Boolean)
-  extends net.minecraft.client.gui.screens.Screen(TextComponent.EMPTY) with traits.InputBuffer with ContainerEventHandler {
+  extends net.minecraft.client.gui.screens.Screen(Component.empty()) with traits.InputBuffer with ContainerEventHandler {
 
   override protected def hasKeyboard = hasKeyboardCallback()
 

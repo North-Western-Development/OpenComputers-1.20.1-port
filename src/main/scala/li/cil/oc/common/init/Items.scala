@@ -25,7 +25,7 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.item.{BlockItem, DyeColor, Item, ItemStack, PickaxeItem, Rarity}
 import net.minecraft.world.item.Item.Properties
 import net.minecraft.resources.ResourceLocation
-import net.minecraftforge.registries.GameData
+import net.minecraftforge.registries.{GameData, RegisterEvent}
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -52,8 +52,8 @@ object Items extends ItemAPI {
       instance match {
         case simple: SimpleBlock =>
           simple.setUnlocalizedName("oc." + id)
-          simple.setRegistryName(OpenComputers.ID, id)
-          GameData.register_impl[Block](simple)
+          //simple.setRegistryName(OpenComputers.ID, id)
+          //GameData.register_impl[Block](simple)
         case _ =>
       }
       descriptors += id -> new ItemInfo {
@@ -78,12 +78,14 @@ object Items extends ItemAPI {
       val itemInst = instance match {
         case simple: SimpleBlock =>
           simple.setUnlocalizedName("oc." + id)
-          simple.setRegistryName(OpenComputers.ID, id)
-          GameData.register_impl[Block](simple)
+
+
+          //simple.setRegistryName(OpenComputers.ID, id)
+          //GameData.register_impl[Block](simple)
 
           val item : Item = new common.block.Item(simple, itemProps)
-          item.setRegistryName(OpenComputers.ID, id)
-          GameData.register_impl(item)
+          //item.setRegistryName(OpenComputers.ID, id)
+          //GameData.register_impl(item)
           OpenComputers.proxy.registerModel(item, id)
           item
         case _ => null.asInstanceOf[Item]
@@ -109,7 +111,7 @@ object Items extends ItemAPI {
     if (!descriptors.contains(id)) {
       instance match {
         case simple: SimpleItem =>
-          GameData.register_impl(simple.setRegistryName(new ResourceLocation(Settings.resourceDomain, id)))
+          //GameData.register_impl(simple.setRegistryName(new ResourceLocation(Settings.resourceDomain, id)))
           OpenComputers.proxy.registerModel(simple, id)
         case _ =>
       }
@@ -325,7 +327,7 @@ object Items extends ItemAPI {
 
   private def defaultProps = new Properties().tab(CreativeTab)
 
-  def init() {
+  def init(helper: RegisterEvent.RegisterHelper[Item]) {
     initMaterials()
     initTools()
     initComponents()
@@ -333,7 +335,11 @@ object Items extends ItemAPI {
     initUpgrades()
     initStorage()
     initSpecial()
-
+    for ((_, item) <- descriptors) {
+      if (item.item() != null){
+        helper.register(ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, item.name), item.item())
+      }
+    }
     // Register aliases.
     for ((k, v) <- aliases) {
       descriptors.getOrElseUpdate(k, descriptors(v))

@@ -4,14 +4,16 @@ import li.cil.oc.client.Textures
 import li.cil.oc.common.block.property.PropertyCableConnection
 import li.cil.oc.util.{Color, ItemColorizer}
 import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.block.model.{BakedQuad, ItemOverrides}
 import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.core.Direction
+import net.minecraft.util.RandomSource
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.{DyeColor, ItemStack}
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.Vec3
-import net.minecraftforge.client.model.data.{IModelData, ModelProperty}
+import net.minecraftforge.client.model.data.{ModelData, ModelProperty}
 
 import java.util
 import java.util.Collections
@@ -22,10 +24,10 @@ object CableModel extends SmartBlockModelBase {
   final val COLOR_PROPERTY: ModelProperty[Int] = new ModelProperty[Int]()
   override def getOverrides: ItemOverrides = ItemOverride
 
-  override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] = {
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData, renderType: RenderType): util.List[BakedQuad] = {
     if (side != null)
       return Collections.emptyList()
-    val color: Int = Option(data.getData(COLOR_PROPERTY)).getOrElse(Color.rgbValues(DyeColor.LIGHT_GRAY))
+    val color: Int = Option(data.get(COLOR_PROPERTY)).getOrElse(Color.rgbValues(DyeColor.LIGHT_GRAY))
     val faces = mutable.ArrayBuffer.empty[BakedQuad]
 
     faces ++= bakeQuads(Middle, cableTexture, color)
@@ -98,7 +100,7 @@ object CableModel extends SmartBlockModelBase {
     class ItemModel(val stack: ItemStack) extends SmartBlockModelBase {
       override def getOverrides: ItemOverrides = ItemOverrides.EMPTY
 
-      override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] = {
+      override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData, renderType: RenderType): util.List[BakedQuad] = {
         if (side != null)
           return Collections.emptyList();
 

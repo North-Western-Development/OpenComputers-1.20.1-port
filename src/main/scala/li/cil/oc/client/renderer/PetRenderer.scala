@@ -48,23 +48,23 @@ object PetRenderer {
 
   @SubscribeEvent
   def onPlayerRender(e: RenderPlayerEvent.Pre) {
-    val uuid = e.getPlayer.getUUID.toString
+    val uuid = e.getEntity.getUUID.toString
     if (hidden.contains(uuid) || !entitledPlayers.contains(uuid)) return
     rendering = Some(entitledPlayers(uuid))
 
-    val worldTime = e.getPlayer.level.getGameTime
-    val timeJitter = e.getPlayer.hashCode ^ 0xFF
+    val worldTime = e.getEntity.level.getGameTime
+    val timeJitter = e.getEntity.hashCode ^ 0xFF
     val offset = timeJitter + worldTime / 20.0
     val hover = (math.sin(timeJitter + (worldTime + e.getPartialTick) / 20.0) * 0.03).toFloat
 
-    val location = petLocations.get(e.getPlayer, new Callable[PetLocation] {
-      override def call() = new PetLocation(e.getPlayer)
+    val location = petLocations.get(e.getEntity, new Callable[PetLocation] {
+      override def call() = new PetLocation(e.getEntity)
     })
 
     val stack = e.getPoseStack
     stack.pushPose()
     val self = Minecraft.getInstance.player
-    val other = e.getPlayer
+    val other = e.getEntity
     val px = other.xOld + (other.getX - other.xOld) * e.getPartialTick
     val py = other.yOld + (other.getY - other.yOld) * e.getPartialTick + other.getEyeHeight(other.getPose)
     val pz = other.zOld + (other.getZ - other.zOld) * e.getPartialTick

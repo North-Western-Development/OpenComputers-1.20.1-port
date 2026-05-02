@@ -8,15 +8,17 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.util.ExtendedAABB._
 import li.cil.oc.util.{Color, ExtendedAABB}
 import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.block.model.{BakedQuad, ItemOverrides}
 import net.minecraft.client.renderer.texture.{MissingTextureAtlasSprite, TextureAtlasSprite}
 import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.util.RandomSource
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.{DyeColor, ItemStack}
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraftforge.client.model.data.{IModelData, ModelProperty}
+import net.minecraftforge.client.model.data.{ModelData, ModelProperty}
 
 import java.util
 import java.util.Collections
@@ -28,11 +30,11 @@ object PrintModel extends SmartBlockModelBase {
 
   override def getOverrides: ItemOverrides = ItemOverride
 
-  override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] = {
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData, renderType: RenderType): util.List[BakedQuad] = {
     if (side != null)
       return Collections.emptyList()
 
-    val t = data.getData(PRINT_PROPERTY)
+    val t = data.get(PRINT_PROPERTY)
     if (t == null || t.shapes.isEmpty) {
       val bounds = ExtendedAABB.unitBounds
       val texture = resolveTexture(Settings.resourceDomain + ":blocks/white")
@@ -51,8 +53,8 @@ object PrintModel extends SmartBlockModelBase {
   }
 
   private def resolveTexture(name: String): TextureAtlasSprite = try {
-    val texture = Textures.getSprite(new ResourceLocation(name))
-    if (texture.getName == MissingTextureAtlasSprite.getLocation) Textures.getSprite(new ResourceLocation("minecraft", "block/" + name))
+    val texture = Textures.getSprite(ResourceLocation.parse(name))
+    if (texture.getName == MissingTextureAtlasSprite.getLocation) Textures.getSprite(ResourceLocation.fromNamespaceAndPath("minecraft", "block/" + name))
     else texture
   }
   catch {
@@ -62,7 +64,7 @@ object PrintModel extends SmartBlockModelBase {
   class ItemModel(val data: PrintData) extends SmartBlockModelBase {
     override def getOverrides: ItemOverrides = ItemOverrides.EMPTY
 
-    override def getQuads(state: BlockState, side: Direction, rand: util.Random, data2: IModelData): util.List[BakedQuad] = {
+    override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data2: ModelData, renderType: RenderType): util.List[BakedQuad] = {
       if (side != null)
         return Collections.emptyList()
 

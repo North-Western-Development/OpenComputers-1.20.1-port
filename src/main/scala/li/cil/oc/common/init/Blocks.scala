@@ -8,9 +8,11 @@ import li.cil.oc.common.block._
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.material.Material
 import net.minecraft.world.item.{Item, Rarity}
+import net.minecraft.world.level.block.Block
+import net.minecraftforge.registries.RegisterEvent
 
 object Blocks {
-  def init() {
+  def init(helper: RegisterEvent.RegisterHelper[Block]) {
     def defaultProps = Properties.of(Material.METAL).strength(2, 5)
     def defaultItemProps = new Item.Properties().tab(CreativeTab)
     Items.registerBlock(new Adapter(defaultProps), Constants.BlockName.Adapter, defaultItemProps)

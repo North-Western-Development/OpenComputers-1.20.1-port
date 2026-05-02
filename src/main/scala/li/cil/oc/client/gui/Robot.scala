@@ -17,7 +17,7 @@ import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.Button.OnPress
 import net.minecraft.client.gui.components.events.ContainerEventHandler
 import net.minecraft.client.renderer.{GameRenderer, MultiBufferSource}
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Inventory
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11

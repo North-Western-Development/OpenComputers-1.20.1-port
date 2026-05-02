@@ -5,6 +5,8 @@ import li.cil.oc.OpenComputers
 import li.cil.oc.api
 import li.cil.oc.client
 import li.cil.oc.client.gui.GuiTypes
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent
+import net.minecraftforge.eventbus.api.SubscribeEvent
 //import li.cil.oc.client.renderer.HighlightRenderer
 import li.cil.oc.client.renderer.MFUTargetRenderer
 import li.cil.oc.client.renderer.PetRenderer
@@ -29,7 +31,6 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider.Context
 import net.minecraft.world.level.block.Block
 import net.minecraft.client.renderer.entity.{EntityRenderer, EntityRendererProvider, EntityRenderers}
 import net.minecraft.world.item.Item
-import net.minecraftforge.client.ClientRegistry
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent
 
@@ -43,6 +44,13 @@ private[oc] class Proxy extends CommonProxy {
     super.preInit()
 
     api.API.manual = client.Manual
+  }
+
+  @SubscribeEvent
+  def registerBindings(e:RegisterKeyMappingsEvent): Unit = {
+    e.register(KeyBindings.extendedTooltip);
+    e.register(KeyBindings.analyzeCopyAddr);
+    e.register(KeyBindings.clipboardPaste);
   }
 
   override def init(e: FMLCommonSetupEvent) {
@@ -77,10 +85,6 @@ private[oc] class Proxy extends CommonProxy {
       BlockEntityRenderers.register(tileentity.BlockEntityTypes.ROBOT, RobotRenderer.apply)
       BlockEntityRenderers.register(tileentity.BlockEntityTypes.SCREEN, ScreenRenderer.apply)
       BlockEntityRenderers.register(tileentity.BlockEntityTypes.TRANSPOSER, TransposerRenderer.apply)
-
-      ClientRegistry.registerKeyBinding(KeyBindings.extendedTooltip)
-      ClientRegistry.registerKeyBinding(KeyBindings.analyzeCopyAddr)
-      ClientRegistry.registerKeyBinding(KeyBindings.clipboardPaste)
 
       //MinecraftForge.EVENT_BUS.register(HighlightRenderer) SEE: HighlightRenderer.scala for reason
       MinecraftForge.EVENT_BUS.register(NanomachinesHandler.Client)

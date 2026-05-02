@@ -9,6 +9,7 @@ import li.cil.oc.common.item.CustomModel
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.block.BlockModelShaper
 import net.minecraft.client.renderer.block.model.ItemOverrides
 import net.minecraft.client.resources.model.{BakedModel, ModelResourceLocation}
@@ -16,11 +17,13 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.util.RandomSource
 import net.minecraft.world.entity.LivingEntity
-import net.minecraftforge.client.event.{ModelBakeEvent, ModelRegistryEvent}
-import net.minecraftforge.client.model.data.IDynamicBakedModel
-import net.minecraftforge.client.model.data.IModelData
+import net.minecraftforge.client.event.ModelEvent
+import net.minecraftforge.client.model.IDynamicBakedModel
+import net.minecraftforge.client.model.data.ModelData
 import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.registries.ForgeRegistries
 
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
@@ -49,11 +52,11 @@ object ModelInitialization {
   }
 
   @SubscribeEvent
-  def onModelRegistration(event: ModelRegistryEvent): Unit = {
+  def onModelRegistration(event: ModelEvent.RegisterAdditional): Unit = {
     val shaper = Minecraft.getInstance.getItemRenderer.getItemModelShaper
     for (item <- meshableItems) {
       item match {
-        case custom: CustomModel => custom.registerModelLocations()
+        case custom: CustomModel => custom.registerModelLocations(event)
         case _ => {
           Option(api.Items.get(new ItemStack(item))) match {
             case Some(descriptor) =>
@@ -94,8 +97,8 @@ object ModelInitialization {
   // ----------------------------------------------------------------------- //
 
   @SubscribeEvent
-  def onModelBake(e: ModelBakeEvent): Unit = {
-    val registry = e.getModelRegistry
+  def onModelBake(e: ModelEvent.BakingCompleted): Unit = {
+    val registry = e.getModels
 
     registry.put(CableBlockLocation, CableModel)
     registry.put(CableItemLocation, CableModel)
@@ -110,7 +113,9 @@ object ModelInitialization {
     for (item <- meshableItems) item match {
       case custom: CustomModel => {
         custom.bakeModels(e)
-        val originalLocation = new ModelResourceLocation(custom.getRegistryName, "inventory")
+
+        val registryName = ForgeRegistries.ITEMS.getKey(custom.asInstanceOf[net.minecraft.world.item.Item])
+        val originalLocation = new ModelResourceLocation(registryName, "inventory")
         registry.get(originalLocation) match {
           case original: BakedModel => {
             val overrides = new ItemOverrides {
@@ -119,7 +124,7 @@ object ModelInitialization {
             }
             val fake = new IDynamicBakedModel {
               @Deprecated
-              override def getQuads(state: BlockState, dir: Direction, rand: Random, data: IModelData) = original.getQuads(state, dir, rand, data)
+              override def getQuads(state: BlockState, dir: Direction, rand: RandomSource, data: ModelData, renderType: RenderType) = original.getQuads(state, dir, rand, data, renderType)
         
               override def useAmbientOcclusion() = original.useAmbientOcclusion
         

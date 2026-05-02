@@ -8,11 +8,13 @@ import net.minecraft.client.renderer.block.model.BakedQuad
 import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.client.renderer.block.model.ItemOverrides
 import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
+import net.minecraft.util.RandomSource
 import net.minecraft.world.phys.Vec3
-import net.minecraftforge.client.model.data.IModelData
+import net.minecraftforge.client.model.data.ModelData
 
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
@@ -20,7 +22,7 @@ import scala.jdk.CollectionConverters._
 object DroneModel extends SmartBlockModelBase {
   override def getOverrides: ItemOverrides = ItemOverride
 
-  override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] = {
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData, renderType: RenderType): util.List[BakedQuad] = {
     if (side != null)
       return Collections.emptyList()
 

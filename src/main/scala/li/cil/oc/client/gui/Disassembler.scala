@@ -6,7 +6,7 @@ import li.cil.oc.client.Textures
 import li.cil.oc.client.gui.widget.ProgressBar
 import li.cil.oc.common.container
 import net.minecraft.client.renderer.GameRenderer
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Inventory
 
 class Disassembler(state: container.Disassembler, playerInventory: Inventory, name: Component)

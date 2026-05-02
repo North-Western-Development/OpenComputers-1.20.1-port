@@ -7,13 +7,15 @@ import li.cil.oc.common.block.Screen
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.util.{Color, RotationHelper}
 import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.block.model.{BakedQuad, ItemOverrides}
 import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.core.Direction
+import net.minecraft.util.RandomSource
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.{DyeColor, ItemStack}
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraftforge.client.model.data.{IModelData, ModelProperty}
+import net.minecraftforge.client.model.data.{ModelData, ModelProperty}
 
 import java.util
 import java.util.Collections
@@ -29,14 +31,14 @@ object ScreenModel extends SmartBlockModelBase {
 
   override def getOverrides: ItemOverrides = ItemOverride
 
-  override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] = {
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData, renderType: RenderType): util.List[BakedQuad] = {
     if (side == null)
       return Collections.emptyList()
 
     val pitch = state.getValue(PropertyRotatable.Pitch)
     val yaw = state.getValue(PropertyRotatable.Yaw)
-    val color: Int = Option(data.getData(COLOR_PROPERTY)).getOrElse(Color.rgbValues(Color.byTier(0)))
-    val (width: Int, height: Int, x: Int, y: Int) = Option(data.getData[(Int, Int, Int, Int)](WIDTH_HEIGHT_LOCAL_POSITION_PROPERTY)).getOrElse(() => (1, 1, 0, 0))
+    val color: Int = Option(data.get(COLOR_PROPERTY)).getOrElse(Color.rgbValues(Color.byTier(0)))
+    val (width: Int, height: Int, x: Int, y: Int) = Option(data.get[(Int, Int, Int, Int)](WIDTH_HEIGHT_LOCAL_POSITION_PROPERTY)).getOrElse(() => (1, 1, 0, 0))
 
     val facing = toLocal(side, pitch, yaw)
 
@@ -102,7 +104,7 @@ object ScreenModel extends SmartBlockModelBase {
       case _ => Color.byTier(Tier.One)
     }
 
-    override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] = {
+    override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData, renderType: RenderType): util.List[BakedQuad] = {
       val result =
         if (side == Direction.NORTH || side == null)
           Textures.Block.Screen.SingleFront(0)

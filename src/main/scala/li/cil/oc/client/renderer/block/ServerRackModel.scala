@@ -5,14 +5,16 @@ import li.cil.oc.api.event.RackMountableRenderEvent
 import li.cil.oc.client.Textures
 import li.cil.oc.common.tileentity
 import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.block.model.{BakedQuad, ItemOverrides}
 import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.core.Direction
+import net.minecraft.util.RandomSource
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.Vec3
-import net.minecraftforge.client.model.data.{IModelData, ModelProperty}
+import net.minecraftforge.client.model.data.{ModelData, ModelProperty}
 import net.minecraftforge.common.MinecraftForge
 
 import java.util
@@ -27,8 +29,8 @@ object ServerRackModel {
 class ServerRackModel(val parent: BakedModel) extends SmartBlockModelBase {
   override def getOverrides: ItemOverrides = ItemOverride
 
-  override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] = {
-    val rack = data.getData(ServerRackModel.RACK_PROPERTY)
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData, renderType: RenderType): util.List[BakedQuad] = {
+    val rack = data.get(ServerRackModel.RACK_PROPERTY)
     if (rack == null) {
       if (side == null) {
         val faces = mutable.ArrayBuffer.empty[BakedQuad]

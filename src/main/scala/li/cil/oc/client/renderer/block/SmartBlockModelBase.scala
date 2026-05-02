@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.block.model.{BakedQuad, ItemTransform, Item
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.core.Direction
 import net.minecraft.world.phys.Vec3
-import net.minecraftforge.client.model.data.IDynamicBakedModel
+import net.minecraftforge.client.model.IDynamicBakedModel
 
 trait SmartBlockModelBase extends IDynamicBakedModel {
 

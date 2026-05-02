@@ -5,7 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.client.Textures
 import li.cil.oc.common.container
 import net.minecraft.client.renderer.GameRenderer
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Inventory
 
 class Raid(state: container.Raid, playerInventory: Inventory, name: Component)

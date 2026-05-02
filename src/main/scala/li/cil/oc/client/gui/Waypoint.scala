@@ -7,10 +7,10 @@ import li.cil.oc.client.Textures
 import li.cil.oc.common.tileentity
 import net.minecraft.client.KeyMapping
 import net.minecraft.client.gui.components.EditBox
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.network.chat.Component
 import org.lwjgl.glfw.GLFW
 
-class Waypoint(val waypoint: tileentity.Waypoint) extends net.minecraft.client.gui.screens.Screen(TextComponent.EMPTY) {
+class Waypoint(val waypoint: tileentity.Waypoint) extends net.minecraft.client.gui.screens.Screen(Component.empty()) {
   val imageWidth = 176
   val imageHeight = 24
   var leftPos = 0
@@ -36,7 +36,7 @@ class Waypoint(val waypoint: tileentity.Waypoint) extends net.minecraft.client.g
     leftPos = (width - imageWidth) / 2
     topPos = (height - imageHeight) / 2
 
-    textField = new EditBox(font, leftPos + 7, topPos + 8, 164 - 12, 12, TextComponent.EMPTY) {
+    textField = new EditBox(font, leftPos + 7, topPos + 8, 164 - 12, 12, Component.empty()) {
       override def keyPressed(keyCode: Int, scanCode: Int, mods: Int): Boolean = {
         if (keyCode == GLFW.GLFW_KEY_ENTER) {
           val label = textField.getValue.take(32)

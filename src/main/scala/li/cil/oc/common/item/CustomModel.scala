@@ -2,7 +2,7 @@ package li.cil.oc.common.item
 
 import net.minecraft.client.resources.model.ModelResourceLocation
 import net.minecraft.world.item.ItemStack
-import net.minecraftforge.client.event.ModelBakeEvent
+import net.minecraftforge.client.event.ModelEvent
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
@@ -11,8 +11,8 @@ trait CustomModel {
   def getModelLocation(stack: ItemStack): ModelResourceLocation
 
   @OnlyIn(Dist.CLIENT)
-  def registerModelLocations(): Unit = {}
+  def registerModelLocations(event: ModelEvent.RegisterAdditional): Unit = {}
 
   @OnlyIn(Dist.CLIENT)
-  def bakeModels(bakeEvent: ModelBakeEvent): Unit = {}
+  def bakeModels(bakeEvent: ModelEvent.BakingCompleted): Unit = {}
 }

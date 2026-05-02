@@ -7,11 +7,6 @@ import li.cil.oc.common.init.Blocks
 import li.cil.oc.common.init.Items
 import li.cil.oc.integration.Mods
 import li.cil.oc.util.ThreadPoolFactory
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.Item
-import net.minecraft.world.level.Level
-import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -23,6 +18,7 @@ import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent
 import net.minecraftforge.fml.loading.FMLPaths
 import net.minecraftforge.network.simple.SimpleChannel
+import net.minecraftforge.registries.{ForgeRegistries, RegisterEvent}
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 

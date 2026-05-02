@@ -25,13 +25,11 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent
-import net.minecraftforge.event.RegistryEvent
-import net.minecraftforge.event.RegistryEvent.MissingMappings
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.InterModComms
 import net.minecraftforge.fml.event.lifecycle.{FMLCommonSetupEvent, FMLLoadCompleteEvent, InterModProcessEvent}
 import net.minecraftforge.network.{NetworkEvent, NetworkRegistry}
-import net.minecraftforge.registries.ForgeRegistries
+import net.minecraftforge.registries.{ForgeRegistries, MissingMappingsEvent}
 
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
@@ -82,7 +80,7 @@ class Proxy {
   @SubscribeEvent
   def init(e: FMLCommonSetupEvent) {
     e.enqueueWork((() => {
-      OpenComputers.channel = NetworkRegistry.newSimpleChannel(new ResourceLocation(OpenComputers.ID, "net_main"), () => "", "".equals(_), "".equals(_))
+      OpenComputers.channel = NetworkRegistry.newSimpleChannel(ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, "net_main"), () => "", "".equals(_), "".equals(_))
       OpenComputers.channel.registerMessage(0, classOf[Array[Byte]],
         (msg: Array[Byte], buff: FriendlyByteBuf) => buff.writeByteArray(msg), _.readByteArray(),
         (msg: Array[Byte], ctx: Supplier[NetworkEvent.Context]) => {

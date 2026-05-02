@@ -80,7 +80,7 @@ abstract class PacketHandler {
   private[oc] class PacketParser(stream: InputStream, val player: Player) extends DataInputStream(stream) {
     val packetType = PacketType(readByte())
 
-    def readRegistryEntry[T <: IForgeRegistryEntry[T]](registry: IForgeRegistry[T]): T =
+    def readRegistryEntry[T <: IForgeRegistry[T]](registry: IForgeRegistry[T]): T =
       registry.asInstanceOf[ForgeRegistry[T]].getValue(readInt())
 
     def getBlockEntity[T: ClassTag](dimension: ResourceLocation, x: Int, y: Int, z: Int): Option[T] = {
@@ -119,7 +119,7 @@ abstract class PacketHandler {
     }
 
     def readBlockEntity[T: ClassTag](): Option[T] = {
-      val dimension = new ResourceLocation(readUTF())
+      val dimension = ResourceLocation.parse(readUTF())
       val x = readInt()
       val y = readInt()
       val z = readInt()
@@ -127,7 +127,7 @@ abstract class PacketHandler {
     }
 
     def readEntity[T: ClassTag](): Option[T] = {
-      val dimension = new ResourceLocation(readUTF())
+      val dimension = ResourceLocation.parse(readUTF())
       val id = readInt()
       getEntity[T](dimension, id)
     }

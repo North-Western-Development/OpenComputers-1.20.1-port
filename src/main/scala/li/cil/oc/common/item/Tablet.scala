@@ -23,7 +23,7 @@ import net.minecraft.client.server.IntegratedServer
 import net.minecraft.core.{BlockPos, Direction, NonNullList}
 import net.minecraft.nbt.{CompoundTag, Tag}
 import net.minecraft.network.chat
-import net.minecraft.network.chat.{Component, TextComponent, TranslatableComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.entity.{Entity, LivingEntity}
@@ -32,10 +32,10 @@ import net.minecraft.world.item.{CreativeModeTab, Item, ItemStack, Rarity}
 import net.minecraft.world.level.Level
 import net.minecraft.world.{InteractionHand, InteractionResult, InteractionResultHolder, MenuProvider}
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
-import net.minecraftforge.client.model.ForgeModelBakery
+import net.minecraftforge.client.event.ModelEvent
 import net.minecraftforge.common.extensions.IForgeItem
 import net.minecraftforge.event.TickEvent.{ClientTickEvent, ServerTickEvent}
-import net.minecraftforge.event.world.WorldEvent
+import net.minecraftforge.event.level.LevelEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.server.ServerLifecycleHooks
 
@@ -57,10 +57,10 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
       val components = info.items.drop(1)
       if (components.length > 1) {
         for (curr <- Tooltip.get("server.Components")) {
-          tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+          tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
         }
         components.collect {
-          case component if !component.isEmpty => tooltip.add(new TextComponent("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
+          case component if !component.isEmpty => tooltip.add(Component.literal("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
         }
       }
     }
@@ -113,9 +113,9 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def registerModelLocations(): Unit = {
+  override def registerModelLocations(event: ModelEvent.RegisterAdditional): Unit = {
     for (state <- Seq(None, Some(true), Some(false))) {
-      ForgeModelBakery.addSpecialModel(modelLocationFromState(state))
+      event.register(modelLocationFromState(state))
     }
   }
 
@@ -203,7 +203,7 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
               val computer = Tablet.get(stack, player).machine
               computer.start()
               computer.lastError match {
-                case message if message != null => player.sendMessage(Localization.Analyzer.LastError(message), Util.NIL_UUID)
+                case message if message != null => player.sendSystemMessage(Localization.Analyzer.LastError(message))
                 case _ =>
               }
             }
@@ -505,14 +505,14 @@ object Tablet {
   }
 
   @SubscribeEvent
-  def onLevelSave(e: WorldEvent.Save) {
-    Server.saveAll(e.getWorld.asInstanceOf[Level])
+  def onLevelSave(e: LevelEvent.Save) {
+    Server.saveAll(e.getLevel.asInstanceOf[Level])
   }
 
   @SubscribeEvent
-  def onLevelUnload(e: WorldEvent.Unload) {
-    Client.clear(e.getWorld.asInstanceOf[Level])
-    Server.clear(e.getWorld.asInstanceOf[Level])
+  def onLevelUnload(e: LevelEvent.Unload) {
+    Client.clear(e.getLevel.asInstanceOf[Level])
+    Server.clear(e.getLevel.asInstanceOf[Level])
   }
 
   @SubscribeEvent

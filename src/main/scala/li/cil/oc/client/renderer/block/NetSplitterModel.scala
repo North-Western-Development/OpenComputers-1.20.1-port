@@ -4,6 +4,7 @@ import java.util
 import li.cil.oc.client.Textures
 import li.cil.oc.common.tileentity
 import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.block.model.{BakedQuad, ItemOverrides}
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.renderer.texture.{TextureAtlas, TextureAtlasSprite}
@@ -11,11 +12,12 @@ import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.util.RandomSource
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.inventory.InventoryMenu
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.client.event.TextureStitchEvent
-import net.minecraftforge.client.model.data.{IModelData, ModelProperty}
+import net.minecraftforge.client.model.data.{ModelData, ModelProperty}
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
 import java.util.Collections
@@ -27,11 +29,11 @@ object NetSplitterModel extends SmartBlockModelBase {
 
   override def getOverrides: ItemOverrides = ItemOverride
 
-  override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] = {
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData, renderType: RenderType): util.List[BakedQuad] = {
     if (side != null)
       return Collections.emptyList()
 
-    val openSides: immutable.Map[Direction, Boolean] = Option(data.getData(OPEN_SIDES_PROPERTY)).getOrElse(Map.empty)
+    val openSides: immutable.Map[Direction, Boolean] = Option(data.get(OPEN_SIDES_PROPERTY)).getOrElse(Map.empty)
     val faces = mutable.ArrayBuffer.empty[BakedQuad]
 
     faces ++= BaseModel
@@ -104,7 +106,7 @@ object NetSplitterModel extends SmartBlockModelBase {
   }
 
   object ItemModel extends SmartBlockModelBase {
-    override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] = {
+    override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData, renderType: RenderType): util.List[BakedQuad] = {
       if (side != null)
         return Collections.emptyList()
 

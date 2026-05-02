@@ -8,7 +8,7 @@ import li.cil.oc.client.{PacketSender => ClientPacketSender}
 import li.cil.oc.common.container
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.renderer.GameRenderer
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Inventory
 
 import scala.collection.JavaConverters.asJavaCollection

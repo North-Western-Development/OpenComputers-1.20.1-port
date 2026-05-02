@@ -6,7 +6,7 @@ import li.cil.oc.client.Textures
 import li.cil.oc.common.Tier
 import li.cil.oc.common.container
 import net.minecraft.client.renderer.GameRenderer
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Inventory
 
 class Database(state: container.Database, playerInventory: Inventory, name: Component)
