@@ -6,7 +6,7 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.integration.Mods
 import li.cil.oc.util.Tooltip
 import net.minecraft.core.{BlockPos, Direction}
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Player
@@ -29,7 +29,7 @@ class DiskDrive(props: Properties) extends SimpleBlock(props) with traits.GUI {
   override protected def tooltipTail(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], flag: TooltipFlag) {
     super.tooltipTail(stack, world, tooltip, flag)
     if (Mods.ComputerCraft.isModAvailable) {
-      for (curr <- Tooltip.get(getClass.getSimpleName + ".CC")) tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+      for (curr <- Tooltip.get(getClass.getSimpleName + ".CC")) tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 

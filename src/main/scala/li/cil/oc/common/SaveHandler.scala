@@ -9,7 +9,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.storage.LevelResource
 import net.minecraft.world.level.{ChunkPos, Level}
-import net.minecraftforge.event.world.WorldEvent
+import net.minecraftforge.event.level.LevelEvent
 import net.minecraftforge.eventbus.api.{EventPriority, SubscribeEvent}
 import net.minecraftforge.server.ServerLifecycleHooks
 
@@ -152,7 +152,7 @@ object SaveHandler {
     })
     saving.remove(name)
 
-    load(new ResourceLocation(dimension), chunk, name)
+    load(ResourceLocation.parse(dimension), chunk, name)
   }
 
   def scheduleSave(dimension: ResourceLocation, chunk: ChunkPos, name: String, data: Array[Byte]): Unit = {
@@ -215,8 +215,8 @@ object SaveHandler {
   }
 
   @SubscribeEvent(priority = EventPriority.HIGHEST)
-  def onLevelLoad(e: WorldEvent.Load) {
-    if (!e.getWorld.isClientSide) {
+  def onLevelLoad(e: LevelEvent.Load) {
+    if (!e.getLevel.isClientSide) {
       // Touch all externally saved data when loading, to avoid it getting
       // deleted in the next save (because the now - save time will usually
       // be larger than the time out after loading a world again).
@@ -225,7 +225,7 @@ object SaveHandler {
   }
 
   @SubscribeEvent(priority = EventPriority.LOWEST)
-  def onLevelSave(e: WorldEvent.Save) {
+  def onLevelSave(e: LevelEvent.Save) {
     stateSaveHandler.withPool(_.submit(new Runnable {
       override def run(): Unit = cleanSaveData()
     }))

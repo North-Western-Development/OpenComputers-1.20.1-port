@@ -15,7 +15,7 @@ import net.minecraft.world.phys.{AABB, BlockHitResult}
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.FakePlayerFactory
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
-import net.minecraftforge.event.world.BlockEvent
+import net.minecraftforge.event.level.BlockEvent
 import net.minecraftforge.eventbus.api.Event.Result
 import net.minecraftforge.fluids.IFluidBlock
 import net.minecraftforge.items.wrapper.InvWrapper

@@ -6,7 +6,7 @@ import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.container.{DiskDrive => DiskDriveContainer}
 import li.cil.oc.common.tileentity
 import net.minecraft.world.entity.player.Player
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.MenuProvider
 
@@ -24,7 +24,7 @@ trait DiskDriveMountableInventory extends ItemStackInventory with MenuProvider {
     case _ => false
   }
 
-  override def getDisplayName = TextComponent.EMPTY
+  override def getDisplayName = Component.empty()
 
   override def createMenu(id: Int, playerInventory: net.minecraft.world.entity.player.Inventory, player: Player) =
     new DiskDriveContainer(ContainerTypes.DISK_DRIVE, id, playerInventory, this)

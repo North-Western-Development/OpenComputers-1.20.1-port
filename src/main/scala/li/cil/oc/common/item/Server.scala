@@ -16,7 +16,6 @@ import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.InteractionHand
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.world.level.Level
 import net.minecraftforge.common.extensions.IForgeItem
 
@@ -47,10 +46,10 @@ class Server(props: Properties, val tier: Int) extends Item(props) with IForgeIt
       }
       if (stacks.nonEmpty) {
         for (curr <- Tooltip.get("server.Components")) {
-          tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+          tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
         }
         for (itemName <- stacks.keys.toArray.sorted) {
-          tooltip.add(new TextComponent("- " + stacks(itemName) + "x " + itemName).setStyle(Tooltip.DefaultStyle))
+          tooltip.add(Component.literal("- " + stacks(itemName) + "x " + itemName).setStyle(Tooltip.DefaultStyle))
         }
       }
     }

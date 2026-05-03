@@ -43,7 +43,6 @@ import net.minecraft.world.phys.shapes.CollisionContext
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.vehicle.Minecart
 import net.minecraft.world.entity.{Entity, LivingEntity}
@@ -53,7 +52,7 @@ import net.minecraft.world.scores.Scoreboard
 import net.minecraft.world.scores.criteria.ObjectiveCriteria
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.FakePlayerFactory
-import net.minecraftforge.event.world.BlockEvent
+import net.minecraftforge.event.level.BlockEvent
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fluids.IFluidBlock
 import net.minecraftforge.fluids.capability.IFluidHandler
@@ -87,7 +86,7 @@ class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with D
 
   private def createCommandSourceStack(): CommandSourceStack = {
     val sender = new CommandSource {
-      override def sendMessage(message: Component, sender: UUID) {
+      override def sendSystemMessage(message: Component) {
         CommandMessages = Option(CommandMessages.fold("")(_ + "\n") + message.getString)
       }
 
@@ -496,7 +495,7 @@ object DebugCard {
     @Callback(doc = """function(id:string, amount:number, meta:number[, nbt:string]):number -- Adds the item stack to the players inventory""")
     def insertItem(context: Context, args: Arguments): Array[AnyRef] =
       withPlayer(player => {
-        val item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(args.checkString(0)))
+        val item = ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(args.checkString(0)))
         if (item == null) {
           throw new IllegalArgumentException("invalid item id")
         }
@@ -584,7 +583,7 @@ object DebugCard {
       val criteria = ObjectiveCriteria.byName(objType).orElseThrow(new Supplier[IllegalArgumentException] {
         override def get = new IllegalArgumentException("invalid criterion")
       })
-      scoreboard.addObjective(objName, criteria, new TextComponent(objName), ObjectiveCriteria.RenderType.INTEGER)
+      scoreboard.addObjective(objName, criteria, Component.literal(objName), ObjectiveCriteria.RenderType.INTEGER)
       null
     }
 
@@ -647,7 +646,7 @@ object DebugCard {
     override def loadData(nbt: CompoundTag) {
       super.loadData(nbt)
       ctx = AccessContext.loadData(nbt)
-      dimension = new ResourceLocation(nbt.getString(DimensionTag))
+      dimension = ResourceLocation.parse(nbt.getString(DimensionTag))
       val dimKey = ResourceKey.create(Registry.DIMENSION_REGISTRY, dimension)
       scoreboard = ServerLifecycleHooks.getCurrentServer.getLevel(dimKey).getScoreboard
     }
@@ -760,7 +759,7 @@ object DebugCard {
       val (x, y, z) = (args.checkInteger(0), args.checkInteger(1), args.checkInteger(2))
       val sound = args.checkString(3)
       val range = args.checkInteger(4)
-      PacketSender.sendSound(world, x, y, z, new ResourceLocation(sound), SoundSource.MASTER, range)
+      PacketSender.sendSound(world, x, y, z, ResourceLocation.parse(sound), SoundSource.MASTER, range)
       null
     }
 
@@ -880,7 +879,7 @@ object DebugCard {
       val (xMin, yMin, zMin) = (args.checkInteger(0), args.checkInteger(1), args.checkInteger(2))
       val (xMax, yMax, zMax) = (args.checkInteger(3), args.checkInteger(4), args.checkInteger(5))
       val registry = ForgeRegistries.BLOCKS.asInstanceOf[ForgeRegistry[Block]]
-      val block = if (args.isInteger(3)) registry.getValue(args.checkInteger(3)) else registry.getValue(new ResourceLocation(args.checkString(3)))
+      val block = if (args.isInteger(3)) registry.getValue(args.checkInteger(3)) else registry.getValue(ResourceLocation.parse(args.checkString(3)))
       val metadata = args.checkInteger(7)
       for (x <- math.min(xMin, xMax) to math.max(xMin, xMax)) {
         for (y <- math.min(yMin, yMax) to math.max(yMin, yMax)) {
@@ -898,7 +897,7 @@ object DebugCard {
     @Callback(doc = """function(id:string, count:number, damage:number, nbt:string, x:number, y:number, z:number, side:number):boolean - Insert an item stack into the inventory at the specified location. NBT tag is expected in JSON format.""")
     def insertItem(context: Context, args: Arguments): Array[AnyRef] = {
       checkAccess()
-      val item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(args.checkString(0)))
+      val item = ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(args.checkString(0)))
       if (item == null) {
         throw new IllegalArgumentException("invalid item id")
       }
@@ -936,7 +935,7 @@ object DebugCard {
     @Callback(doc = """function(id:string, amount:number, x:number, y:number, z:number, side:number):boolean - Insert some fluid into the tank at the specified location.""")
     def insertFluid(context: Context, args: Arguments): Array[AnyRef] = {
       checkAccess()
-      val fluid = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(args.checkString(0)))
+      val fluid = ForgeRegistries.FLUIDS.getValue(ResourceLocation.parse(args.checkString(0)))
       if (fluid == null) {
         throw new IllegalArgumentException("invalid fluid id")
       }
@@ -969,7 +968,7 @@ object DebugCard {
     override def loadData(nbt: CompoundTag) {
       super.loadData(nbt)
       ctx = AccessContext.loadData(nbt)
-      val dimension = new ResourceLocation(nbt.getString(DimensionTag))
+      val dimension = ResourceLocation.parse(nbt.getString(DimensionTag))
       val dimKey = ResourceKey.create(Registry.DIMENSION_REGISTRY, dimension)
       world = ServerLifecycleHooks.getCurrentServer.getLevel(dimKey)
     }

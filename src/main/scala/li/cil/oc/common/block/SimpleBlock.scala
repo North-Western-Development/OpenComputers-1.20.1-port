@@ -5,7 +5,7 @@ import li.cil.oc.common.tileentity.traits.{Colored, Inventory, Rotatable}
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.{Color, Tooltip}
 import net.minecraft.core.{BlockPos, Direction}
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.world.{InteractionHand, InteractionResult}
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.Player
@@ -57,7 +57,7 @@ abstract class SimpleBlock(props: Properties) extends Block(props) with EntityBl
 
   protected def tooltipBody(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], flag: TooltipFlag): Unit = {
     for (curr <- Tooltip.get(getClass.getSimpleName.toLowerCase).asScala) {
-      tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 

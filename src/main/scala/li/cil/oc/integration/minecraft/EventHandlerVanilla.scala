@@ -26,7 +26,9 @@ object EventHandlerVanilla {
     }
 
     val noise = new Array[Byte](e.data.length)
-    world.random.nextBytes(noise)
+    for (i <- noise.indices) {
+      noise(i) = world.random.nextInt(256).toByte
+    }
     // Map to [-1, 1). The additional /33f is for normalization below.
     noise.map(_ / 128f / 33f).copyToArray(e.data)
 
@@ -65,7 +67,7 @@ object EventHandlerVanilla {
     val blockState = world.getBlockState(e.pos)
     val block = blockState.getBlock
 
-    e.data += "name" -> block.getRegistryName
+    e.data += "name" -> block.getName
     e.data += "hardness" -> Float.box(blockState.getDestroySpeed(world, e.pos))
     e.data += "harvestLevel" -> Int.box(0) //TODO: FIND SOLUTION FOR HARVEST LEVEL AND TOOL
     e.data += "harvestTool" -> Option("NONE")

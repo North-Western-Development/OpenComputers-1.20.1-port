@@ -9,6 +9,7 @@ import li.cil.oc.api.network._
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.{AbstractContainerMenu, ResultContainer, ResultSlot}
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.crafting.RecipeType
 import net.minecraft.world.{Container, inventory}
 
@@ -37,6 +38,8 @@ class UpgradeCrafting(val host: EnvironmentHost with internal.Robot) extends Abs
 
   private object CraftingInventory extends inventory.CraftingContainer(new AbstractContainerMenu(null, 0) {
     override def stillValid(player: Player) = true
+
+    override def quickMoveStack(player: Player, i: Int): ItemStack = ItemStack.EMPTY
   }, 3, 3) {
     def craft(wantedCount: Int): Seq[_] = {
       val player = host.player

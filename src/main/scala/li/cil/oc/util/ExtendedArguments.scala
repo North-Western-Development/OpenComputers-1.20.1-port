@@ -4,8 +4,7 @@ import li.cil.oc.api.internal.MultiTank
 import li.cil.oc.api.machine.Arguments
 import net.minecraft.world.Container
 import net.minecraft.core.Direction
-import net.minecraftforge.fluids.FluidAttributes
-import net.minecraftforge.fluids.FluidStack
+import net.minecraftforge.fluids.{FluidStack, FluidType}
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.items.IItemHandler
 
@@ -20,7 +19,7 @@ object ExtendedArguments {
       if (!isDefined(index) || !hasValue(index)) default
       else math.max(0, math.min(64, args.checkInteger(index)))
 
-    def optFluidCount(index: Int, default: Int = FluidAttributes.BUCKET_VOLUME) =
+    def optFluidCount(index: Int, default: Int = FluidType.BUCKET_VOLUME) =
       if (!isDefined(index) || !hasValue(index)) default
       else math.max(0, args.checkInteger(index))
 

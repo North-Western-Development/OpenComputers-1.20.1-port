@@ -6,8 +6,9 @@ import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.Tooltip
 import li.cil.oc.{Localization, Settings}
 import net.minecraft.core.{BlockPos, Direction}
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.util.RandomSource
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.{ItemStack, TooltipFlag}
@@ -34,20 +35,20 @@ class Print(props: Properties) extends RedstoneAware(props) {
   override protected def tooltipBody(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], advanced: TooltipFlag) = {
     super.tooltipBody(stack, world, tooltip, advanced)
     val data = new PrintData(stack)
-    data.tooltip.foreach(s => tooltip.addAll(s.linesIterator.map(new TextComponent(_).setStyle(Tooltip.DefaultStyle)).toList.asJava))
+    data.tooltip.foreach(s => tooltip.addAll(s.linesIterator.map(Component.literal(_).setStyle(Tooltip.DefaultStyle)).toList.asJava))
   }
 
   override protected def tooltipTail(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], advanced: TooltipFlag) = {
     super.tooltipTail(stack, world, tooltip, advanced)
     val data = new PrintData(stack)
     if (data.isBeaconBase) {
-      tooltip.add(new TextComponent(Localization.Tooltip.PrintBeaconBase).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(Component.literal(Localization.Tooltip.PrintBeaconBase).setStyle(Tooltip.DefaultStyle))
     }
     if (data.emitRedstone) {
-      tooltip.add(new TextComponent(Localization.Tooltip.PrintRedstoneLevel(data.redstoneLevel)).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(Component.literal(Localization.Tooltip.PrintRedstoneLevel(data.redstoneLevel)).setStyle(Tooltip.DefaultStyle))
     }
     if (data.emitLight) {
-      tooltip.add(new TextComponent(Localization.Tooltip.PrintLightValue(data.lightLevel)).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(Component.literal(Localization.Tooltip.PrintLightValue(data.lightLevel)).setStyle(Tooltip.DefaultStyle))
     }
   }
 
@@ -86,7 +87,7 @@ class Print(props: Properties) extends RedstoneAware(props) {
 
   def tickRate(world: Level) = 20
 
-  override def tick(state: BlockState, world: ServerLevel, pos: BlockPos, rand: Random): Unit = {
+  override def tick(state: BlockState, world: ServerLevel, pos: BlockPos, rand: RandomSource): Unit = {
     if (!world.isClientSide) world.getBlockEntity(pos) match {
       case print: tileentity.Print =>
         if (print.state) print.toggleState()

@@ -100,7 +100,7 @@ class Relay(selfType: BlockEntityType[_ <: Relay], pos: BlockPos, state: BlockSt
 
   override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
     if (isWirelessEnabled) {
-      player.sendMessage(Localization.Analyzer.WirelessStrength(strength), Util.NIL_UUID)
+      player.sendSystemMessage(Localization.Analyzer.WirelessStrength(strength))
       Array(componentNodes(side.get3DDataValue))
     }
     else null

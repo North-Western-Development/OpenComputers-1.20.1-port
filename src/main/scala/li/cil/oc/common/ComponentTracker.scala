@@ -4,7 +4,7 @@ import com.google.common.cache.{Cache, CacheBuilder}
 import li.cil.oc.api.network.ManagedEnvironment
 import net.minecraft.resources.ResourceKey
 import net.minecraft.world.level.Level
-import net.minecraftforge.event.world.WorldEvent
+import net.minecraftforge.event.level.LevelEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
 import scala.collection.JavaConverters.asJavaIterable
@@ -46,7 +46,7 @@ abstract class ComponentTracker {
   }
 
   @SubscribeEvent
-  def onLevelUnload(e: WorldEvent.Unload): Unit = e.getWorld match {
+  def onLevelUnload(e: LevelEvent.Unload): Unit = e.getLevel match {
     case world: Level => clear(world)
     case _ =>
   }

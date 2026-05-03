@@ -3,13 +3,12 @@ package li.cil.oc.common.block
 import li.cil.oc.common.tileentity
 import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.util.RandomSource
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
-
-import java.util.Random
 
 class Capacitor(props: Properties) extends SimpleBlock(props) {
   @Deprecated
@@ -30,7 +29,7 @@ class Capacitor(props: Properties) extends SimpleBlock(props) {
       case _ => 0
     }
 
-  override def tick(state: BlockState, world: ServerLevel, pos: BlockPos, rand: Random): Unit = {
+  override def tick(state: BlockState, world: ServerLevel, pos: BlockPos, rand: RandomSource): Unit = {
     world.updateNeighborsAt(pos, this)
   }
 

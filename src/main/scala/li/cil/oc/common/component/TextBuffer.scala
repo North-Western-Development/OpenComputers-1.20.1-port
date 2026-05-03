@@ -35,10 +35,10 @@ import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.world.entity.player.Player
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.InteractionHand
-import net.minecraftforge.event.world.{ChunkEvent, WorldEvent}
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.event.level.{ChunkEvent, LevelEvent}
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -509,7 +509,7 @@ object TextBuffer {
     clientBuffers = clientBuffers.filter(t => {
       val blockPos = BlockPosition(t.host)
       val chunkPos = chunk.getPos
-      val keep = t.host.world != e.getWorld || ((blockPos.x >> 4) != chunkPos.x || (blockPos.z >> 4) != chunkPos.z)
+      val keep = t.host.world != e.getLevel || ((blockPos.x >> 4) != chunkPos.x || (blockPos.z >> 4) != chunkPos.z)
       if (!keep) {
         ClientComponentTracker.remove(t.host.world, t)
       }
@@ -518,9 +518,9 @@ object TextBuffer {
   }
 
   @SubscribeEvent
-  def onLevelUnload(e: WorldEvent.Unload) {
+  def onLevelUnload(e: LevelEvent.Unload) {
     clientBuffers = clientBuffers.filter(t => {
-      val keep = t.host.world != e.getWorld
+      val keep = t.host.world != e.getLevel
       if (!keep) {
         ClientComponentTracker.remove(t.host.world, t)
       }

@@ -8,7 +8,7 @@ import li.cil.oc.integration.util.Wrench
 import li.cil.oc.util.{PackedColor, Tooltip}
 import net.minecraft.client.Minecraft
 import net.minecraft.core.{BlockPos, Direction}
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.{Entity, LivingEntity}
 import net.minecraft.world.entity.player.Player
@@ -34,7 +34,7 @@ class Screen(props: Properties, val tier: Int) extends RedstoneAware(props) {
     val (w, h) = Settings.screenResolutionsByTier(tier)
     val depth = PackedColor.Depth.bits(Settings.screenDepthsByTier(tier))
     for (curr <- Tooltip.get(getClass.getSimpleName.toLowerCase, w, h, depth)) {
-      tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 

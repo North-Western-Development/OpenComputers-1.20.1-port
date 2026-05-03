@@ -56,7 +56,9 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
     if (ForgeHooks.getBurnTime(stack, null) <= 0) {
       return result((), "selected slot does not contain fuel")
     }
-    val container: ItemStack = stack.getContainerItem()
+    val container: ItemStack =
+      if (stack.hasCraftingRemainingItem) stack.getCraftingRemainingItem
+      else ItemStack.EMPTY
     val inQueue: ItemStack = inventory match {
       case SomeStack(q) if q != null && q.getCount > 0 =>
         if (!q.sameItem(stack) || !ItemStack.tagMatches(q, stack)) {

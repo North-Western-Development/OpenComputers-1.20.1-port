@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.AABB
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
-import net.minecraftforge.client.model.data.{ModelDataMap, ModelProperty}
+import net.minecraftforge.client.model.data.ModelData
 
 import scala.collection.mutable
 import scala.language.postfixOps
@@ -430,9 +430,9 @@ class Screen(selfType: BlockEntityType[_ <: Screen], var tier: Int, pos: BlockPo
 
   override def getModelData() = {
     val (x, y) = localPosition
-    (new ModelDataMap.Builder)
-      .withInitial(ScreenModel.COLOR_PROPERTY, getColor)
-      .withInitial(ScreenModel.WIDTH_HEIGHT_LOCAL_POSITION_PROPERTY, (width, height, x, y))
+    ModelData.builder()
+      .`with`(ScreenModel.COLOR_PROPERTY, getColor)
+      .`with`(ScreenModel.WIDTH_HEIGHT_LOCAL_POSITION_PROPERTY, (width, height, x, y))
       .build;
   }
 }

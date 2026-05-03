@@ -8,7 +8,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.item.{DyeColor, ItemStack}
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraftforge.client.model.data.ModelDataMap
+import net.minecraftforge.client.model.data.ModelData
 
 class Cable(selfType: BlockEntityType[_ <: Cable], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Environment with traits.NotAnalyzable with traits.ImmibisMicroblock with traits.Colored {
   val node = api.Network.newNode(this, Visibility.None).create()
@@ -43,8 +43,8 @@ class Cable(selfType: BlockEntityType[_ <: Cable], pos: BlockPos, state: BlockSt
   // ----------------------------------------------------------------------- //
 
   override def getModelData() = {
-    (new ModelDataMap.Builder)
-      .withInitial(CableModel.COLOR_PROPERTY, getColor)
+    ModelData.builder
+      .`with`(CableModel.COLOR_PROPERTY, getColor)
       .build;
   }
 }

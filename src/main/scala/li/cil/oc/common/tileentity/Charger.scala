@@ -82,7 +82,7 @@ class Charger(selfType: BlockEntityType[_ <: Charger], blockPosition: BlockPos, 
   }
 
   override def onAnalyze(player: Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Null = {
-    player.sendMessage(Localization.Analyzer.ChargerSpeed(chargeSpeed), Util.NIL_UUID)
+    player.sendSystemMessage(Localization.Analyzer.ChargerSpeed(chargeSpeed))
     null
   }
 

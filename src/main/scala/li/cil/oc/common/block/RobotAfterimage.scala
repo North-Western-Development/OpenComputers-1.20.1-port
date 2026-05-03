@@ -4,6 +4,7 @@ import li.cil.oc.{Constants, Settings, api}
 import li.cil.oc.common.tileentity
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.util.RandomSource
 import net.minecraft.world.{InteractionHand, InteractionResult}
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.{BlockGetter, Level}
@@ -12,8 +13,6 @@ import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.shapes.{CollisionContext, VoxelShape}
-
-import java.util.Random
 
 class RobotAfterimage(props: Properties) extends SimpleBlock(props) {
 //  override def getPickBlock(state: BlockState, target: HitResult, world: BlockGetter, pos: BlockPos, player: Player): ItemStack =
@@ -44,7 +43,7 @@ class RobotAfterimage(props: Properties) extends SimpleBlock(props) {
     }
   }
 
-  override def tick(state: BlockState, world: ServerLevel, pos: BlockPos, rand: Random) {
+  override def tick(state: BlockState, world: ServerLevel, pos: BlockPos, rand: RandomSource): Unit = {
     world.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState)
   }
 

@@ -15,7 +15,7 @@ import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.shapes.{BooleanOp, Shapes, VoxelShape}
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
-import net.minecraftforge.client.model.data.ModelDataMap
+import net.minecraftforge.client.model.data.ModelData
 
 import java.util
 
@@ -158,8 +158,8 @@ class Print(selfType: BlockEntityType[_ <: Print], val canToggle: Option[() => B
   // ----------------------------------------------------------------------- //
 
   override def getModelData() = {
-    (new ModelDataMap.Builder)
-      .withInitial(PrintModel.PRINT_PROPERTY, this)
-      .build;
+    ModelData.builder()
+      .`with`(PrintModel.PRINT_PROPERTY, this)
+      .build();
   }
 }

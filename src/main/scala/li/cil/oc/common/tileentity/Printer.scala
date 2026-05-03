@@ -295,8 +295,8 @@ class Printer(selfType: BlockEntityType[_ <: Printer], pos: BlockPos, state: Blo
       val material = removeItem(slotInk, 1)
       if (material != null) {
         amountInk += inkValue
-        if (material.hasContainerItem()) {
-          setItem(slotInk, material.getContainerItem())
+        if (material.hasCraftingRemainingItem) {
+          setItem(slotInk, material.getCraftingRemainingItem)
         }
       }
     }

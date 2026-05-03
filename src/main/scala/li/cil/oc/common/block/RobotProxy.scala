@@ -9,7 +9,7 @@ import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.server.{PacketSender, agent}
 import li.cil.oc.util.Tooltip
 import net.minecraft.core.{BlockPos, Direction}
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.LivingEntity
@@ -68,7 +68,7 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
 
   override protected def tooltipBody(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], advanced: TooltipFlag) {
     for (curr <- Tooltip.get("robot")) {
-      tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 
@@ -79,10 +79,10 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
       val components = info.containers ++ info.components
       if (components.length > 0) {
         for (curr <- Tooltip.get("server.Components")) {
-          tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+          tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
         }
         for (component <- components if !component.isEmpty) {
-          tooltip.add(new TextComponent("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
+          tooltip.add(Component.literal("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
         }
       }
     }
@@ -95,7 +95,7 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
         val level = Math.min((Math.pow(xp - Settings.get.baseXpToLevel, 1 / Settings.get.exponentialXpGrowth) / Settings.get.constantXpGrowth).toInt, 30)
         if (level > 0) {
           for (curr <- Tooltip.get(getDescriptionId + "_level", level)) {
-            tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+            tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
           }
         }
       }
@@ -103,7 +103,7 @@ class RobotProxy(props: Properties) extends RedstoneAware(props) with traits.Sta
         val energy = stack.getTag.getInt(Settings.namespace + "storedEnergy")
         if (energy > 0) {
           for (curr <- Tooltip.get(getDescriptionId + "_storedenergy", energy)) {
-            tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+            tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
           }
         }
       }

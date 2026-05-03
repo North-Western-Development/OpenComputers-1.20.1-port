@@ -3,7 +3,7 @@ package li.cil.oc.common.block
 import li.cil.oc.common.tileentity
 import li.cil.oc.util.Tooltip
 import net.minecraft.core.BlockPos
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.world.item.{ItemStack, TooltipFlag}
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
@@ -25,7 +25,7 @@ class Hologram(props: Properties, val tier: Int) extends SimpleBlock(props) {
 
   override protected def tooltipBody(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], advanced: TooltipFlag) {
     for (curr <- Tooltip.get(getClass.getSimpleName.toLowerCase() + tier)) {
-      tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 

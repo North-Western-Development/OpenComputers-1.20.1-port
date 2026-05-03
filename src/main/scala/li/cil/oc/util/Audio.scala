@@ -3,8 +3,8 @@ package li.cil.oc.util
 import li.cil.oc.{OpenComputers, Settings}
 import net.minecraft.client.Minecraft
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
-import net.minecraft.core.BlockPos
 import net.minecraft.sounds.{SoundEvents, SoundSource}
+import net.minecraft.util.RandomSource
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.event.TickEvent.ClientTickEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent

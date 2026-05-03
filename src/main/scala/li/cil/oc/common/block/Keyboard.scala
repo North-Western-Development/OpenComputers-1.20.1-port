@@ -7,6 +7,7 @@ import li.cil.oc.util.{BlockPosition, InventoryUtils}
 import li.cil.oc.{Constants, api}
 import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.server.level.ServerLevel
+import net.minecraft.util.RandomSource
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
@@ -19,7 +20,6 @@ import net.minecraft.world.level.{BlockGetter, Level, LevelReader}
 import net.minecraft.world.phys.shapes.{CollisionContext, Shapes, VoxelShape}
 
 import java.lang.Math.{max, min}
-import java.util.Random
 
 class Keyboard(props: Properties) extends SimpleBlock(props) {
   // For Immibis Microblock support.
@@ -70,7 +70,7 @@ class Keyboard(props: Properties) extends SimpleBlock(props) {
     }
   }
 
-  override def tick(state: BlockState, world: ServerLevel, pos: BlockPos, rand: Random) = {
+  override def tick(state: BlockState, world: ServerLevel, pos: BlockPos, rand: RandomSource) = {
     world.getBlockEntity(pos) match {
       case keyboard: tileentity.Keyboard => api.Network.joinOrCreateNetwork(keyboard)
       case _ =>

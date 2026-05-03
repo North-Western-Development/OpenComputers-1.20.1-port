@@ -37,14 +37,14 @@ object PotionProvider extends ScalaProvider("c29e4eec-5a46-479a-9b3d-ad0f06da784
   override def writeBehaviorToNBT(behavior: Behavior, nbt: CompoundTag): Unit = {
     behavior match {
       case potionBehavior: PotionBehavior =>
-        nbt.putString("potionId", potionBehavior.potion.getRegistryName.toString)
+        nbt.putString("potionId",  net.minecraftforge.registries.ForgeRegistries.MOB_EFFECTS.getKey(potionBehavior.potion).toString)
       case _ => // Shouldn't happen, ever.
     }
   }
 
   override def readBehaviorFromNBT(player: Player, nbt: CompoundTag) = {
     val potionId = nbt.getString("potionId")
-    new PotionBehavior(ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(potionId)), player)
+    new PotionBehavior(ForgeRegistries.MOB_EFFECTS.getValue(ResourceLocation.parse(potionId)), player)
   }
 
   class PotionBehavior(val potion: MobEffect, player: Player) extends AbstractBehavior(player) {

@@ -9,7 +9,7 @@ import li.cil.oc.common.EventHandler
 import li.cil.oc.util.{BlockPosition, InventoryUtils}
 import li.cil.oc.{OpenComputers, Settings}
 import net.minecraft.core.{BlockPos, Direction, NonNullList}
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.players.ServerOpListEntry
@@ -162,7 +162,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
 
   var facing, side = Direction.SOUTH
 
-  override def getName = new TextComponent(agent.name)
+  override def getName = Component.literal(agent.name)
 
   // ----------------------------------------------------------------------- //
 
@@ -318,7 +318,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
     val durationHandler = new {
       @SubscribeEvent(priority = EventPriority.LOWEST)
       def onItemUseStart(startUse: LivingEntityUseItemEvent.Start): Unit = {
-        if (startUse.getEntityLiving == entity && !startUse.isCanceled) {
+        if (startUse.getEntity == entity && !startUse.isCanceled) {
           startUse.setDuration(duration.toInt)
         }
       }
@@ -594,7 +594,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
 
   override def startSleepInBed(bedLocation: BlockPos) = Either.left[BedSleepingProblem, net.minecraft.util.Unit](BedSleepingProblem.OTHER_PROBLEM)
 
-  override def sendMessage(message: Component, sender: UUID) {}
+  override def sendSystemMessage(message: Component) {}
 
   override def openCommandBlock(commandBlock: CommandBlockEntity): Unit = {}
 
@@ -616,7 +616,7 @@ class Player(val agent: internal.Agent) extends FakePlayer(agent.world.asInstanc
     def tick(): Unit = {
       // Cancel if the agent stopped or our action is invalidated some other way.
       if (level != player.level || !level.isLoaded(pos) || level.isEmptyBlock(pos) || !player.agent.machine.isRunning) {
-        player.gameMode.handleBlockBreakAction(pos, ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, side, player.level.getMaxBuildHeight())
+        player.gameMode.handleBlockBreakAction(pos, ServerboundPlayerActionPacket.Action.ABORT_DESTROY_BLOCK, side, player.level.getMaxBuildHeight(), 0)
         return
       }
 

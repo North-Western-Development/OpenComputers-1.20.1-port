@@ -4,7 +4,7 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.integration.Mods
 import li.cil.oc.util.Tooltip
 import net.minecraft.core.BlockPos
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.world.item.{ItemStack, TooltipFlag}
 import net.minecraft.world.level.{BlockGetter, Level}
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
@@ -19,7 +19,7 @@ class Redstone(props: Properties) extends RedstoneAware(props) {
     super.tooltipTail(stack, world, tooltip, advanced)
     // todo more generic way for redstone mods to provide lines
     if (Mods.ProjectRedTransmission.isModAvailable) {
-      for (curr <- Tooltip.get("redstonecard.ProjectRed")) tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+      for (curr <- Tooltip.get("redstonecard.ProjectRed")) tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 

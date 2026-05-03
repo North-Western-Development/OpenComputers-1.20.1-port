@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.{Container, MenuProvider}
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
-import net.minecraftforge.client.model.data.ModelDataMap
+import net.minecraftforge.client.model.data.ModelData
 
 import java.util
 
@@ -478,8 +478,8 @@ class Rack(selfType: BlockEntityType[_ <: Rack], pos: BlockPos, state: BlockStat
   // ----------------------------------------------------------------------- //
 
   override def getModelData() = {
-    (new ModelDataMap.Builder)
-      .withInitial(ServerRackModel.RACK_PROPERTY, this)
+    ModelData.builder
+      .`with`(ServerRackModel.RACK_PROPERTY, this)
       .build;
   }
 }

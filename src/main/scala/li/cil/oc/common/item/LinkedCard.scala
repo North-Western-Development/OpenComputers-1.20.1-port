@@ -10,7 +10,6 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.item.ItemStack
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.world.level.Level
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -28,12 +27,12 @@ class LinkedCard(props: Properties) extends Item(props) with IForgeItem with tra
         val channel = data.getString(Settings.namespace + "tunnel")
         if (channel.length > 13) {
           for (curr <- Tooltip.get(unlocalizedName + "_channel", channel.substring(0, 13) + "...")) {
-            tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+            tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
           }
         }
         else {
           for (curr <- Tooltip.get(unlocalizedName + "_channel", channel)) {
-            tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+            tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
           }
         }
       }

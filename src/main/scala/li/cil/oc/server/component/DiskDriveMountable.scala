@@ -32,10 +32,7 @@ import net.minecraft.world.MenuProvider
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.core.Direction
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.world.InteractionHand
-import net.minecraft.network.chat.TextComponent
-import net.minecraft.world.{InteractionHand, MenuProvider}
 
 import scala.collection.convert.ImplicitConversionsToJava._
 
@@ -63,7 +60,7 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) extends Abs
   // ----------------------------------------------------------------------- //
   // Environment
 
-  override val node: Component = api.Network.newNode(this, Visibility.Network).
+  override val node: li.cil.oc.api.network.Component = api.Network.newNode(this, Visibility.Network).
     withComponent("disk_drive").
     create()
 
@@ -128,7 +125,7 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) extends Abs
     super.onItemAdded(slot, stack)
     components(slot) match {
       case Some(environment) => environment.node match {
-        case component: Component => component.setVisibility(Visibility.Network)
+        case component: li.cil.oc.api.network.Component => component.setVisibility(Visibility.Network)
       }
       case _ =>
     }
@@ -206,7 +203,7 @@ class DiskDriveMountable(val rack: api.internal.Rack, val slot: Int) extends Abs
   // ----------------------------------------------------------------------- //
   // MenuProvider
 
-  override def getDisplayName = TextComponent.EMPTY
+  override def getDisplayName = net.minecraft.network.chat.Component.empty()
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
     new DiskDriveContainer(ContainerTypes.DISK_DRIVE, id, playerInventory, this)

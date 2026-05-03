@@ -5,7 +5,7 @@ import li.cil.oc.common.item.data.{MicrocontrollerData, PrintData, RobotData}
 import li.cil.oc.common.{block, tileentity}
 import li.cil.oc.util.Rarity
 import net.minecraft.core.Direction
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.item.{BlockItem, ItemStack}
 import net.minecraft.world.item.context.BlockPlaceContext
@@ -29,7 +29,7 @@ class Item(value: Block, props: Properties) extends BlockItem(value, props) {
   override def getName(stack: ItemStack): Component = {
     if (api.Items.get(stack) == api.Items.get(Constants.BlockName.Print)) {
       val data = new PrintData(stack)
-      data.label.map(new TextComponent(_)).getOrElse(super.getName(stack))
+      data.label.map(Component.literal).getOrElse(super.getName(stack))
     }
     else super.getName(stack)
   }

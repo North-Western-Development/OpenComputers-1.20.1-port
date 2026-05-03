@@ -10,7 +10,7 @@ import li.cil.oc.util.StackOption._
 import li.cil.oc.util.{InventoryUtils, Tooltip}
 import li.cil.oc.{Constants, Settings, api}
 import net.minecraft.core.{BlockPos, Direction}
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -47,7 +47,7 @@ class Microcontroller(props: Properties)
     if (KeyBindings.showExtendedTooltips) {
       val info = new MicrocontrollerData(stack)
       for (component <- info.components if !component.isEmpty) {
-        tooltip.add(new TextComponent("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
+        tooltip.add(Component.literal("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
       }
     }
   }

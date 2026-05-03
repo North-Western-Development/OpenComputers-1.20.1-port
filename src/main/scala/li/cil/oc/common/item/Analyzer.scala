@@ -25,7 +25,7 @@ object Analyzer {
 
   @SubscribeEvent
   def onInteract(e: PlayerInteractEvent.EntityInteract): Unit = {
-    val player = e.getPlayer
+    val player = e.getEntity
     val held = player.getItemInHand(e.getHand)
     if (api.Items.get(held) == analyzer) {
       if (analyze(e.getTarget, player, Direction.DOWN, 0, 0, 0)) {
@@ -66,12 +66,12 @@ object Analyzer {
           case machine: Machine =>
             if (machine != null) {
               if (machine.lastError != null) {
-                playerMP.sendMessage(Localization.Analyzer.LastError(machine.lastError), Util.NIL_UUID)
+                playerMP.sendSystemMessage(Localization.Analyzer.LastError(machine.lastError))
               }
-              playerMP.sendMessage(Localization.Analyzer.Components(machine.componentCount, machine.maxComponents), Util.NIL_UUID)
+              playerMP.sendSystemMessage(Localization.Analyzer.Components(machine.componentCount, machine.maxComponents))
               val list = machine.users
               if (list.nonEmpty) {
-                playerMP.sendMessage(Localization.Analyzer.Users(list), Util.NIL_UUID)
+                playerMP.sendSystemMessage(Localization.Analyzer.Users(list))
               }
             }
           case _ =>
@@ -79,19 +79,19 @@ object Analyzer {
         node match {
           case connector: Connector =>
             if (connector.localBufferSize > 0) {
-              playerMP.sendMessage(Localization.Analyzer.StoredEnergy(f"${connector.localBuffer}%.2f/${connector.localBufferSize}%.2f"), Util.NIL_UUID)
+              playerMP.sendSystemMessage(Localization.Analyzer.StoredEnergy(f"${connector.localBuffer}%.2f/${connector.localBufferSize}%.2f"))
             }
-            playerMP.sendMessage(Localization.Analyzer.TotalEnergy(f"${connector.globalBuffer}%.2f/${connector.globalBufferSize}%.2f"), Util.NIL_UUID)
+            playerMP.sendSystemMessage(Localization.Analyzer.TotalEnergy(f"${connector.globalBuffer}%.2f/${connector.globalBufferSize}%.2f"))
           case _ =>
         }
         node match {
           case component: Component =>
-            playerMP.sendMessage(Localization.Analyzer.ComponentName(component.name), Util.NIL_UUID)
+            playerMP.sendSystemMessage(Localization.Analyzer.ComponentName(component.name))
           case _ =>
         }
         val address = node.address()
         if (address != null && !address.isEmpty) {
-          playerMP.sendMessage(Localization.Analyzer.Address(address), Util.NIL_UUID)
+          playerMP.sendSystemMessage(Localization.Analyzer.Address(address))
           PacketSender.sendAnalyze(address, playerMP)
         }
       case _ =>

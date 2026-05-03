@@ -8,7 +8,7 @@ import li.cil.oc.common.tileentity
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.Tooltip
 import net.minecraft.core.BlockPos
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -34,7 +34,7 @@ class Raid(props: Properties) extends SimpleBlock(props) with IForgeBlock with t
     if (KeyBindings.showExtendedTooltips) {
       val data = new RaidData(stack)
       for (disk <- data.disks if !disk.isEmpty) {
-        tooltip.add(new TextComponent("- " + disk.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
+        tooltip.add(Component.literal("- " + disk.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
       }
     }
   }

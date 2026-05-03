@@ -9,14 +9,14 @@ import li.cil.oc.api
 import mezz.jei.api.constants.VanillaTypes
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder
 import mezz.jei.api.gui.drawable.IDrawable
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView
 import mezz.jei.api.helpers.IGuiHelper
-import mezz.jei.api.ingredients.IIngredients
-import mezz.jei.api.recipe.IFocusGroup
+import mezz.jei.api.recipe.{IFocusGroup, RecipeIngredientRole, RecipeType}
 import mezz.jei.api.recipe.category.IRecipeCategory
 import mezz.jei.api.registration.IRecipeRegistration
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.components.Button
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import net.minecraft.resources.ResourceLocation
 import org.lwjgl.glfw.GLFW

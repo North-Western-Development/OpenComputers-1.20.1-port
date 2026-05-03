@@ -11,8 +11,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.InteractionHand
-import net.minecraft.Util
-import net.minecraft.network.chat.{Component, TextComponent, TranslatableComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.world.level.Level
 
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -25,7 +24,7 @@ trait CPULike extends SimpleItem {
 
   override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[Component]) {
     for (curr <- Tooltip.get("cpu.Architecture", api.Machine.getArchitectureName(DriverCPU.architecture(stack)))) {
-      tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
     }
   }
 
@@ -41,7 +40,7 @@ trait CPULike extends SimpleItem {
               val archClass = architectures(newIndex)
               val archName = api.Machine.getArchitectureName(archClass)
               driver.setArchitecture(stack, archClass)
-              player.sendMessage(new TranslatableComponent(Settings.namespace + "tooltip.cpu.Architecture", archName), Util.NIL_UUID)
+              player.sendSystemMessage(Component.translatable(Settings.namespace + "tooltip.cpu.Architecture", archName))
             }
             player.swing(InteractionHand.MAIN_HAND)
           case _ => // No known driver for this processor.

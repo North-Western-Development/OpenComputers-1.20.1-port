@@ -15,7 +15,8 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.world.entity.player.Player
 import net.minecraft.nbt.{CompoundTag, NbtIo}
-import net.minecraftforge.client.event.RenderGameOverlayEvent
+import net.minecraftforge.client.event.RenderGuiOverlayEvent
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay
 import net.minecraftforge.event.entity.living.LivingEvent
 import net.minecraftforge.event.entity.player.PlayerEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -133,7 +134,7 @@ object NanomachinesHandler {
     def onPlayerLoad(e: PlayerEvent.LoadFromFile): Unit = {
       val file = e.getPlayerFile("ocnm")
       if (file.exists()) {
-        api.Nanomachines.getController(e.getPlayer) match {
+        api.Nanomachines.getController(e.getEntity) match {
           case controller: ControllerImpl =>
             try {
               val fis = new FileInputStream(file)
@@ -154,10 +155,10 @@ object NanomachinesHandler {
 
     @SubscribeEvent
     def onPlayerDisconnect(e: PlayerLoggedOutEvent): Unit = {
-      api.Nanomachines.getController(e.getPlayer) match {
+      api.Nanomachines.getController(e.getEntity) match {
         case controller: ControllerImpl =>
           // Wait a tick because saving is done after this event.
-          EventHandler.scheduleServer(() => api.Nanomachines.uninstallController(e.getPlayer))
+          EventHandler.scheduleServer(() => api.Nanomachines.uninstallController(e.getEntity))
         case _ => // Not a player with nanomachines.
       }
     }

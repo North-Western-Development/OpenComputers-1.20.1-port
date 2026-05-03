@@ -16,7 +16,6 @@ import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.InteractionHand
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.world.level.Level
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -34,19 +33,19 @@ trait FileSystemLike extends SimpleItem {
       if (nbt.contains(Settings.namespace + "data")) {
         val data = nbt.getCompound(Settings.namespace + "data")
         if (data.contains(Settings.namespace + "fs.label")) {
-          tooltip.add(new TextComponent(data.getString(Settings.namespace + "fs.label")).setStyle(Tooltip.DefaultStyle))
+          tooltip.add(Component.literal(data.getString(Settings.namespace + "fs.label")).setStyle(Tooltip.DefaultStyle))
         }
         if (flag.isAdvanced && data.contains("fs")) {
           val fsNbt = data.getCompound("fs")
           if (fsNbt.contains("capacity.used")) {
             val used = fsNbt.getLong("capacity.used")
-            tooltip.add(new TextComponent(Localization.Tooltip.DiskUsage(used, kiloBytes * 1024)).setStyle(Tooltip.DefaultStyle))
+            tooltip.add(Component.literal(Localization.Tooltip.DiskUsage(used, kiloBytes * 1024)).setStyle(Tooltip.DefaultStyle))
           }
         }
       }
       val data = new DriveData(stack)
-      tooltip.add(new TextComponent(Localization.Tooltip.DiskMode(data.isUnmanaged)).setStyle(Tooltip.DefaultStyle))
-      tooltip.add(new TextComponent(Localization.Tooltip.DiskLock(data.lockInfo)).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(Component.literal(Localization.Tooltip.DiskMode(data.isUnmanaged)).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(Component.literal(Localization.Tooltip.DiskLock(data.lockInfo)).setStyle(Tooltip.DefaultStyle))
     }
   }
 

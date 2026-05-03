@@ -10,16 +10,14 @@ import li.cil.oc.server.machine.Callbacks
 import mezz.jei.api.constants.VanillaTypes
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder
 import mezz.jei.api.gui.drawable.IDrawable
-import mezz.jei.api.gui.drawable.IDrawableAnimated.StartDirection
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView
 import mezz.jei.api.helpers.IGuiHelper
-import mezz.jei.api.ingredients.IIngredients
-import mezz.jei.api.recipe.IFocusGroup
+import mezz.jei.api.recipe.{IFocusGroup, RecipeIngredientRole, RecipeType}
 import mezz.jei.api.recipe.category.IRecipeCategory
 import mezz.jei.api.registration.IRecipeRegistration
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
-import net.minecraft.client.StringSplitter.LinePosConsumer
-import net.minecraft.network.chat.{Style, TextComponent}
+import net.minecraft.network.chat.{Component, Style}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.resources.ResourceLocation
 
@@ -33,7 +31,7 @@ object CallbackDocHandler {
 
   private val VexPattern = """(?s)^function(\(.*?\).*?); (.*)$""".r
 
-  def getRecipes(registration: IRecipeRegistration): util.List[CallbackDocRecipe] = registration.getIngredientManager.getAllIngredients(VanillaTypes.ITEM).collect {
+  def getRecipes(registration: IRecipeRegistration): util.List[CallbackDocRecipe] = registration.getIngredientManager.getAllIngredients(VanillaTypes.ITEM_STACK).collect {
     case stack: ItemStack =>
       val callbacks = api.Driver.environmentsFor(stack).flatMap(getCallbacks).toBuffer
 

@@ -39,7 +39,9 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.syncher.{EntityDataAccessor, EntityDataSerializers, SynchedEntityData}
 import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
-import net.minecraft.network.chat.{MutableComponent, TextComponent}
+import net.minecraft.network.chat.MutableComponent
+import net.minecraft.network.chat.Component
+import net.minecraft.util.RandomSource
 import net.minecraft.world.entity.Entity.RemovalReason
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.phys.Vec3
@@ -388,7 +390,7 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
       if (isRunning) {
         // Client side update; occasionally update wing pitch and rotation to
         // make the drones look a bit more dynamic.
-        val rng = world.random
+        val rng: RandomSource = world.random
         nextFlapChange -= 1
         nextAngularVelocityChange -= 1
 
@@ -480,7 +482,7 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
 
   // Not implemented in Drone itself because spectators would open this via vanilla Player.openMenu (without extra data).
   val containerProvider = new MenuProvider {
-    override def getDisplayName = TextComponent.EMPTY
+    override def getDisplayName = Component.empty()
 
     override def createMenu(id: Int, playerInventory: net.minecraft.world.entity.player.Inventory, player: Player) =
       new container.Drone(ContainerTypes.DRONE, id, playerInventory, mainInventory, mainInventory.getContainerSize)

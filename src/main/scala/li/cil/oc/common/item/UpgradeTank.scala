@@ -9,7 +9,6 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.item.ItemStack
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.world.level.Level
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.api.distmarker.Dist
@@ -23,7 +22,7 @@ class UpgradeTank(props: Properties) extends Item(props) with IForgeItem with tr
     if (stack.hasTag) {
       FluidStack.loadFluidStackFromNBT(stack.getTag.getCompound(Settings.namespace + "data")) match {
         case stack: FluidStack =>
-          tooltip.add(new TextComponent(stack.getFluid.getAttributes.getDisplayName(stack).getString + ": " + stack.getAmount + "/16000").setStyle(Tooltip.DefaultStyle))
+          tooltip.add(Component.literal(stack.getDisplayName.getString + ": " + stack.getAmount + "/16000").setStyle(Tooltip.DefaultStyle))
         case _ =>
       }
     }

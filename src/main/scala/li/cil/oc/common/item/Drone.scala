@@ -18,8 +18,7 @@ import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TextComponent
-import net.minecraftforge.client.event.ModelBakeEvent
+import net.minecraftforge.client.event.ModelEvent
 import net.minecraftforge.common.extensions.IForgeItem
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -29,15 +28,15 @@ class Drone(props: Properties) extends Item(props) with IForgeItem with traits.S
   override def getModelLocation(stack: ItemStack) = new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.ItemName.Drone, "inventory")
 
   @OnlyIn(Dist.CLIENT)
-  override def bakeModels(bakeEvent: ModelBakeEvent): Unit = {
-    bakeEvent.getModelRegistry.put(getModelLocation(createItemStack()), DroneModel)
+  override def bakeModels(bakeEvent: ModelEvent.BakingCompleted): Unit = {
+    bakeEvent.getModels.put(getModelLocation(createItemStack()), DroneModel)
   }
 
   override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[Component]): Unit = {
     if (KeyBindings.showExtendedTooltips) {
       val info = new DroneData(stack)
       for (component <- info.components if !component.isEmpty) {
-        tooltip.add(new TextComponent("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
+        tooltip.add(Component.literal("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
       }
     }
   }

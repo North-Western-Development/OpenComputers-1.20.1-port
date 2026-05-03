@@ -8,8 +8,6 @@ import li.cil.oc.common.EventHandler
 import li.cil.oc.util.ExtendedNBT._
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.core.Direction
-import net.minecraftforge.client.model.data.IModelData
-import net.minecraftforge.client.model.data.ModelProperty
 
 trait Environment extends BlockEntity with network.Environment with network.EnvironmentHost {
   protected var isChangeScheduled = false

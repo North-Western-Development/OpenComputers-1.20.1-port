@@ -1,10 +1,9 @@
 package li.cil.oc.common.item
 
 import li.cil.oc.Settings
-//import li.cil.oc.client.renderer.item.HoverBootRenderer
+import net.minecraftforge.client.extensions.common.IClientItemExtensions
 import li.cil.oc.common.item.data.HoverBootsData
 import li.cil.oc.util.ItemColorizer
-import net.minecraft.client.model.HumanoidModel
 import net.minecraft.world.effect.{MobEffectInstance, MobEffects}
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.Player
@@ -13,11 +12,9 @@ import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.item.{ArmorItem, ArmorMaterials, ItemStack}
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.{Blocks, LayeredCauldronBlock}
-import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
-import net.minecraftforge.client.IItemRenderProperties
 import net.minecraftforge.common.extensions.IForgeItem
 
-class HoverBoots(props: Properties) extends ArmorItem(ArmorMaterials.DIAMOND, EquipmentSlot.FEET, props) with IForgeItem with IItemRenderProperties with traits.SimpleItem with traits.Chargeable {
+class HoverBoots(props: Properties) extends ArmorItem(ArmorMaterials.DIAMOND, EquipmentSlot.FEET, props) with IForgeItem with IClientItemExtensions with traits.SimpleItem with traits.Chargeable {
   override def maxCharge(stack: ItemStack): Double = Settings.get.bufferHoverBoots
 
   override def getCharge(stack: ItemStack): Double =

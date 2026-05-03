@@ -14,7 +14,6 @@ import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.InteractionResult
 import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.ChatFormatting
 import net.minecraft.world.level.Level
 import net.minecraftforge.api.distmarker.Dist
@@ -25,7 +24,7 @@ class Manual(props: Properties) extends Item(props) with IForgeItem with traits.
   @OnlyIn(Dist.CLIENT)
   override def appendHoverText(stack: ItemStack, world: Level, tooltip: util.List[Component], flag: TooltipFlag) {
     super.appendHoverText(stack, world, tooltip, flag)
-    tooltip.add(new TextComponent(ChatFormatting.DARK_GRAY.toString + "v" + OpenComputers.Version))
+    tooltip.add(Component.literal(ChatFormatting.DARK_GRAY.toString + "v" + OpenComputers.Version))
   }
 
   override def use(stack: ItemStack, world: Level, player: Player): InteractionResultHolder[ItemStack] = {

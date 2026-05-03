@@ -18,7 +18,6 @@ import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.InteractionHand
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.TextComponent
 import net.minecraft.world.level.Level
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
@@ -31,7 +30,7 @@ class Nanomachines(props: Properties) extends Item(props) with IForgeItem with t
     if (stack.hasTag) {
       val data = new NanomachineData(stack)
       if (!Strings.isNullOrEmpty(data.uuid)) {
-        tooltip.add(new TextComponent("§8" + data.uuid.substring(0, 13) + "...§7"))
+        tooltip.add(Component.literal("§8" + data.uuid.substring(0, 13) + "...§7"))
       }
     }
   }

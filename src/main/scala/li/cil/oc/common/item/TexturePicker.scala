@@ -25,18 +25,19 @@ class TexturePicker(props: Properties) extends Item(props) with IForgeItem with 
     case block: Block =>
       if (player.level.isClientSide) {
         val pos = position.toBlockPos
-        val state = player.level.getBlockState(pos)
-        val modelData = net.minecraftforge.client.model.ModelDataManager.getModelData(net.minecraft.client.Minecraft.getInstance.level, pos)
+        val level = player.level
+        val state = level.getBlockState(pos)
+        val modelData = level.getModelDataManager.getAt(pos)
         val printedNames = mutable.Set.empty[String]
         val model = Minecraft.getInstance.getBlockRenderer.getBlockModel(state)
         val particle = model.getParticleIcon(modelData)
 
         if (particle != null && particle.getName != null) {
-          player.sendMessage(Localization.Chat.TextureName(particle.getName.toString), Util.NIL_UUID)
+          player.sendSystemMessage(Localization.Chat.TextureName(particle.getName.toString))
           printedNames += particle.getName.toString
         }
 
-        Minecraft.getInstance.getBlockRenderer.renderSingleBlock(state,new PoseStack(),new RenderCallback(player, printedNames),0,OverlayTexture.NO_OVERLAY, modelData)
+        Minecraft.getInstance.getBlockRenderer.renderSingleBlock(state,new PoseStack(),new RenderCallback(player, printedNames),0,OverlayTexture.NO_OVERLAY, modelData, null)
       }
       true
     case _ => super.onItemUse(stack, player, position, side, hitX, hitY, hitZ)
@@ -65,7 +66,7 @@ private class RenderCallback(val player: Player, val printedNames: mutable.Set[S
         val texture = bakedQuad.getSprite
         if (texture != null && texture.getName != null && !printedNames.contains(texture.getName.toString)) {
           printedNames += texture.getName.toString
-          player.sendMessage(Localization.Chat.TextureName(texture.getName.toString), Util.NIL_UUID)
+          player.sendSystemMessage(Localization.Chat.TextureName(texture.getName.toString))
         }
       }
 
@@ -73,7 +74,7 @@ private class RenderCallback(val player: Player, val printedNames: mutable.Set[S
         val texture = p_85997_.getSprite
         if (texture != null && texture.getName != null && !printedNames.contains(texture.getName.toString)) {
           printedNames += texture.getName.toString
-          player.sendMessage(Localization.Chat.TextureName(texture.getName.toString), Util.NIL_UUID)
+          player.sendSystemMessage(Localization.Chat.TextureName(texture.getName.toString))
         }
       }
     }

@@ -165,7 +165,7 @@ object PacketHandler extends CommonPacketHandler {
         if (!computer.isPaused) {
           computer.start()
           computer.lastError match {
-            case message if message != null => player.sendMessage(Localization.Analyzer.LastError(message), Util.NIL_UUID)
+            case message if message != null => player.sendSystemMessage(Localization.Analyzer.LastError(message))
             case _ =>
           }
         }

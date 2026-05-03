@@ -107,7 +107,7 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
       (true, "entity")
     }
     def click(player: ServerPlayer, pos: BlockPos, side: Direction) = { //TODO: fix break time calculation
-      player.gameMode.handleBlockBreakAction(pos, ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK, side, player.level.getMaxBuildHeight)
+      player.gameMode.handleBlockBreakAction(pos, ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK, side, player.level.getMaxBuildHeight, 0)
 //      val breakTime =
 //      val broke = breakTime > 0
 //      if (broke) {
@@ -156,7 +156,7 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
     }
 
     // all side attempts failed - but there could be a partial block that is hard to "see"
-    val (hasBlock, _) = blockContent(facing)
+    val (hasBlock, _) = blockContent(facing).asInstanceOf[(Boolean, Any)]
     if (hasBlock) {
       val blockPos = position.offset(facing)
       val player = rotatedPlayer(facing, facing)

@@ -5,13 +5,13 @@ import li.cil.oc.api.fs.FileSystem
 import li.cil.oc.common.init.Items
 import li.cil.oc.util.Color
 import net.minecraft.nbt.{CompoundTag, Tag}
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.item.{DyeColor, ItemStack}
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.storage.LevelResource
-import net.minecraftforge.event.world.WorldEvent
+import net.minecraftforge.event.level.LevelEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
 import java.io
@@ -94,7 +94,7 @@ object Loot {
   }
 
   @SubscribeEvent
-  def initForLevel(e: WorldEvent.Load): Unit = e.getWorld match {
+  def initForLevel(e: LevelEvent.Load): Unit = e.getLevel match {
     case world: ServerLevel if world.dimension == Level.OVERWORLD => {
       worldDisks.clear()
       disksForSampling.clear()

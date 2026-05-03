@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.Level
+import net.minecraftforge.registries.ForgeRegistries
 
 class CompoundBlockDriver(val sidedBlocks: Array[DriverBlock]) extends DriverBlock {
   override def createEnvironment(world: Level, pos: BlockPos, side: Direction): CompoundBlockEnvironment = {
@@ -54,7 +55,7 @@ class CompoundBlockDriver(val sidedBlocks: Array[DriverBlock]) extends DriverBlo
     }
     try world.getBlockEntity(pos) match {
       case tileEntity: BlockEntity =>
-        return tileEntity.getType.getRegistryName.getPath
+        return ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(tileEntity.getType).getPath
     } catch {
       case _: Throwable =>
     }

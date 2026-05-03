@@ -15,7 +15,7 @@ import net.minecraft.sounds.{SoundEvents, SoundSource}
 import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
-import net.minecraftforge.client.model.data.ModelDataMap
+import net.minecraftforge.client.model.data.ModelData
 
 import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
@@ -173,8 +173,8 @@ class NetSplitter(selfType: BlockEntityType[_ <: NetSplitter], pos: BlockPos, st
   // ----------------------------------------------------------------------- //
 
   override def getModelData() = {
-    (new ModelDataMap.Builder)
-      .withInitial(NetSplitterModel.OPEN_SIDES_PROPERTY, Map(Direction.values().map(d => d -> isSideOpen(d)).toSeq: _*))
+    ModelData.builder
+      .`with`(NetSplitterModel.OPEN_SIDES_PROPERTY, Map(Direction.values().map(d => d -> isSideOpen(d)).toSeq: _*))
       .build;
   }
 }

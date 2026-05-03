@@ -5,7 +5,7 @@ import li.cil.oc.util.ExtendedInventory._
 import li.cil.oc.util.{InventoryUtils, StackOption}
 import li.cil.oc.util.StackOption._
 import net.minecraft.nbt.ListTag
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.world.Container
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.player.Player
@@ -87,7 +87,7 @@ class SimpleContainer(playerEntity: Player, val agent: internal.Agent) extends n
     else agent.mainInventory.setItem(slot, stack)
   }
 
-  override def getName: Component = new TextComponent(agent.name)
+  override def getName: Component = Component.literal(agent.name)
 
   override def getMaxStackSize: Int = agent.mainInventory.getMaxStackSize
 
