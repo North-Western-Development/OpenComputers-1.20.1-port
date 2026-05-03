@@ -20,7 +20,7 @@ class Adapter(props: Properties) extends SimpleBlock(props) with traits.GUI {
     case _ =>
   }
 
-  override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Adapter(tileentity.BlockEntityTypes.ADAPTER, pos, state)
+  override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Adapter(tileentity.BlockEntityTypes.ADAPTER.get(), pos, state)
 
   override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
     (_: Level, pos: BlockPos, state: BlockState, entity: T) =>

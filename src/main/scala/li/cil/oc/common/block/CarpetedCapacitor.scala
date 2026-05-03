@@ -6,5 +6,5 @@ import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
 
 class CarpetedCapacitor(props: Properties) extends Capacitor(props) {
-  override def newBlockEntity(pos:BlockPos, state: BlockState): tileentity.CarpetedCapacitor = new tileentity.CarpetedCapacitor(tileentity.BlockEntityTypes.CARPETED_CAPACITOR, pos, state)
+  override def newBlockEntity(pos:BlockPos, state: BlockState): tileentity.CarpetedCapacitor = new tileentity.CarpetedCapacitor(tileentity.BlockEntityTypes.CARPETED_CAPACITOR.get(), pos, state)
 }

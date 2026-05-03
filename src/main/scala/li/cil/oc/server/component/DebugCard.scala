@@ -246,8 +246,9 @@ class DebugCard(host: EnvironmentHost) extends AbstractManagedEnvironment with D
       CommandMessages = None
       var value = 0
       for (command <- commands) {
-        value = ServerLifecycleHooks.getCurrentServer.getCommands.performCommand(source, command.toString)
-      }
+        val commands = ServerLifecycleHooks.getCurrentServer.getCommands
+        val commandString = command.toString
+        value = commands.performCommand(commands.getDispatcher.parse(commandString, source), commandString)      }
       result(value, CommandMessages.orNull)
     }
   }

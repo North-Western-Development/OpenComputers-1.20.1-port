@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.BlockHitResult
 
 class NetSplitter(props: Properties) extends RedstoneAware(props) {
-  override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.NetSplitter(tileentity.BlockEntityTypes.NET_SPLITTER, pos, state)
+  override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.NetSplitter(tileentity.BlockEntityTypes.NET_SPLITTER.get(), pos, state)
 
   override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
     (_: Level, pos: BlockPos, state: BlockState, entity: T) =>

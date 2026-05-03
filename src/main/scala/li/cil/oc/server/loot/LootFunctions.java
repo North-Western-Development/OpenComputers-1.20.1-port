@@ -9,8 +9,8 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
 public final class LootFunctions {
-    public static final ResourceLocation DYN_ITEM_DATA = new ResourceLocation(OpenComputers.ID(), "item_data");
-    public static final ResourceLocation DYN_VOLATILE_CONTENTS = new ResourceLocation(OpenComputers.ID(), "volatile_contents");
+    public static final ResourceLocation DYN_ITEM_DATA = ResourceLocation.fromNamespaceAndPath(OpenComputers.ID(), "item_data");
+    public static final ResourceLocation DYN_VOLATILE_CONTENTS = ResourceLocation.fromNamespaceAndPath(OpenComputers.ID(), "volatile_contents");
 
     private static final DeferredRegister<LootItemFunctionType> REGISTER = DeferredRegister.create(Registry.LOOT_FUNCTION_REGISTRY, OpenComputers.ID());
     public static final RegistryObject<LootItemFunctionType> SET_COLOR_REG = REGISTER.register("set_color", () -> new LootItemFunctionType(new SetColor.Serializer()));

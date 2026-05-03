@@ -83,7 +83,7 @@ class ColorizeRecipe(id: ResourceLocation, target: Item) extends Recipe[Crafting
 
   override def canCraftInDimensions(width: Int, height: Int): Boolean = width * height >= 2
 
-  override def getSerializer = RecipeSerializers.CRAFTING_COLORIZE
+  override def getSerializer = RecipeSerializers.CRAFTING_COLORIZE.get()
 
   override def getId: ResourceLocation = id
 

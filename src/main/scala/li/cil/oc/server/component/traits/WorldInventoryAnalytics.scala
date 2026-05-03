@@ -99,10 +99,10 @@ trait LevelInventoryAnalytics extends LevelAware with SideRestricted with Networ
     }
     withInventorySource(facing, {
       case BlockInventorySource(position, _, _) => blockAt(position) match {
-        case Some(block) => result(block.getRegistryName)
+        case Some(block) => result(ForgeRegistries.BLOCKS.getKey(block).toString)
         case _ => result((), "Unknown")
       }
-      case EntityInventorySource(entity, _, _) => result(entity.getType.getRegistryName)
+      case EntityInventorySource(entity, _, _) => result(ForgeRegistries.ENTITY_TYPES.getKey(entity.getType).toString)
       case _ => result((), "Unknown")
     })
   }

@@ -22,18 +22,13 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.item.Item
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.InterModComms
 import net.minecraftforge.fml.event.lifecycle.{FMLCommonSetupEvent, FMLLoadCompleteEvent, InterModProcessEvent}
 import net.minecraftforge.network.{NetworkEvent, NetworkRegistry}
-import net.minecraftforge.registries.{ForgeRegistries, MissingMappingsEvent}
 
 import scala.jdk.CollectionConverters._
-import scala.reflect.ClassTag
-import scala.collection.convert.ImplicitConversionsToScala._
 
 class Proxy {
   protected val modBus = MinecraftForge.EVENT_BUS
@@ -116,44 +111,4 @@ class Proxy {
   def registerModel(instance: Item, id: String): Unit = {}
 
   def registerModel(instance: Block, id: String): Unit = {}
-
-  // Yes, this could be boiled down even further, but I like to keep it
-  // explicit like this, because it makes it a) clearer, b) easier to
-  // extend, in case that should ever be needed.
-
-  // Example usage: OpenComputers.ID + ":rack" -> "serverRack"
-  private val blockRenames = Map[String, String](
-    OpenComputers.ID + ":serverRack" -> Constants.BlockName.Rack // Yay, full circle >_>
-  )
-
-  // Example usage: OpenComputers.ID + ":tabletCase" -> "tabletCase1"
-  private val itemRenames = Map[String, String](
-    OpenComputers.ID + ":dataCard" -> Constants.ItemName.DataCardTier1,
-    OpenComputers.ID + ":serverRack" -> Constants.BlockName.Rack,
-    OpenComputers.ID + ":wlanCard" -> Constants.ItemName.WirelessNetworkCardTier2
-  )
-
-  @SubscribeEvent
-  def missingBlockMappings(e: MissingMappings[Block]) {
-    for (missing <- e.getMappings(OpenComputers.ID).asScala) {
-        blockRenames.get(missing.key.getPath) match {
-          case Some(name) =>
-            if (Strings.isNullOrEmpty(name)) missing.ignore()
-            else missing.remap(ForgeRegistries.BLOCKS.getValue(new ResourceLocation(OpenComputers.ID, name)))
-          case _ => missing.warn()
-        }
-    }
-  }
-
-  @SubscribeEvent
-  def missingItemMappings(e: MissingMappings[Item]) {
-    for (missing <- e.getMappings(OpenComputers.ID).asScala) {
-        itemRenames.get(missing.key.getPath) match {
-          case Some(name) =>
-            if (Strings.isNullOrEmpty(name)) missing.ignore()
-            else missing.remap(ForgeRegistries.ITEMS.getValue(new ResourceLocation(OpenComputers.ID, name)))
-          case _ => missing.warn()
-        }
-      }
-  }
 }

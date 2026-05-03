@@ -11,7 +11,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 
 public class ExtendedShapelessRecipe implements CraftingRecipe {
     private ShapelessRecipe wrapped;
@@ -57,7 +56,7 @@ public class ExtendedShapelessRecipe implements CraftingRecipe {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return RecipeSerializers.CRAFTING_SHAPELESS_EXTENDED;
+        return RecipeSerializers.CRAFTING_SHAPELESS_EXTENDED.get();
     }
 
     @Override
@@ -65,8 +64,7 @@ public class ExtendedShapelessRecipe implements CraftingRecipe {
         return wrapped.getGroup();
     }
 
-    public static final class Serializer extends ForgeRegistryEntry<RecipeSerializer<?>>
-        implements RecipeSerializer<ExtendedShapelessRecipe> {
+    public static final class Serializer implements RecipeSerializer<ExtendedShapelessRecipe> {
 
         @Override
         public ExtendedShapelessRecipe fromJson(ResourceLocation recipeId, JsonObject json) {

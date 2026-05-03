@@ -31,7 +31,7 @@ class Rack(props: Properties) extends RedstoneAware(props) with traits.PowerAcce
     case _ =>
   }
 
-  override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Rack(tileentity.BlockEntityTypes.RACK, pos, state)
+  override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Rack(tileentity.BlockEntityTypes.RACK.get(), pos, state)
 
   override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
     (_: Level, pos: BlockPos, state: BlockState, entity: T) =>

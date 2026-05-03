@@ -46,7 +46,7 @@ class Raid(props: Properties) extends SimpleBlock(props) with IForgeBlock with t
     case _ =>
   }
 
-  override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Raid(tileentity.BlockEntityTypes.RAID, pos, state)
+  override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Raid(tileentity.BlockEntityTypes.RAID.get(), pos, state)
 
   override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
     (_: Level, pos: BlockPos, state: BlockState, entity: T) =>

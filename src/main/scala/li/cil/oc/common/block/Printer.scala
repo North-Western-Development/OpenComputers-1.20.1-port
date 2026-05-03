@@ -28,7 +28,7 @@ class Printer(props: Properties) extends SimpleBlock(props) with traits.StateAwa
     case _ =>
   }
 
-  override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Printer(tileentity.BlockEntityTypes.PRINTER, pos, state)
+  override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Printer(tileentity.BlockEntityTypes.PRINTER.get(), pos, state)
 
   override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
     (_: Level, pos: BlockPos, state: BlockState, entity: T) =>

@@ -1,10 +1,10 @@
 package li.cil.oc
 
 import java.nio.file.Paths
-import li.cil.oc.common.IMC
-import li.cil.oc.common.Proxy
+import li.cil.oc.common.{IMC, MissingMappingsHandler, Proxy}
 import li.cil.oc.common.init.Blocks
 import li.cil.oc.common.init.Items
+import li.cil.oc.common.tileentity.BlockEntityTypes
 import li.cil.oc.integration.Mods
 import li.cil.oc.util.ThreadPoolFactory
 import net.minecraftforge.api.distmarker.Dist
@@ -61,6 +61,9 @@ class OpenComputers {
   OpenComputers.instance = Some(this)
 
   modEventBus.register(OpenComputers.proxy)
+  BlockEntityTypes.register(modEventBus)
+  MinecraftForge.EVENT_BUS.register(MissingMappingsHandler)
+
   Settings.load(FMLPaths.CONFIGDIR.get().resolve(Paths.get("opencomputers", "settings.conf")).toFile())
   OpenComputers.proxy.preInit()
   MinecraftForge.EVENT_BUS.register(ThreadPoolFactory)

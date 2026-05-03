@@ -44,9 +44,9 @@ public class FontParserHex implements IGlyphProvider {
             long time = System.currentTimeMillis();
             int glyphCount = 0;
 
-            ResourceLocation loc = new ResourceLocation(Settings.resourceDomain(), "font.hex");
-            for (Resource resource : Minecraft.getInstance().getResourceManager().getResources(loc)) {
-                final InputStream font = resource.getInputStream();
+            ResourceLocation loc = ResourceLocation.fromNamespaceAndPath(Settings.resourceDomain(), "font.hex");
+            for (Resource resource : Minecraft.getInstance().getResourceManager().getResourceStack(loc)) {
+                final InputStream font = resource.open();
                 try {
                     final BufferedReader input = new BufferedReader(new InputStreamReader(font));
                     String line;

@@ -12,7 +12,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.crafting.IShapedRecipe;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 
 public class ExtendedShapedRecipe implements CraftingRecipe, IShapedRecipe<CraftingContainer> {
     private ShapedRecipe wrapped;
@@ -58,7 +57,7 @@ public class ExtendedShapedRecipe implements CraftingRecipe, IShapedRecipe<Craft
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return RecipeSerializers.CRAFTING_SHAPED_EXTENDED;
+        return RecipeSerializers.CRAFTING_SHAPED_EXTENDED.get();
     }
 
     @Override
@@ -76,8 +75,7 @@ public class ExtendedShapedRecipe implements CraftingRecipe, IShapedRecipe<Craft
         return wrapped.getRecipeHeight();
     }
 
-    public static final class Serializer extends ForgeRegistryEntry<RecipeSerializer<?>>
-        implements RecipeSerializer<ExtendedShapedRecipe> {
+    public static final class Serializer implements RecipeSerializer<ExtendedShapedRecipe> {
 
         @Override
         public ExtendedShapedRecipe fromJson(ResourceLocation recipeId, JsonObject json) {

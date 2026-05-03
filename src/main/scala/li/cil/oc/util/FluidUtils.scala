@@ -164,7 +164,7 @@ object FluidUtils {
   private class LiquidBlockWrapper(val position: BlockPosition, val block: IFluidBlock) extends BlockWrapperBase {
     val fluid: Fluid = lookupFluidForBlock(block)
 
-    override def getFluidInTank(tank: Int) = if (isFullLiquidBlock) new FluidStack(fluid, FluidAttributes.BUCKET_VOLUME) else FluidStack.EMPTY
+    override def getFluidInTank(tank: Int) = if (isFullLiquidBlock) new FluidStack(fluid, FluidType.BUCKET_VOLUME) else FluidStack.EMPTY
 
     override def isFluidValid(tank: Int, fluid: FluidStack): Boolean = block.getFluid.isSame(fluid.getFluid)
 

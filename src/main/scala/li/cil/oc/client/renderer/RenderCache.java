@@ -33,11 +33,11 @@ public class RenderCache implements MultiBufferSource {
 
     private void flush(RenderType type) {
         if (type == activeType) {
-            activeBuilder.end();
+            BufferBuilder.RenderedBuffer renderedBuffer = activeBuilder.end();
 
             var vertexBuffer = new VertexBuffer();
             vertexBuffer.bind();
-            vertexBuffer.upload(activeBuilder);
+            vertexBuffer.upload(renderedBuffer);
             cached.add(new DrawEntry(type, vertexBuffer));
 
             activeType = null;

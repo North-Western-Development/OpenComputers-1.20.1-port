@@ -67,7 +67,7 @@ class TextureImageRenderer(val location: ResourceLocation) extends ImageRenderer
       var is: InputStream = null
       try {
         val resource = manager.getResource(location)
-        is = resource.getInputStream
+        is = resource.get().open()
         val bi = ImageIO.read(is)
         val data = MemoryUtil.memAllocInt(bi.getWidth * bi.getHeight)
         val tempArr = Array.ofDim[Int]((1024 * 1024) min data.capacity)

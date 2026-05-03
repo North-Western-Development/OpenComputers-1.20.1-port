@@ -16,7 +16,7 @@ import net.minecraft.world.item.ItemStack
 
 @JeiPlugin
 class ModPluginOpenComputers extends IModPlugin {
-  override def getPluginUid = new ResourceLocation(OpenComputers.ID, "jei_plugin")
+  override def getPluginUid = ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, "jei_plugin")
 
   override def registerCategories(registry: IRecipeCategoryRegistration): Unit = {
     registry.addRecipeCategories(ManualUsageHandler.ManualUsageRecipeCategory)
@@ -24,8 +24,8 @@ class ModPluginOpenComputers extends IModPlugin {
   }
 
   override def registerRecipes(registration: IRecipeRegistration) {
-    registration.addRecipes(ManualUsageHandler.getRecipes(registration), ManualUsageHandler.ManualUsageRecipeCategory.getUid)
-    registration.addRecipes(CallbackDocHandler.getRecipes(registration), CallbackDocHandler.CallbackDocRecipeCategory.getUid)
+    registration.addRecipes(ManualUsageHandler.ManualUsageRecipeCategory.getRecipeType, ManualUsageHandler.getRecipes(registration))
+    registration.addRecipes(CallbackDocHandler.CallbackDocRecipeCategory.getRecipeType, CallbackDocHandler.getRecipes(registration))
   }
 
   override def registerGuiHandlers(registration: IGuiHandlerRegistration) = {

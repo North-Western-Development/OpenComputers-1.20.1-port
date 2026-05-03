@@ -43,7 +43,7 @@ class DecolorizeRecipe(id: ResourceLocation, target: Item) extends Recipe[Crafti
 
   override def canCraftInDimensions(width: Int, height: Int): Boolean = width * height >= 2
 
-  override def getSerializer = RecipeSerializers.CRAFTING_DECOLORIZE
+  override def getSerializer = RecipeSerializers.CRAFTING_DECOLORIZE.get()
 
   override def getResultItem: ItemStack = new ItemStack(targetItem)
 

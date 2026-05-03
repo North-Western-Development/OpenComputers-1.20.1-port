@@ -52,7 +52,7 @@ class Drone(props: Properties) extends Item(props) with IForgeItem with traits.S
   override def onItemUse(stack: ItemStack, player: Player, position: BlockPosition, side: Direction, hitX: Float, hitY: Float, hitZ: Float) = {
     val world = position.world.get
     if (!world.isClientSide) {
-      val drone = entity.EntityTypes.DRONE.create(world)
+      val drone = entity.EntityTypes.DRONE.get().create(world)
       player match {
         case fakePlayer: agent.Player =>
           drone.ownerName = fakePlayer.agent.ownerName

@@ -26,7 +26,7 @@ import scala.collection.convert.ImplicitConversionsToScala._
 
 object ManualUsageHandler {
 
-  def getRecipes(registration: IRecipeRegistration): util.List[ManualUsageRecipe] = registration.getIngredientManager.getAllIngredients(VanillaTypes.ITEM).collect {
+  def getRecipes(registration: IRecipeRegistration): util.List[ManualUsageRecipe] = registration.getIngredientManager.getAllIngredients(VanillaTypes.ITEM_STACK).collect {
     case stack: ItemStack => api.Manual.pathFor(stack) match {
       case s: String => Option(new ManualUsageRecipe(stack, s))
       case _ => None
@@ -44,43 +44,30 @@ object ManualUsageHandler {
       override def onPress(b: Button) = ()
     })
 
+    private val recipeType: RecipeType[ManualUsageRecipe] =
+      RecipeType.create(OpenComputers.ID, "OC_api", classOf[ManualUsageRecipe])
+
     def initialize(guiHelper: IGuiHelper) {
       background = guiHelper.createBlankDrawable(recipeWidth, recipeHeight)
-      icon = guiHelper.drawableBuilder(new ResourceLocation(Settings.resourceDomain, "textures/items/manual.png"), 0, 0, 16, 16).setTextureSize(16, 16).build()
+      icon = guiHelper.drawableBuilder(ResourceLocation.fromNamespaceAndPath(Settings.resourceDomain, "textures/items/manual.png"), 0, 0, 16, 16).setTextureSize(16, 16).build()
     }
-
-    override def getRecipeClass = classOf[ManualUsageRecipe]
 
     override def getBackground: IDrawable = background
 
     override def getIcon: IDrawable = icon
 
-    override def setIngredients(recipeWrapper: ManualUsageRecipe, ingredients: IIngredients) {
-      ingredients.setInput(VanillaTypes.ITEM, recipeWrapper.stack)
-    }
-
     override def setRecipe(recipeLayout: IRecipeLayoutBuilder, recipeWrapper: ManualUsageRecipe, ingredients: IFocusGroup) {
+      recipeLayout.addSlot(RecipeIngredientRole.INPUT, 0, 0).addItemStack(recipeWrapper.stack)
     }
 
-    override def draw(recipeWrapper: ManualUsageRecipe, stack: PoseStack, mouseX: Double, mouseY: Double) {
+    override def draw(recipeWrapper: ManualUsageRecipe, recipeSlotsView: IRecipeSlotsView, stack: PoseStack, mouseX: Double, mouseY: Double) {
       button.render(stack, mouseX.toInt, mouseY.toInt, 0)
     }
 
-    override def handleClick(recipeWrapper: ManualUsageRecipe, mouseX: Double, mouseY: Double, mouseButton: Int): Boolean = {
-      if (mouseButton == GLFW.GLFW_MOUSE_BUTTON_LEFT || button.isMouseOver(mouseX, mouseY)) {
-        val minecraft = Minecraft.getInstance
-        minecraft.player.closeContainer()
-        api.Manual.openFor(minecraft.player)
-        api.Manual.navigate(recipeWrapper.path)
-        true
-      }
-      else false
-    }
-
     @Deprecated
-    override def getTitle = new TextComponent("OpenComputers Manual")
+    override def getTitle = Component.literal("OpenComputers Manual")
 
-    override def getUid = new ResourceLocation(OpenComputers.ID, "manual")
+    override def getRecipeType: RecipeType[ManualUsageRecipe] = recipeType
   }
 
 }

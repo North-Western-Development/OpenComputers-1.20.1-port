@@ -89,26 +89,27 @@ object CallbackDocHandler {
     private var background: IDrawable = _
     private var icon: IDrawable = _
 
+    private val recipeType: RecipeType[CallbackDocRecipe] =
+      RecipeType.create(OpenComputers.ID, "OC_api", classOf[CallbackDocRecipe])
+
     def initialize(guiHelper: IGuiHelper) {
       background = guiHelper.createBlankDrawable(recipeWidth, recipeHeight)
-      icon = new DrawableAnimatedIcon(new ResourceLocation(Settings.resourceDomain, "textures/items/tablet_on.png"), 0, 0, 16, 16, 16, 32,
+      icon = new DrawableAnimatedIcon(ResourceLocation.fromNamespaceAndPath(Settings.resourceDomain, "textures/items/tablet_on.png"), 0, 0, 16, 16, 16, 32,
         guiHelper.createTickTimer(20, 1, true), 0, 16)
     }
-
-    override def getRecipeClass = classOf[CallbackDocRecipe]
 
     override def getIcon: IDrawable = icon
 
     override def getBackground: IDrawable = background
 
-    override def setIngredients(recipeWrapper: CallbackDocRecipe, ingredients: IIngredients) {
-      ingredients.setInput(VanillaTypes.ITEM, recipeWrapper.stack)
-    }
 
     override def setRecipe(recipeLayout: IRecipeLayoutBuilder, recipeWrapper: CallbackDocRecipe, ingredients: IFocusGroup) {
+      recipeLayout
+        .addSlot(RecipeIngredientRole.INPUT, 1, 1)
+        .addItemStack(recipeWrapper.stack)
     }
 
-    override def draw(recipeWrapper: CallbackDocRecipe, stack: PoseStack, mouseX: Double, mouseY: Double): Unit = {
+    override def draw(recipeWrapper: CallbackDocRecipe, recipeSlotsView: IRecipeSlotsView, stack: PoseStack, mouseX: Double, mouseY: Double): Unit = {
       val minecraft = Minecraft.getInstance
       for ((text, line) <- recipeWrapper.page.linesIterator.zipWithIndex) {
         minecraft.font.draw(stack, text, 4, 4 + line * (minecraft.font.lineHeight + 1), 0x333333)
@@ -116,9 +117,9 @@ object CallbackDocHandler {
     }
 
     @Deprecated
-    override def getTitle = new TextComponent("OpenComputers API")
+    override def getTitle = Component.literal("OpenComputers API")
 
-    override def getUid = new ResourceLocation(OpenComputers.ID, "part_api")
+    override def getRecipeType: RecipeType[CallbackDocRecipe] = recipeType
   }
 
 }

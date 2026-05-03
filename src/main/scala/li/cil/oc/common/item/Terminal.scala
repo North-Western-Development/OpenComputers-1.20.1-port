@@ -1,21 +1,23 @@
 package li.cil.oc.common.item
 
 import com.google.common.base.Strings
-import li.cil.oc.{Constants, Localization, Settings, api}
+import li.cil.oc.{Constants, Localization, OpenComputers, Settings, api}
 import li.cil.oc.client.gui
 import li.cil.oc.common.component
 import li.cil.oc.common.tileentity.traits.BlockEntity
 import net.minecraft.client.Minecraft
 import net.minecraft.client.resources.model.ModelResourceLocation
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.world.{InteractionHand, InteractionResultHolder}
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.item.{Item, ItemStack, TooltipFlag}
 import net.minecraft.world.level.Level
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
-import net.minecraftforge.client.model.ForgeModelBakery
+import net.minecraftforge.client.event.ModelEvent
 import net.minecraftforge.common.extensions.IForgeItem
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.common.Mod
 
 import java.util
 
@@ -27,7 +29,7 @@ class Terminal(props: Properties) extends Item(props) with IForgeItem with trait
     super.appendHoverText(stack, world, tooltip, flag)
     if (hasServer(stack)) {
       val server = stack.getTag.getString(Settings.namespace + "server")
-      tooltip.add(new TextComponent("§8" + server.substring(0, 13) + "...§7"))
+      tooltip.add(Component.literal("§8" + server.substring(0, 13) + "...§7"))
     }
   }
 
@@ -39,13 +41,6 @@ class Terminal(props: Properties) extends Item(props) with IForgeItem with trait
   @OnlyIn(Dist.CLIENT)
   override def getModelLocation(stack: ItemStack): ModelResourceLocation = {
     modelLocationFromState(hasServer(stack))
-  }
-
-  @OnlyIn(Dist.CLIENT)
-  override def registerModelLocations(): Unit = {
-    for (state <- Seq(true, false)) {
-      ForgeModelBakery.addSpecialModel(modelLocationFromState(state))
-    }
   }
 
   override def use(stack: ItemStack, world: Level, player: Player): InteractionResultHolder[ItemStack] = {
@@ -90,5 +85,19 @@ class Terminal(props: Properties) extends Item(props) with IForgeItem with trait
       if (!inRange()) Minecraft.getInstance.popGuiLayer
       true
     }))
+  }
+}
+
+@Mod.EventBusSubscriber(
+  modid = OpenComputers.ID,
+  value = Array(Dist.CLIENT),
+  bus = Mod.EventBusSubscriber.Bus.MOD
+)
+object Terminal {
+  @SubscribeEvent
+  def registerAdditionalModels(event: ModelEvent.RegisterAdditional): Unit = {
+    for (state <- Seq(true, false)) {
+      event.register(new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.ItemName.Terminal + (if (state) "_on" else "_off"), "inventory"))
+    }
   }
 }

@@ -61,5 +61,5 @@ class LootDiskCyclingRecipe(val getId: ResourceLocation) extends CraftingRecipe 
 
   override def getIngredients = ingredients
 
-  override def getSerializer = RecipeSerializers.CRAFTING_LOOTDISK_CYCLING
+  override def getSerializer = RecipeSerializers.CRAFTING_LOOTDISK_CYCLING.get()
 }

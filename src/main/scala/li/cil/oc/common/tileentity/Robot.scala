@@ -69,7 +69,7 @@ import scala.collection.mutable
 // robot moves we only create a new proxy tile entity, hook the instance of this
 // class that was held by the old proxy to it and can then safely forget the
 // old proxy, which will be cleaned up by Minecraft like any other tile entity.
-class Robot(state: BlockState, pos: BlockPos) extends BlockEntity(BlockEntityTypes.ROBOT, pos, state) with MenuProvider with traits.Computer with traits.PowerInformation with traits.RotatableTile
+class Robot(state: BlockState, pos: BlockPos) extends BlockEntity(BlockEntityTypes.ROBOT.get(), pos, state) with MenuProvider with traits.Computer with traits.PowerInformation with traits.RotatableTile
   with IFluidHandler with internal.Robot with InventorySelection with TankSelection {
 
   var proxy: RobotProxy = _
