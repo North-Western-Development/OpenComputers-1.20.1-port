@@ -5,6 +5,7 @@ plugins {
     id 'wtf.gofancy.fancygradle' version '1.1.+'
     id "com.matthewprenger.cursegradle" version "1.4.0"
     id 'com.modrinth.minotaur' version '2.8.7'
+    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 }
 
 fancyGradle {
@@ -51,7 +52,7 @@ ext.simpleVersion = version
 version = "MC${config.minecraft.version}-${project.version}"
 jarJar.enable()
 minecraft {
-    mappings channel: "${config.minecraft.mappings_channel}", version: "${config.minecraft.mappings_version}"
+    mappings channel: 'parchment', version: '2022.08.14-1.19.2'
 
     runs {
         client {

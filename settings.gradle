@@ -9,6 +9,7 @@ pluginManagement {
             name 'FancyGradle'
             url 'https://maven.gofancy.wtf/releases'
         }
+        maven { url = 'https://maven.parchmentmc.org' }
     }
 }
 
