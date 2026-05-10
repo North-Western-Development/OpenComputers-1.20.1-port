@@ -30,12 +30,12 @@ object NanomachinesHandler {
     val TexNanomachinesBar = RenderTypes.createTexturedQuad("nanomachines_bar", Textures.GUI.NanomachinesBar, DefaultVertexFormat.POSITION_TEX, false)
 
     @SubscribeEvent
-    def onRenderGameOverlay(e: RenderGameOverlayEvent.Post): Unit = {
-      if (e.getType == RenderGameOverlayEvent.ElementType.TEXT) {
+    def onRenderGameOverlay(e: RenderGuiOverlayEvent.Post): Unit = {
+      if (e.getOverlay == VanillaGuiOverlay.DEBUG_TEXT) {
         val mc = Minecraft.getInstance
         api.Nanomachines.getController(mc.player) match {
           case controller: Controller =>
-            val stack = e.getMatrixStack
+            val stack = e.getPoseStack
             val window = mc.getWindow
             val sizeX = 8
             val sizeY = 12
@@ -75,14 +75,14 @@ object NanomachinesHandler {
   object Common {
     @SubscribeEvent
     def onPlayerRespawn(e: PlayerRespawnEvent): Unit = {
-      api.Nanomachines.getController(e.getPlayer) match {
+      api.Nanomachines.getController(e.getEntity) match {
         case controller: Controller => controller.changeBuffer(-controller.getLocalBuffer)
         case _ => // Not a player with nanomachines.
       }
     }
 
     @SubscribeEvent
-    def onLivingUpdate(e: LivingEvent.LivingUpdateEvent): Unit = {
+    def onLivingUpdate(e: LivingEvent.LivingTickEvent): Unit = {
       e.getEntity match {
         case player: Player => api.Nanomachines.getController(player) match {
           case controller: ControllerImpl =>
@@ -110,7 +110,7 @@ object NanomachinesHandler {
     @SubscribeEvent
     def onPlayerSave(e: PlayerEvent.SaveToFile): Unit = {
       val file = e.getPlayerFile("ocnm")
-      api.Nanomachines.getController(e.getPlayer) match {
+      api.Nanomachines.getController(e.getEntity) match {
         case controller: ControllerImpl =>
           try {
             val nbt = new CompoundTag()

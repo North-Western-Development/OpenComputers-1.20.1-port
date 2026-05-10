@@ -320,7 +320,7 @@ object ModOpenComputers extends ModProxy {
   }
 
   @OnlyIn(Dist.CLIENT)
-  private def initializeClient() {
+  private def initializeClient(): Unit = {
     api.Manual.addProvider(DefinitionPathProvider)
     api.Manual.addProvider(new ResourceContentProvider(Settings.resourceDomain, "doc/"))
     api.Manual.addProvider("", TextureImageProvider)
@@ -370,11 +370,33 @@ object ModOpenComputers extends ModProxy {
       0
   }
 
+//  private def blacklistHost(host: Class[_], itemNames: String*) {
+//    for (itemName <- itemNames) try {
+//      api.IMC.blacklistHost(itemName, host, api.Items.get(itemName).createItemStack(1))
+//    } catch {
+//      case t: Throwable => OpenComputers.log.warn(s"Error blacklisting '$itemName' for '${host.getSimpleName}.", t)
+//    }
+//  }
+
+  // TODO : To investigate.. Claude helped
   private def blacklistHost(host: Class[_], itemNames: String*) {
-    for (itemName <- itemNames) try {
-      api.IMC.blacklistHost(itemName, host, api.Items.get(itemName).createItemStack(1))
-    } catch {
-      case t: Throwable => OpenComputers.log.warn(s"Error blacklisting '$itemName' for '${host.getSimpleName}.", t)
+    for (itemName <- itemNames) {
+      val stack = try {
+        val definition = api.Items.get(itemName)
+        if (definition != null) definition.createItemStack(1) else ItemStack.EMPTY
+      } catch {
+        case t: Throwable =>
+          OpenComputers.log.warn(s"Skipping blacklist entry '$itemName' for '${host.getSimpleName}' because its stack could not be created.", t)
+          ItemStack.EMPTY
+      }
+
+      if (!stack.isEmpty) {
+        try {
+          api.IMC.blacklistHost(itemName, host, stack)
+        } catch {
+          case t: Throwable => OpenComputers.log.warn(s"Error blacklisting '$itemName' for '${host.getSimpleName}.", t)
+        }
+      }
     }
   }
 

@@ -23,8 +23,7 @@ import net.minecraft.world.level.Level
 
 import scala.collection.mutable
 
-object SerialInterfaceProviderAdapter extends ForgeRegistryEntry[SerialInterfaceProvider] with SerialInterfaceProvider {
-  setRegistryName(OpenComputers.ID, "serial_port")
+object SerialInterfaceProviderAdapter extends SerialInterfaceProvider {
 
   override def getDocumentationReference = Optional.of(new SerialProtocolDocumentationReference(Component.literal("OpenComputers Adapter"), "protocols/opencomputersadapter.md"))
 

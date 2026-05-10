@@ -45,7 +45,7 @@ object ManualUsageHandler {
     })
 
     private val recipeType: RecipeType[ManualUsageRecipe] =
-      RecipeType.create(OpenComputers.ID, "OC_api", classOf[ManualUsageRecipe])
+      RecipeType.create(OpenComputers.ID, "oc_api", classOf[ManualUsageRecipe])
 
     def initialize(guiHelper: IGuiHelper) {
       background = guiHelper.createBlankDrawable(recipeWidth, recipeHeight)

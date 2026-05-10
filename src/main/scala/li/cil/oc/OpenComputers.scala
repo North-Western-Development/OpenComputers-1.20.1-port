@@ -4,6 +4,7 @@ import java.nio.file.Paths
 import li.cil.oc.common.{IMC, MissingMappingsHandler, Proxy}
 import li.cil.oc.common.init.Blocks
 import li.cil.oc.common.init.Items
+import li.cil.oc.common.recipe.RecipeSerializers
 import li.cil.oc.common.tileentity.BlockEntityTypes
 import li.cil.oc.integration.Mods
 import li.cil.oc.util.ThreadPoolFactory
@@ -62,6 +63,7 @@ class OpenComputers {
 
   modEventBus.register(OpenComputers.proxy)
   BlockEntityTypes.register(modEventBus)
+  //RecipeSerializers.register(modEventBus)
   MinecraftForge.EVENT_BUS.register(MissingMappingsHandler)
 
   Settings.load(FMLPaths.CONFIGDIR.get().resolve(Paths.get("opencomputers", "settings.conf")).toFile())
@@ -70,13 +72,9 @@ class OpenComputers {
   Mods.preInit() // Must happen after loading Settings but before registry events are fired.
 
   @SubscribeEvent
-  def registerBlocks(e: RegistryEvent.Register[Block]): Unit = {
-    Blocks.init()
-  }
-
-  @SubscribeEvent
-  def registerItems(e: RegistryEvent.Register[Item]): Unit = {
-    Items.init()
+  def registerAll(e: RegisterEvent) {
+    e.register(ForgeRegistries.Keys.ITEMS, Items.init)
+    e.register(ForgeRegistries.Keys.BLOCKS, Blocks.init)
   }
 
   @SubscribeEvent

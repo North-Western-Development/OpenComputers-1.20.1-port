@@ -58,11 +58,10 @@ object ModelInitialization {
       item match {
         case custom: CustomModel => custom.registerModelLocations(event)
         case _ => {
-          Option(api.Items.get(new ItemStack(item))) match {
-            case Some(descriptor) =>
-              val location = Settings.resourceDomain + ":" + descriptor.name()
-              shaper.register(item, new ModelResourceLocation(location, "inventory"))
-            case _ =>
+          val registryName = ForgeRegistries.ITEMS.getKey(item)
+          if (registryName != null && registryName != ForgeRegistries.ITEMS.getDefaultKey) {
+            val location = new ModelResourceLocation(registryName, "inventory")
+            shaper.register(item, location)
           }
         }
       }

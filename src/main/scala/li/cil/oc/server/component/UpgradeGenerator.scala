@@ -124,15 +124,21 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
       return result(false, "queue is empty")
     }
     val previousSelectedItem: ItemStack = host.mainInventory.getItem(host.selectedSlot).copy
-    val emptyContainer: ItemStack = inQueue.getContainerItem match {
-      case requiredContainer if !requiredContainer.isEmpty && requiredContainer.getCount > 0 => previousSelectedItem match {
-        case slotItem: ItemStack if !slotItem.isEmpty &&
-          slotItem.getItem == requiredContainer.getItem &&
-          ItemStack.tagMatches(slotItem, requiredContainer) => slotItem.copy
-        case _ => return result(false, "removing this fuel requires the appropriate container in the selected slot")
+
+    val requiredContainer: ItemStack =
+      if (inQueue.hasCraftingRemainingItem) inQueue.getCraftingRemainingItem
+      else ItemStack.EMPTY
+
+    val emptyContainer: ItemStack =
+      if (!requiredContainer.isEmpty && requiredContainer.getCount > 0) {
+        previousSelectedItem match {
+          case slotItem: ItemStack if !slotItem.isEmpty &&
+            slotItem.getItem == requiredContainer.getItem &&
+            ItemStack.tagMatches(slotItem, requiredContainer) => slotItem.copy
+          case _ => return result(false, "removing this fuel requires the appropriate container in the selected slot")
+        }
       }
-      case _ => ItemStack.EMPTY // nothing to do, nothing required
-    }
+      else ItemStack.EMPTY
 
     val removeLimit: Int = math.min(inQueue.getCount, if (emptyContainer.isEmpty) count else emptyContainer.getCount)
 

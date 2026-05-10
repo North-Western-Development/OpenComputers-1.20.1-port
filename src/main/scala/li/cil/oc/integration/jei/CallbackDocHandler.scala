@@ -90,7 +90,7 @@ object CallbackDocHandler {
     private var icon: IDrawable = _
 
     private val recipeType: RecipeType[CallbackDocRecipe] =
-      RecipeType.create(OpenComputers.ID, "OC_api", classOf[CallbackDocRecipe])
+      RecipeType.create(OpenComputers.ID, "oc_api", classOf[CallbackDocRecipe])
 
     def initialize(guiHelper: IGuiHelper) {
       background = guiHelper.createBlankDrawable(recipeWidth, recipeHeight)

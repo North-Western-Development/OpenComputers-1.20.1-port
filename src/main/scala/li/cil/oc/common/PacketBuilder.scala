@@ -25,7 +25,7 @@ import net.minecraftforge.server.ServerLifecycleHooks
 import scala.collection.convert.ImplicitConversionsToScala._
 
 abstract class PacketBuilder(stream: OutputStream) extends DataOutputStream(stream) {
-  def writeRegistryEntry[T <: IForgeRegistryEntry[T]](registry: IForgeRegistry[T], value: T): Unit =
+  def writeRegistryEntry[T](registry: IForgeRegistry[T], value: T): Unit =
     writeInt(registry.asInstanceOf[ForgeRegistry[T]].getID(value))
 
   def writeBlockEntity(t: BlockEntity) {
