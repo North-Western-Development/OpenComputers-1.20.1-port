@@ -1,5 +1,7 @@
 package li.cil.oc
 
+import li.cil.oc.common.entity.EntityTypes
+
 import java.nio.file.Paths
 import li.cil.oc.common.{IMC, MissingMappingsHandler, Proxy}
 import li.cil.oc.common.init.Blocks
@@ -63,6 +65,7 @@ class OpenComputers {
 
   modEventBus.register(OpenComputers.proxy)
   BlockEntityTypes.register(modEventBus)
+  EntityTypes.register(modEventBus)
   //RecipeSerializers.register(modEventBus)
   MinecraftForge.EVENT_BUS.register(MissingMappingsHandler)
 

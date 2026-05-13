@@ -113,6 +113,7 @@ class Screen(val buffer: api.internal.TextBuffer, val hasMouse: Boolean, val has
   }
 
   override def drawBuffer(stack: PoseStack, buffer2: MultiBufferSource) {
+    stack.pushPose()
     stack.translate(x, y, 0)
     BufferRenderer.drawBackground(stack, innerWidth, innerHeight)
     if (hasPower()) {
@@ -120,6 +121,7 @@ class Screen(val buffer: api.internal.TextBuffer, val hasMouse: Boolean, val has
       stack.scale(scale.toFloat, scale.toFloat, 1)
       BufferRenderer.drawText(stack, buffer, buffer2)
     }
+    stack.popPose()
   }
 
   override protected def changeSize(w: Double, h: Double) = {

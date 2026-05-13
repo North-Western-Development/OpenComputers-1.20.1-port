@@ -263,6 +263,8 @@ class RobotRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntit
     RenderState.checkError(getClass.getName + ".render: entering (aka: wasntme)")
 
     val robot = proxy.robot
+    if (robot == null || proxy.getLevel == null) return
+
     val worldTime = proxy.getLevel.getGameTime + f
 
     matrix.pushPose()
@@ -309,7 +311,11 @@ class RobotRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntit
     renderChassis(matrix, buffer, light, robot, offset)
 
     val pos = proxy.getBlockPos
-    val dist = Minecraft.getInstance.player.position.distanceToSqr(pos.getX + 0.5, pos.getY + 0.5, pos.getZ + 0.5)
+    val player = Minecraft.getInstance.player
+    val dist = if (player != null)
+      player.position.distanceToSqr(pos.getX + 0.5, pos.getY + 0.5, pos.getZ + 0.5)
+    else Double.MaxValue
+
     if (!robot.renderingErrored && dist < 24 * 24) {
       val itemRenderer = Minecraft.getInstance.getItemRenderer
       StackOption(robot.getItem(0)) match {
@@ -351,7 +357,7 @@ class RobotRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntit
               matrix.mulPose(Vector3f.ZP.rotationDegrees(180.0F))
             }
 
-            itemRenderer.renderStatic(Minecraft.getInstance.player, stack, TransformType.THIRD_PERSON_RIGHT_HAND, false, matrix, buffer, proxy.getLevel, light, overlay, 1)
+            itemRenderer.renderStatic(player, stack, TransformType.THIRD_PERSON_RIGHT_HAND, false, matrix, buffer, proxy.getLevel, light, overlay, 1)
           }
           catch {
             case e: Throwable =>
@@ -385,7 +391,7 @@ class RobotRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntit
         firstEmpty = slotMapping.indexOf(null)
       }
 
-      for ((info, mountPoint) <- (slotMapping, mountPoints).zipped if info != null) try {
+      for ((info, mountPoint) <- slotMapping.lazyZip(mountPoints) if info != null) try {
         val (stack, renderer) = info
         matrix.pushPose()
         matrix.translate(0.5f, 0.5f, 0.5f)
@@ -401,20 +407,21 @@ class RobotRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEntit
     matrix.popPose()
 
     val name = robot.name
-    if (Settings.get.robotLabels && !Strings.isNullOrEmpty(name) && ForgeHooksClient.isNameplateInRenderDistance(null, dist)) {
+    // TODO : Check/Test if distance value is good
+    if (Settings.get.robotLabels && !Strings.isNullOrEmpty(name) && dist < 64 * 64) {
       // This is pretty much copy-pasta from the entity's label renderer.
-      val f = Minecraft.getInstance.font
+      val font = Minecraft.getInstance.font
       val scale = 1.6f / 60f
-      val width = f.width(name)
+      val width = font.width(name)
       val halfWidth = width / 2
-      val bgColor = (255f * Minecraft.getInstance.options.getBackgroundOpacity(0.25F)).asInstanceOf[Int] << 24
+      val bgColor = (255f * Minecraft.getInstance.options.getBackgroundOpacity(0.25F)).toInt << 24
 
       matrix.translate(0, 0.8, 0)
       matrix.mulPose(Minecraft.getInstance.getEntityRenderDispatcher.cameraOrientation)
       matrix.scale(-scale, -scale, scale)
 
-      f.drawInBatch((if (EventHandler.isItTime) Style.EMPTY.withObfuscated(true).toString else "") + name,
-        -halfWidth, 0, -1, false, matrix.last.pose, buffer, false, bgColor, light)
+      val displayName = (if (EventHandler.isItTime) Style.EMPTY.withObfuscated(true).toString else "") + name
+      font.drawInBatch(displayName, -halfWidth, 0, 0xFFFFFFFF, false, matrix.last.pose, buffer, false, bgColor, light)
     }
 
     matrix.popPose()

@@ -386,7 +386,8 @@ object Items extends ItemAPI {
     registerItem(new item.Wrench(defaultProps.stacksTo(1)), Constants.ItemName.Wrench)
 
     // 1.5.11
-    registerItem(new item.HoverBoots(defaultProps.stacksTo(1).rarity(Rarity.UNCOMMON).setNoRepair), Constants.ItemName.HoverBoots)
+    // FIXME : Causes server crashes, disabled as temp fix
+    //registerItem(new item.HoverBoots(defaultProps.stacksTo(1).rarity(Rarity.UNCOMMON).setNoRepair()), Constants.ItemName.HoverBoots)
 
     // 1.5.18
     registerItem(new item.Nanomachines(defaultProps.rarity(Rarity.UNCOMMON)), Constants.ItemName.Nanomachines)

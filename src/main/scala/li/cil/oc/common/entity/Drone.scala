@@ -30,6 +30,7 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.InventoryUtils
+import net.minecraft.client.model.geom.ModelLayerLocation
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.entity.{Entity, EntityType, MoverType}
 import net.minecraft.world.entity.player.Player
@@ -41,6 +42,7 @@ import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.RandomSource
 import net.minecraft.world.entity.Entity.RemovalReason
 import net.minecraft.world.entity.item.ItemEntity
@@ -54,7 +56,7 @@ import net.minecraftforge.network.NetworkHooks
 
 import scala.collection.JavaConverters.asJavaIterable
 
-object Drone {
+object DroneObject {
   val DataRunning: EntityDataAccessor[lang.Boolean] = SynchedEntityData.defineId(classOf[Drone], EntityDataSerializers.BOOLEAN)
   val DataTargetX: EntityDataAccessor[lang.Float] = SynchedEntityData.defineId(classOf[Drone], EntityDataSerializers.FLOAT)
   val DataTargetY: EntityDataAccessor[lang.Float] = SynchedEntityData.defineId(classOf[Drone], EntityDataSerializers.FLOAT)
@@ -66,6 +68,8 @@ object Drone {
   val DataStatusText: EntityDataAccessor[String] = SynchedEntityData.defineId(classOf[Drone], EntityDataSerializers.STRING)
   val DataInventorySize: EntityDataAccessor[Integer] = SynchedEntityData.defineId(classOf[Drone], EntityDataSerializers.INT)
   val DataLightColor: EntityDataAccessor[Integer] = SynchedEntityData.defineId(classOf[Drone], EntityDataSerializers.INT)
+
+  val DRONE_MODEL_LAYER: ModelLayerLocation = new ModelLayerLocation(new ResourceLocation(OpenComputers.ID, "drone"), "main")
 }
 
 abstract class DroneInventory(val drone: Drone) extends Inventory
@@ -271,17 +275,17 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
   // ----------------------------------------------------------------------- //
 
   override def defineSynchedData() {
-    entityData.define(Drone.DataRunning, java.lang.Boolean.FALSE)
-    entityData.define(Drone.DataTargetX, Float.box(0f))
-    entityData.define(Drone.DataTargetY, Float.box(0f))
-    entityData.define(Drone.DataTargetZ, Float.box(0f))
-    entityData.define(Drone.DataMaxAcceleration, Float.box(0f))
-    entityData.define(Drone.DataSelectedSlot, Int.box(0))
-    entityData.define(Drone.DataCurrentEnergy, Int.box(0))
-    entityData.define(Drone.DataMaxEnergy, Int.box(100))
-    entityData.define(Drone.DataStatusText, "")
-    entityData.define(Drone.DataInventorySize, Int.box(0))
-    entityData.define(Drone.DataLightColor, Int.box(0x66DD55))
+    entityData.define(DroneObject.DataRunning, java.lang.Boolean.FALSE)
+    entityData.define(DroneObject.DataTargetX, Float.box(0f))
+    entityData.define(DroneObject.DataTargetY, Float.box(0f))
+    entityData.define(DroneObject.DataTargetZ, Float.box(0f))
+    entityData.define(DroneObject.DataMaxAcceleration, Float.box(0f))
+    entityData.define(DroneObject.DataSelectedSlot, Int.box(0))
+    entityData.define(DroneObject.DataCurrentEnergy, Int.box(0))
+    entityData.define(DroneObject.DataMaxEnergy, Int.box(100))
+    entityData.define(DroneObject.DataStatusText, "")
+    entityData.define(DroneObject.DataInventorySize, Int.box(0))
+    entityData.define(DroneObject.DataLightColor, Int.box(0x66DD55))
   }
 
   def initializeAfterPlacement(stack: ItemStack, player: Player, position: Vec3) {
@@ -308,50 +312,50 @@ class Drone(selfType: EntityType[Drone], world: Level) extends Entity(selfType, 
     components.connectComponents()
   }
 
-  def isRunning: Boolean = entityData.get(Drone.DataRunning)
+  def isRunning: Boolean = entityData.get(DroneObject.DataRunning)
 
-  def targetX: lang.Float = entityData.get(Drone.DataTargetX)
+  def targetX: lang.Float = entityData.get(DroneObject.DataTargetX)
 
-  def targetY: lang.Float = entityData.get(Drone.DataTargetY)
+  def targetY: lang.Float = entityData.get(DroneObject.DataTargetY)
 
-  def targetZ: lang.Float = entityData.get(Drone.DataTargetZ)
+  def targetZ: lang.Float = entityData.get(DroneObject.DataTargetZ)
 
-  def targetAcceleration: lang.Float = entityData.get(Drone.DataMaxAcceleration)
+  def targetAcceleration: lang.Float = entityData.get(DroneObject.DataMaxAcceleration)
 
-  def selectedSlot: Int = entityData.get(Drone.DataSelectedSlot) & 0xFF
+  def selectedSlot: Int = entityData.get(DroneObject.DataSelectedSlot) & 0xFF
 
-  def globalBuffer: Integer = entityData.get(Drone.DataCurrentEnergy)
+  def globalBuffer: Integer = entityData.get(DroneObject.DataCurrentEnergy)
 
-  def globalBufferSize: Integer = entityData.get(Drone.DataMaxEnergy)
+  def globalBufferSize: Integer = entityData.get(DroneObject.DataMaxEnergy)
 
-  def statusText: String = entityData.get(Drone.DataStatusText)
+  def statusText: String = entityData.get(DroneObject.DataStatusText)
 
-  def inventorySize: Int = entityData.get(Drone.DataInventorySize) & 0xFF
+  def inventorySize: Int = entityData.get(DroneObject.DataInventorySize) & 0xFF
 
-  def lightColor: Integer = entityData.get(Drone.DataLightColor)
+  def lightColor: Integer = entityData.get(DroneObject.DataLightColor)
 
-  def setRunning(value: Boolean): Unit = entityData.set(Drone.DataRunning, Boolean.box(value))
+  def setRunning(value: Boolean): Unit = entityData.set(DroneObject.DataRunning, Boolean.box(value))
 
   // Round target values to low accuracy to avoid floating point errors accumulating.
-  def targetX_=(value: Float): Unit = entityData.set(Drone.DataTargetX, Float.box(math.round(value * 4) / 4f))
+  def targetX_=(value: Float): Unit = entityData.set(DroneObject.DataTargetX, Float.box(math.round(value * 4) / 4f))
 
-  def targetY_=(value: Float): Unit = entityData.set(Drone.DataTargetY, Float.box(math.round(value * 4) / 4f))
+  def targetY_=(value: Float): Unit = entityData.set(DroneObject.DataTargetY, Float.box(math.round(value * 4) / 4f))
 
-  def targetZ_=(value: Float): Unit = entityData.set(Drone.DataTargetZ, Float.box(math.round(value * 4) / 4f))
+  def targetZ_=(value: Float): Unit = entityData.set(DroneObject.DataTargetZ, Float.box(math.round(value * 4) / 4f))
 
-  def targetAcceleration_=(value: Float): Unit = entityData.set(Drone.DataMaxAcceleration, Float.box(math.max(0, math.min(maxAcceleration, value))))
+  def targetAcceleration_=(value: Float): Unit = entityData.set(DroneObject.DataMaxAcceleration, Float.box(math.max(0, math.min(maxAcceleration, value))))
 
-  def setSelectedSlot(value: Int): Unit = entityData.set(Drone.DataSelectedSlot, Int.box(value.toByte))
+  def setSelectedSlot(value: Int): Unit = entityData.set(DroneObject.DataSelectedSlot, Int.box(value.toByte))
 
-  def globalBuffer_=(value: Int): Unit = entityData.set(Drone.DataCurrentEnergy, Int.box(value))
+  def globalBuffer_=(value: Int): Unit = entityData.set(DroneObject.DataCurrentEnergy, Int.box(value))
 
-  def globalBufferSize_=(value: Int): Unit = entityData.set(Drone.DataMaxEnergy, Int.box(value))
+  def globalBufferSize_=(value: Int): Unit = entityData.set(DroneObject.DataMaxEnergy, Int.box(value))
 
-  def statusText_=(value: String): Unit = entityData.set(Drone.DataStatusText, Option(value).fold("")(_.linesIterator.map(_.take(10)).take(2).mkString("\n")))
+  def statusText_=(value: String): Unit = entityData.set(DroneObject.DataStatusText, Option(value).fold("")(_.linesIterator.map(_.take(10)).take(2).mkString("\n")))
 
-  def inventorySize_=(value: Int): Unit = entityData.set(Drone.DataInventorySize, Int.box(value.toByte))
+  def inventorySize_=(value: Int): Unit = entityData.set(DroneObject.DataInventorySize, Int.box(value.toByte))
 
-  def lightColor_=(value: Int): Unit = entityData.set(Drone.DataLightColor, Int.box(value))
+  def lightColor_=(value: Int): Unit = entityData.set(DroneObject.DataLightColor, Int.box(value))
 
   override def lerpTo(x: Double, y: Double, z: Double, yaw: Float, pitch: Float, posRotationIncrements: Int, teleport: Boolean): Unit = {
     // Only set exact position if we're too far away from the server's
