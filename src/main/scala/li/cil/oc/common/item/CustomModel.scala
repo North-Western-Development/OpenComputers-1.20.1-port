@@ -8,7 +8,7 @@ import net.minecraftforge.api.distmarker.OnlyIn
 
 trait CustomModel {
   @OnlyIn(Dist.CLIENT)
-  def getModelLocation(stack: ItemStack): ModelResourceLocation
+  def getModelLocation(stack: ItemStack): AnyRef
 
   @OnlyIn(Dist.CLIENT)
   def registerModelLocations(event: ModelEvent.RegisterAdditional): Unit = {}

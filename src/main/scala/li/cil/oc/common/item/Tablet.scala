@@ -18,12 +18,12 @@ import li.cil.oc.util.{Audio, BlockPosition, RotationHelper, Tooltip}
 import li.cil.oc.{Constants, Localization, OpenComputers, Settings, api, client, server}
 import net.minecraft.Util
 import net.minecraft.client.Minecraft
-import net.minecraft.client.resources.model.ModelResourceLocation
 import net.minecraft.client.server.IntegratedServer
 import net.minecraft.core.{BlockPos, Direction, NonNullList}
 import net.minecraft.nbt.{CompoundTag, Tag}
 import net.minecraft.network.chat
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.{Inventory, Player}
 import net.minecraft.world.entity.{Entity, LivingEntity}
@@ -101,11 +101,17 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
       case Some(state) => if (state) "_on" else "_off"
       case _ => ""
     }
-    new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.ItemName.Tablet + suffix, "inventory")
+
+    val clazz = Class.forName("net.minecraft.client.resources.model.ModelResourceLocation")
+    val ctor = clazz.getConstructor(classOf[String], classOf[String])
+    ctor.newInstance(
+      Settings.resourceDomain + ":" + Constants.ItemName.Tablet + suffix,
+      "inventory"
+    ).asInstanceOf[AnyRef]
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def getModelLocation(stack: ItemStack): ModelResourceLocation = {
+  override def getModelLocation(stack: ItemStack) = {
     modelLocationFromState(Tablet.Client.getWeak(stack) match {
       case Some(tablet: TabletWrapper) => Some(tablet.data.isRunning)
       case _ => None
@@ -115,7 +121,7 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
   @OnlyIn(Dist.CLIENT)
   override def registerModelLocations(event: ModelEvent.RegisterAdditional): Unit = {
     for (state <- Seq(None, Some(true), Some(false))) {
-      event.register(modelLocationFromState(state))
+      event.register(modelLocationFromState(state).asInstanceOf[ResourceLocation])
     }
   }
 
