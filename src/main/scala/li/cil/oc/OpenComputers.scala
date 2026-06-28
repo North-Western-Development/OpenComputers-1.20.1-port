@@ -66,7 +66,7 @@ class OpenComputers {
   modEventBus.register(OpenComputers.proxy)
   BlockEntityTypes.register(modEventBus)
   EntityTypes.register(modEventBus)
-  //RecipeSerializers.register(modEventBus)
+  RecipeSerializers.register(modEventBus)
   MinecraftForge.EVENT_BUS.register(MissingMappingsHandler)
 
   Settings.load(FMLPaths.CONFIGDIR.get().resolve(Paths.get("opencomputers", "settings.conf")).toFile())
