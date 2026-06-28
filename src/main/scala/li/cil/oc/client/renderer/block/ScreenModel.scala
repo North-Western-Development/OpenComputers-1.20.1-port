@@ -38,7 +38,7 @@ object ScreenModel extends SmartBlockModelBase {
     val pitch = state.getValue(PropertyRotatable.Pitch)
     val yaw = state.getValue(PropertyRotatable.Yaw)
     val color: Int = Option(data.get(COLOR_PROPERTY)).getOrElse(Color.rgbValues(Color.byTier(0)))
-    val (width: Int, height: Int, x: Int, y: Int) = Option(data.get[(Int, Int, Int, Int)](WIDTH_HEIGHT_LOCAL_POSITION_PROPERTY)).getOrElse(() => (1, 1, 0, 0))
+    val (width: Int, height: Int, x: Int, y: Int) = Option(data.get[(Int, Int, Int, Int)](WIDTH_HEIGHT_LOCAL_POSITION_PROPERTY)).getOrElse((1, 1, 0, 0))
 
     val facing = toLocal(side, pitch, yaw)
 
