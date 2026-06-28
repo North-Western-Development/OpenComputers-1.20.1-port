@@ -18,16 +18,14 @@ import li.cil.tis3d.api.serial.SerialProtocolDocumentationReference
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.network.chat.Component
 import net.minecraft.world.level.Level
-import net.minecraftforge.registries.ForgeRegistryEntry
 
 import scala.collection.mutable
 
-object SerialInterfaceProviderAdapter extends ForgeRegistryEntry[SerialInterfaceProvider] with SerialInterfaceProvider {
-  setRegistryName(OpenComputers.ID, "serial_port")
+object SerialInterfaceProviderAdapter extends SerialInterfaceProvider {
 
-  override def getDocumentationReference = Optional.of(new SerialProtocolDocumentationReference(new TextComponent("OpenComputers Adapter"), "protocols/opencomputersadapter.md"))
+  override def getDocumentationReference = Optional.of(new SerialProtocolDocumentationReference(Component.literal("OpenComputers Adapter"), "protocols/opencomputersadapter.md"))
 
   override def matches(world: Level, pos: BlockPos, side: Direction): Boolean = world.getBlockEntity(pos).isInstanceOf[Adapter]
 

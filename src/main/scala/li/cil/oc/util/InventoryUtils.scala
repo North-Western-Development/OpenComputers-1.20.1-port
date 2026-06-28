@@ -88,10 +88,10 @@ object InventoryUtils {
    * inserted into the inventory, i.e. if 10 more items could fit into the
    * slot, the stack's size will be 10 smaller than before the call.
    * <br>
-   * This will return <tt>true</tt> if <em>at least</em> one item could be
-   * inserted into the slot. It will return <tt>false</tt> if the passed
+   * This will return {@code true} if <em>at least</em> one item could be
+   * inserted into the slot. It will return {@code false} if the passed
    * stack did not change. Note that it will also change the stack
-   * when called with <tt>simulate = true</tt>.
+   * when called with {@code simulate = true}.
    * <br>
    * This takes care of handling special cases such as sided inventories,
    * maximum inventory and item stack sizes.
@@ -128,8 +128,8 @@ object InventoryUtils {
    * is called with a separate stack instance, so it does not have to be copied
    * again.
    * <br>
-   * This will return the <tt>number</tt> of items extracted. It will return
-   * <tt>zero</tt> if the stack in the slot did not change.
+   * This will return the {@code number} of items extracted. It will return
+   * {@code zero} if the stack in the slot did not change.
    * <br>
    * This takes care of handling special cases such as sided inventories and
    * maximum stack sizes.
@@ -175,10 +175,10 @@ object InventoryUtils {
    * present in the inventory. After that it will try to fit the stack into
    * empty slots in the inventory.
    * <br>
-   * This uses the <tt>insertIntoInventorySlot</tt> method, and therefore
+   * This uses the {@code insertIntoInventorySlot} method, and therefore
    * handles special cases such as sided inventories and stack size limits.
    * <br>
-   * This returns <tt>true</tt> if at least one item was inserted. The passed
+   * This returns {@code true} if at least one item was inserted. The passed
    * item stack will be adjusted to reflect the number items inserted, by
    * having its size decremented accordingly.
    */
@@ -209,10 +209,10 @@ object InventoryUtils {
    * This will try to extract a stack from any inventory slot. It will iterate
    * all slots until an item can be extracted from a slot.
    * <br>
-   * This uses the <tt>extractFromInventorySlot</tt> method, and therefore
+   * This uses the {@code extractFromInventorySlot} method, and therefore
    * handles special cases such as sided inventories and stack size limits.
    * <br>
-   * This returns <tt>true</tt> if at least one item was extracted.
+   * This returns {@code true} if at least one item was extracted.
    */
   def extractAnyFromInventory(consumer: (ItemStack, Boolean) => Unit, inventory: IItemHandler, limit: Int = 64): Int = {
     for (slot <- 0 until inventory.getSlots) {
@@ -233,7 +233,7 @@ object InventoryUtils {
    * up to the number of the stack's size for all slots in the specified inventory.
    * If exact is true, the items colated will also match meta data
    * <br>
-   * This uses the <tt>extractFromInventorySlot</tt> method, and therefore
+   * This uses the {@code extractFromInventorySlot} method, and therefore
    * handles special cases such as sided inventories and stack size limits.
    */
   def extractFromInventory(stack: ItemStack, inventory: IItemHandler, simulate: Boolean = false, exact: Boolean = true): ItemStack = {
@@ -258,7 +258,7 @@ object InventoryUtils {
     extractFromInventory(stack, asItemHandler(inventory, side), simulate, exact)
 
     /**
-   * Utility method for calling <tt>insertIntoInventory</tt> on an inventory
+   * Utility method for calling {@code insertIntoInventory} on an inventory
    * in the world.
    */
   def insertIntoInventoryAt(stack: ItemStack, position: BlockPosition, side: Option[Direction] = None, limit: Int = 64, simulate: Boolean = false): Boolean =
@@ -267,7 +267,7 @@ object InventoryUtils {
   type Extractor = () => Int
 
   /**
-   * Utility method for calling <tt>extractFromInventory</tt> on an inventory
+   * Utility method for calling {@code extractFromInventory} on an inventory
    * in the world.
    */
   def getExtractorFromInventoryAt(consumer: (ItemStack, Boolean) => Unit, position: BlockPosition, side: Direction, limit: Int = 64): Extractor =
@@ -283,11 +283,11 @@ object InventoryUtils {
    * then insert it into the specified sink inventory. If the insertion fails, the
    * items will remain in the source inventory.
    * <br>
-   * This uses the <tt>extractFromInventory</tt> and <tt>insertIntoInventory</tt>
+   * This uses the {@code extractFromInventory} and {@code insertIntoInventory}
    * methods, and therefore handles special cases such as sided inventories and
    * stack size limits.
    * <br>
-   * This returns <tt>true</tt> if at least one item was transferred.
+   * This returns {@code true} if at least one item was transferred.
    */
   def transferBetweenInventories(source: IItemHandler, sink: IItemHandler, limit: Int = 64): Int =
     extractAnyFromInventory(
@@ -297,7 +297,7 @@ object InventoryUtils {
     transferBetweenInventories(asItemHandler(source, sourceSide), asItemHandler(sink, sinkSide.orNull), limit)
 
   /**
-   * Like <tt>transferBetweenInventories</tt> but moving between specific slots.
+   * Like {@code transferBetweenInventories} but moving between specific slots.
    */
   def transferBetweenInventoriesSlots(source: IItemHandler, sourceSlot: Int, sink: IItemHandler, sinkSlot: Option[Int], limit: Int = 64): Int =
     sinkSlot match {
@@ -313,7 +313,7 @@ object InventoryUtils {
     transferBetweenInventoriesSlots(asItemHandler(source, sourceSide), sourceSlot, asItemHandler(sink, sinkSide.orNull), sinkSlot, limit)
 
   /**
-   * Utility method for calling <tt>transferBetweenInventories</tt> on inventories
+   * Utility method for calling {@code transferBetweenInventories} on inventories
    * in the world.
    */
   def getTransferBetweenInventoriesAt(source: BlockPosition, sourceSide: Direction, sink: BlockPosition, sinkSide: Option[Direction], limit: Int = 64): Extractor =
@@ -327,7 +327,7 @@ object InventoryUtils {
     }
 
   /**
-   * Utility method for calling <tt>transferBetweenInventoriesSlots</tt> on inventories
+   * Utility method for calling {@code transferBetweenInventoriesSlots} on inventories
    * in the world.
    */
   def getTransferBetweenInventoriesSlotsAt(sourcePos: BlockPosition, sourceSide: Direction, sourceSlot: Int, sinkPos: BlockPosition, sinkSide: Option[Direction], sinkSlot: Option[Int], limit: Int = 64): Extractor =

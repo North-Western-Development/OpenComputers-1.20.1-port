@@ -7,7 +7,7 @@ import li.cil.oc.common.Tier
 import li.cil.oc.util.ExtendedNBT._
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.nbt.Tag
 
 class MicrocontrollerData(itemName: String = Constants.BlockName.Microcontroller) extends ItemData(itemName) {
   def this(stack: ItemStack) {
@@ -27,7 +27,7 @@ class MicrocontrollerData(itemName: String = Constants.BlockName.Microcontroller
 
   override def loadData(nbt: CompoundTag) {
     tier = nbt.getByte(TierTag)
-    components = nbt.getList(ComponentsTag, NBT.TAG_COMPOUND).
+    components = nbt.getList(ComponentsTag, Tag.TAG_COMPOUND).
       toTagArray[CompoundTag].map(ItemStack.of(_)).filter(!_.isEmpty)
     storedEnergy = nbt.getInt(StoredEnergyTag)
 

@@ -1,27 +1,23 @@
 package li.cil.oc.server.component.traits
 
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.util.{BlockInventorySource, BlockPosition, EntityInventorySource, InventorySource}
+import li.cil.oc.{OpenComputers, Settings}
 import li.cil.oc.util.ExtendedBlock._
-import li.cil.oc.util.ExtendedLevel._
-import net.minecraft.block.FlowingFluidBlock
-import net.minecraft.world.entity.Entity
-import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.item.minecart.MinecartEntity
+import li.cil.oc.util.{BlockInventorySource, BlockPosition, EntityInventorySource, InventorySource}
+import net.minecraft.core.Direction
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.{Entity, LivingEntity}
 import net.minecraft.world.entity.player.Player
-import net.minecraft.util.{ActionResult, Direction, Hand}
-import net.minecraft.util.math.AxisAlignedBB
-import net.minecraft.world.phys.BlockHitResult
-import net.minecraft.util.math.shapes.ISelectionContext
-import net.minecraft.world.server.ServerLevel
+import net.minecraft.world.entity.vehicle.Minecart
+import net.minecraft.world.level.block.LiquidBlock
+import net.minecraft.world.phys.shapes.CollisionContext
+import net.minecraft.world.phys.{AABB, BlockHitResult}
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.FakePlayerFactory
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
-import net.minecraftforge.event.world.BlockEvent
+import net.minecraftforge.event.level.BlockEvent
 import net.minecraftforge.eventbus.api.Event.Result
 import net.minecraftforge.fluids.IFluidBlock
-import net.minecraftforge.items.IItemHandler
 import net.minecraftforge.items.wrapper.InvWrapper
 
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -40,7 +36,7 @@ trait LevelAware {
   private def mayInteract(blockPos: BlockPosition, face: Direction): Boolean = {
     try {
       val trace = new BlockHitResult(fakePlayer.position, face, blockPos.toBlockPos, false)
-      val event = new PlayerInteractEvent.RightClickBlock(fakePlayer, Hand.MAIN_HAND, blockPos.toBlockPos, trace)
+      val event = new PlayerInteractEvent.RightClickBlock(fakePlayer, InteractionHand.MAIN_HAND, blockPos.toBlockPos, trace)
       MinecraftForge.EVENT_BUS.post(event)
       !event.isCanceled && event.getUseBlock != Result.DENY
     } catch {
@@ -52,7 +48,7 @@ trait LevelAware {
 
   private def mayInteract(entity: Entity): Boolean = {
     try {
-      val event = new PlayerInteractEvent.EntityInteract(fakePlayer, Hand.MAIN_HAND, entity)
+      val event = new PlayerInteractEvent.EntityInteract(fakePlayer, InteractionHand.MAIN_HAND, entity)
       MinecraftForge.EVENT_BUS.post(event)
       !event.isCanceled
     } catch {
@@ -71,7 +67,7 @@ trait LevelAware {
     case _ => true
   })
 
-  def entitiesInBounds[Type <: Entity](clazz: Class[Type], bounds: AxisAlignedBB) = {
+  def entitiesInBounds[Type <: Entity](clazz: Class[Type], bounds: AABB) = {
     world.getEntitiesOfClass(clazz, bounds)
   }
 
@@ -91,16 +87,16 @@ trait LevelAware {
 
   def blockContent(side: Direction) = {
     closestEntity[Entity](classOf[Entity], side) match {
-      case Some(_@(_: LivingEntity | _: MinecartEntity)) =>
+      case Some(_@(_: LivingEntity | _: Minecart)) =>
         (true, "entity")
       case _ =>
         val blockPos = position.offset(side)
         val state = world.getBlockState(blockPos.toBlockPos)
         val block = state.getBlock
-        if (block.isAir(state, world, blockPos.toBlockPos)) {
+        if (state.isAir) {
           (false, "air")
         }
-        else if (block.isInstanceOf[FlowingFluidBlock] || block.isInstanceOf[IFluidBlock]) {
+        else if (block.isInstanceOf[LiquidBlock] || block.isInstanceOf[IFluidBlock]) {
           val event = new BlockEvent.BreakEvent(world, blockPos.toBlockPos, state, fakePlayer)
           MinecraftForge.EVENT_BUS.post(event)
           (event.isCanceled, "liquid")
@@ -110,7 +106,7 @@ trait LevelAware {
           MinecraftForge.EVENT_BUS.post(event)
           (event.isCanceled, "replaceable")
         }
-        else if (state.getCollisionShape(world, blockPos.toBlockPos, ISelectionContext.empty).isEmpty) {
+        else if (state.getCollisionShape(world, blockPos.toBlockPos, CollisionContext.empty).isEmpty) {
           (true, "passable")
         }
         else {

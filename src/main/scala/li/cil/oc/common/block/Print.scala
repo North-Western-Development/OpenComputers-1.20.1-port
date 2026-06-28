@@ -1,73 +1,64 @@
 package li.cil.oc.common.block
 
-import java.util
-import java.util.Random
-
-import li.cil.oc.Localization
-import li.cil.oc.Settings
 import li.cil.oc.common.item.data.PrintData
 import li.cil.oc.common.tileentity
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.Tooltip
+import li.cil.oc.{Localization, Settings}
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.util.RandomSource
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.{ItemStack, TooltipFlag}
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.entity.LivingEntity
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.ItemStack
-import net.minecraft.loot.LootContext
-import net.minecraft.loot.LootParameters
-import net.minecraft.util.ActionResultType
-import net.minecraft.core.Direction
-import net.minecraft.util.Hand
-import net.minecraft.core.BlockPos
+import net.minecraft.world.level.storage.loot.LootContext
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams
+import net.minecraft.world.level.{BlockGetter, Level}
 import net.minecraft.world.phys.BlockHitResult
-import net.minecraft.util.math.RayTraceResult
-import net.minecraft.util.math.shapes.ISelectionContext
-import net.minecraft.util.math.shapes.VoxelShape
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.level.BlockGetter
-import net.minecraft.world.level.Level
-import net.minecraft.world.server.ServerLevel
-import net.minecraftforge.common.extensions.IForgeBlock
+import net.minecraft.world.phys.shapes.{CollisionContext, VoxelShape}
+import net.minecraft.world.{InteractionHand, InteractionResult}
 
-import scala.collection.convert.ImplicitConversionsToJava._
-import scala.reflect.ClassTag
+import java.util
+import java.util.Random
+import scala.jdk.CollectionConverters._
 
-class Print(props: Properties) extends RedstoneAware(props) with IForgeBlock {
+class Print(props: Properties) extends RedstoneAware(props) {
   @Deprecated
   override def propagatesSkylightDown(state: BlockState, world: BlockGetter, pos: BlockPos) = false
 
   // ----------------------------------------------------------------------- //
 
-  override protected def tooltipBody(stack: ItemStack, world: BlockGetter, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) = {
+  override protected def tooltipBody(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], advanced: TooltipFlag) = {
     super.tooltipBody(stack, world, tooltip, advanced)
     val data = new PrintData(stack)
-    data.tooltip.foreach(s => tooltip.addAll(s.linesIterator.map(new StringTextComponent(_).setStyle(Tooltip.DefaultStyle)).toIterable))
+    data.tooltip.foreach(s => tooltip.addAll(s.linesIterator.map(Component.literal(_).setStyle(Tooltip.DefaultStyle)).toList.asJava))
   }
 
-  override protected def tooltipTail(stack: ItemStack, world: BlockGetter, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) = {
+  override protected def tooltipTail(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], advanced: TooltipFlag) = {
     super.tooltipTail(stack, world, tooltip, advanced)
     val data = new PrintData(stack)
     if (data.isBeaconBase) {
-      tooltip.add(new StringTextComponent(Localization.Tooltip.PrintBeaconBase).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(Component.literal(Localization.Tooltip.PrintBeaconBase).setStyle(Tooltip.DefaultStyle))
     }
     if (data.emitRedstone) {
-      tooltip.add(new StringTextComponent(Localization.Tooltip.PrintRedstoneLevel(data.redstoneLevel)).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(Component.literal(Localization.Tooltip.PrintRedstoneLevel(data.redstoneLevel)).setStyle(Tooltip.DefaultStyle))
     }
     if (data.emitLight) {
-      tooltip.add(new StringTextComponent(Localization.Tooltip.PrintLightValue(data.lightLevel)).setStyle(Tooltip.DefaultStyle))
+      tooltip.add(Component.literal(Localization.Tooltip.PrintLightValue(data.lightLevel)).setStyle(Tooltip.DefaultStyle))
     }
   }
 
-  override def getLightValue(state: BlockState, world: BlockGetter, pos: BlockPos): Int =
+  override def getLightEmission(state: BlockState, world: BlockGetter, pos: BlockPos): Int =
     world match {
       case world: Level if world.isLoaded(pos) => world.getBlockEntity(pos) match {
         case print: tileentity.Print => print.data.lightLevel
-        case _ => super.getLightValue(state, world, pos)
+        case _ => super.getLightEmission(state, world, pos)
       }
-      case _ => super.getLightValue(state, world, pos)
+      case _ => super.getLightEmission(state, world, pos)
     }
 
   @Deprecated
@@ -80,14 +71,14 @@ class Print(props: Properties) extends RedstoneAware(props) with IForgeBlock {
       case _ => super.getLightBlock(state, world, pos)
     }
 
-  override def getPickBlock(state: BlockState, target: RayTraceResult, world: BlockGetter, pos: BlockPos, player: Player): ItemStack = {
-    world.getBlockEntity(pos) match {
-      case print: tileentity.Print => print.data.createItemStack()
-      case _ => ItemStack.EMPTY
-    }
-  }
+//  override def getPickBlock(state: BlockState, target: HitResult, world: BlockGetter, pos: BlockPos, player: Player): ItemStack = {
+//    world.getBlockEntity(pos) match {
+//      case print: tileentity.Print => print.data.createItemStack()
+//      case _ => ItemStack.EMPTY
+//    }
+//  }
 
-  override def getShape(state: BlockState, world: BlockGetter, pos: BlockPos, ctx: ISelectionContext): VoxelShape = {
+  override def getShape(state: BlockState, world: BlockGetter, pos: BlockPos, ctx: CollisionContext): VoxelShape = {
     world.getBlockEntity(pos) match {
       case print: tileentity.Print => print.shape
       case _ => super.getShape(state, world, pos, ctx)
@@ -96,7 +87,7 @@ class Print(props: Properties) extends RedstoneAware(props) with IForgeBlock {
 
   def tickRate(world: Level) = 20
 
-  override def tick(state: BlockState, world: ServerLevel, pos: BlockPos, rand: Random): Unit = {
+  override def tick(state: BlockState, world: ServerLevel, pos: BlockPos, rand: RandomSource): Unit = {
     if (!world.isClientSide) world.getBlockEntity(pos) match {
       case print: tileentity.Print =>
         if (print.state) print.toggleState()
@@ -114,13 +105,21 @@ class Print(props: Properties) extends RedstoneAware(props) with IForgeBlock {
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(worldIn: BlockGetter) = new tileentity.Print(tileentity.BlockEntityTypes.PRINT)
+  override def newBlockEntity(pos: BlockPos, state: BlockState) = new tileentity.Print(tileentity.BlockEntityTypes.PRINT.get(), pos, state)
+
+  override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
+    (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
+      entity match {
+        case tileEntity: tileentity.Print => tileEntity.updateEntity()
+        case _ =>
+      }
+  }
 
   // ----------------------------------------------------------------------- //
 
-  override def use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: Hand, trace: BlockHitResult): ActionResultType = {
+  override def use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: InteractionHand, trace: BlockHitResult): InteractionResult = {
     world.getBlockEntity(pos) match {
-      case print: tileentity.Print => if (print.activate()) ActionResultType.sidedSuccess(world.isClientSide) else ActionResultType.PASS
+      case print: tileentity.Print => if (print.activate()) InteractionResult.sidedSuccess(world.isClientSide) else InteractionResult.PASS
       case _ => super.use(state, world, pos, player, hand, trace)
     }
   }
@@ -152,7 +151,7 @@ class Print(props: Properties) extends RedstoneAware(props) with IForgeBlock {
 
   override def getDrops(state: BlockState, ctx: LootContext.Builder): util.List[ItemStack] = {
     val newCtx = ctx.withDynamicDrop(LootFunctions.DYN_ITEM_DATA, (c, f) => {
-      c.getParamOrNull(LootParameters.BLOCK_ENTITY) match {
+      c.getParamOrNull(LootContextParams.BLOCK_ENTITY) match {
         case tileEntity: tileentity.Print => f.accept(tileEntity.data.createItemStack())
         case _ =>
       }

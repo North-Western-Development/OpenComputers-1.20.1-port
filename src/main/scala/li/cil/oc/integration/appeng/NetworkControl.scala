@@ -29,8 +29,8 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.core.BlockPos
 import net.minecraft.util.registry.{Registry => VanillaRegistry}
 import net.minecraft.world.level.Level
-import net.minecraftforge.common.util.Constants.NBT
-import net.minecraftforge.fml.server.ServerLifecycleHooks
+import net.minecraft.nbt.Tag
+import net.minecraftforge.server.ServerLifecycleHooks
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -448,7 +448,7 @@ object NetworkControl {
     override def loadData(nbt: CompoundTag) {
       super.loadData(nbt)
       stack = AEUtil.itemStorageChannel.createStack(ItemStack.of(nbt))
-      links ++= nbt.getList(LINKS_KEY, NBT.TAG_COMPOUND).map(
+      links ++= nbt.getList(LINKS_KEY, Tag.TAG_COMPOUND).map(
         (nbt: CompoundTag) => LinkCache.store(AEUtil.aeApi.get.storage.loadCraftingLink(nbt, this)))
       pos = AEPartLocation.fromOrdinal(NbtDataStream.getOptInt(nbt, POS_KEY, AEPartLocation.INTERNAL.ordinal))
       if (nbt.contains(DIMENSION_KEY)) {

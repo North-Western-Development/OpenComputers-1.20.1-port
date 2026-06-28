@@ -1,15 +1,14 @@
 package li.cil.oc.common.block
 
-import java.util.Random
-
 import li.cil.oc.common.tileentity
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.core.BlockPos
-import net.minecraft.world.level.BlockGetter
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.util.RandomSource
 import net.minecraft.world.level.Level
-import net.minecraft.world.server.ServerLevel
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.BlockState
 
 class Capacitor(props: Properties) extends SimpleBlock(props) {
   @Deprecated
@@ -17,7 +16,7 @@ class Capacitor(props: Properties) extends SimpleBlock(props) {
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(world: BlockGetter) = new tileentity.Capacitor(tileentity.BlockEntityTypes.CAPACITOR)
+  override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Capacitor(tileentity.BlockEntityTypes.CAPACITOR.get(), pos, state)
 
   // ----------------------------------------------------------------------- //
 
@@ -30,7 +29,7 @@ class Capacitor(props: Properties) extends SimpleBlock(props) {
       case _ => 0
     }
 
-  override def tick(state: BlockState, world: ServerLevel, pos: BlockPos, rand: Random): Unit = {
+  override def tick(state: BlockState, world: ServerLevel, pos: BlockPos, rand: RandomSource): Unit = {
     world.updateNeighborsAt(pos, this)
   }
 
@@ -40,4 +39,12 @@ class Capacitor(props: Properties) extends SimpleBlock(props) {
       case capacitor: tileentity.Capacitor => capacitor.recomputeCapacity()
       case _ =>
     }
+
+  override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
+    (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
+      entity match {
+        case tileEntity: tileentity.Capacitor => tileEntity.updateEntity()
+        case _ =>
+      }
+  }
 }

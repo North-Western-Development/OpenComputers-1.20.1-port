@@ -1,6 +1,6 @@
 package li.cil.oc.util
 
-import net.minecraft.item.{Rarity => _Rarity}
+import net.minecraft.world.item.{Rarity => _Rarity}
 
 object Rarity {
   import _Rarity._

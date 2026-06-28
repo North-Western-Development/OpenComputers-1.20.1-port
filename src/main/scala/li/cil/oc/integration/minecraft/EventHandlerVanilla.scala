@@ -4,6 +4,7 @@ import li.cil.oc.Settings
 import li.cil.oc.api.event.GeolyzerEvent
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedLevel._
+import net.minecraft.core.BlockPos
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.{Item, ItemStack}
 import net.minecraft.world.level.block.{Block, Blocks, CropBlock, StemBlock}
@@ -25,14 +26,16 @@ object EventHandlerVanilla {
     }
 
     val noise = new Array[Byte](e.data.length)
-    world.random.nextBytes(noise)
+    for (i <- noise.indices) {
+      noise(i) = world.random.nextInt(256).toByte
+    }
     // Map to [-1, 1). The additional /33f is for normalization below.
     noise.map(_ / 128f / 33f).copyToArray(e.data)
 
     val w = e.maxX - e.minX + 1
     val d = e.maxZ - e.minZ + 1
     for (ry <- e.minY to e.maxY; rz <- e.minZ to e.maxZ; rx <- e.minX to e.maxX) {
-      val pos = blockPos.toBlockPos.offset(rx, ry, rz)
+      val pos: BlockPos = blockPos.toBlockPos.offset(rx, ry, rz)
       val index = (rx - e.minX) + ((rz - e.minZ) + (ry - e.minY) * d) * w
       if (world.isLoaded(pos) && !world.isEmptyBlock(pos)) {
         val blockState = world.getBlockState(pos)
@@ -64,7 +67,7 @@ object EventHandlerVanilla {
     val blockState = world.getBlockState(e.pos)
     val block = blockState.getBlock
 
-    e.data += "name" -> block.getRegistryName
+    e.data += "name" -> block.getName
     e.data += "hardness" -> Float.box(blockState.getDestroySpeed(world, e.pos))
     e.data += "harvestLevel" -> Int.box(0) //TODO: FIND SOLUTION FOR HARVEST LEVEL AND TOOL
     e.data += "harvestTool" -> Option("NONE")

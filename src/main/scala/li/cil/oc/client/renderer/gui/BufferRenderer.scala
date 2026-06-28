@@ -1,28 +1,34 @@
 package li.cil.oc.client.renderer.gui
 
+import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.{DefaultVertexFormat, PoseStack, Tesselator, VertexConsumer, VertexFormat}
+import com.mojang.math.Matrix4f
 import li.cil.oc.api
 import li.cil.oc.client.Textures
 import li.cil.oc.util.RenderState
-import net.minecraft.client.renderer.MultiBufferSource
-import com.mojang.math.Matrix4f
-import org.lwjgl.opengl.GL11
+import net.minecraft.client.renderer.{GameRenderer, MultiBufferSource}
 
 object BufferRenderer {
   val margin = 7
 
   val innerMargin = 1
 
-  def drawBackground(stack: PoseStack, bufferWidth: Int, bufferHeight: Int, forRobot: Boolean = false) = {
-    RenderState.checkError(getClass.getName + ".drawBackground: entering (aka: wasntme)")
+  def drawBackground(stack: PoseStack, bufferWidth: Int, bufferHeight: Int, forRobot: Boolean = false): Unit = {
+    RenderState.checkError(getClass.getName + ".drawBackground: entering")
 
     val innerWidth = innerMargin * 2 + bufferWidth
     val innerHeight = innerMargin * 2 + bufferHeight
 
+    RenderSystem.enableBlend()
+    RenderSystem.defaultBlendFunc()
+    RenderSystem.disableCull()
+    RenderSystem.setShader(() => GameRenderer.getPositionTexShader)
+    RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
+    Textures.bind(Textures.GUI.Borders)
+
     val t = Tesselator.getInstance
     val r = t.getBuilder
-    Textures.bind(Textures.GUI.Borders)
-    r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+    r.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX)
 
     val margin = if (forRobot) 2 else 7
     val (c0, c1, c2, c3) = if (forRobot) (5, 7, 9, 11) else (0, 7, 9, 16)
@@ -62,19 +68,22 @@ object BufferRenderer {
 
     t.end()
 
+    RenderSystem.enableCull()
+    RenderSystem.disableBlend()
+
     RenderState.checkError(getClass.getName + ".drawBackground: leaving")
   }
 
-  private def drawQuad(matrix: Matrix4f, builder: VertexConsumer, x: Float, y: Float, w: Float, h: Float, u1: Float, v1: Float, u2: Float, v2: Float) = {
+  private def drawQuad(matrix: Matrix4f, builder: VertexConsumer, x: Float, y: Float, w: Float, h: Float, u1: Float, v1: Float, u2: Float, v2: Float): Unit = {
     val u1f = u1 / 16f
     val u2f = u2 / 16f
     val v1f = v1 / 16f
     val v2f = v2 / 16f
+    builder.vertex(matrix, x, y, 0).uv(u1f, v1f).endVertex()
     builder.vertex(matrix, x, y + h, 0).uv(u1f, v2f).endVertex()
     builder.vertex(matrix, x + w, y + h, 0).uv(u2f, v2f).endVertex()
-    builder.vertex(matrix, x+ w, y, 0).uv(u2f, v1f).endVertex()
-    builder.vertex(matrix, x, y, 0).uv(u1f, v1f).endVertex()
+    builder.vertex(matrix, x + w, y, 0).uv(u2f, v1f).endVertex()
   }
 
-  def drawText(stack: PoseStack, screen: api.internal.TextBuffer) = screen.renderText(stack)
+  def drawText(stack: PoseStack, screen: api.internal.TextBuffer, bufferSource: MultiBufferSource): Boolean = screen.renderText(stack, bufferSource)
 }

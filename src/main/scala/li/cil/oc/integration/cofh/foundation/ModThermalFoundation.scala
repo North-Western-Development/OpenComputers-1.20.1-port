@@ -9,7 +9,7 @@ object ModThermalFoundation extends ModProxy {
   override def getMod = Mods.ThermalFoundation
 
   override def initialize() {
-    Driver.add(new DriverEnergyInfo)
+    //Driver.add(new DriverEnergyInfo) // FIXME
     api.IMC.registerWrenchTool("li.cil.oc.integration.cofh.foundation.EventHandlerFoundation.useWrench")
     api.IMC.registerWrenchToolCheck("li.cil.oc.integration.cofh.foundation.EventHandlerFoundation.isWrench")
   }

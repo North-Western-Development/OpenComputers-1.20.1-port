@@ -1,21 +1,20 @@
 package li.cil.oc.client.renderer.markdown.segment.render
 
-import java.io.InputStream
-import javax.imageio.ImageIO
-
-import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.platform.TextureUtil
 import com.mojang.blaze3d.systems.RenderSystem
+import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.math.Vector4f
 import li.cil.oc.api.manual.ImageRenderer
 import li.cil.oc.client.Textures
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.texture.Texture
-import net.minecraft.client.renderer.texture.TextureUtil
-import net.minecraft.resources.IResourceManager
+import net.minecraft.client.renderer.texture.AbstractTexture
 import net.minecraft.resources.ResourceLocation
-import com.mojang.math.Matrix4f
-import com.mojang.math.Vector4f
+import net.minecraft.server.packs.resources.ResourceManager
 import org.lwjgl.opengl.GL11
 import org.lwjgl.system.MemoryUtil
+
+import java.io.InputStream
+import javax.imageio.ImageIO
 
 class TextureImageRenderer(val location: ResourceLocation) extends ImageRenderer {
   private val texture = {
@@ -36,7 +35,7 @@ class TextureImageRenderer(val location: ResourceLocation) extends ImageRenderer
 
   override def render(stack: PoseStack, mouseX: Int, mouseY: Int): Unit = {
     Textures.bind(location)
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
     GL11.glBegin(GL11.GL_QUADS)
     GL11.glTexCoord2f(0, 0)
     val matrix = stack.last.pose
@@ -58,17 +57,17 @@ class TextureImageRenderer(val location: ResourceLocation) extends ImageRenderer
     GL11.glEnd()
   }
 
-  private class ImageTexture(val location: ResourceLocation) extends Texture {
+  private class ImageTexture(val location: ResourceLocation) extends AbstractTexture {
     var width = 0
     var height = 0
 
-    override def load(manager: IResourceManager): Unit = {
+    override def load(manager: ResourceManager): Unit = {
       releaseId()
 
       var is: InputStream = null
       try {
         val resource = manager.getResource(location)
-        is = resource.getInputStream
+        is = resource.get().open()
         val bi = ImageIO.read(is)
         val data = MemoryUtil.memAllocInt(bi.getWidth * bi.getHeight)
         val tempArr = Array.ofDim[Int]((1024 * 1024) min data.capacity)

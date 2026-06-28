@@ -7,10 +7,11 @@ import li.cil.oc.client.gui.widget.ProgressBar
 import li.cil.oc.common.container
 import li.cil.oc.common.container.ComponentSlot
 import li.cil.oc.util.RenderState
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.client.renderer.GameRenderer
+import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Inventory
 
-class Printer(state: container.Printer, playerInventory: Inventory, name: TextComponent)
+class Printer(state: container.Printer, playerInventory: Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name) {
 
   imageWidth = 176
@@ -55,6 +56,7 @@ class Printer(state: container.Printer, playerInventory: Inventory, name: TextCo
   }
 
   override def renderBg(stack: PoseStack, dt: Float, mouseX: Int, mouseY: Int) {
+    RenderSystem.setShader(GameRenderer.getPositionTexColorShader _)
     RenderSystem.setShaderColor(1, 1, 1, 1)
     Textures.bind(Textures.GUI.Printer)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)

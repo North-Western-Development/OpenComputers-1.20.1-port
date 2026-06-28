@@ -1,32 +1,21 @@
 package li.cil.oc.common.init
 
-import java.util.concurrent.Callable
-import li.cil.oc.Constants
-import li.cil.oc.CreativeTab
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api.detail.ItemAPI
-import li.cil.oc.api.detail.ItemInfo
+import li.cil.oc.api.detail.{ItemAPI, ItemInfo}
 import li.cil.oc.api.fs.FileSystem
-import li.cil.oc.common
-import li.cil.oc.common.Loot
-import li.cil.oc.common.Tier
 import li.cil.oc.common.block.SimpleBlock
-import li.cil.oc.common.item
-import li.cil.oc.common.item.data.DroneData
-import li.cil.oc.common.item.data.HoverBootsData
-import li.cil.oc.common.item.data.MicrocontrollerData
-import li.cil.oc.common.item.data.RobotData
-import li.cil.oc.common.item.data.TabletData
+import li.cil.oc.common.item.data._
 import li.cil.oc.common.item.traits.SimpleItem
+import li.cil.oc.common.{Loot, Tier, item}
 import li.cil.oc.server.machine.luac.LuaStateFactory
+import li.cil.oc.{Constants, CreativeTab, OpenComputers, Settings, common}
 import net.minecraft.core.NonNullList
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.item.{BlockItem, DyeColor, Item, ItemStack, PickaxeItem, Rarity}
-import net.minecraft.world.item.Item.Properties
 import net.minecraft.resources.ResourceLocation
-import net.minecraftforge.registries.GameData
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item._
+import net.minecraft.world.level.block.Block
+import net.minecraftforge.registries.RegisterEvent
 
+import java.util.concurrent.Callable
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -34,6 +23,9 @@ object Items extends ItemAPI {
   val descriptors = mutable.Map.empty[String, ItemInfo]
 
   val names = mutable.Map.empty[Any, String]
+
+  // Helper available during the RegisterEvent for items.
+  private var currentHelper: RegisterEvent.RegisterHelper[Item] = _
 
   val aliases = Map(
     "datacard" -> Constants.ItemName.DataCardTier1,
@@ -52,8 +44,6 @@ object Items extends ItemAPI {
       instance match {
         case simple: SimpleBlock =>
           simple.setUnlocalizedName("oc." + id)
-          simple.setRegistryName(OpenComputers.ID, id)
-          GameData.register_impl[Block](simple)
         case _ =>
       }
       descriptors += id -> new ItemInfo {
@@ -78,12 +68,7 @@ object Items extends ItemAPI {
       val itemInst = instance match {
         case simple: SimpleBlock =>
           simple.setUnlocalizedName("oc." + id)
-          simple.setRegistryName(OpenComputers.ID, id)
-          GameData.register_impl[Block](simple)
-
           val item : Item = new common.block.Item(simple, itemProps)
-          item.setRegistryName(OpenComputers.ID, id)
-          GameData.register_impl(item)
           OpenComputers.proxy.registerModel(item, id)
           item
         case _ => null.asInstanceOf[Item]
@@ -109,7 +94,6 @@ object Items extends ItemAPI {
     if (!descriptors.contains(id)) {
       instance match {
         case simple: SimpleItem =>
-          GameData.register_impl(simple.setRegistryName(new ResourceLocation(Settings.resourceDomain, id)))
           OpenComputers.proxy.registerModel(simple, id)
         case _ =>
       }
@@ -126,6 +110,11 @@ object Items extends ItemAPI {
         }
       }
       names += instance -> id
+      // Register immediately so ItemStacks can be constructed for it
+      // later in the same init pass (e.g. the Lua BIOS EEPROM).
+      if (currentHelper != null) {
+        currentHelper.register(new ResourceLocation(OpenComputers.ID, id), instance)
+      }
     }
     instance
   }
@@ -325,18 +314,28 @@ object Items extends ItemAPI {
 
   private def defaultProps = new Properties().tab(CreativeTab)
 
-  def init() {
-    initMaterials()
-    initTools()
-    initComponents()
-    initCards()
-    initUpgrades()
-    initStorage()
-    initSpecial()
+  def init(helper: RegisterEvent.RegisterHelper[Item]) {
+    currentHelper = helper
+    try {
+      for ((id, info) <- descriptors) {
+        if (info.item() != null) {
+          helper.register(new ResourceLocation(OpenComputers.ID, id), info.item())
+        }
+      }
 
-    // Register aliases.
-    for ((k, v) <- aliases) {
-      descriptors.getOrElseUpdate(k, descriptors(v))
+      initMaterials()
+      initTools()
+      initComponents()
+      initCards()
+      initUpgrades()
+      initStorage()
+      initSpecial()
+      // Register aliases.
+      for ((k, v) <- aliases) {
+        descriptors.getOrElseUpdate(k, descriptors(v))
+      }
+    } finally {
+      currentHelper = null
     }
   }
 
@@ -387,7 +386,8 @@ object Items extends ItemAPI {
     registerItem(new item.Wrench(defaultProps.stacksTo(1)), Constants.ItemName.Wrench)
 
     // 1.5.11
-    registerItem(new item.HoverBoots(defaultProps.stacksTo(1).rarity(Rarity.UNCOMMON).setNoRepair), Constants.ItemName.HoverBoots)
+    // FIXME : Causes server crashes, disabled as temp fix
+    //registerItem(new item.HoverBoots(defaultProps.stacksTo(1).rarity(Rarity.UNCOMMON).setNoRepair()), Constants.ItemName.HoverBoots)
 
     // 1.5.18
     registerItem(new item.Nanomachines(defaultProps.rarity(Rarity.UNCOMMON)), Constants.ItemName.Nanomachines)

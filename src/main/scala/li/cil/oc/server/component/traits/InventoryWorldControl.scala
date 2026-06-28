@@ -8,8 +8,8 @@ import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.ResultWrapper.result
 import li.cil.oc.util.StackOption._
-import net.minecraft.entity.item.ItemEntity
-import net.minecraft.item.BlockItem
+import net.minecraft.world.entity.item.ItemEntity
+import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
 import net.minecraftforge.common.MinecraftForge

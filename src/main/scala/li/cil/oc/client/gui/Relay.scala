@@ -7,10 +7,10 @@ import li.cil.oc.Localization
 import li.cil.oc.client.Textures
 import li.cil.oc.common.container
 import net.minecraft.client.renderer.Rect2i
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Inventory
 
-class Relay(state: container.Relay, playerInventory: Inventory, name: TextComponent)
+class Relay(state: container.Relay, playerInventory: Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name) {
 
   private val format = new DecimalFormat("#.##hz")

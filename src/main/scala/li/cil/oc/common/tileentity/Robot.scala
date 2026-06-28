@@ -43,7 +43,8 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.{SoundEvents, SoundSource}
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.EquipmentSlot
@@ -51,11 +52,10 @@ import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.material.{FlowingFluid, Fluid, FluidState, Fluids}
 import net.minecraftforge.common.MinecraftForge
-import net.minecraftforge.common.capabilities.Capability
+import net.minecraftforge.common.capabilities.{Capability, ForgeCapabilities}
 import net.minecraftforge.common.util.LazyOptional
 import net.minecraftforge.common.util.NonNullSupplier
 import net.minecraftforge.fluids._
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction
 import net.minecraftforge.api.distmarker.Dist
@@ -69,7 +69,7 @@ import scala.collection.mutable
 // robot moves we only create a new proxy tile entity, hook the instance of this
 // class that was held by the old proxy to it and can then safely forget the
 // old proxy, which will be cleaned up by Minecraft like any other tile entity.
-class Robot(state: BlockState, pos: BlockPos) extends BlockEntity(BlockEntityTypes.ROBOT, pos, state) with MenuProvider with traits.Computer with traits.PowerInformation with traits.RotatableTile
+class Robot(state: BlockState, pos: BlockPos) extends BlockEntity(BlockEntityTypes.ROBOT.get(), pos, state) with MenuProvider with traits.Computer with traits.PowerInformation with traits.RotatableTile
   with IFluidHandler with internal.Robot with InventorySelection with TankSelection {
 
   var proxy: RobotProxy = _
@@ -89,7 +89,7 @@ class Robot(state: BlockState, pos: BlockPos) extends BlockEntity(BlockEntityTyp
   // ----------------------------------------------------------------------- //
 
   override def getCapability[T](capability: Capability[T], facing: Direction): LazyOptional[T] = {
-    if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
+    if (capability == ForgeCapabilities.FLUID_HANDLER)
       fluidCap.cast()
     else
       super.getCapability(capability, facing)
@@ -146,7 +146,7 @@ class Robot(state: BlockState, pos: BlockPos) extends BlockEntity(BlockEntityTyp
 
   override def getComponentInSlot(index: Int): ManagedEnvironment = if (components.length > index) components(index).orNull else null
 
-  override def player: net.minecraft.world.entity.player.Player = {
+  override def player: ServerPlayer = {
     agent.Player.updatePositionAndRotation(player_, facing, facing)
     agent.Player.setPlayerInventoryItems(player_)
     player_
@@ -209,15 +209,15 @@ class Robot(state: BlockState, pos: BlockPos) extends BlockEntity(BlockEntityTyp
   override def setName(name: String): Unit = info.name = name
 
   override def onAnalyze(player: net.minecraft.world.entity.player.Player, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Array[Node] = {
-    player.sendMessage(Localization.Analyzer.RobotOwner(ownerName), Util.NIL_UUID)
-    player.sendMessage(Localization.Analyzer.RobotName(player_.getName.toString), Util.NIL_UUID)
+    player.sendSystemMessage(Localization.Analyzer.RobotOwner(ownerName))
+    player.sendSystemMessage(Localization.Analyzer.RobotName(player_.getName.toString))
     MinecraftForge.EVENT_BUS.post(new RobotAnalyzeEvent(this, player))
     super.onAnalyze(player, side, hitX, hitY, hitZ)
   }
 
   def move(direction: Direction): Boolean = {
     val oldPosition = getBlockPos
-    val newPosition = oldPosition.relative(direction)
+    val newPosition: BlockPos = oldPosition.relative(direction)
     if (!getLevel.isLoaded(newPosition)) {
       return false // Don't fall off the earth.
     }
@@ -770,7 +770,7 @@ class Robot(state: BlockState, pos: BlockPos) extends BlockEntity(BlockEntityTyp
 
   // ----------------------------------------------------------------------- //
 
-  override def getDisplayName = TextComponent.EMPTY
+  override def getDisplayName = Component.literal("")
 
   override def createMenu(id: Int, playerInventory: Inventory, player: net.minecraft.world.entity.player.Player): AbstractContainerMenu =
     new container.Robot(ContainerTypes.ROBOT, id, playerInventory, this, new container.RobotInfo(this))

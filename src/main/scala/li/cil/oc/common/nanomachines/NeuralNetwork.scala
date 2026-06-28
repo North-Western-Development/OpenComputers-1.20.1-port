@@ -12,7 +12,7 @@ import net.minecraft.{ChatFormatting, Util}
 import net.minecraft.world.entity.player.Player
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.nbt.{CompoundTag, Tag}
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.network.chat.Component
 
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
@@ -152,7 +152,7 @@ class NeuralNetwork(controller: ControllerImpl) extends Persistable {
         }
       }
       sb.append(")")
-      player.sendMessage(new TextComponent(sb.toString()), Util.NIL_UUID)
+      player.sendSystemMessage(Component.literal(sb.toString()))
       sb.clear()
     }
   }

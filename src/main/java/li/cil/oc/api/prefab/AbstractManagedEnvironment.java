@@ -6,7 +6,7 @@ import li.cil.oc.api.network.Node;
 import net.minecraft.nbt.CompoundTag;
 
 /**
- * Simple base implementation of the <tt>ManagedEnvironment</tt> interface, so
+ * Simple base implementation of the {@code ManagedEnvironment} interface, so
  * unused methods don't clutter the implementing class.
  */
 public abstract class AbstractManagedEnvironment implements ManagedEnvironment {

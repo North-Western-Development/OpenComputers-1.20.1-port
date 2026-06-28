@@ -6,9 +6,10 @@ import li.cil.oc.api.manual.ImageRenderer
 import li.cil.oc.api.manual.InteractiveImageRenderer
 import li.cil.oc.client.renderer.markdown.Document
 import li.cil.oc.client.renderer.markdown.MarkupFormat
-import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.gui.Font
 import com.mojang.math.Matrix4f
 import com.mojang.math.Vector4f
+import net.minecraft.client.renderer.GameRenderer
 import org.lwjgl.opengl.GL11
 
 private[markdown] class RenderSegment(val parent: Segment, val title: String, val imageRenderer: ImageRenderer) extends InteractiveSegment {
@@ -31,11 +32,11 @@ private[markdown] class RenderSegment(val parent: Segment, val title: String, va
 
   def imageHeight(maxWidth: Int) = math.ceil(imageRenderer.getHeight * scale(maxWidth)).toInt + 4
 
-  override def nextY(indent: Int, maxWidth: Int, renderer: FontRenderer): Int = imageHeight(maxWidth) + (if (indent > 0) Document.lineHeight(renderer) else 0)
+  override def nextY(indent: Int, maxWidth: Int, renderer: Font): Int = imageHeight(maxWidth) + (if (indent > 0) Document.lineHeight(renderer) else 0)
 
-  override def nextX(indent: Int, maxWidth: Int, renderer: FontRenderer): Int = 0
+  override def nextX(indent: Int, maxWidth: Int, renderer: Font): Int = 0
 
-  override def render(stack: PoseStack, x: Int, y: Int, indent: Int, maxWidth: Int, renderer: FontRenderer, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = {
+  override def render(stack: PoseStack, x: Int, y: Int, indent: Int, maxWidth: Int, renderer: Font, mouseX: Int, mouseY: Int): Option[InteractiveSegment] = {
     val width = imageWidth(maxWidth)
     val height = imageHeight(maxWidth)
     val xOffset = (maxWidth - width) / 2
@@ -52,38 +53,40 @@ private[markdown] class RenderSegment(val parent: Segment, val title: String, va
     stack.scale(s, s, s)
 
     RenderSystem.enableBlend()
-    RenderSystem.enableAlphaTest()
-    // Disabled by text rendering above it (default state is disabled).
+    RenderSystem.defaultBlendFunc()
+    RenderSystem.disableCull()
+    RenderSystem.setShader(() => GameRenderer.getPositionTexShader)
     RenderSystem.enableDepthTest()
 
-    if (hovered.isDefined) {
-      RenderSystem.color4f(1, 1, 1, 0.15f)
-      RenderSystem.disableTexture()
-      GL11.glBegin(GL11.GL_QUADS)
-      val matrix = stack.last.pose
-      val vec = new Vector4f(0, 0, 0, 1)
-      vec.transform(matrix)
-      GL11.glVertex3f(vec.x, vec.y, vec.z)
-      vec.set(0, imageRenderer.getHeight, 0, 1)
-      vec.transform(matrix)
-      GL11.glVertex3f(vec.x, vec.y, vec.z)
-      vec.set(imageRenderer.getWidth, imageRenderer.getHeight, 0, 1)
-      vec.transform(matrix)
-      GL11.glVertex3f(vec.x, vec.y, vec.z)
-      vec.set(imageRenderer.getWidth, 0, 0, 1)
-      vec.transform(matrix)
-      GL11.glVertex3f(vec.x, vec.y, vec.z)
-      GL11.glEnd()
-      RenderSystem.enableTexture()
-    }
+    // FIXME : Disabled; causes crashes.
+//    if (hovered.isDefined) {
+//      RenderSystem.setShaderColor(1, 1, 1, 0.15f)
+//      RenderSystem.disableTexture()
+//      GL11.glBegin(GL11.GL_QUADS)
+//      val matrix = stack.last.pose
+//      val vec = new Vector4f(0, 0, 0, 1)
+//      vec.transform(matrix)
+//      GL11.glVertex3f(vec.x, vec.y, vec.z)
+//      vec.set(0, imageRenderer.getHeight, 0, 1)
+//      vec.transform(matrix)
+//      GL11.glVertex3f(vec.x, vec.y, vec.z)
+//      vec.set(imageRenderer.getWidth, imageRenderer.getHeight, 0, 1)
+//      vec.transform(matrix)
+//      GL11.glVertex3f(vec.x, vec.y, vec.z)
+//      vec.set(imageRenderer.getWidth, 0, 0, 1)
+//      vec.transform(matrix)
+//      GL11.glVertex3f(vec.x, vec.y, vec.z)
+//      GL11.glEnd()
+//      RenderSystem.enableTexture()
+//    }
 
-    RenderSystem.color4f(1, 1, 1, 1)
+    RenderSystem.setShaderColor(1, 1, 1, 1)
 
-    imageRenderer.render(stack, mouseX - x, mouseY - y)
+    // FIXME : Disabled; causes crashes.
+    //imageRenderer.render(stack, mouseX - x, mouseY - y)
 
+    RenderSystem.enableCull()
     RenderSystem.disableBlend()
-    RenderSystem.disableAlphaTest()
-    RenderSystem.disableLighting()
 
     stack.popPose()
 

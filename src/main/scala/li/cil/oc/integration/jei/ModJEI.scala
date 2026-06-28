@@ -21,11 +21,11 @@ object ModJEI {
   private var scheduled: Boolean = false
 
   def addDiskAtRuntime(stack: ItemStack): Unit = ingredientRegistry.foreach { registry =>
-    if (!registry.getAllIngredients(VanillaTypes.ITEM).exists(ItemStack.matches(_, stack))) {
+    if (!registry.getAllIngredients(VanillaTypes.ITEM_STACK).exists(ItemStack.matches(_, stack))) {
       disksForRuntime += stack
       if (!scheduled) {
         EventHandler.scheduleClient { () =>
-          ingredientRegistry.foreach(_.addIngredientsAtRuntime(VanillaTypes.ITEM, seqAsJavaList(disksForRuntime)))
+          ingredientRegistry.foreach(_.addIngredientsAtRuntime(VanillaTypes.ITEM_STACK, seqAsJavaList(disksForRuntime)))
           disksForRuntime.clear()
           scheduled = false
         }

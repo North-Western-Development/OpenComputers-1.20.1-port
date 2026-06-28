@@ -3,7 +3,8 @@ package li.cil.oc.integration.minecraft
 import li.cil.oc.api
 import li.cil.oc.util.ExtendedArguments.TankProperties
 import net.minecraft.world.item.ItemStack
-import net.minecraftforge.fluids.capability.{CapabilityFluidHandler, IFluidHandlerItem}
+import net.minecraftforge.common.capabilities.ForgeCapabilities
+import net.minecraftforge.fluids.capability.IFluidHandlerItem
 
 import java.util
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -12,7 +13,7 @@ object ConverterFluidContainerItem extends api.driver.Converter {
   override def convert(value: scala.Any, output: util.Map[AnyRef, AnyRef]) =
     value match {
       case stack: ItemStack =>
-        stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null).ifPresent {
+        stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM, null).ifPresent {
           case fc: IFluidHandlerItem =>
             output += "capacity" -> Int.box((0 until fc.getTanks).map(fc.getTankCapacity).sum)
             if (fc.getTanks > 1) {

@@ -15,7 +15,7 @@ object Sound {
     globalTimeouts.get(host) match {
       case Some(hostTimeouts) if hostTimeouts.getOrElse(name, 0L) > System.currentTimeMillis() => // Cooldown.
       case _ =>
-        PacketSender.sendSound(host.world, host.xPosition, host.yPosition, host.zPosition, new ResourceLocation(Settings.resourceDomain + ":" + name), SoundSource.BLOCKS, 15 * Settings.get.soundVolume)
+        PacketSender.sendSound(host.world, host.xPosition, host.yPosition, host.zPosition, ResourceLocation.parse(Settings.resourceDomain + ":" + name), SoundSource.BLOCKS, 15 * Settings.get.soundVolume)
         globalTimeouts.getOrElseUpdate(host, mutable.Map.empty) += name -> (System.currentTimeMillis() + 500)
     }
   }

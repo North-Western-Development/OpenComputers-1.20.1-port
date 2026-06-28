@@ -1,34 +1,22 @@
 package li.cil.oc.integration.jei
 
-import li.cil.oc.Constants
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
+import li.cil.oc.{Constants, OpenComputers, Settings}
 import li.cil.oc.api.Items
 import li.cil.oc.client.gui.Relay
-import li.cil.oc.integration.jei.CallbackDocHandler.CallbackDocRecipe
-import li.cil.oc.integration.jei.ManualUsageHandler.ManualUsageRecipe
 import li.cil.oc.integration.util.ItemSearch
 import li.cil.oc.util.StackOption
-import mezz.jei.api.IModPlugin
-import mezz.jei.api.JeiPlugin
+import mezz.jei.api.{IModPlugin, JeiPlugin}
 import mezz.jei.api.constants.VanillaTypes
-import mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter
-import mezz.jei.api.ingredients.subtypes.UidContext
-import mezz.jei.api.registration.{IAdvancedRegistration, IGuiHandlerRegistration, IRecipeCategoryRegistration, IRecipeRegistration, ISubtypeRegistration, RecipeCategoryRegistration, RecipeRegistration}
-import mezz.jei.api.runtime.IIngredientManager
+import mezz.jei.api.ingredients.subtypes.{IIngredientSubtypeInterpreter, UidContext}
+import mezz.jei.api.registration._
 import mezz.jei.api.runtime.IJeiRuntime
-import net.minecraft.client.gui.screen.inventory.ContainerScreen
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
-import net.minecraft.world.item.Item
-import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
 import net.minecraft.resources.ResourceLocation
-
-import scala.collection.JavaConverters._
+import net.minecraft.world.item.ItemStack
 
 @JeiPlugin
 class ModPluginOpenComputers extends IModPlugin {
-  override def getPluginUid = new ResourceLocation(OpenComputers.ID, "jei_plugin")
+  override def getPluginUid = ResourceLocation.fromNamespaceAndPath(OpenComputers.ID, "jei_plugin")
 
   override def registerCategories(registry: IRecipeCategoryRegistration): Unit = {
     registry.addRecipeCategories(ManualUsageHandler.ManualUsageRecipeCategory)
@@ -36,8 +24,8 @@ class ModPluginOpenComputers extends IModPlugin {
   }
 
   override def registerRecipes(registration: IRecipeRegistration) {
-    registration.addRecipes(ManualUsageHandler.getRecipes(registration), ManualUsageHandler.ManualUsageRecipeCategory.getUid)
-    registration.addRecipes(CallbackDocHandler.getRecipes(registration), CallbackDocHandler.CallbackDocRecipeCategory.getUid)
+    registration.addRecipes(ManualUsageHandler.ManualUsageRecipeCategory.getRecipeType, ManualUsageHandler.getRecipes(registration))
+    registration.addRecipes(CallbackDocHandler.CallbackDocRecipeCategory.getRecipeType, CallbackDocHandler.getRecipes(registration))
   }
 
   override def registerGuiHandlers(registration: IGuiHandlerRegistration) = {
@@ -56,7 +44,7 @@ class ModPluginOpenComputers extends IModPlugin {
     if (stackUnderMouse == null) {
       ItemSearch.stackFocusing += ((container, mouseX, mouseY) => stackUnderMouse(container, mouseX, mouseY))
     }
-    stackUnderMouse = (container, mouseX, mouseY) => StackOption(jeiRuntime.getIngredientListOverlay.getIngredientUnderMouse(VanillaTypes.ITEM))
+    stackUnderMouse = (container, mouseX, mouseY) => StackOption(jeiRuntime.getIngredientListOverlay.getIngredientUnderMouse(VanillaTypes.ITEM_STACK))
 
     ModJEI.runtime = Option(jeiRuntime)
     ModJEI.ingredientRegistry = Option(jeiRuntime.getIngredientManager)

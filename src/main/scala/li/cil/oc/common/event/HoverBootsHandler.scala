@@ -5,8 +5,7 @@ import li.cil.oc.Settings
 import li.cil.oc.common.item.HoverBoots
 import net.minecraft.world.entity.player.Player
 import net.minecraftforge.common.util.FakePlayer
-import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent
-import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent
+import net.minecraftforge.event.entity.living.LivingEvent.{LivingJumpEvent, LivingTickEvent}
 import net.minecraftforge.event.entity.living.LivingFallEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
@@ -14,7 +13,7 @@ import scala.collection.convert.ImplicitConversionsToScala._
 
 object HoverBootsHandler {
   @SubscribeEvent
-  def onLivingUpdate(e: LivingUpdateEvent): Unit = e.getEntity match {
+  def onLivingUpdate(e: LivingTickEvent): Unit = e.getEntity match {
     case player: Player if !player.isInstanceOf[FakePlayer] =>
       val nbt = player.getPersistentData
       val hadHoverBoots = nbt.getBoolean(Settings.namespace + "hasHoverBoots")

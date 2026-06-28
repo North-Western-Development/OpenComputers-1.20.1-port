@@ -1,41 +1,45 @@
 package li.cil.oc.common.block
 
-import li.cil.oc.OpenComputers
 import li.cil.oc.client.gui
 import li.cil.oc.common.block.property.PropertyRotatable
 import li.cil.oc.common.tileentity
-import li.cil.oc.util.RotationHelper
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.Minecraft
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.world.entity.player.Player
-import net.minecraft.state.StateContainer
-import net.minecraft.util.ActionResultType
-import net.minecraft.core.Direction
-import net.minecraft.util.Hand
-import net.minecraft.core.BlockPos
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
 import net.minecraft.world.phys.BlockHitResult
-import net.minecraft.world.{BlockGetter, Level}
+import net.minecraft.world.{InteractionHand, InteractionResult}
 import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
 
 class Waypoint(props: Properties) extends RedstoneAware(props) {
-  protected override def createBlockStateDefinition(builder: StateContainer.Builder[Block, BlockState]) =
+  protected override def createBlockStateDefinition(builder: StateDefinition.Builder[Block, BlockState]) =
     builder.add(PropertyRotatable.Pitch, PropertyRotatable.Yaw)
 
   // ----------------------------------------------------------------------- //
 
-  override def newBlockEntity(world: BlockGetter) = new tileentity.Waypoint(tileentity.BlockEntityTypes.WAYPOINT)
+  override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Waypoint(tileentity.BlockEntityTypes.WAYPOINT.get(), pos, state)
+
+  override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
+    (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
+      entity match {
+        case tileEntity: tileentity.Waypoint => tileEntity.updateEntity()
+        case _ =>
+      }
+  }
 
   // ----------------------------------------------------------------------- //
 
-  override def use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: Hand, trace: BlockHitResult): ActionResultType = {
+  override def use(state: BlockState, world: Level, pos: BlockPos, player: Player, hand: InteractionHand, trace: BlockHitResult): InteractionResult = {
     if (!player.isCrouching) {
       if (world.isClientSide) world.getBlockEntity(pos) match {
         case t: tileentity.Waypoint => showGui(t)
         case _ =>
       }
-      ActionResultType.sidedSuccess(world.isClientSide)
+      InteractionResult.sidedSuccess(world.isClientSide)
     }
     else super.use(state, world, pos, player, hand, trace)
   }

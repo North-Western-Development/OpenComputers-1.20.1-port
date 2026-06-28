@@ -1,29 +1,27 @@
 package li.cil.oc.common.tileentity
 
-import java.util
-
-import li.cil.oc.{Constants, Settings, api}
 import li.cil.oc.api.driver.DeviceInfo
 import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
 import li.cil.oc.api.machine.{Arguments, Callback, Context}
 import li.cil.oc.api.network.{Node, Visibility}
+import li.cil.oc.client.renderer.block.NetSplitterModel
 import li.cil.oc.common.EventHandler
 import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
-import li.cil.oc.util.RotationHelper
-import net.minecraft.util.SoundEvents
+import li.cil.oc.{Constants, Settings, api}
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
-import net.minecraft.util.SoundCategory
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.sounds.{SoundEvents, SoundSource}
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
+import net.minecraftforge.client.model.data.ModelData
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.mutable
 
-class NetSplitter(selfType: BlockEntityType[_ <: NetSplitter]) extends BlockEntity(selfType) with traits.Environment with traits.OpenSides with traits.RedstoneAware with api.network.SidedEnvironment with DeviceInfo {
+class NetSplitter(selfType: BlockEntityType[_ <: NetSplitter], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.Environment with traits.OpenSides with traits.RedstoneAware with api.network.SidedEnvironment with DeviceInfo {
   private lazy val deviceInfo: util.Map[String, String] = Map(
     DeviceAttribute.Class -> DeviceClass.Network,
     DeviceAttribute.Description -> "Ethernet controller",
@@ -53,7 +51,7 @@ class NetSplitter(selfType: BlockEntityType[_ <: NetSplitter]) extends BlockEnti
         node.remove()
         api.Network.joinOrCreateNetwork(this)
         ServerPacketSender.sendNetSplitterState(this)
-        getLevel.playSound(null, getBlockPos, SoundEvents.PISTON_EXTEND, SoundCategory.BLOCKS, 0.5f, getLevel.random.nextFloat() * 0.25f + 0.7f)
+        getLevel.playSound(null, getBlockPos, SoundEvents.PISTON_EXTEND, SoundSource.BLOCKS, 0.5f, getLevel.random.nextFloat() * 0.25f + 0.7f)
         getLevel.updateNeighborsAt(getBlockPos, getBlockState.getBlock)
       }
       else {
@@ -87,7 +85,7 @@ class NetSplitter(selfType: BlockEntityType[_ <: NetSplitter]) extends BlockEnti
         node.remove()
         api.Network.joinOrCreateNetwork(this)
         ServerPacketSender.sendNetSplitterState(this)
-        getLevel.playSound(null, getBlockPos, SoundEvents.PISTON_CONTRACT, SoundCategory.BLOCKS, 0.5f, getLevel.random.nextFloat() * 0.25f + 0.7f)
+        getLevel.playSound(null, getBlockPos, SoundEvents.PISTON_CONTRACT, SoundSource.BLOCKS, 0.5f, getLevel.random.nextFloat() * 0.25f + 0.7f)
       }
       else {
         getLevel.sendBlockUpdated(getBlockPos, getLevel.getBlockState(getBlockPos), getLevel.getBlockState(getBlockPos), 3)
@@ -133,6 +131,8 @@ class NetSplitter(selfType: BlockEntityType[_ <: NetSplitter]) extends BlockEnti
   def setSide(side: Direction, state: Boolean): Boolean = {
     val previous = isSideOpen(side) // isSideOpen uses inverter
     setSideOpen(side, if (isInverted) !state else state) // but setSideOpen does not
+    if (previous != state && !isServer)
+      this.requestModelDataUpdate()
     previous != state
   }
 
@@ -169,4 +169,12 @@ class NetSplitter(selfType: BlockEntityType[_ <: NetSplitter]) extends BlockEnti
 
   @Callback(doc = "function(side: number):boolean -- Close the side, returns true if it changed to close.")
   def close(context: Context, args: Arguments): Array[AnyRef] = setSideHelper(args, value = false)
+
+  // ----------------------------------------------------------------------- //
+
+  override def getModelData() = {
+    ModelData.builder
+      .`with`(NetSplitterModel.OPEN_SIDES_PROPERTY, Map(Direction.values().map(d => d -> isSideOpen(d)).toSeq: _*))
+      .build;
+  }
 }

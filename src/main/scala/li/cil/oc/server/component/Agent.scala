@@ -4,27 +4,21 @@ import li.cil.oc.Settings
 import li.cil.oc.api.event.RobotPlaceInAirEvent
 import li.cil.oc.api.internal
 import li.cil.oc.api.internal.MultiTank
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
-import li.cil.oc.common.entity
-import li.cil.oc.server.agent.ActivationType
-import li.cil.oc.server.agent.Player
-import li.cil.oc.util.BlockPosition
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
+import li.cil.oc.server.agent.{ActivationType, Player}
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.ExtendedLevel._
-import li.cil.oc.util.InventoryUtils
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.entity.{Entity, LivingEntity, Pose}
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.{Container, InteractionHand}
-import net.minecraft.core.Direction
-import net.minecraft.core.BlockPos
+import li.cil.oc.util.{BlockPosition, InventoryUtils}
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.item.ItemEntity
+import net.minecraft.world.entity.player
 import net.minecraft.world.entity.vehicle.Minecart
+import net.minecraft.world.entity.{Entity, Pose}
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.{BlockHitResult, EntityHitResult, HitResult, Vec3}
+import net.minecraft.world.{Container, InteractionHand}
 import net.minecraftforge.common.MinecraftForge
 
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -34,10 +28,10 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
 
   override def position = BlockPosition(agent)
 
-  override def fakePlayer: Player = agent.player
+  override def fakePlayer: player.Player = agent.player
 
-  protected def rotatedPlayer(facing: Direction = agent.facing, side: Direction = agent.facing): net.minecraft.world.entity.player.Player = {
-    val player = agent.player.asInstanceOf[net.minecraft.world.entity.player.Player]
+  protected def rotatedPlayer(facing: Direction = agent.facing, side: Direction = agent.facing): ServerPlayer = {
+    val player = agent.player.asInstanceOf[ServerPlayer]
     //Player.updatePositionAndRotation(player, facing, side)
     //TODO: Verify effects
     player.setYRot(facing.toYRot)
@@ -97,7 +91,7 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
     def triggerDelay(delay: Double = Settings.get.swingDelay) = {
       onLevelInteraction(context, delay)
     }
-    def attack(player: net.minecraft.world.entity.player.Player, entity: Entity) = {
+    def attack(player: ServerPlayer, entity: Entity) = {
       beginConsumeDrops(entity)
       player.attack(entity)
       // Mine carts have to be hit quickly in succession to break, so we click
@@ -112,19 +106,21 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
       triggerDelay()
       (true, "entity")
     }
-    def click(player: net.minecraft.world.entity.player.Player, pos: BlockPos, side: Direction) = {
-      val breakTime = player.clickBlock(pos, side)
-      val broke = breakTime > 0
-      if (broke) {
-        triggerDelay(breakTime)
-      }
-      (broke, "block")
+    def click(player: ServerPlayer, pos: BlockPos, side: Direction) = { //TODO: fix break time calculation
+      player.gameMode.handleBlockBreakAction(pos, ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK, side, player.level.getMaxBuildHeight, 0)
+//      val breakTime =
+//      val broke = breakTime > 0
+//      if (broke) {
+//        triggerDelay(breakTime)
+//      }
+//      (broke, "block")
+      (true, "block")
     }
 
     var reason: Option[String] = None
     for (side <- sides) {
       val player = rotatedPlayer(facing, side)
-      player.interactAt(if (sneaky) Pose.CROUCHING else Pose.STANDING)
+//      player.interactAt(if (sneaky) Pose.CROUCHING else Pose.STANDING)
 
       val (success, what) = {
         val hit = pick(player, Settings.get.swingRange)
@@ -137,18 +133,18 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
           case HitResult.Type.BLOCK =>
             val blockHit = hit.asInstanceOf[BlockHitResult]
             click(player, blockHit.getBlockPos, blockHit.getDirection)
-          case _ =>
-            // Retry with full block bounds, disregarding swing range.
-            player.closestEntity(classOf[LivingEntity]) match {
-              case Some(entity) =>
-                attack(player, entity)
+//          case _ =>
+//            // Retry with full block bounds, disregarding swing range.
+//            player.closestEntity(classOf[LivingEntity]) match {
+//              case Some(entity) =>
+//                attack(player, entity)
               case _ =>
                 if (world.extinguishFire(player, position, facing)) {
                   triggerDelay()
                   (true, "fire")
                 }
                 else (false, "air")
-            }
+//            }
         }
       }
 
@@ -160,7 +156,7 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
     }
 
     // all side attempts failed - but there could be a partial block that is hard to "see"
-    val (hasBlock, _) = blockContent(facing)
+    val (hasBlock, _) = blockContent(facing).asInstanceOf[(Boolean, Any)]
     if (hasBlock) {
       val blockPos = position.offset(facing)
       val player = rotatedPlayer(facing, facing)
@@ -212,43 +208,43 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
       result
     }
 
-    for (side <- sides) {
-      val player = rotatedPlayer(facing, side)
-      player.setPose(if (sneaky) Pose.CROUCHING else Pose.STANDING)
-
-      val (success, what) = Option(pick(player, Settings.get.useAndPlaceRange)) match {
-        case Some(hit) if hit.getType == HitResult.Type.ENTITY && interact(player, hit.asInstanceOf[EntityHitResult].getEntity).consumesAction =>
-          triggerDelay()
-          (true, "item_interacted")
-        case Some(hit) if hit.getType == HitResult.Type.BLOCK =>
-          val blockHit = hit.asInstanceOf[BlockHitResult]
-          val (blockPos, hx, hy, hz) = clickParamsFromHit(blockHit)
-          activationResult(player.interactWith(blockPos, blockHit.getDirection, hx, hy, hz, duration))
-        case _ =>
-          (if (canPlaceInAir) {
-            val (blockPos, hx, hy, hz) = clickParamsForPlace(facing)
-            if (player.placeBlock(0, blockPos, facing, hx, hy, hz))
-              ActivationType.ItemPlaced
-            else {
-              val (blockPos, hx, hy, hz) = clickParamsForItemUse(facing, side)
-              player.activateBlockOrUseItem(blockPos, side.getOpposite, hx, hy, hz, duration)
-            }
-          } else ActivationType.None) match {
-            case ActivationType.None =>
-              if (player.useEquippedItem(duration)) {
-                triggerDelay()
-                (true, "item_used")
-              }
-              else (false, "air")
-            case activationType => activationResult(activationType)
-          }
-      }
-
-      player.setPose(Pose.STANDING)
-      if (success) {
-        return result(true, what)
-      }
-    }
+//    for (side <- sides) {
+//      val player = rotatedPlayer(facing, side)
+//      player.setPose(if (sneaky) Pose.CROUCHING else Pose.STANDING)
+//
+//      val (success, what) = Option(pick(player, Settings.get.useAndPlaceRange)) match {
+//        case Some(hit) if hit.getType == HitResult.Type.ENTITY && interact(player, hit.asInstanceOf[EntityHitResult].getEntity).consumesAction =>
+//          triggerDelay()
+//          (true, "item_interacted")
+//        case Some(hit) if hit.getType == HitResult.Type.BLOCK =>
+//          val blockHit = hit.asInstanceOf[BlockHitResult]
+//          val (blockPos, hx, hy, hz) = clickParamsFromHit(blockHit)
+//          activationResult(player.interactWith(blockPos, blockHit.getDirection, hx, hy, hz, duration))
+//        case _ =>
+//          (if (canPlaceInAir) {
+//            val (blockPos, hx, hy, hz) = clickParamsForPlace(facing)
+//            if (player.placeBlock(0, blockPos, facing, hx, hy, hz))
+//              ActivationType.ItemPlaced
+//            else {
+//              val (blockPos, hx, hy, hz) = clickParamsForItemUse(facing, side)
+//              player.activateBlockOrUseItem(blockPos, side.getOpposite, hx, hy, hz, duration)
+//            }
+//          } else ActivationType.None) match {
+//            case ActivationType.None =>
+//              if (player.useEquippedItem(duration)) {
+//                triggerDelay()
+//                (true, "item_used")
+//              }
+//              else (false, "air")
+//            case activationType => activationResult(activationType)
+//          }
+//      }
+//
+//      player.setPose(Pose.STANDING)
+//      if (success) {
+//        return result(true, what)
+//      }
+//    }
 
     result(false)
   }
@@ -270,39 +266,39 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
       return result((), "nothing selected")
     }
 
-    for (side <- sides) {
-      val player = rotatedPlayer(facing, side)
-      player.setPose(if (sneaky) Pose.CROUCHING else Pose.STANDING)
-      val success = Option(pick(player, Settings.get.useAndPlaceRange)) match {
-        case Some(hit) if hit.getType == HitResult.Type.BLOCK =>
-          val blockHit = hit.asInstanceOf[BlockHitResult]
-          val (blockPos, hx, hy, hz) = clickParamsFromHit(blockHit)
-          player.placeBlock(agent.selectedSlot, blockPos, blockHit.getDirection, hx, hy, hz)
-        case None if canPlaceInAir && player.closestEntity(classOf[Entity]).isEmpty =>
-          val (blockPos, hx, hy, hz) = clickParamsForPlace(facing)
-          // blockPos here is the position of the agent
-          // When a robot uses angel placement, the BlockItem code offsets the pos to Direction
-          // but for a drone, the block at its position is air, which is replaceable, and thus
-          // BlockItem does not offset the position. We can do it here to correct that, and the code
-          // here is still correct for the robot's use case
-          val adjustedPos: BlockPos = blockPos.relative(facing)
-          // adjustedPos is the position we want to place the block
-          // but onItemUse will try to adjust the placement if the target position is not replaceable
-          // we don't want that
-          val state: BlockState = world.getBlockState(adjustedPos)
-          if (state.getMaterial.isReplaceable) {
-            player.placeBlock(agent.selectedSlot, adjustedPos, facing, hx, hy, hz)
-          } else {
-            false
-          }
-        case _ => false
-      }
-      player.setPose(Pose.STANDING)
-      if (success) {
-        onLevelInteraction(context, Settings.get.placeDelay)
-        return result(true)
-      }
-    }
+//    for (side <- sides) {
+//      val player = rotatedPlayer(facing, side)
+//      player.setPose(if (sneaky) Pose.CROUCHING else Pose.STANDING)
+//      val success = Option(pick(player, Settings.get.useAndPlaceRange)) match {
+//        case Some(hit) if hit.getType == HitResult.Type.BLOCK =>
+//          val blockHit = hit.asInstanceOf[BlockHitResult]
+//          val (blockPos, hx, hy, hz) = clickParamsFromHit(blockHit)
+//          player.placeBlock(agent.selectedSlot, blockPos, blockHit.getDirection, hx, hy, hz)
+//        case None if canPlaceInAir && player.closestEntity(classOf[Entity]).isEmpty =>
+//          val (blockPos, hx, hy, hz) = clickParamsForPlace(facing)
+//          // blockPos here is the position of the agent
+//          // When a robot uses angel placement, the BlockItem code offsets the pos to Direction
+//          // but for a drone, the block at its position is air, which is replaceable, and thus
+//          // BlockItem does not offset the position. We can do it here to correct that, and the code
+//          // here is still correct for the robot's use case
+//          val adjustedPos: BlockPos = blockPos.relative(facing)
+//          // adjustedPos is the position we want to place the block
+//          // but onItemUse will try to adjust the placement if the target position is not replaceable
+//          // we don't want that
+//          val state: BlockState = world.getBlockState(adjustedPos)
+//          if (state.getMaterial.isReplaceable) {
+//            player.placeBlock(agent.selectedSlot, adjustedPos, facing, hx, hy, hz)
+//          } else {
+//            false
+//          }
+//        case _ => false
+//      }
+//      player.setPose(Pose.STANDING)
+//      if (success) {
+//        onLevelInteraction(context, Settings.get.placeDelay)
+//        return result(true)
+//      }
+//    }
 
     result(false)
   }
@@ -347,11 +343,12 @@ trait Agent extends traits.LevelControl with traits.InventoryControl with traits
       player.getDirection.getStepX * range,
       player.getDirection.getStepY * range,
       player.getDirection.getStepZ * range)
-    val hit = world.clip(new ClipContext(origin, target, ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, player))
-    player.closestEntity(classOf[Entity]) match {
-      case Some(entity@(_: LivingEntity | _: Minecart | _: entity.Drone)) if hit.getType == HitResult.Type.MISS || player.distanceToSqr(hit.getLocation) > player.distanceToSqr(entity) => new EntityHitResult(entity)
-      case _ => hit
-    }
+//    val hit = world.clip(new ClipContext(origin, target, ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, player))
+//    player.closestEntity(classOf[Entity]) match {
+//      case Some(entity@(_: LivingEntity | _: Minecart | _: entity.Drone)) if hit.getType == HitResult.Type.MISS || player.distanceToSqr(hit.getLocation) > player.distanceToSqr(entity) => new EntityHitResult(entity)
+//      case _ => hit
+//    }
+    world.clip(new ClipContext(origin, target, ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, player))
   }
 
   protected def clickParamsFromHit(hit: BlockHitResult): (BlockPos, Float, Float, Float) = {

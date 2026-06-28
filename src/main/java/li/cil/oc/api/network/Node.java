@@ -23,7 +23,7 @@ import li.cil.oc.api.driver.DriverItem;
  * Existing blocks may be interfaced with the adapter block if a
  * {@link DriverBlock} exists that supports the block.
  * <br>
- * <em>Important</em>: like the <tt>Network</tt> interface you must not create
+ * <em>Important</em>: like the {@code Network} interface you must not create
  * your own implementations of this interface. Use the factory methods in the
  * network API to create new node instances and store them in your environment.
  *
@@ -45,8 +45,8 @@ public interface Node extends Persistable {
      * This is used by the network to control which system messages to deliver
      * to which nodes. This value should not change over the lifetime of a node.
      * <br>
-     * It furthermore determines what is returned by the <tt>Network</tt>'s
-     * <tt>neighbors</tt> and <tt>nodes</tt> functions.
+     * It furthermore determines what is returned by the {@code Network}'s
+     * {@code neighbors} and {@code nodes} functions.
      * <br>
      * Note that this has no effect on the <em>real</em> reachability of a node;
      * it is only used to filter to which nodes to send connect, disconnect and
@@ -55,7 +55,7 @@ public interface Node extends Persistable {
      * it. Therefore nodes should still verify themselves that they want to
      * accept a message from the message's source.
      * <br>
-     * A different matter is a {@link Component}'s <tt>visibility</tt>, which is
+     * A different matter is a {@link Component}'s {@code visibility}, which is
      * checked before delivering messages a computer tries to send.
      */
     Visibility reachability();
@@ -105,9 +105,9 @@ public interface Node extends Persistable {
      * Get the list of neighbor nodes, i.e. nodes directly connected to this
      * node.
      * <br>
-     * This is a shortcut for <tt>node.network.neighbors(node)</tt>.
+     * This is a shortcut for {@code node.network.neighbors(node)}.
      * <br>
-     * If this node is not in a network, i.e. <tt>network</tt> is <tt>null</tt>,
+     * If this node is not in a network, i.e. {@code network} is {@code null},
      * this returns an empty list.
      *
      * @return the list of nodes directly connected to this node.
@@ -118,9 +118,9 @@ public interface Node extends Persistable {
      * Get the list of nodes reachable from this node, based on their
      * {@link #reachability()}.
      * <br>
-     * This is a shortcut for <tt>node.network.nodes(node)</tt>.
+     * This is a shortcut for {@code node.network.nodes(node)}.
      * <br>
-     * If this node is not in a network, i.e. <tt>network</tt> is <tt>null</tt>,
+     * If this node is not in a network, i.e. {@code network} is {@code null},
      * this returns an empty list.
      *
      * @return the list of nodes reachable from this node.
@@ -132,35 +132,35 @@ public interface Node extends Persistable {
     /**
      * Connects the specified node to this node.
      * <br>
-     * This is a shortcut for <tt>node.network.connect(node, other)</tt>.
+     * This is a shortcut for {@code node.network.connect(node, other)}.
      * <br>
-     * If this node is not in a network, i.e. <tt>network</tt> is <tt>null</tt>,
+     * If this node is not in a network, i.e. {@code network} is {@code null},
      * this will throw an exception.
      *
      * @param node the node to connect to this node.
-     * @throws NullPointerException if <tt>network</tt> is <tt>null</tt>.
+     * @throws NullPointerException if {@code network} is {@code null}.
      */
     void connect(Node node);
 
     /**
      * Disconnects the specified node from this node.
      * <br>
-     * This is a shortcut for <tt>node.network.disconnect(node, other)</tt>.
+     * This is a shortcut for {@code node.network.disconnect(node, other)}.
      * <br>
-     * If this node is not in a network, i.e. <tt>network</tt> is <tt>null</tt>,
+     * If this node is not in a network, i.e. {@code network} is {@code null},
      * this will do nothing.
      *
      * @param node the node to connect to this node.
-     * @throws NullPointerException if <tt>network</tt> is <tt>null</tt>.
+     * @throws NullPointerException if {@code network} is {@code null}.
      */
     void disconnect(Node node);
 
     /**
      * Removes this node from its network.
      * <br>
-     * This is a shortcut for <tt>node.network.remove(node)</tt>.
+     * This is a shortcut for {@code node.network.remove(node)}.
      * <br>
-     * If this node is not in a network, i.e. <tt>network</tt> is <tt>null</tt>,
+     * If this node is not in a network, i.e. {@code network} is {@code null},
      * this will do nothing.
      */
     void remove();
@@ -170,9 +170,9 @@ public interface Node extends Persistable {
     /**
      * Send a message to a node with the specified address.
      * <br>
-     * This is a shortcut for <tt>node.network.sendToAddress(node, ...)</tt>.
+     * This is a shortcut for {@code node.network.sendToAddress(node, ...)}.
      * <br>
-     * If this node is not in a network, i.e. <tt>network</tt> is <tt>null</tt>,
+     * If this node is not in a network, i.e. {@code network} is {@code null},
      * this will do nothing.
      *
      * @param target the address of the node to send the message to.
@@ -184,9 +184,9 @@ public interface Node extends Persistable {
     /**
      * Send a message to all neighbors of this node.
      * <br>
-     * This is a shortcut for <tt>node.network.sendToNeighbors(node, ...)</tt>.
+     * This is a shortcut for {@code node.network.sendToNeighbors(node, ...)}.
      * <br>
-     * If this node is not in a network, i.e. <tt>network</tt> is <tt>null</tt>,
+     * If this node is not in a network, i.e. {@code network} is {@code null},
      * this will do nothing.
      *
      * @param name the name of the message.
@@ -197,9 +197,9 @@ public interface Node extends Persistable {
     /**
      * Send a message to all nodes reachable from this node.
      * <br>
-     * This is a shortcut for <tt>node.network.sendToReachable(node, ...)</tt>.
+     * This is a shortcut for {@code node.network.sendToReachable(node, ...)}.
      * <br>
-     * If this node is not in a network, i.e. <tt>network</tt> is <tt>null</tt>,
+     * If this node is not in a network, i.e. {@code network} is {@code null},
      * this will do nothing.
      *
      * @param name the name of the message.
@@ -210,9 +210,9 @@ public interface Node extends Persistable {
     /**
      * Send a message to all nodes visible from this node.
      * <br>
-     * This is a shortcut for <tt>node.network.sendToVisible(node, ...)</tt>.
+     * This is a shortcut for {@code node.network.sendToVisible(node, ...)}.
      * <br>
-     * If this node is not in a network, i.e. <tt>network</tt> is <tt>null</tt>,
+     * If this node is not in a network, i.e. {@code network} is {@code null},
      * this will do nothing.
      *
      * @param name the name of the message.

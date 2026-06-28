@@ -1,50 +1,37 @@
 package li.cil.oc.common.tileentity
 
-import java.util
-
-import com.google.common.base.Strings
-import li.cil.oc.Constants
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.client.renderer.block.PrintModel
 import li.cil.oc.common.block.{Print => PrintBlock}
 import li.cil.oc.common.item.data.PrintData
 import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
-import li.cil.oc.util.ExtendedAABB
-import li.cil.oc.util.ExtendedAABB._
+import li.cil.oc.util.ExtendedAABB.extendedAABB
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.util.SoundEvents
+import li.cil.oc.{Constants, Settings, api}
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.core.Direction
-import net.minecraft.util.SoundCategory
-import net.minecraft.core.BlockPos
-import net.minecraft.util.math.RayTraceResult
-import net.minecraft.util.math.shapes.IBooleanFunction
-import net.minecraft.util.math.shapes.VoxelShape
-import net.minecraft.util.math.shapes.VoxelShapes
-import net.minecraft.world.phys.Vec3
-import net.minecraft.world.server.ServerLevel
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraftforge.client.model.data.IModelData
-import net.minecraftforge.client.model.data.ModelProperty
-import scala.collection.Iterable
-import scala.collection.convert.ImplicitConversionsToJava._
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.sounds.{SoundEvents, SoundSource}
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.phys.shapes.{BooleanOp, Shapes, VoxelShape}
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
+import net.minecraftforge.client.model.data.ModelData
 
-class Print(selfType: BlockEntityType[_ <: Print], val canToggle: Option[() => Boolean], val scheduleUpdate: Option[Int => Unit], val onStateChange: Option[() => Unit])
-  extends BlockEntity(selfType) with traits.BlockEntity with traits.RedstoneAware with traits.RotatableTile with IModelData {
+import java.util
 
-  def this(selfType: BlockEntityType[_ <: Print]) = this(selfType, None, None, None)
-  def this(selfType: BlockEntityType[_ <: Print], canToggle: () => Boolean, scheduleUpdate: Int => Unit, onStateChange: () => Unit) =
-    this(selfType, Option(canToggle), Option(scheduleUpdate), Option(onStateChange))
+class Print(selfType: BlockEntityType[_ <: Print], val canToggle: Option[() => Boolean], val scheduleUpdate: Option[Int => Unit], val onStateChange: Option[() => Unit], pos: BlockPos, blockState: BlockState)
+  extends BlockEntity(selfType, pos, blockState) with traits.BlockEntity with traits.RedstoneAware with traits.RotatableTile {
+
+  def this(selfType: BlockEntityType[_ <: Print], pos: BlockPos, blockState: BlockState) = this(selfType, None, None, None, pos, blockState)
+  def this(selfType: BlockEntityType[_ <: Print], canToggle: () => Boolean, scheduleUpdate: Int => Unit, onStateChange: () => Unit, pos: BlockPos, blockState: BlockState) =
+    this(selfType, Option(canToggle), Option(scheduleUpdate), Option(onStateChange), pos, blockState)
 
   _isOutputEnabled = true
 
   val data = new PrintData()
 
-  var shapeOff = VoxelShapes.block
-  var shapeOn = VoxelShapes.block
+  var shapeOff = Shapes.block
+  var shapeOn = Shapes.block
   var state = false
 
   def shape = if (state) shapeOn else shapeOff
@@ -64,7 +51,7 @@ class Print(selfType: BlockEntityType[_ <: Print], val canToggle: Option[() => B
   private def buildValueSet(value: Int): util.Map[AnyRef, AnyRef] = {
     val map: util.Map[AnyRef, AnyRef] = new util.HashMap[AnyRef, AnyRef]()
     Direction.values.foreach {
-      side => map.put(new java.lang.Integer(side.ordinal), new java.lang.Integer(value))
+      side => map.put(java.lang.Integer.valueOf(side.ordinal), java.lang.Integer.valueOf(value))
     }
     map
   }
@@ -72,7 +59,7 @@ class Print(selfType: BlockEntityType[_ <: Print], val canToggle: Option[() => B
   def toggleState(): Unit = {
     if (canToggle.fold(true)(_.apply())) {
       state = !state
-      getLevel.playSound(null, getBlockPos, SoundEvents.LEVER_CLICK, SoundCategory.BLOCKS, 0.3F, if (state) 0.6F else 0.5F)
+      getLevel.playSound(null, getBlockPos, SoundEvents.LEVER_CLICK, SoundSource.BLOCKS, 0.3F, if (state) 0.6F else 0.5F)
       getLevel.sendBlockUpdated(getBlockPos, getLevel.getBlockState(getBlockPos), getLevel.getBlockState(getBlockPos), 3)
       updateRedstone()
       if (state && data.isButtonMode) {
@@ -80,21 +67,24 @@ class Print(selfType: BlockEntityType[_ <: Print], val canToggle: Option[() => B
         val delay = block.tickRate(getLevel)
         scheduleUpdate match {
           case Some(callback) => callback(delay)
-          case _ if !getLevel.isClientSide => getLevel.asInstanceOf[ServerLevel].getBlockTicks.scheduleTick(getBlockPos, block, delay)
+          case _ if !getLevel.isClientSide => getLevel.asInstanceOf[ServerLevel].scheduleTick(getBlockPos, block, delay)
           case _ =>
         }
       }
       onStateChange.foreach(_.apply())
+      if (!isServer){
+        this.requestModelDataUpdate()
+      }
     }
   }
 
   private def convertShape(state: Iterable[PrintData.Shape]): VoxelShape = if (!state.isEmpty) {
-    state.foldLeft(VoxelShapes.empty)((curr, s) => {
-      val voxel = VoxelShapes.create(s.bounds.rotateTowards(facing))
-      VoxelShapes.joinUnoptimized(curr, voxel, IBooleanFunction.OR)
+    state.foldLeft(Shapes.empty)((curr, s) => {
+      val voxel = Shapes.create(s.bounds.rotateTowards(facing))
+      Shapes.joinUnoptimized(curr, voxel, BooleanOp.OR)
     }).optimize()
   }
-  else VoxelShapes.block
+  else Shapes.block
 
   def updateShape(): Unit = {
     shapeOff = convertShape(data.stateOff)
@@ -167,15 +157,9 @@ class Print(selfType: BlockEntityType[_ <: Print], val canToggle: Option[() => B
 
   // ----------------------------------------------------------------------- //
 
-  @Deprecated
-  override def getModelData() = this
-
-  @Deprecated
-  override def hasProperty(prop: ModelProperty[_]) = false
-
-  @Deprecated
-  override def getData[T](prop: ModelProperty[T]): T = null.asInstanceOf[T]
-
-  @Deprecated
-  override def setData[T](prop: ModelProperty[T], value: T): T = null.asInstanceOf[T]
+  override def getModelData() = {
+    ModelData.builder()
+      .`with`(PrintModel.PRINT_PROPERTY, this)
+      .build();
+  }
 }

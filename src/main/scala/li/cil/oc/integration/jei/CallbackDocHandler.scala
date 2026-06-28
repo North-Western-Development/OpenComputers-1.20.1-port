@@ -10,16 +10,14 @@ import li.cil.oc.server.machine.Callbacks
 import mezz.jei.api.constants.VanillaTypes
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder
 import mezz.jei.api.gui.drawable.IDrawable
-import mezz.jei.api.gui.drawable.IDrawableAnimated.StartDirection
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView
 import mezz.jei.api.helpers.IGuiHelper
-import mezz.jei.api.ingredients.IIngredients
-import mezz.jei.api.recipe.IFocusGroup
+import mezz.jei.api.recipe.{IFocusGroup, RecipeIngredientRole, RecipeType}
 import mezz.jei.api.recipe.category.IRecipeCategory
 import mezz.jei.api.registration.IRecipeRegistration
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
-import net.minecraft.client.StringSplitter.LinePosConsumer
-import net.minecraft.network.chat.{Style, TextComponent}
+import net.minecraft.network.chat.{Component, Style}
 import net.minecraft.world.item.ItemStack
 import net.minecraft.resources.ResourceLocation
 
@@ -33,7 +31,7 @@ object CallbackDocHandler {
 
   private val VexPattern = """(?s)^function(\(.*?\).*?); (.*)$""".r
 
-  def getRecipes(registration: IRecipeRegistration): util.List[CallbackDocRecipe] = registration.getIngredientManager.getAllIngredients(VanillaTypes.ITEM).collect {
+  def getRecipes(registration: IRecipeRegistration): util.List[CallbackDocRecipe] = registration.getIngredientManager.getAllIngredients(VanillaTypes.ITEM_STACK).collect {
     case stack: ItemStack =>
       val callbacks = api.Driver.environmentsFor(stack).flatMap(getCallbacks).toBuffer
 
@@ -91,26 +89,27 @@ object CallbackDocHandler {
     private var background: IDrawable = _
     private var icon: IDrawable = _
 
+    private val recipeType: RecipeType[CallbackDocRecipe] =
+      RecipeType.create(OpenComputers.ID, "oc_api", classOf[CallbackDocRecipe])
+
     def initialize(guiHelper: IGuiHelper) {
       background = guiHelper.createBlankDrawable(recipeWidth, recipeHeight)
-      icon = new DrawableAnimatedIcon(new ResourceLocation(Settings.resourceDomain, "textures/items/tablet_on.png"), 0, 0, 16, 16, 16, 32,
+      icon = new DrawableAnimatedIcon(ResourceLocation.fromNamespaceAndPath(Settings.resourceDomain, "textures/items/tablet_on.png"), 0, 0, 16, 16, 16, 32,
         guiHelper.createTickTimer(20, 1, true), 0, 16)
     }
-
-    override def getRecipeClass = classOf[CallbackDocRecipe]
 
     override def getIcon: IDrawable = icon
 
     override def getBackground: IDrawable = background
 
-    override def setIngredients(recipeWrapper: CallbackDocRecipe, ingredients: IIngredients) {
-      ingredients.setInput(VanillaTypes.ITEM, recipeWrapper.stack)
-    }
 
     override def setRecipe(recipeLayout: IRecipeLayoutBuilder, recipeWrapper: CallbackDocRecipe, ingredients: IFocusGroup) {
+      recipeLayout
+        .addSlot(RecipeIngredientRole.INPUT, 1, 1)
+        .addItemStack(recipeWrapper.stack)
     }
 
-    override def draw(recipeWrapper: CallbackDocRecipe, stack: PoseStack, mouseX: Double, mouseY: Double): Unit = {
+    override def draw(recipeWrapper: CallbackDocRecipe, recipeSlotsView: IRecipeSlotsView, stack: PoseStack, mouseX: Double, mouseY: Double): Unit = {
       val minecraft = Minecraft.getInstance
       for ((text, line) <- recipeWrapper.page.linesIterator.zipWithIndex) {
         minecraft.font.draw(stack, text, 4, 4 + line * (minecraft.font.lineHeight + 1), 0x333333)
@@ -118,9 +117,9 @@ object CallbackDocHandler {
     }
 
     @Deprecated
-    override def getTitle = new TextComponent("OpenComputers API")
+    override def getTitle = Component.literal("OpenComputers API")
 
-    override def getUid = new ResourceLocation(OpenComputers.ID, "part_api")
+    override def getRecipeType: RecipeType[CallbackDocRecipe] = recipeType
   }
 
 }

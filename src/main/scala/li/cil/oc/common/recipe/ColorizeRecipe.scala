@@ -6,15 +6,14 @@ import li.cil.oc.util.StackOption
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.world.Container
 import net.minecraft.world.inventory.CraftingContainer
-import net.minecraft.world.item.crafting.{Recipe, RecipeType}
+import net.minecraft.world.item.crafting.{CraftingRecipe, RecipeType}
 import net.minecraft.world.level.Level
 
 /**
   * @author asie, Vexatos
   */
-class ColorizeRecipe(id: ResourceLocation, target: Item) extends Recipe[CraftingContainer] {
+class ColorizeRecipe(id: ResourceLocation, target: Item) extends CraftingRecipe {
   val targetItem: Item = target.asItem()
 
 
@@ -83,7 +82,7 @@ class ColorizeRecipe(id: ResourceLocation, target: Item) extends Recipe[Crafting
 
   override def canCraftInDimensions(width: Int, height: Int): Boolean = width * height >= 2
 
-  override def getSerializer = RecipeSerializers.CRAFTING_COLORIZE
+  override def getSerializer = RecipeSerializers.CRAFTING_COLORIZE.get()
 
   override def getId: ResourceLocation = id
 

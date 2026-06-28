@@ -1,10 +1,11 @@
 plugins {
     id 'scala'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '5.1.+'
+    id 'net.minecraftforge.gradle' version '6.0.+'
     id 'wtf.gofancy.fancygradle' version '1.1.+'
     id "com.matthewprenger.cursegradle" version "1.4.0"
     id 'com.modrinth.minotaur' version '2.8.7'
+    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 }
 
 fancyGradle {
@@ -49,9 +50,9 @@ version += "+" + getGitRef()
 
 ext.simpleVersion = version
 version = "MC${config.minecraft.version}-${project.version}"
-
+jarJar.enable()
 minecraft {
-    mappings channel: "${config.minecraft.mappings_channel}", version: "${config.minecraft.mappings_version}"
+    mappings channel: 'parchment', version: '2022.08.14-1.19.2'
 
     runs {
         client {
@@ -170,12 +171,6 @@ repositories {
         }
     }
     maven {
-        url "https://proxy-maven.covers1624.net/"
-        content {
-            includeModule "net.minecraftforge", "Scorge"
-        }
-    }
-    maven {
         name = "Azure-SLP"
         url = uri("https://pkgs.dev.azure.com/Kotori316/minecraft/_packaging/mods/maven/v1")
         content {
@@ -189,9 +184,10 @@ repositories {
 
 configurations {
     embedded
+    embeddedResource
 
-    compileOnly.extendsFrom provided
-    implementation.extendsFrom embedded
+    compileOnly.extendsFrom provided, embedded
+    minecraftLibrary.extendsFrom jarJar
 }
 
 dependencies {
@@ -199,20 +195,19 @@ dependencies {
     minecraft "net.minecraftforge:forge:${config.minecraft.version}-${config.forge.version}"
 
     // required for tests but cannot use implementation as that would clash with scorge at runtime
-    compileOnly "org.scala-lang:scala-library:2.13.4"
+    compileOnly "org.scala-lang:scala-library:2.13.10"
     //implementation "net.minecraftforge:Scorge:${config.scorge.version}"
-    compileOnly(group: 'org.scala-lang', name: 'scala-library', version: '2.13.8')
     compileOnly(group: 'org.typelevel', name: "cats-core_2.13", version: '2.8.1-kotori')
 
-    embedded "com.typesafe:config:1.2.1"
+    jarJar "com.typesafe:config:[1.2.1,1.3)"
 
-    compileOnly fg.deobf("curse.maven:tis-3d-238603:3738437")
+    compileOnly fg.deobf("curse.maven:tis-3d-238603:4755445")
     //compileOnly fg.deobf("curse.maven:hwyla-${config.hwyla.projectId}:${config.hwyla.fileId}")
-    compileOnly fg.deobf("curse.maven:cc-tweaked-282001:4630521")
-    compileOnly fg.deobf("curse.maven:cofh-core-69162:4801048")
-    compileOnly fg.deobf("curse.maven:thermal-foundation-222880:4788649")
+    compileOnly fg.deobf("curse.maven:cc-tweaked-282001:5005332")
+    compileOnly fg.deobf("curse.maven:cofh-core-69162:4801049")
+    compileOnly fg.deobf("curse.maven:thermal-foundation-222880:4782926")
 
-    runtimeOnly fg.deobf("curse.maven:modernfix-790626:5399365")
+    runtimeOnly fg.deobf("curse.maven:modernfix-790626:5803581")
 
     provided fg.deobf("appeng:appliedenergistics2-forge:${config.ae2.version}:api") {
         transitive = false
@@ -231,31 +226,43 @@ dependencies {
     compileOnly(fg.deobf("mezz.jei:jei-${config.minecraft.version}-common-api:${config.jei.version}"))
     compileOnly(fg.deobf("mezz.jei:jei-${config.minecraft.version}-forge-api:${config.jei.version}"))
 
+    runtimeOnly fg.deobf("curse.maven:jei-238222:5846858")
+
     provided fg.deobf("codechicken:CodeChickenLib:${config.ccl.version}:universal")
 
-    provided fg.deobf("curse.maven:project-red-core-228702:4956039")
+    provided fg.deobf("curse.maven:project-red-core-228702:5452524")
 
     provided fg.deobf("curse.maven:project-red-integration-229045:5452529")
 
-    embedded name: 'OC-LuaJ', version: '20220907.1', ext: 'jar'
-    embedded name: 'OC-JNLua', version: '20230530.0', ext: 'jar'
-    embedded name: 'OC-JNLua-Natives', version: '20220928.1', ext: 'jar'
+    embedded group:'', name: 'OC-LuaJ', version: '20220907.1', ext: 'jar'
+    embedded group:'', name: 'OC-JNLua', version: '20230530.0', ext: 'jar'
+    embeddedResource group:'',  name: 'OC-JNLua-Natives', version: '20220928.1', ext: 'jar'
 
-    testImplementation "org.scala-lang:scala-library:2.13.4"
-    testImplementation "junit:junit:4.13"
+    testImplementation "junit:junit:4.13.2"
     testImplementation "org.mockito:mockito-core:3.4.0"
-    testImplementation "org.scalactic:scalactic_2.13:3.2.6"
-    testImplementation "org.scalatest:scalatest_2.13:3.2.6"
+    testImplementation "org.scalactic:scalactic_2.13:3.2.19"
+    testImplementation "org.scalatest:scalatest_2.13:3.2.19"
     testImplementation "org.scalatestplus:junit-4-13_2.13:3.2.6.+"
     testImplementation "org.scalatestplus:mockito-3-4_2.13:3.2.6.+"
 
-    runtimeOnly(fg.deobf("mezz.jei:jei-${config.minecraft.version}-forge:${config.jei.version}"))
+    compileOnly(group: 'org.typelevel', name: "cats-core_2.13", version: '2.8.1-kotori')
 
-    runtimeOnly(group: "com.kotori316", name: "ScalableCatsForce".toLowerCase(), version: "2.13.8-build-4", classifier: "with-library") {
+    runtimeOnly (group: "com.kotori316", name: "ScalableCatsForce".toLowerCase(), version: "2.13.10-build-10", classifier: "with-library") {
         transitive(false)
     }
 
     provided fg.deobf("codechicken:EnderStorage:${config.enderstorage.version}:universal")
+}
+tasks.register('unpackEmbeddedLibs', Copy) {
+    from {
+        configurations.embedded.collect { zipTree(it) }
+    }
+    exclude("META-INF/**")
+    into(layout.buildDirectory.dir("classes/java/main"))
+}
+
+compileJava {
+    dependsOn tasks.named('unpackEmbeddedLibs')
 }
 
 processResources {
@@ -263,12 +270,20 @@ processResources {
     inputs.property "mcversion", config.minecraft.version
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     filesMatching(['META-INF/mods.toml']) {
-        expand 'version':"${mod_version}", 'mcversion':config.minecraft.version, 'sversion':reducedScorgeVer
+        expand 'version':"${mod_version}", 'mcversion':config.minecraft.version, 'forgeVersion': config.forge.version
     }
     filesMatching(['application.conf']) {
         filter { line ->
             line.replaceAll("@VERSION@", "${mod_version}")
         }
+    }
+    from {
+        configurations.embeddedResource.collect { dep ->
+            dep.isDirectory() ? dep : zipTree(dep)
+        }
+    } {
+        include '/assets/**'
+        exclude 'META-INF/**'
     }
 }
 

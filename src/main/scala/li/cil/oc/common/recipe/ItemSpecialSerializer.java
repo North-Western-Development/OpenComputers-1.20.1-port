@@ -12,10 +12,8 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 
-public class ItemSpecialSerializer<T extends Recipe<?>> extends ForgeRegistryEntry<RecipeSerializer<?>>
-    implements RecipeSerializer<T> {
+public class ItemSpecialSerializer<T extends Recipe<?>> implements RecipeSerializer<T> {
 
     private BiFunction<ResourceLocation, Item, T> ctor;
     private Function<T, Item> getter;
@@ -27,7 +25,7 @@ public class ItemSpecialSerializer<T extends Recipe<?>> extends ForgeRegistryEnt
 
     @Override
     public T fromJson(ResourceLocation recipeId, JsonObject json) {
-        ResourceLocation loc = new ResourceLocation(GsonHelper.getAsString(json, "item"));
+        ResourceLocation loc = ResourceLocation.parse(GsonHelper.getAsString(json, "item"));
         if (!ForgeRegistries.ITEMS.containsKey(loc)) {
             throw new JsonSyntaxException("Unknown item '" + loc + "'");
         }

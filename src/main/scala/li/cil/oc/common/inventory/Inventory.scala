@@ -5,7 +5,7 @@ import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.StackOption
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.{CompoundTag, Tag}
-import net.minecraft.network.chat.TranslatableComponent
+import net.minecraft.network.chat.Component
 
 trait Inventory extends SimpleInventory {
   def items: Array[ItemStack]
@@ -47,7 +47,7 @@ trait Inventory extends SimpleInventory {
     }
   }
 
-  override def getName: TranslatableComponent = new TranslatableComponent(Settings.namespace + "container." + inventoryName)
+  override def getName: Component = Component.translatable(Settings.namespace + "container." + inventoryName)
 
   protected def inventoryName: String = getClass.getSimpleName.toLowerCase
 

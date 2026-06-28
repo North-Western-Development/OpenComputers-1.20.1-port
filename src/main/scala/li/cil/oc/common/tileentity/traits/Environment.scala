@@ -8,10 +8,8 @@ import li.cil.oc.common.EventHandler
 import li.cil.oc.util.ExtendedNBT._
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.core.Direction
-import net.minecraftforge.client.model.data.IModelData
-import net.minecraftforge.client.model.data.ModelProperty
 
-trait Environment extends BlockEntity with network.Environment with network.EnvironmentHost with IModelData {
+trait Environment extends BlockEntity with network.Environment with network.EnvironmentHost {
   protected var isChangeScheduled = false
 
   override def world = getLevel
@@ -22,7 +20,7 @@ trait Environment extends BlockEntity with network.Environment with network.Envi
 
   override def zPosition = z + 0.5
 
-  override def markChanged() = if (this.isInstanceOf[Tickable]) isChangeScheduled = true else getLevel.blockEntityChanged(getBlockPos, this)
+  override def markChanged() = if (this.isInstanceOf[Tickable]) isChangeScheduled = true else setChanged()
 
   protected def isConnected = node != null && node.address != null && node.network != null
 
@@ -38,7 +36,7 @@ trait Environment extends BlockEntity with network.Environment with network.Envi
   override def updateEntity() {
     super.updateEntity()
     if (isChangeScheduled) {
-      getLevel.blockEntityChanged(getBlockPos, this)
+      setChanged()
       isChangeScheduled = false
     }
   }
@@ -97,18 +95,4 @@ trait Environment extends BlockEntity with network.Environment with network.Envi
   // ----------------------------------------------------------------------- //
 
   protected def result(args: Any*) = li.cil.oc.util.ResultWrapper.result(args: _*)
-
-  // ----------------------------------------------------------------------- //
-
-  @Deprecated
-  override def getModelData() = this
-
-  @Deprecated
-  override def hasProperty(prop: ModelProperty[_]) = false
-
-  @Deprecated
-  override def getData[T](prop: ModelProperty[T]): T = null.asInstanceOf[T]
-
-  @Deprecated
-  override def setData[T](prop: ModelProperty[T], value: T): T = null.asInstanceOf[T]
 }

@@ -10,7 +10,7 @@ import com.mojang.blaze3d.vertex.Tesselator
 import net.minecraft.client.gui.Font
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.locale.Language
-import net.minecraft.network.chat.{Component, FormattedText, TextComponent}
+import net.minecraft.network.chat.{Component, FormattedText}
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.AbstractContainerMenu
 
@@ -38,7 +38,7 @@ abstract class  CustomGuiContainer[C <: AbstractContainerMenu](val inventoryCont
   // Pretty much Scalaified copy-pasta from base-class.
   protected def renderTooltip(stack: PoseStack, tooltipS: java.util.ArrayList[String], x: Int, y: Int): Unit = {
     super.renderTooltip(stack, x, y)
-    val tooltips: List[FormattedText] = tooltipS.asScala.toList.map(new TextComponent(_))
+    val tooltips: List[FormattedText] = tooltipS.asScala.toList.map(Component.literal)
 
     TooltipUtils.drawTooltip(stack, tooltips, x, y)
   }

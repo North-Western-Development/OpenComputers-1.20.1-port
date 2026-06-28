@@ -56,8 +56,8 @@ public class RobotUsedToolEvent extends RobotEvent {
      * Fired when a robot used a tool and the previously fired damage rate
      * computation returned a value smaller than one. The callbacks of this
      * method are responsible for applying the inverse damage the tool took.
-     * The <tt>toolAfterUse</tt> item stack represents the actual tool, any
-     * changes must be applied to that variable. The <tt>toolBeforeUse</tt>
+     * The {@code toolAfterUse} item stack represents the actual tool, any
+     * changes must be applied to that variable. The {@code toolBeforeUse}
      * item stack is passed for reference, to compute the actual amount of
      * durability that was lost. This may be required for tools where the
      * durability is stored in the item's NBT tag.

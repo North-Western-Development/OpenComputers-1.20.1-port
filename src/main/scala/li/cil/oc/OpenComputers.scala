@@ -1,17 +1,15 @@
 package li.cil.oc
 
+import li.cil.oc.common.entity.EntityTypes
+
 import java.nio.file.Paths
-import li.cil.oc.common.IMC
-import li.cil.oc.common.Proxy
+import li.cil.oc.common.{IMC, MissingMappingsHandler, Proxy}
 import li.cil.oc.common.init.Blocks
 import li.cil.oc.common.init.Items
+import li.cil.oc.common.recipe.RecipeSerializers
+import li.cil.oc.common.tileentity.BlockEntityTypes
 import li.cil.oc.integration.Mods
 import li.cil.oc.util.ThreadPoolFactory
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.Item
-import net.minecraft.world.level.Level
-import net.minecraftforge.event.RegistryEvent
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.eventbus.api.SubscribeEvent
@@ -19,9 +17,11 @@ import net.minecraftforge.forgespi.Environment
 import net.minecraftforge.fml.InterModComms
 import net.minecraftforge.fml.ModContainer
 import net.minecraftforge.fml.ModLoadingContext
+import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent
 import net.minecraftforge.fml.loading.FMLPaths
 import net.minecraftforge.network.simple.SimpleChannel
+import net.minecraftforge.registries.{ForgeRegistries, RegisterEvent}
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
@@ -55,26 +55,29 @@ object OpenComputers {
     case _ => throw new IllegalStateException("not initialized")
   }
 }
-
+@Mod(OpenComputers.ID)
 class OpenComputers {
   val modContainer: ModContainer = ModLoadingContext.get.getActiveContainer
+  protected val modEventBus = net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext.get().getModEventBus
+  modEventBus.register(this)
 
   OpenComputers.instance = Some(this)
 
-  MinecraftForge.EVENT_BUS.register(OpenComputers.proxy)
+  modEventBus.register(OpenComputers.proxy)
+  BlockEntityTypes.register(modEventBus)
+  EntityTypes.register(modEventBus)
+  RecipeSerializers.register(modEventBus)
+  MinecraftForge.EVENT_BUS.register(MissingMappingsHandler)
+
   Settings.load(FMLPaths.CONFIGDIR.get().resolve(Paths.get("opencomputers", "settings.conf")).toFile())
   OpenComputers.proxy.preInit()
   MinecraftForge.EVENT_BUS.register(ThreadPoolFactory)
   Mods.preInit() // Must happen after loading Settings but before registry events are fired.
 
   @SubscribeEvent
-  def registerBlocks(e: RegistryEvent.Register[Block]): Unit = {
-    Blocks.init()
-  }
-
-  @SubscribeEvent
-  def registerItems(e: RegistryEvent.Register[Item]): Unit = {
-    Items.init()
+  def registerAll(e: RegisterEvent) {
+    e.register(ForgeRegistries.Keys.ITEMS, Items.init)
+    e.register(ForgeRegistries.Keys.BLOCKS, Blocks.init)
   }
 
   @SubscribeEvent

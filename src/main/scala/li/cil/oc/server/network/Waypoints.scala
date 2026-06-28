@@ -6,7 +6,7 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.RTree
 import net.minecraft.resources.ResourceKey
 import net.minecraft.world.level.Level
-import net.minecraftforge.event.world.{ChunkEvent, WorldEvent}
+import net.minecraftforge.event.level.{ChunkEvent, LevelEvent}
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -16,9 +16,9 @@ object Waypoints {
   val dimensions = mutable.Map.empty[ResourceKey[Level], RTree[Waypoint]]
 
   @SubscribeEvent
-  def onLevelUnload(e: WorldEvent.Unload) {
-    if (!e.getWorld.isClientSide) {
-      e.getWorld match {
+  def onLevelUnload(e: LevelEvent.Unload) {
+    if (!e.getLevel.isClientSide) {
+      e.getLevel match {
         case world: Level => dimensions.remove(world.dimension)
         case _ =>
       }
@@ -26,9 +26,9 @@ object Waypoints {
   }
 
   @SubscribeEvent
-  def onLevelLoad(e: WorldEvent.Load) {
-    if (!e.getWorld.isClientSide) {
-      e.getWorld match {
+  def onLevelLoad(e: LevelEvent.Load) {
+    if (!e.getLevel.isClientSide) {
+      e.getLevel match {
         case world: Level => dimensions.remove(world.dimension)
         case _ =>
       }

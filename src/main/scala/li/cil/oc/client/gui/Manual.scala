@@ -15,13 +15,13 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
 import net.minecraft.client.player.Input
 import net.minecraft.client.resources.language.I18n
-import net.minecraft.network.chat.{Component, FormattedText, TextComponent}
+import net.minecraft.network.chat.{Component, FormattedText}
 import org.lwjgl.glfw.GLFW
 
 import scala.collection.JavaConverters._
 import scala.collection.convert.ImplicitConversionsToScala._
 
-class Manual extends Screen(TextComponent.EMPTY) with traits.Window {
+class Manual extends Screen(Component.empty()) with traits.Window {
   final val documentMaxWidth = 230
   final val documentMaxHeight = 176
   final val scrollPosX = 244
@@ -124,7 +124,7 @@ class Manual extends Screen(TextComponent.EMPTY) with traits.Window {
 
     currentSegment = Document.render(stack, document, leftPos + 8, topPos + 8, documentMaxWidth, documentMaxHeight, offset, font, mouseX, mouseY)
     def localizeAndWrap(text: String): List[FormattedText] = {
-      val lines = Localization.localizeImmediately(text).linesIterator.map(new TextComponent(_))
+      val lines = Localization.localizeImmediately(text).linesIterator.map(Component.literal)
       lines.toList
     }
 
@@ -148,7 +148,7 @@ class Manual extends Screen(TextComponent.EMPTY) with traits.Window {
     }
 
     if (canScroll && (isCoordinateOverScrollBar(mouseX - leftPos, mouseY - topPos) || isScrolling)) {
-      val lines = List(new TextComponent(s"${100 * offset / maxOffset}%"))
+      val lines = List(Component.literal(s"${100 * offset / maxOffset}%"))
       TooltipUtils.drawTooltip(stack, lines, leftPos + scrollPosX + scrollWidth, scrollButton.y + scrollButton.getHeight + 1)
     }
   }

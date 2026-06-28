@@ -1,7 +1,6 @@
 package li.cil.oc.server.component
 
 import java.util.UUID
-
 import li.cil.oc.Settings
 import li.cil.oc.api.machine._
 import li.cil.oc.api.network.EnvironmentHost
@@ -9,17 +8,15 @@ import li.cil.oc.api.prefab.AbstractValue
 import li.cil.oc.common.EventHandler
 import li.cil.oc.util.InventoryUtils
 import net.minecraft.world.entity.Entity
-import net.minecraft.entity.merchant.IMerchant
+import net.minecraft.world.item.trading.{Merchant, MerchantOffer}
 import net.minecraft.world.Container
 import net.minecraft.world.item.ItemStack
-import net.minecraft.item.MerchantOffer
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.resources.ResourceKey
-import net.minecraft.core.BlockPos
-import net.minecraft.util.registry.Registry
-import net.minecraftforge.fml.server.ServerLifecycleHooks
+import net.minecraft.core.{BlockPos, Registry}
+import net.minecraftforge.server.ServerLifecycleHooks
 
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.ref.WeakReference
@@ -27,7 +24,7 @@ import scala.ref.WeakReference
 class Trade(val info: TradeInfo) extends AbstractValue {
   def this() = this(new TradeInfo())
 
-  def this(upgrade: UpgradeTrading, merchant: IMerchant, recipeID: Int, merchantID: Int) =
+  def this(upgrade: UpgradeTrading, merchant: Merchant, recipeID: Int, merchantID: Int) =
     this(new TradeInfo(upgrade.host, merchant, recipeID, merchantID))
 
   def maxRange = Settings.get.tradingRange
@@ -134,11 +131,11 @@ class Trade(val info: TradeInfo) extends AbstractValue {
   }
 }
 
-class TradeInfo(var host: Option[EnvironmentHost], var merchant: WeakReference[IMerchant], var recipeID: Int, var merchantID: Int) {
-  def this() = this(None, new WeakReference[IMerchant](null), -1, -1)
+class TradeInfo(var host: Option[EnvironmentHost], var merchant: WeakReference[Merchant], var recipeID: Int, var merchantID: Int) {
+  def this() = this(None, new WeakReference[Merchant](null), -1, -1)
 
-  def this(host: EnvironmentHost, merchant: IMerchant, recipeID: Int, merchantID: Int) =
-    this(Option(host), new WeakReference[IMerchant](merchant), recipeID, merchantID)
+  def this(host: EnvironmentHost, merchant: Merchant, recipeID: Int, merchantID: Int) =
+    this(Option(host), new WeakReference[Merchant](merchant), recipeID, merchantID)
 
   def recipe = merchant.get.map(_.getOffers.get(recipeID))
 
@@ -163,8 +160,8 @@ class TradeInfo(var host: Option[EnvironmentHost], var merchant: WeakReference[I
     val isEntity = nbt.getBoolean(HostIsEntityTag)
     // If drone we find it again by its UUID, if Robot we know the X/Y/Z of the BlockEntity.
     host = if (isEntity) loadHostEntity(nbt) else loadHostBlockEntity(nbt)
-    merchant = new WeakReference[IMerchant](loadEntity(nbt, new UUID(nbt.getLong(MerchantUUIDMostTag), nbt.getLong(MerchantUUIDLeastTag))) match {
-      case Some(merchant: IMerchant) => merchant
+    merchant = new WeakReference[Merchant](loadEntity(nbt, new UUID(nbt.getLong(MerchantUUIDMostTag), nbt.getLong(MerchantUUIDLeastTag))) match {
+      case Some(merchant: Merchant) => merchant
       case _ => null
     })
     recipeID = nbt.getInt(RecipeID)

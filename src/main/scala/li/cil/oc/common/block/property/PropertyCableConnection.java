@@ -4,23 +4,25 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import org.jetbrains.annotations.NotNull;
 
 public final class PropertyCableConnection {
-    public static enum Shape implements StringRepresentable {
+    public enum Shape implements StringRepresentable {
         NONE("none"),
         CABLE("cable"),
         DEVICE("device");
 
         private final String name;
 
-        private Shape(String name) {
+        Shape(String name) {
             this.name = name;
         }
 
-        public String getSerializedName() {
+        public @NotNull String getSerializedName() {
             return name;
         }
 
@@ -39,7 +41,7 @@ public final class PropertyCableConnection {
 
     static
     {
-        EnumMap<Direction, EnumProperty<Shape>> byDir = new EnumMap<>(Direction.class);
+        EnumMap<Direction, EnumProperty<Shape>> byDir = Maps.newEnumMap(Direction.class);
         byDir.put(Direction.DOWN, DOWN);
         byDir.put(Direction.UP, UP);
         byDir.put(Direction.NORTH, NORTH);

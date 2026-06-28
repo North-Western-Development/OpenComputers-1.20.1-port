@@ -1,24 +1,19 @@
 package li.cil.oc.common.item
 
-import li.cil.oc.Constants
-import li.cil.oc.Localization
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, Localization, Settings, api}
 import li.cil.oc.api.machine.Machine
-import li.cil.oc.api.network.Analyzable
 import li.cil.oc.api.network._
 import li.cil.oc.common.tileentity
 import li.cil.oc.server.PacketSender
 import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedLevel._
-import net.minecraft.world.entity.player.Player
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.item.Item
-import net.minecraft.world.item.Item.Properties
-import net.minecraft.world.item.ItemStack
-import net.minecraft.util.ActionResult
+import net.minecraft.Util
 import net.minecraft.core.Direction
-import net.minecraft.util.Util
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.InteractionResultHolder
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.{Item, ItemStack}
 import net.minecraft.world.level.Level
 import net.minecraftforge.common.extensions.IForgeItem
 import net.minecraftforge.common.util.FakePlayer
@@ -30,7 +25,7 @@ object Analyzer {
 
   @SubscribeEvent
   def onInteract(e: PlayerInteractEvent.EntityInteract): Unit = {
-    val player = e.getPlayer
+    val player = e.getEntity
     val held = player.getItemInHand(e.getHand)
     if (api.Items.get(held) == analyzer) {
       if (analyze(e.getTarget, player, Direction.DOWN, 0, 0, 0)) {
@@ -71,12 +66,12 @@ object Analyzer {
           case machine: Machine =>
             if (machine != null) {
               if (machine.lastError != null) {
-                playerMP.sendMessage(Localization.Analyzer.LastError(machine.lastError), Util.NIL_UUID)
+                playerMP.sendSystemMessage(Localization.Analyzer.LastError(machine.lastError))
               }
-              playerMP.sendMessage(Localization.Analyzer.Components(machine.componentCount, machine.maxComponents), Util.NIL_UUID)
+              playerMP.sendSystemMessage(Localization.Analyzer.Components(machine.componentCount, machine.maxComponents))
               val list = machine.users
               if (list.nonEmpty) {
-                playerMP.sendMessage(Localization.Analyzer.Users(list), Util.NIL_UUID)
+                playerMP.sendSystemMessage(Localization.Analyzer.Users(list))
               }
             }
           case _ =>
@@ -84,19 +79,19 @@ object Analyzer {
         node match {
           case connector: Connector =>
             if (connector.localBufferSize > 0) {
-              playerMP.sendMessage(Localization.Analyzer.StoredEnergy(f"${connector.localBuffer}%.2f/${connector.localBufferSize}%.2f"), Util.NIL_UUID)
+              playerMP.sendSystemMessage(Localization.Analyzer.StoredEnergy(f"${connector.localBuffer}%.2f/${connector.localBufferSize}%.2f"))
             }
-            playerMP.sendMessage(Localization.Analyzer.TotalEnergy(f"${connector.globalBuffer}%.2f/${connector.globalBufferSize}%.2f"), Util.NIL_UUID)
+            playerMP.sendSystemMessage(Localization.Analyzer.TotalEnergy(f"${connector.globalBuffer}%.2f/${connector.globalBufferSize}%.2f"))
           case _ =>
         }
         node match {
           case component: Component =>
-            playerMP.sendMessage(Localization.Analyzer.ComponentName(component.name), Util.NIL_UUID)
+            playerMP.sendSystemMessage(Localization.Analyzer.ComponentName(component.name))
           case _ =>
         }
         val address = node.address()
         if (address != null && !address.isEmpty) {
-          playerMP.sendMessage(Localization.Analyzer.Address(address), Util.NIL_UUID)
+          playerMP.sendSystemMessage(Localization.Analyzer.Address(address))
           PacketSender.sendAnalyze(address, playerMP)
         }
       case _ =>
@@ -105,7 +100,7 @@ object Analyzer {
 }
 
 class Analyzer(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem {
-  override def use(stack: ItemStack, world: Level, player: Player): ActionResult[ItemStack] = {
+  override def use(stack: ItemStack, world: Level, player: Player): InteractionResultHolder[ItemStack] = {
     if (player.isCrouching && stack.hasTag) {
       stack.removeTagKey(Settings.namespace + "clipboard")
     }

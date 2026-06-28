@@ -19,7 +19,7 @@ public interface ItemAPI {
      *
      * @param name the name of the item to get the descriptor for.
      * @return the descriptor for the item with the specified name, or
-     * <tt>null</tt> if there is no such item.
+     * {@code null} if there is no such item.
      */
     @Nullable
     ItemInfo get(String name);
@@ -29,7 +29,7 @@ public interface ItemAPI {
      * specified item stack.
      *
      * @param stack the stack to get the descriptor for.
-     * @return the descriptor for the specified item stack, or <tt>null</tt>
+     * @return the descriptor for the specified item stack, or {@code null}
      * if the stack is not a valid OpenComputers item or block.
      */
     @Nullable
@@ -48,7 +48,7 @@ public interface ItemAPI {
      * To use some directory in your mod JAR as the directory provided by the
      * loot disk, use {@link FileSystem#fromResource} in your callable.
      * <br>
-     * If <tt>doRecipeCycling</tt> is <tt>true</tt>, the floppy disk will be
+     * If {@code doRecipeCycling} is {@code true}, the floppy disk will be
      * included in the floppy disk recipe cycle if that is enabled.
      * <br>
      * Call this in the init phase or later, <em>not</em> in pre-init.
@@ -70,8 +70,8 @@ public interface ItemAPI {
      * The EEPROM will be listed in the creative tab of OpenComputers.
      * <br>
      * The EEPROM will be initialized with the specified code and data byte
-     * arrays. For script code (e.g. a Lua script) use <tt>String.getBytes("UTF-8")</tt>.
-     * You can omit any of the arguments by passing <tt>null</tt>.
+     * arrays. For script code (e.g. a Lua script) use {@code String.getBytes("UTF-8")}.
+     * You can omit any of the arguments by passing {@code null}.
      * <br>
      * Call this in the init phase or later, <em>not</em> in pre-init.
      *

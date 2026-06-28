@@ -3,6 +3,7 @@ package li.cil.oc.api.internal;
 import com.mojang.blaze3d.vertex.PoseStack;
 import li.cil.oc.api.Persistable;
 import li.cil.oc.api.network.ManagedEnvironment;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -103,7 +104,7 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
     /**
      * Get the aspect ratio of the buffer.
      * <br>
-     * Note that this is in fact <tt>width / height</tt>.
+     * Note that this is in fact {@code width / height}.
      *
      * @see #setAspectRatio(double, double)
      */
@@ -114,7 +115,7 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      *
      * @param width  the horizontal resolution.
      * @param height the vertical resolution.
-     * @return <tt>true</tt> if the resolution changed.
+     * @return {@code true} if the resolution changed.
      */
     boolean setResolution(int width, int height);
 
@@ -139,7 +140,7 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      *
      * @param width  the horizontal resolution.
      * @param height the vertical resolution.
-     * @return <tt>true</tt> if the resolution changed.
+     * @return {@code true} if the resolution changed.
      * @see #setResolution(int, int)
      */
     boolean setViewport(int width, int height);
@@ -179,7 +180,7 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      * Set the active color depth for this buffer.
      *
      * @param depth the new color depth.
-     * @return <tt>true</tt> if the color depth changed.
+     * @return {@code true} if the color depth changed.
      */
     boolean setColorDepth(ColorDepth depth);
 
@@ -227,7 +228,7 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      * is chosen, if the value is not from the palette.
      *
      * @param color         the color or palette index.
-     * @param isFromPalette <tt>true</tt>if <tt>color</tt> specifies a palette index.
+     * @param isFromPalette {@code true}if {@code color} specifies a palette index.
      */
     void setForegroundColor(int color, boolean isFromPalette);
 
@@ -237,7 +238,7 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
     int getForegroundColor();
 
     /**
-     * <tt>true</tt> if the foreground color is from the color palette, meaning
+     * {@code true} if the foreground color is from the color palette, meaning
      * the value returned from {@link #getForegroundColor()} is the color
      * palette index.
      */
@@ -262,7 +263,7 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      * is chosen, if the value is not from the palette.
      *
      * @param color         the color or palette index.
-     * @param isFromPalette <tt>true</tt>if <tt>color</tt> specifies a palette index.
+     * @param isFromPalette {@code true}if {@code color} specifies a palette index.
      */
     void setBackgroundColor(int color, boolean isFromPalette);
 
@@ -272,7 +273,7 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
     int getBackgroundColor();
 
     /**
-     * <tt>true</tt> if the background color is from the color palette, meaning
+     * {@code true} if the background color is from the color palette, meaning
      * the value returned from {@link #getBackgroundColor()} is the color
      * palette index.
      */
@@ -328,7 +329,7 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      * @param column   the starting horizontal index to write at.
      * @param row      the starting vertical index to write at.
      * @param value    the string to write.
-     * @param vertical <tt>true</tt> if the string should be written vertically instead of horizontally.
+     * @param vertical {@code true} if the string should be written vertically instead of horizontally.
      */
     void set(int column, int row, String value, boolean vertical);
 
@@ -441,7 +442,7 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
     /**
      * Overwrites a portion of the foreground color information in raw mode.
      * <br>
-     * This will convert the specified RGB data (in <tt>0xRRGGBB</tt> format)
+     * This will convert the specified RGB data (in {@code 0xRRGGBB} format)
      * to the internal, packed representation and copy it into the buffer,
      * starting at the specified column and row. The array is expected to be
      * indexed row-first, i.e. the first dimension is the vertical axis, the
@@ -463,7 +464,7 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
     /**
      * Overwrites a portion of the background color information in raw mode.
      * <br>
-     * This will convert the specified RGB data (in <tt>0xRRGGBB</tt> format)
+     * This will convert the specified RGB data (in {@code 0xRRGGBB} format)
      * to the internal, packed representation and copy it into the buffer,
      * starting at the specified column and row. The array is expected to be
      * indexed row-first, i.e. the first dimension is the vertical axis, the
@@ -493,11 +494,11 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      * <br>
      * You can use this to either render the text in a GUI or in the world.
      *
-     * @return <tt>true</tt> if the displayed content changed since the last
+     * @return {@code true} if the displayed content changed since the last
      * call to this method.
      */
     @OnlyIn(Dist.CLIENT)
-    boolean renderText(PoseStack stack);
+    boolean renderText(PoseStack stack, MultiBufferSource buffer);
 
     /**
      * The natural width of the rendered text.
@@ -553,7 +554,7 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      *
      * @param character the character of the pressed key.
      * @param code      the key code of the pressed key.
-     * @param player    the player that pressed the key. Pass <tt>null</tt> on the client side.
+     * @param player    the player that pressed the key. Pass {@code null} on the client side.
      */
     void keyDown(char character, int code, Player player);
 
@@ -566,7 +567,7 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      *
      * @param character the character of the released key.
      * @param code      the key code of the released key.
-     * @param player    the player that released the key. Pass <tt>null</tt> on the client side.
+     * @param player    the player that released the key. Pass {@code null} on the client side.
      */
     void keyUp(char character, int code, Player player);
 
@@ -578,7 +579,7 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      * keyboards, which will then cause a signal in attached machines.
      *
      * @param codePoint     the code point being typed.
-     * @param player        the player that typed the code point. Pass <tt>null</tt> on the client side.
+     * @param player        the player that typed the code point. Pass {@code null} on the client side.
      */
     void textInput(int codePoint, Player player);
 
@@ -590,7 +591,7 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      * keyboards, which will then cause a signal in attached machines.
      *
      * @param value  the text that was pasted.
-     * @param player the player that pasted the text. Pass <tt>null</tt> on the client side.
+     * @param player the player that pasted the text. Pass {@code null} on the client side.
      */
     void clipboard(String value, Player player);
 
@@ -603,7 +604,7 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      * @param x      the horizontal coordinate of the mouse, in characters.
      * @param y      the vertical coordinate of the mouse, in characters.
      * @param button the button of the mouse that was pressed.
-     * @param player the player that pressed the mouse button. Pass <tt>null</tt> on the client side.
+     * @param player the player that pressed the mouse button. Pass {@code null} on the client side.
      */
     void mouseDown(double x, double y, int button, Player player);
 
@@ -616,7 +617,7 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      * @param x      the horizontal coordinate of the mouse, in characters.
      * @param y      the vertical coordinate of the mouse, in characters.
      * @param button the button of the mouse that is pressed.
-     * @param player the player that moved the mouse. Pass <tt>null</tt> on the client side.
+     * @param player the player that moved the mouse. Pass {@code null} on the client side.
      */
     void mouseDrag(double x, double y, int button, Player player);
 
@@ -629,7 +630,7 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      * @param x      the horizontal coordinate of the mouse, in characters.
      * @param y      the vertical coordinate of the mouse, in characters.
      * @param button the button of the mouse that was released.
-     * @param player the player that released the mouse button. Pass <tt>null</tt> on the client side.
+     * @param player the player that released the mouse button. Pass {@code null} on the client side.
      */
     void mouseUp(double x, double y, int button, Player player);
 
@@ -642,7 +643,7 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      * @param x      the horizontal coordinate of the mouse, in characters.
      * @param y      the vertical coordinate of the mouse, in characters.
      * @param delta  indicates the direction of the mouse scroll.
-     * @param player the player that scrolled the mouse wheel. Pass <tt>null</tt> on the client side.
+     * @param player the player that scrolled the mouse wheel. Pass {@code null} on the client side.
      */
     void mouseScroll(double x, double y, int delta, Player player);
 

@@ -14,7 +14,9 @@ import li.cil.oc.integration.util.ItemSearch
 import li.cil.oc.util.RenderState
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.client.gui.GuiComponent
+import net.minecraft.client.renderer.GameRenderer
+import net.minecraft.network.chat.Component
 import net.minecraft.world.Container
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.{AbstractContainerMenu, Slot}
@@ -23,7 +25,7 @@ import org.lwjgl.opengl.GL11
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 
-abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv: Inventory, title: TextComponent)
+abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv: Inventory, title: Component)
   extends CustomGuiContainer(container, inv, title) {
 
   protected var hoveredStackNEI: StackOption = EmptyStack
@@ -52,6 +54,7 @@ abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv
   protected def drawSecondaryBackgroundLayer(stack: PoseStack) {}
 
   override protected def renderBg(stack: PoseStack, dt: Float, mouseX: Int, mouseY: Int) {
+    RenderSystem.setShader(GameRenderer.getPositionTexColorShader _)
     RenderSystem.setShaderColor(1, 1, 1, 1)
     Textures.bind(Textures.GUI.Background)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
@@ -97,11 +100,11 @@ abstract class DynamicGuiContainer[C <: AbstractContainerMenu](container: C, inv
             case component: ComponentSlot =>
               if (component.tierIcon != null) {
                 Textures.bind(component.tierIcon)
-                blit(stack, slot.x, slot.y, 0, 0, 16, 16)
+                GuiComponent.blit(stack, slot.x, slot.y, getBlitOffset, 0, 0, 16, 16, 16, 16)
               }
               if (component.hasBackground) {
                 Textures.bind(component.getBackgroundLocation)
-                blit(stack, slot.x, slot.y, 0, 0, 16, 16)
+                GuiComponent.blit(stack, slot.x, slot.y, getBlitOffset, 0, 0, 16, 16, 16, 16)
               }
             case _ =>
           }

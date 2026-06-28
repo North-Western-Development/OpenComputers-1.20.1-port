@@ -1,63 +1,48 @@
 package li.cil.oc.common.item
 
-import java.util
-import java.util.UUID
-import java.util.concurrent.Callable
-import java.util.concurrent.TimeUnit
 import com.google.common.cache.{CacheBuilder, RemovalListener, RemovalNotification}
 import com.google.common.collect.ImmutableMap
-import li.cil.oc.Constants
-import li.cil.oc.Localization
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api
-import li.cil.oc.api.Driver
-import li.cil.oc.api.Machine
 import li.cil.oc.api.driver.item.Container
-import li.cil.oc.api.internal
+import li.cil.oc.api.{Driver, Machine, internal}
 import li.cil.oc.api.machine.MachineHost
-import li.cil.oc.api.network.{Component, Connector, Message, Node}
-import li.cil.oc.{client, server}
-import li.cil.oc.client.KeyBindings
-import li.cil.oc.client.gui
-import li.cil.oc.common.Slot
-import li.cil.oc.common.Tier
-import li.cil.oc.common.container
+import li.cil.oc.api.network.{Connector, Message, Node}
+import li.cil.oc.client.{KeyBindings, gui}
+import li.cil.oc.common.{Slot, Tier, container}
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.inventory.ComponentInventory
 import li.cil.oc.common.item.data.TabletData
 import li.cil.oc.integration.opencomputers.DriverScreen
 import li.cil.oc.server.component
-import li.cil.oc.util.Audio
-import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedNBT._
-import li.cil.oc.util.RotationHelper
-import li.cil.oc.util.Tooltip
+import li.cil.oc.util.{Audio, BlockPosition, RotationHelper, Tooltip}
+import li.cil.oc.{Constants, Localization, OpenComputers, Settings, api, client, server}
 import net.minecraft.Util
 import net.minecraft.client.Minecraft
-import net.minecraft.client.resources.model.ModelResourceLocation
 import net.minecraft.client.server.IntegratedServer
-import net.minecraft.world.entity.{Entity, LivingEntity}
-import net.minecraft.world.item.{CreativeModeTab, Item, ItemStack, Rarity}
-import net.minecraft.world.item.Item.Properties
-import net.minecraft.nbt.{CompoundTag, Tag}
 import net.minecraft.core.{BlockPos, Direction, NonNullList}
-import net.minecraft.network.chat.{TextComponent, TranslatableComponent}
+import net.minecraft.nbt.{CompoundTag, Tag}
+import net.minecraft.network.chat
+import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.{InteractionHand, InteractionResult, InteractionResultHolder, MenuProvider}
 import net.minecraft.world.entity.player.{Inventory, Player}
+import net.minecraft.world.entity.{Entity, LivingEntity}
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.item.{CreativeModeTab, Item, ItemStack, Rarity}
 import net.minecraft.world.level.Level
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.world.{InteractionHand, InteractionResult, InteractionResultHolder, MenuProvider}
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
+import net.minecraftforge.client.event.ModelEvent
 import net.minecraftforge.common.extensions.IForgeItem
-import net.minecraftforge.event.TickEvent.ClientTickEvent
-import net.minecraftforge.event.TickEvent.ServerTickEvent
-import net.minecraftforge.event.world.WorldEvent
+import net.minecraftforge.event.TickEvent.{ClientTickEvent, ServerTickEvent}
+import net.minecraftforge.event.level.LevelEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.server.ServerLifecycleHooks
 
+import java.util
+import java.util.UUID
+import java.util.concurrent.{Callable, TimeUnit}
 import scala.collection.JavaConverters.asJavaIterable
-import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 
 class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with CustomModel with traits.Chargeable {
@@ -65,17 +50,17 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
 
   // ----------------------------------------------------------------------- //
 
-  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[TextComponent]): Unit = {
+  override protected def tooltipExtended(stack: ItemStack, tooltip: util.List[chat.Component]): Unit = {
     if (KeyBindings.showExtendedTooltips) {
       val info = new TabletData(stack)
       // Ignore/hide the screen.
       val components = info.items.drop(1)
       if (components.length > 1) {
         for (curr <- Tooltip.get("server.Components")) {
-          tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+          tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
         }
         components.collect {
-          case component if !component.isEmpty => tooltip.add(new TextComponent("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
+          case component if !component.isEmpty => tooltip.add(Component.literal("- " + component.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
         }
       }
     }
@@ -94,17 +79,18 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
     case _ => Rarity.COMMON // Default to common if tier is out of range
   }
 
-  override def showDurabilityBar(stack: ItemStack) = true
+  override def isDamaged(stack: ItemStack): Boolean = true
 
-  override def getDurabilityForDisplay(stack: ItemStack): Double = {
+  override def getDamage(stack: ItemStack): Int = {
+    val maxDamage = getMaxDamage(stack)
     if (stack.hasTag) {
       val data = Tablet.Client.getWeak(stack) match {
         case Some(wrapper) => wrapper.data
         case _ => new TabletData(stack)
       }
-      1 - data.energy / data.maxEnergy
+      maxDamage - data.energy.toInt
     }
-    else 1.0
+    else 1
   }
 
   // ----------------------------------------------------------------------- //
@@ -115,11 +101,17 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
       case Some(state) => if (state) "_on" else "_off"
       case _ => ""
     }
-    new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.ItemName.Tablet + suffix, "inventory")
+
+    val clazz = Class.forName("net.minecraft.client.resources.model.ModelResourceLocation")
+    val ctor = clazz.getConstructor(classOf[String], classOf[String])
+    ctor.newInstance(
+      Settings.resourceDomain + ":" + Constants.ItemName.Tablet + suffix,
+      "inventory"
+    ).asInstanceOf[AnyRef]
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def getModelLocation(stack: ItemStack): ModelResourceLocation = {
+  override def getModelLocation(stack: ItemStack) = {
     modelLocationFromState(Tablet.Client.getWeak(stack) match {
       case Some(tablet: TabletWrapper) => Some(tablet.data.isRunning)
       case _ => None
@@ -127,9 +119,9 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def registerModelLocations(): Unit = {
+  override def registerModelLocations(event: ModelEvent.RegisterAdditional): Unit = {
     for (state <- Seq(None, Some(true), Some(false))) {
-      Minecraft.getInstance().getItemRenderer.getItemModelShaper.register(this, modelLocationFromState(state))
+      event.register(modelLocationFromState(state).asInstanceOf[ResourceLocation])
     }
   }
 
@@ -217,7 +209,7 @@ class Tablet(props: Properties) extends Item(props) with IForgeItem with traits.
               val computer = Tablet.get(stack, player).machine
               computer.start()
               computer.lastError match {
-                case message if message != null => player.sendMessage(Localization.Analyzer.LastError(message), Util.NIL_UUID)
+                case message if message != null => player.sendSystemMessage(Localization.Analyzer.LastError(message))
                 case _ =>
               }
             }
@@ -328,7 +320,7 @@ class TabletWrapper(var stack: ItemStack, var player: Player) extends ComponentI
 
   // ----------------------------------------------------------------------- //
 
-  override def getDisplayName: TranslatableComponent = getName
+  override def getDisplayName: Component = getName
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
     new container.Tablet(ContainerTypes.TABLET, id, playerInventory, stack, this, containerSlotType, containerSlotTier)
@@ -417,9 +409,10 @@ class TabletWrapper(var stack: ItemStack, var player: Player) extends ComponentI
       case _ => Tier.None
     }
 
-  override def internalComponents(): Iterable[ItemStack] = (0 until getContainerSize).collect {
-    case slot if !getItem(slot).isEmpty && isComponentSlot(slot, getItem(slot)) => getItem(slot)
-  }
+  override def internalComponents(): java.lang.Iterable[ItemStack] =
+    asJavaIterable((0 until getContainerSize).collect {
+      case slot if !getItem(slot).isEmpty && isComponentSlot(slot, getItem(slot)) => getItem(slot)
+    })
 
   override def componentSlot(address: String): Int = components.indexWhere(_.exists(env => env.node != null && env.node.address == address))
 
@@ -518,14 +511,14 @@ object Tablet {
   }
 
   @SubscribeEvent
-  def onLevelSave(e: WorldEvent.Save) {
-    Server.saveAll(e.getWorld.asInstanceOf[Level])
+  def onLevelSave(e: LevelEvent.Save) {
+    Server.saveAll(e.getLevel.asInstanceOf[Level])
   }
 
   @SubscribeEvent
-  def onLevelUnload(e: WorldEvent.Unload) {
-    Client.clear(e.getWorld.asInstanceOf[Level])
-    Server.clear(e.getWorld.asInstanceOf[Level])
+  def onLevelUnload(e: LevelEvent.Unload) {
+    Client.clear(e.getLevel.asInstanceOf[Level])
+    Server.clear(e.getLevel.asInstanceOf[Level])
   }
 
   @SubscribeEvent

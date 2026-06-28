@@ -4,36 +4,43 @@ import java.util
 import li.cil.oc.client.Textures
 import li.cil.oc.common.tileentity
 import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.block.model.{BakedQuad, ItemOverrides}
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.renderer.texture.{TextureAtlas, TextureAtlasSprite}
+import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.util.RandomSource
 import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.inventory.InventoryMenu
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.client.event.TextureStitchEvent
-import net.minecraftforge.client.model.SeparatePerspectiveModel.BakedModel
-import net.minecraftforge.client.model.data.IModelData
+import net.minecraftforge.client.model.data.{ModelData, ModelProperty}
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
-import scala.collection.JavaConverters.bufferAsJavaList
-import scala.collection.mutable
+import java.util.Collections
+import scala.collection.{immutable, mutable}
+import scala.jdk.CollectionConverters._
 
 object NetSplitterModel extends SmartBlockModelBase {
+  final val OPEN_SIDES_PROPERTY: ModelProperty[immutable.Map[Direction, Boolean]] = new ModelProperty[immutable.Map[Direction, Boolean]]()
+
   override def getOverrides: ItemOverrides = ItemOverride
 
-  override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] =
-    data match {
-      case t: tileentity.NetSplitter =>
-        val faces = mutable.ArrayBuffer.empty[BakedQuad]
+  override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData, renderType: RenderType): util.List[BakedQuad] = {
+    if (side != null)
+      return Collections.emptyList()
 
-        faces ++= BaseModel
-        addSideQuads(faces, Direction.values().map(t.isSideOpen))
+    val openSides: immutable.Map[Direction, Boolean] = Option(data.get(OPEN_SIDES_PROPERTY)).getOrElse(Map.empty)
+    val faces = mutable.ArrayBuffer.empty[BakedQuad]
 
-        bufferAsJavaList(faces)
-      case _ => super.getQuads(state, side, rand)
-    }
+    faces ++= BaseModel
+    addSideQuads(faces, Direction.values().map(d => openSides.getOrElse(d, false)))
+
+    faces.asJava
+  }
 
   private def getSprite(location: ResourceLocation, atlas: Option[TextureAtlas]): TextureAtlasSprite = atlas match {
     case Some(atls) => atls.getSprite(location)
@@ -75,7 +82,7 @@ object NetSplitterModel extends SmartBlockModelBase {
 
   @SubscribeEvent
   def onTextureStitch(e: TextureStitchEvent.Post): Unit = {
-    if (e.getAtlas.location.equals(TextureAtlas.LOCATION_BLOCKS)) BaseModel = GenerateBaseModel(e.getAtlas)
+    if (InventoryMenu.BLOCK_ATLAS.equals(e.getAtlas.location)) BaseModel = GenerateBaseModel(e.getAtlas)
   }
 
   protected def addSideQuads(faces: mutable.ArrayBuffer[BakedQuad], openSides: Array[Boolean]): Unit = {
@@ -99,20 +106,23 @@ object NetSplitterModel extends SmartBlockModelBase {
   }
 
   object ItemModel extends SmartBlockModelBase {
-    override def getQuads(state: BlockState, side: Direction, rand: util.Random): util.List[BakedQuad] = {
+    override def getQuads(state: BlockState, side: Direction, rand: RandomSource, data: ModelData, renderType: RenderType): util.List[BakedQuad] = {
+      if (side != null)
+        return Collections.emptyList()
+
       val faces = mutable.ArrayBuffer.empty[BakedQuad]
 
       faces ++= BaseModel
       addSideQuads(faces, Direction.values().map(_ => false))
 
-      bufferAsJavaList(faces)
+      faces.asJava
     }
 
     override def getOverrides: ItemOverrides = ItemOverride
   }
 
   object ItemOverride extends ItemOverrides {
-    override def resolve(originalModel: BakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity, i: Int): BakedModel = ItemModel
+    override def resolve(originalModel: BakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity, seed: Int): BakedModel = ItemModel
   }
 
 }

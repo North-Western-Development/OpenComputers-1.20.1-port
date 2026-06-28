@@ -8,6 +8,7 @@ import li.cil.oc.util.ItemUtils
 import net.minecraft.world.item.{Item, ItemStack}
 import net.minecraft.nbt.{CompoundTag, ListTag, StringTag, Tag}
 import net.minecraft.world.item.enchantment.EnchantmentHelper
+import net.minecraftforge.registries.ForgeRegistries
 
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
@@ -51,7 +52,7 @@ object ConverterItemStack extends api.driver.Converter {
         output += "size" -> Int.box(stack.getCount)
         output += "maxSize" -> Int.box(stack.getMaxStackSize)
         output += "hasTag" -> Boolean.box(stack.hasTag)
-        output += "name" -> stack.getItem.getRegistryName
+        output += "name" -> ForgeRegistries.ITEMS.getRegistryName
         output += "label" -> stack.getDisplayName.getString
 
         // custom mod tags
@@ -75,7 +76,7 @@ object ConverterItemStack extends api.driver.Converter {
         EnchantmentHelper.getEnchantments(stack).collect {
           case (enchantment, level) =>
             val map = mutable.Map[String, Any](
-              "name" -> enchantment.getRegistryName,
+              "name" -> ForgeRegistries.ENCHANTMENTS.getKey(enchantment),
               "label" -> enchantment.getFullname(level),
               "level" -> level
             )

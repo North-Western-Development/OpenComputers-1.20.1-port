@@ -1,30 +1,22 @@
 package li.cil.oc.common
 
-import java.io
-import java.util.Random
-import java.util.concurrent.Callable
-import li.cil.oc.Constants
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, OpenComputers, Settings, api}
 import li.cil.oc.api.fs.FileSystem
 import li.cil.oc.common.init.Items
 import li.cil.oc.util.Color
-import net.minecraft.world.item.DyeColor
-import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.{CompoundTag, Tag}
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.world.item.{DyeColor, ItemStack}
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.storage.LevelResource
-import net.minecraft.world.server.ServerLevel
-import net.minecraft.world.storage.FolderName
-import net.minecraftforge.common.util.Constants.NBT
-import net.minecraftforge.event.world.{LevelEvent, WorldEvent}
+import net.minecraftforge.event.level.LevelEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
+import java.io
+import java.util.Random
+import java.util.concurrent.Callable
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.mutable
 
@@ -102,7 +94,7 @@ object Loot {
   }
 
   @SubscribeEvent
-  def initForLevel(e: WorldEvent.Load): Unit = e.getWorld match {
+  def initForLevel(e: LevelEvent.Load): Unit = e.getLevel match {
     case world: ServerLevel if world.dimension == Level.OVERWORLD => {
       worldDisks.clear()
       disksForSampling.clear()
@@ -155,10 +147,10 @@ object Loot {
     val callable = if (external) new Callable[FileSystem] {
       override def call(): FileSystem = api.FileSystem.asReadOnly(api.FileSystem.fromSaveDirectory("loot/" + path, 0, false))
     } else new Callable[FileSystem] {
-      override def call(): FileSystem = api.FileSystem.fromResource(new ResourceLocation(Settings.resourceDomain, "loot/" + path))
+      override def call(): FileSystem = api.FileSystem.fromResource(ResourceLocation.fromNamespaceAndPath(Settings.resourceDomain, "loot/" + path))
     }
-    val stack = registerLootDisk(path, new ResourceLocation(Settings.resourceDomain, path), color.getOrElse(DyeColor.LIGHT_GRAY), callable, doRecipeCycling = true)
-    stack.setHoverName(new TextComponent(name))
+    val stack = registerLootDisk(path, ResourceLocation.fromNamespaceAndPath(Settings.resourceDomain, path), color.getOrElse(DyeColor.LIGHT_GRAY), callable, doRecipeCycling = true)
+    stack.setHoverName(Component.literal(name))
     if (!external) {
       Items.registerStack(stack, path)
     }

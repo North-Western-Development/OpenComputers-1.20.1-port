@@ -17,6 +17,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.world.effect.MobEffect
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.entity.BeaconBlockEntity
+import net.minecraftforge.registries.ForgeRegistries
 
 object DriverBeacon extends DriverSidedBlockEntity {
   override def getBlockEntityClass: Class[_] = classOf[BeaconBlockEntity]
@@ -45,7 +46,7 @@ object DriverBeacon extends DriverSidedBlockEntity {
     }
 
     private def getEffectName(effect: MobEffect): String = {
-      if (effect != null) effect.getRegistryName.toString else null
+      if (effect != null) ForgeRegistries.MOB_EFFECTS.getKey(effect).toString else null
     }
   }
 

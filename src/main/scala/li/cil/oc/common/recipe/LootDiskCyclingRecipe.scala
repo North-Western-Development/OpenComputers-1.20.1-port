@@ -1,28 +1,22 @@
 package li.cil.oc.common.recipe
 
-import li.cil.oc.Constants
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, Settings, api}
 import li.cil.oc.common.Loot
 import li.cil.oc.integration.util.Wrench
 import li.cil.oc.util.StackOption
 import net.minecraft.core.NonNullList
-import net.minecraft.inventory.CraftingInventory
-import net.minecraft.world.item.ItemStack
-import net.minecraft.item.crafting.Ingredient
-import net.minecraft.item.crafting.ICraftingRecipe
-import net.minecraft.util.NonNullList
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.inventory.CraftingContainer
-import net.minecraft.world.item.crafting.{CraftingRecipe, Ingredient}
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.crafting.{CraftingRecipe, Ingredient, RecipeType}
 import net.minecraft.world.level.Level
 
-import scala.collection.JavaConverters
+import java.util
 import scala.collection.immutable
 
 class LootDiskCyclingRecipe(val getId: ResourceLocation) extends CraftingRecipe {
   val ingredients = NonNullList.create[Ingredient]
-  ingredients.add(Ingredient.of(Loot.disksForCycling.toArray: _*))
+  ingredients.add(Ingredient.of(util.Arrays.stream(Loot.disksForCycling.toArray)))
   ingredients.add(Ingredient.of(api.Items.get(Constants.ItemName.Wrench).createItemStack(1)))
 
   override def matches(crafting: CraftingContainer, world: Level): Boolean = {
@@ -67,5 +61,7 @@ class LootDiskCyclingRecipe(val getId: ResourceLocation) extends CraftingRecipe 
 
   override def getIngredients = ingredients
 
-  override def getSerializer = RecipeSerializers.CRAFTING_LOOTDISK_CYCLING
+  override def getSerializer = RecipeSerializers.CRAFTING_LOOTDISK_CYCLING.get()
+
+  override def getType: RecipeType[_] = RecipeType.CRAFTING
 }

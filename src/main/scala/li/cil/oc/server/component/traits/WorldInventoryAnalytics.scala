@@ -1,20 +1,17 @@
 package li.cil.oc.server.component.traits
 
 import li.cil.oc.Settings
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
 import li.cil.oc.api.prefab.ItemStackArrayValue
 import li.cil.oc.server.component.result
-import li.cil.oc.util.{BlockInventorySource, BlockPosition, DatabaseAccess, EntityInventorySource, InventorySource, InventoryUtils, StackOption}
-import li.cil.oc.util.ExtendedLevel._
 import li.cil.oc.util.ExtendedArguments._
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.item.ItemStack
+import li.cil.oc.util.ExtendedLevel._
+import li.cil.oc.util._
 import net.minecraft.core.Direction
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.Block
 import net.minecraftforge.items.IItemHandler
-
-import scala.collection.convert.ImplicitConversionsToScala._
+import net.minecraftforge.registries.ForgeRegistries
 
 trait LevelInventoryAnalytics extends LevelAware with SideRestricted with NetworkAware {
   @Callback(doc = """function(side:number):number -- Get the number of slots in the inventory on the specified side of the device.""")
@@ -66,9 +63,7 @@ trait LevelInventoryAnalytics extends LevelAware with SideRestricted with Networ
     withInventory(facing, inventory => {
       val stackA = inventory.getStackInSlot(args.checkSlot(inventory, 1))
       val stackB = inventory.getStackInSlot(args.checkSlot(inventory, 2))
-      result(stackA == stackB ||
-        (!stackA.isEmpty && !stackB.isEmpty &&
-          stackA.getItem.getTags.intersect(stackB.getItem.getTags).nonEmpty))
+      result(ForgeRegistries.ITEMS.tags().stream().filter(tag => tag.contains(stackA.getItem) && tag.contains(stackB.getItem)).findAny().isPresent)
     })
   }
 
@@ -104,10 +99,10 @@ trait LevelInventoryAnalytics extends LevelAware with SideRestricted with Networ
     }
     withInventorySource(facing, {
       case BlockInventorySource(position, _, _) => blockAt(position) match {
-        case Some(block) => result(block.getRegistryName)
+        case Some(block) => result(ForgeRegistries.BLOCKS.getKey(block).toString)
         case _ => result((), "Unknown")
       }
-      case EntityInventorySource(entity, _, _) => result(entity.getType.getRegistryName)
+      case EntityInventorySource(entity, _, _) => result(ForgeRegistries.ENTITY_TYPES.getKey(entity.getType).toString)
       case _ => result((), "Unknown")
     })
   }

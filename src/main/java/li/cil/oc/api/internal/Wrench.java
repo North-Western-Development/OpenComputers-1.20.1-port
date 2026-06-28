@@ -12,9 +12,9 @@ public interface Wrench {
      * Called when the wrench is used.
      * <br>
      * This is called in two scenarios, once when testing whether the wrench
-     * can be used on a certain block, in which case the <tt>simulate</tt>
-     * argument will be <tt>true</tt>, and once when actually used on a block,
-     * in which case the <tt>simulate</tt> argument will be <tt>false</tt>,
+     * can be used on a certain block, in which case the {@code simulate}
+     * argument will be {@code true}, and once when actually used on a block,
+     * in which case the {@code simulate} argument will be {@code false},
      * allowing the tool to damage itself, for example.
      * <br>
      * This is usually called from blocks' activation logic.

@@ -24,7 +24,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.core.{BlockPos, Direction}
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.network.chat.Component
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraftforge.api.distmarker.Dist
@@ -207,7 +207,7 @@ class Assembler(selfType: BlockEntityType[_ <: Assembler], pos: BlockPos, state:
 
   // ----------------------------------------------------------------------- //
 
-  override def getDisplayName = TextComponent.EMPTY
+  override def getDisplayName = Component.empty()
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
     new container.Assembler(ContainerTypes.ASSEMBLER, id, playerInventory, this)

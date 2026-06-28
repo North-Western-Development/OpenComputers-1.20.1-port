@@ -15,7 +15,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.{Item, ItemStack, TooltipFlag}
 import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
-import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.network.chat.Component
 import net.minecraft.world.item.context.UseOnContext
 import net.minecraft.world.{InteractionHand, InteractionResult, InteractionResultHolder}
 import net.minecraft.world.level.Level
@@ -85,13 +85,13 @@ trait SimpleItem extends Item with api.driver.item.UpgradeRenderer {
   override def appendHoverText(stack: ItemStack, world: Level, tooltip: util.List[Component], flag: TooltipFlag) {
     if (tooltipName.isDefined) {
       for (curr <- Tooltip.get(tooltipName.get, tooltipData: _*)) {
-        tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+        tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
       }
       tooltipExtended(stack, tooltip)
     }
     else {
       for (curr <- Tooltip.get(getClass.getSimpleName.toLowerCase)) {
-        tooltip.add(new TextComponent(curr).setStyle(Tooltip.DefaultStyle))
+        tooltip.add(Component.literal(curr).setStyle(Tooltip.DefaultStyle))
       }
     }
     tooltipCosts(stack, tooltip)
@@ -104,7 +104,7 @@ trait SimpleItem extends Item with api.driver.item.UpgradeRenderer {
     if (stack.hasTag && stack.getTag.contains(Settings.namespace + "data")) {
       val data = stack.getTag.getCompound(Settings.namespace + "data")
       if (data.contains("node") && data.getCompound("node").contains("address")) {
-        tooltip.add(new TextComponent("§8" + data.getCompound("node").getString("address").substring(0, 13) + "...§7"))
+        tooltip.add(Component.literal("§8" + data.getCompound("node").getString("address").substring(0, 13) + "...§7"))
       }
     }
   }

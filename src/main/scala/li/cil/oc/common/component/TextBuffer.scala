@@ -31,13 +31,14 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.PackedColor
 import li.cil.oc.util.SideTracker
 import net.minecraft.client.Minecraft
+import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.world.entity.player.Player
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.InteractionHand
-import net.minecraftforge.event.world.{ChunkEvent, WorldEvent}
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraftforge.event.level.{ChunkEvent, LevelEvent}
 
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -361,7 +362,7 @@ class TextBuffer(val host: EnvironmentHost) extends AbstractManagedEnvironment w
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def renderText(stack: PoseStack): Boolean = relativeLitArea != 0 && proxy.render(stack)
+  override def renderText(stack: PoseStack, buffer: MultiBufferSource): Boolean = relativeLitArea != 0 && proxy.render(stack, buffer)
 
   @OnlyIn(Dist.CLIENT)
   override def renderWidth: Int = TextBufferRenderCache.renderer.charRenderWidth * getViewportWidth
@@ -508,7 +509,7 @@ object TextBuffer {
     clientBuffers = clientBuffers.filter(t => {
       val blockPos = BlockPosition(t.host)
       val chunkPos = chunk.getPos
-      val keep = t.host.world != e.getWorld || ((blockPos.x >> 4) != chunkPos.x || (blockPos.z >> 4) != chunkPos.z)
+      val keep = t.host.world != e.getLevel || ((blockPos.x >> 4) != chunkPos.x || (blockPos.z >> 4) != chunkPos.z)
       if (!keep) {
         ClientComponentTracker.remove(t.host.world, t)
       }
@@ -517,9 +518,9 @@ object TextBuffer {
   }
 
   @SubscribeEvent
-  def onLevelUnload(e: WorldEvent.Unload) {
+  def onLevelUnload(e: LevelEvent.Unload) {
     clientBuffers = clientBuffers.filter(t => {
-      val keep = t.host.world != e.getWorld
+      val keep = t.host.world != e.getLevel
       if (!keep) {
         ClientComponentTracker.remove(t.host.world, t)
       }
@@ -545,7 +546,7 @@ object TextBuffer {
     }
 
     @OnlyIn(Dist.CLIENT)
-    def render(stack: PoseStack) = false
+    def render(stack: PoseStack, buffer: MultiBufferSource) = false
 
     def onBufferColorChange(): Unit
 
@@ -631,9 +632,9 @@ object TextBuffer {
     }
 
     @OnlyIn(Dist.CLIENT)
-    override def render(stack: PoseStack) = {
+    override def render(stack: PoseStack, buffer: MultiBufferSource) = {
       val wasDirty = dirty
-      TextBufferRenderCache.render(stack, renderer)
+      TextBufferRenderCache.render(stack, renderer, buffer)
       wasDirty
     }
 

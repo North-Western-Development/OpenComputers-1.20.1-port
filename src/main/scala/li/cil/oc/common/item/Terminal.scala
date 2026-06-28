@@ -1,45 +1,35 @@
 package li.cil.oc.common.item
 
-import java.util
-
 import com.google.common.base.Strings
-import li.cil.oc.Constants
-import li.cil.oc.Localization
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, Localization, OpenComputers, Settings, api}
 import li.cil.oc.client.gui
 import li.cil.oc.common.component
 import li.cil.oc.common.tileentity.traits.BlockEntity
-import li.cil.oc.util.Tooltip
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.model.ModelBakery
-import net.minecraft.client.renderer.model.ModelResourceLocation
-import net.minecraft.client.util.ITooltipFlag
+import net.minecraft.client.resources.model.ModelResourceLocation
+import net.minecraft.network.chat.Component
+import net.minecraft.world.{InteractionHand, InteractionResultHolder}
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.Item
 import net.minecraft.world.item.Item.Properties
-import net.minecraft.world.item.ItemStack
-import net.minecraft.util.ActionResult
-import net.minecraft.util.Hand
-import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.world.item.{Item, ItemStack, TooltipFlag}
 import net.minecraft.world.level.Level
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
-import net.minecraftforge.client.model.ModelLoader
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
+import net.minecraftforge.client.event.ModelEvent
 import net.minecraftforge.common.extensions.IForgeItem
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.common.Mod
+
+import java.util
 
 class Terminal(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem with CustomModel {
   def hasServer(stack: ItemStack) = stack.hasTag && stack.getTag.contains(Settings.namespace + "server")
 
   @OnlyIn(Dist.CLIENT)
-  override def appendHoverText(stack: ItemStack, world: Level, tooltip: util.List[ITextComponent], flag: ITooltipFlag) {
+  override def appendHoverText(stack: ItemStack, world: Level, tooltip: util.List[Component], flag: TooltipFlag) {
     super.appendHoverText(stack, world, tooltip, flag)
     if (hasServer(stack)) {
       val server = stack.getTag.getString(Settings.namespace + "server")
-      tooltip.add(new StringTextComponent("§8" + server.substring(0, 13) + "...§7"))
+      tooltip.add(Component.literal("§8" + server.substring(0, 13) + "...§7"))
     }
   }
 
@@ -53,14 +43,7 @@ class Terminal(props: Properties) extends Item(props) with IForgeItem with trait
     modelLocationFromState(hasServer(stack))
   }
 
-  @OnlyIn(Dist.CLIENT)
-  override def registerModelLocations(): Unit = {
-    for (state <- Seq(true, false)) {
-      ModelLoader.addSpecialModel(modelLocationFromState(state))
-    }
-  }
-
-  override def use(stack: ItemStack, world: Level, player: Player): ActionResult[ItemStack] = {
+  override def use(stack: ItemStack, world: Level, player: Player): InteractionResultHolder[ItemStack] = {
     if (!player.isCrouching && stack.hasTag) {
       val key = stack.getTag.getString(Settings.namespace + "key")
       val server = stack.getTag.getString(Settings.namespace + "server")
@@ -87,7 +70,7 @@ class Terminal(props: Properties) extends Item(props) with IForgeItem with trait
             }
           }
         }
-        player.swing(Hand.MAIN_HAND)
+        player.swing(InteractionHand.MAIN_HAND)
       }
     }
     super.use(stack, world, player)
@@ -102,5 +85,19 @@ class Terminal(props: Properties) extends Item(props) with IForgeItem with trait
       if (!inRange()) Minecraft.getInstance.popGuiLayer
       true
     }))
+  }
+}
+
+@Mod.EventBusSubscriber(
+  modid = OpenComputers.ID,
+  value = Array(Dist.CLIENT),
+  bus = Mod.EventBusSubscriber.Bus.MOD
+)
+object Terminal {
+  @SubscribeEvent
+  def registerAdditionalModels(event: ModelEvent.RegisterAdditional): Unit = {
+    for (state <- Seq(true, false)) {
+      event.register(new ModelResourceLocation(Settings.resourceDomain + ":" + Constants.ItemName.Terminal + (if (state) "_on" else "_off"), "inventory"))
+    }
   }
 }

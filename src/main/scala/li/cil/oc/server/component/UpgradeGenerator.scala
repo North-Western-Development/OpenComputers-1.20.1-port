@@ -18,10 +18,10 @@ import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.StackOption
 import li.cil.oc.util.StackOption._
-import net.minecraft.entity.item.ItemEntity
+import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.util.text.ITextComponent
+import net.minecraft.network.chat.Component
 import net.minecraftforge.common.ForgeHooks
 
 import scala.collection.convert.ImplicitConversionsToJava._
@@ -56,7 +56,9 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
     if (ForgeHooks.getBurnTime(stack, null) <= 0) {
       return result((), "selected slot does not contain fuel")
     }
-    val container: ItemStack = stack.getContainerItem()
+    val container: ItemStack =
+      if (stack.hasCraftingRemainingItem) stack.getCraftingRemainingItem
+      else ItemStack.EMPTY
     val inQueue: ItemStack = inventory match {
       case SomeStack(q) if q != null && q.getCount > 0 =>
         if (!q.sameItem(stack) || !ItemStack.tagMatches(q, stack)) {
@@ -122,15 +124,21 @@ class UpgradeGenerator(val host: EnvironmentHost with internal.Agent) extends Ab
       return result(false, "queue is empty")
     }
     val previousSelectedItem: ItemStack = host.mainInventory.getItem(host.selectedSlot).copy
-    val emptyContainer: ItemStack = inQueue.getContainerItem match {
-      case requiredContainer if !requiredContainer.isEmpty && requiredContainer.getCount > 0 => previousSelectedItem match {
-        case slotItem: ItemStack if !slotItem.isEmpty &&
-          slotItem.getItem == requiredContainer.getItem &&
-          ItemStack.tagMatches(slotItem, requiredContainer) => slotItem.copy
-        case _ => return result(false, "removing this fuel requires the appropriate container in the selected slot")
+
+    val requiredContainer: ItemStack =
+      if (inQueue.hasCraftingRemainingItem) inQueue.getCraftingRemainingItem
+      else ItemStack.EMPTY
+
+    val emptyContainer: ItemStack =
+      if (!requiredContainer.isEmpty && requiredContainer.getCount > 0) {
+        previousSelectedItem match {
+          case slotItem: ItemStack if !slotItem.isEmpty &&
+            slotItem.getItem == requiredContainer.getItem &&
+            ItemStack.tagMatches(slotItem, requiredContainer) => slotItem.copy
+          case _ => return result(false, "removing this fuel requires the appropriate container in the selected slot")
+        }
       }
-      case _ => ItemStack.EMPTY // nothing to do, nothing required
-    }
+      else ItemStack.EMPTY
 
     val removeLimit: Int = math.min(inQueue.getCount, if (emptyContainer.isEmpty) count else emptyContainer.getCount)
 

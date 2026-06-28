@@ -10,7 +10,7 @@ import net.minecraft.world.level.ChunkPos
 import net.minecraftforge.common.world.ForgeChunkManager
 import net.minecraftforge.common.world.ForgeChunkManager.LoadingValidationCallback
 import net.minecraftforge.common.world.ForgeChunkManager.TicketHelper
-import net.minecraftforge.event.world.WorldEvent
+import net.minecraftforge.event.level.LevelEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -64,7 +64,7 @@ object ChunkloaderUpgradeHandler extends LoadingValidationCallback {
   }
 
   @SubscribeEvent
-  def onLevelSave(e: WorldEvent.Save) = e.getWorld match {
+  def onLevelSave(e: LevelEvent.Save) = e.getLevel match {
     case world: ServerLevel => {
       // Any tickets that were not reassigned by the time the world gets saved
       // again can be considered orphaned, so we release them.

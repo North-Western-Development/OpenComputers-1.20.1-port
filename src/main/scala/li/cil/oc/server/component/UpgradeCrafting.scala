@@ -1,27 +1,19 @@
 package li.cil.oc.server.component
 
-import java.util
-
 import li.cil.oc.Constants
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
-import li.cil.oc.api.Network
 import li.cil.oc.api.driver.DeviceInfo
-import li.cil.oc.api.network.EnvironmentHost
-import li.cil.oc.api.internal
-import li.cil.oc.api.machine.Arguments
-import li.cil.oc.api.machine.Callback
-import li.cil.oc.api.machine.Context
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
+import li.cil.oc.api.{Network, internal}
+import li.cil.oc.api.machine.{Arguments, Callback, Context}
 import li.cil.oc.api.network._
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
-import li.cil.oc.util.InventoryUtils
-import net.minecraft.world.item.crafting.RecipeType
 import net.minecraft.world.entity.player.Player
-import net.minecraft.inventory
-import net.minecraft.inventory.{CraftResultInventory, Container}
-import net.minecraft.inventory.container.Container
-import net.minecraft.inventory.container.CraftingResultSlot
+import net.minecraft.world.inventory.{AbstractContainerMenu, ResultContainer, ResultSlot}
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.crafting.RecipeType
+import net.minecraft.world.{Container, inventory}
 
+import java.util
 import scala.collection.convert.ImplicitConversionsToJava._
 
 class UpgradeCrafting(val host: EnvironmentHost with internal.Robot) extends AbstractManagedEnvironment with DeviceInfo {
@@ -44,24 +36,26 @@ class UpgradeCrafting(val host: EnvironmentHost with internal.Robot) extends Abs
     result(CraftingInventory.craft(count): _*)
   }
 
-  private object CraftingInventory extends inventory.CraftingInventory(new Container(null, 0) {
+  private object CraftingInventory extends inventory.CraftingContainer(new AbstractContainerMenu(null, 0) {
     override def stillValid(player: Player) = true
+
+    override def quickMoveStack(player: Player, i: Int): ItemStack = ItemStack.EMPTY
   }, 3, 3) {
     def craft(wantedCount: Int): Seq[_] = {
       val player = host.player
       copyItemsFromHost(player.inventory)
       var countCrafted = 0
       val manager = host.world.getRecipeManager
-      val initialCraft = manager.getRecipeFor(RecipeType.CRAFTING, CraftingInventory: inventory.CraftingInventory, host.world)
+      val initialCraft = manager.getRecipeFor(RecipeType.CRAFTING, CraftingInventory: inventory.CraftingContainer, host.world)
       if (initialCraft.isPresent) {
         def tryCraft() : Boolean = {
-          val craft = manager.getRecipeFor(RecipeType.CRAFTING, CraftingInventory: inventory.CraftingInventory, host.world)
+          val craft = manager.getRecipeFor(RecipeType.CRAFTING, CraftingInventory: inventory.CraftingContainer, host.world)
           if (craft != initialCraft) {
             return false
           }
 
-          val craftResult = new CraftResultInventory
-          val craftingSlot = new CraftingResultSlot(player, CraftingInventory, craftResult, 0, 0, 0)
+          val craftResult = new ResultContainer
+          val craftingSlot = new ResultSlot(player, CraftingInventory, craftResult, 0, 0, 0)
           val craftedResult = craft.get.assemble(this)
           craftResult.setItem(0, craftedResult)
           if (!craftingSlot.hasItem)
@@ -69,11 +63,8 @@ class UpgradeCrafting(val host: EnvironmentHost with internal.Robot) extends Abs
 
           val stack = craftingSlot.remove(1)
           countCrafted += stack.getCount max 1
-          val taken = craftingSlot.onTake(player, stack)
           copyItemsToHost(player.inventory)
-          if (taken.getCount > 0) {
-            InventoryUtils.addToPlayerInventory(taken, player)
-          }
+          craftingSlot.onTake(player, stack)
           copyItemsFromHost(player.inventory)
           true
         }

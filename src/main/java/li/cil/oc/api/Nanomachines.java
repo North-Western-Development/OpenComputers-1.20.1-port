@@ -42,7 +42,7 @@ public class Nanomachines {
      * Check whether a player has a nanomachine controller installed.
      *
      * @param player the player to check for.
-     * @return <tt>true</tt> if the player has a controller, <tt>false</tt> otherwise.
+     * @return {@code true} if the player has a controller, {@code false} otherwise.
      */
     public static boolean hasController(Player player) {
         if (API.nanomachines != null)
@@ -55,7 +55,7 @@ public class Nanomachines {
      * <br>
      * If the player has a controller installed, this will initialize the
      * controller if it has not already been loaded. If the player has no
-     * controller, this will return <tt>null</tt>.
+     * controller, this will return {@code null}.
      *
      * @param player the player to get the controller for.
      * @return the controller for the specified player.

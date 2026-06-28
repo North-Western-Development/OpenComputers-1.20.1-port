@@ -1,46 +1,40 @@
 package li.cil.oc.common.block
 
-import java.util
-
 import li.cil.oc.client.KeyBindings
-import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.block.property.PropertyRotatable
+import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.item.data.RaidData
 import li.cil.oc.common.tileentity
 import li.cil.oc.server.loot.LootFunctions
 import li.cil.oc.util.Tooltip
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.client.util.ITooltipFlag
-import net.minecraft.entity.LivingEntity
-import net.minecraft.world.entity.player.Player
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.item.ItemStack
-import net.minecraft.state.StateContainer
-import net.minecraft.loot.LootContext
-import net.minecraft.loot.LootParameters
-import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.level.BlockGetter
-import net.minecraft.world.level.Level
+import net.minecraft.network.chat.Component
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.{ItemStack, TooltipFlag}
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
+import net.minecraft.world.level.storage.loot.LootContext
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams
+import net.minecraft.world.level.{BlockGetter, Level}
 import net.minecraftforge.common.extensions.IForgeBlock
 
-import scala.reflect.ClassTag
+import java.util
 
 class Raid(props: Properties) extends SimpleBlock(props) with IForgeBlock with traits.GUI {
 
-  protected override def createBlockStateDefinition(builder: StateContainer.Builder[Block, BlockState]) =
+  protected override def createBlockStateDefinition(builder: StateDefinition.Builder[Block, BlockState]) =
     builder.add(PropertyRotatable.Facing)
 
-  override protected def tooltipTail(stack: ItemStack, world: BlockGetter, tooltip: util.List[ITextComponent], advanced: ITooltipFlag) {
+  override protected def tooltipTail(stack: ItemStack, world: BlockGetter, tooltip: util.List[Component], advanced: TooltipFlag) {
     super.tooltipTail(stack, world, tooltip, advanced)
     if (KeyBindings.showExtendedTooltips) {
       val data = new RaidData(stack)
       for (disk <- data.disks if !disk.isEmpty) {
-        tooltip.add(new StringTextComponent("- " + disk.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
+        tooltip.add(Component.literal("- " + disk.getHoverName.getString).setStyle(Tooltip.DefaultStyle))
       }
     }
   }
@@ -52,7 +46,15 @@ class Raid(props: Properties) extends SimpleBlock(props) with IForgeBlock with t
     case _ =>
   }
 
-  override def newBlockEntity(world: BlockGetter) = new tileentity.Raid(tileentity.BlockEntityTypes.RAID)
+  override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Raid(tileentity.BlockEntityTypes.RAID.get(), pos, state)
+
+  override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
+    (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
+      entity match {
+        case tileEntity: tileentity.Raid => tileEntity.updateEntity()
+        case _ =>
+      }
+  }
 
   // ----------------------------------------------------------------------- //
 
@@ -84,7 +86,7 @@ class Raid(props: Properties) extends SimpleBlock(props) with IForgeBlock with t
 
   override def getDrops(state: BlockState, ctx: LootContext.Builder): util.List[ItemStack] = {
     val newCtx = ctx.withDynamicDrop(LootFunctions.DYN_ITEM_DATA, (c, f) => {
-      c.getParamOrNull(LootParameters.BLOCK_ENTITY) match {
+      c.getParamOrNull(LootContextParams.BLOCK_ENTITY) match {
         case tileEntity: tileentity.Raid => {
           val stack = createItemStack()
           if (tileEntity.items.exists(!_.isEmpty)) {
@@ -102,7 +104,7 @@ class Raid(props: Properties) extends SimpleBlock(props) with IForgeBlock with t
     super.getDrops(state, newCtx)
   }
 
-  override def playerWillDestroy(world: Level, pos: BlockPos, state: BlockState, player: Player) {
+  override def playerDestroy(world: Level, player: Player, pos: BlockPos, state: BlockState, blockEntity : BlockEntity, tool : ItemStack) {
     if (!world.isClientSide && player.isCreative) {
       world.getBlockEntity(pos) match {
         case tileEntity: tileentity.Raid if tileEntity.items.exists(!_.isEmpty) =>
@@ -110,6 +112,6 @@ class Raid(props: Properties) extends SimpleBlock(props) with IForgeBlock with t
         case _ =>
       }
     }
-    super.playerWillDestroy(world, pos, state, player)
+    super.playerDestroy(world, player, pos, state, blockEntity, tool)
   }
 }

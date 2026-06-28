@@ -1,7 +1,7 @@
 package li.cil.oc.client.renderer.font
 
 import com.google.common.base.Charsets
-import com.mojang.blaze3d.vertex.IVertexBuilder
+import com.mojang.blaze3d.vertex.VertexConsumer
 import li.cil.oc.OpenComputers
 import li.cil.oc.Settings
 import li.cil.oc.client.Textures
@@ -19,9 +19,9 @@ import scala.io.Source
  * Font renderer using a user specified texture file, meaning the list of
  * supported characters is fixed. But at least this one works.
  */
-class StaticFontRenderer extends TextureFontRenderer {
+class StaticFont extends TextureFont {
   protected val (chars, charWidth, charHeight) = try {
-    val lines = Source.fromInputStream(Minecraft.getInstance.getResourceManager.getResource(new ResourceLocation(Settings.resourceDomain, "textures/font/chars.txt")).getInputStream)(Charsets.UTF_8).getLines()
+    val lines = Source.fromInputStream(Minecraft.getInstance.getResourceManager.getResource(ResourceLocation.fromNamespaceAndPath(Settings.resourceDomain, "textures/font/chars.txt")).get().open())(Charsets.UTF_8).getLines()
     val chars = lines.next()
     val (w, h) = if (lines.hasNext) {
       val size = lines.next().split(" ", 2)
@@ -97,7 +97,7 @@ class StaticFontRenderer extends TextureFontRenderer {
     GL11.glVertex3f(vec.x, vec.y, vec.z)
   }
 
-  protected def drawChar(builder: IVertexBuilder, matrix: Matrix4f, color: Int, tx: Float, ty: Float, char: Int) {
+  protected def drawChar(builder: VertexConsumer, matrix: Matrix4f, color: Int, tx: Float, ty: Float, char: Int) {
     val index = 1 + (chars.indexOf(char) match {
       case -1 => chars.indexOf('?')
       case i => i

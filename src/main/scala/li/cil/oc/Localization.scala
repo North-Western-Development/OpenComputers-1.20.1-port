@@ -1,7 +1,7 @@
 package li.cil.oc
 
 import net.minecraft.locale.Language
-import net.minecraft.network.chat.{ClickEvent, Component, HoverEvent, MutableComponent, TextComponent, TranslatableComponent}
+import net.minecraft.network.chat.{ClickEvent, Component, HoverEvent, MutableComponent}
 
 import scala.util.matching.Regex
 
@@ -13,9 +13,9 @@ object Localization {
 
   def canLocalize(key: String): Boolean = Language.getInstance().has(key)
 
-  def localizeLater(key: String): MutableComponent = new TranslatableComponent(resolveKey(key).getOrElse(key))
+  def localizeLater(key: String): MutableComponent = Component.translatable(resolveKey(key).getOrElse(key))
 
-  def localizeLater(key: String, values: AnyRef*): MutableComponent = new TranslatableComponent(resolveKey(key).getOrElse(key), values: _*)
+  def localizeLater(key: String, values: AnyRef*): MutableComponent = Component.translatable(resolveKey(key).getOrElse(key), values: _*)
 
   def localizeImmediately(key: String, values: AnyRef*): String = {
     resolveKey(key).map(k => String.format(Language.getInstance().getOrDefault(k), values: _*).linesIterator.map(_.trim).mkString("\n")).getOrElse(key)
@@ -69,7 +69,7 @@ object Localization {
 
     def Complexity(complexity: Int, maxComplexity: Int): MutableComponent = {
       val message = localizeLater("gui.Assembler.Complexity", complexity.toString, maxComplexity.toString)
-      if (complexity > maxComplexity) new TextComponent("§4").append(message)
+      if (complexity > maxComplexity) Component.literal("§4").append(message)
       else message
     }
 
@@ -77,25 +77,25 @@ object Localization {
 
     def Progress(progress: Double, timeRemaining: String): String = localizeImmediately("gui.Assembler.Progress", progress.toInt.toString, timeRemaining)
 
-    def Warning(name: String): MutableComponent = new TextComponent("§7- ").append(localizeLater("gui.Assembler.Warning." + name))
+    def Warning(name: String): MutableComponent = Component.literal("§7- ").append(localizeLater("gui.Assembler.Warning." + name))
 
     def Warnings: MutableComponent = localizeLater("gui.Assembler.Warnings")
   }
 
   object Chat {
-    def WarningLuaFallback: MutableComponent = new TextComponent("§aOpenComputers§f: ").append(localizeLater("gui.Chat.WarningLuaFallback"))
+    def WarningLuaFallback: MutableComponent = Component.literal("§aOpenComputers§f: ").append(localizeLater("gui.Chat.WarningLuaFallback"))
 
-    def WarningProjectRed: MutableComponent = new TextComponent("§aOpenComputers§f: ").append(localizeLater("gui.Chat.WarningProjectRed"))
+    def WarningProjectRed: MutableComponent = Component.literal("§aOpenComputers§f: ").append(localizeLater("gui.Chat.WarningProjectRed"))
 
-    def WarningRecipes: MutableComponent = new TextComponent("§aOpenComputers§f: ").append(localizeLater("gui.Chat.WarningRecipes"))
+    def WarningRecipes: MutableComponent = Component.literal("§aOpenComputers§f: ").append(localizeLater("gui.Chat.WarningRecipes"))
 
-    def WarningClassTransformer: MutableComponent = new TextComponent("§aOpenComputers§f: ").append(localizeLater("gui.Chat.WarningClassTransformer"))
+    def WarningClassTransformer: MutableComponent = Component.literal("§aOpenComputers§f: ").append(localizeLater("gui.Chat.WarningClassTransformer"))
 
-    def WarningLink(url: String): MutableComponent = new TextComponent("§aOpenComputers§f: ").append(localizeLater("gui.Chat.WarningLink", url))
+    def WarningLink(url: String): MutableComponent = Component.literal("§aOpenComputers§f: ").append(localizeLater("gui.Chat.WarningLink", url))
 
-    def InfoNewVersion(version: String): MutableComponent = new TextComponent("§aOpenComputers§f: ").append(localizeLater("gui.Chat.NewVersion", version))
+    def InfoNewVersion(version: String): MutableComponent = Component.literal("§aOpenComputers§f: ").append(localizeLater("gui.Chat.NewVersion", version))
 
-    def TextureName(name: String): MutableComponent = new TextComponent("§aOpenComputers§f: ").append(localizeLater("gui.Chat.TextureName", name))
+    def TextureName(name: String): MutableComponent = Component.literal("§aOpenComputers§f: ").append(localizeLater("gui.Chat.TextureName", name))
   }
 
   object Computer {

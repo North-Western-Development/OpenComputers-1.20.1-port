@@ -7,13 +7,14 @@ import li.cil.oc.client.Textures
 import li.cil.oc.client.{PacketSender => ClientPacketSender}
 import li.cil.oc.common.container
 import net.minecraft.client.gui.components.Button
-import net.minecraft.network.chat.TextComponent
+import net.minecraft.client.renderer.GameRenderer
+import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Inventory
 
 import scala.collection.JavaConverters.asJavaCollection
 import scala.collection.convert.ImplicitConversionsToJava._
 
-class Case(state: container.Case, playerInventory: Inventory, name: TextComponent)
+class Case(state: container.Case, playerInventory: Inventory, name: Component)
   extends DynamicGuiContainer(state, playerInventory, name) {
 
   protected var powerButton: ImageButton = _
@@ -39,6 +40,7 @@ class Case(state: container.Case, playerInventory: Inventory, name: TextComponen
   }
 
   override def drawSecondaryBackgroundLayer(stack: PoseStack) {
+    RenderSystem.setShader(GameRenderer.getPositionTexColorShader _)
     RenderSystem.setShaderColor(1, 1, 1, 1)
     Textures.bind(Textures.GUI.Computer)
     blit(stack, leftPos, topPos, 0, 0, imageWidth, imageHeight)
