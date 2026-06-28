@@ -7,13 +7,13 @@ import net.minecraft.world.item.Items
 import net.minecraft.world.item.ItemStack
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.inventory.CraftingContainer
-import net.minecraft.world.item.crafting.{Recipe, RecipeType}
+import net.minecraft.world.item.crafting.{CraftingRecipe, RecipeType}
 import net.minecraft.world.level.Level
 
 /**
   * @author Vexatos
   */
-class DecolorizeRecipe(id: ResourceLocation, target: Item) extends Recipe[CraftingContainer] {
+class DecolorizeRecipe(id: ResourceLocation, target: Item) extends CraftingRecipe {
   val targetItem: Item = target.asItem()
 
   override def matches(crafting: CraftingContainer, world: Level): Boolean = {

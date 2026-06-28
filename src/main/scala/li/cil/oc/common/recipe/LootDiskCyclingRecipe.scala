@@ -8,7 +8,7 @@ import net.minecraft.core.NonNullList
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.inventory.CraftingContainer
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.crafting.{CraftingRecipe, Ingredient}
+import net.minecraft.world.item.crafting.{CraftingRecipe, Ingredient, RecipeType}
 import net.minecraft.world.level.Level
 
 import java.util
@@ -62,4 +62,6 @@ class LootDiskCyclingRecipe(val getId: ResourceLocation) extends CraftingRecipe 
   override def getIngredients = ingredients
 
   override def getSerializer = RecipeSerializers.CRAFTING_LOOTDISK_CYCLING.get()
+
+  override def getType: RecipeType[_] = RecipeType.CRAFTING
 }
