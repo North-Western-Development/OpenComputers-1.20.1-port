@@ -192,9 +192,9 @@ public final class Network {
      * availability of the created node to other nodes in the network. Special
      * rules apply to components, which have a <em>visibility</em> that is used
      * to control how they can be reached from computers. For example, network
-     * cards have a <em>reachability</em> of <tt>Visibility.Network</tt>, to
+     * cards have a <em>reachability</em> of {@code Visibility.Network}, to
      * allow them to communicate with each other, but a <em>visibility</em> of
-     * <tt>Visibility.Neighbors</tt> to avoid other computers in the network
+     * {@code Visibility.Neighbors} to avoid other computers in the network
      * to see the card (i.e. only the user programs running on the computer the
      * card installed in can see interact with it).
      *
@@ -214,10 +214,10 @@ public final class Network {
      * <br>
      * These packets can be forwarded by switches and access points. For wired
      * transmission they must be sent over a node's send method, with the
-     * message name being <tt>network.message</tt>.
+     * message name being {@code network.message}.
      *
      * @param source      the address of the sending node.
-     * @param destination the address of the destination, or <tt>null</tt>
+     * @param destination the address of the destination, or {@code null}
      *                    for a broadcast.
      * @param port        the port to send the packet to.
      * @param data        the payload of the packet.

@@ -6,7 +6,7 @@ import li.cil.oc.common.EventHandler
 import li.cil.oc.integration.util.BundledRedstone
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.core.Direction
+import net.minecraft.core.{BlockPos, Direction}
 import net.minecraftforge.api.distmarker.Dist
 import net.minecraftforge.api.distmarker.OnlyIn
 
@@ -40,10 +40,10 @@ trait RedstoneAware extends RotationAware {
     val refMap: util.Map[AnyRef, AnyRef] = map.asInstanceOf[util.Map[AnyRef, AnyRef]]
     if (refMap.containsKey(key))
       Option(refMap.get(key))
-    else if (refMap.containsKey(new Integer(key)))
-      Option(refMap.get(new Integer(key)))
-    else if (refMap.containsKey(new Integer(key) * 1.0))
-      Option(refMap.get(new Integer(key) * 1.0))
+    else if (refMap.containsKey(Integer.valueOf(key)))
+      Option(refMap.get(Integer.valueOf(key)))
+    else if (refMap.containsKey(Integer.valueOf(key) * 1.0))
+      Option(refMap.get(Integer.valueOf(key) * 1.0))
     else if (refMap.containsKey(key * 1.0))
       Option(refMap.get(key * 1.0))
     else
@@ -177,7 +177,7 @@ trait RedstoneAware extends RotationAware {
   }
 
   protected def onRedstoneOutputChanged(side: Direction) {
-    val blockPos = getBlockPos.relative(side)
+    val blockPos: BlockPos = getBlockPos.relative(side)
     getLevel.neighborChanged(blockPos, getBlockState.getBlock, blockPos)
     getLevel.updateNeighborsAtExceptFromFacing(blockPos, getLevel.getBlockState(blockPos).getBlock, side.getOpposite)
 

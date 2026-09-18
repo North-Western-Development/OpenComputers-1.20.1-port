@@ -4,16 +4,14 @@ import com.mojang.blaze3d.vertex.PoseStack
 import li.cil.oc.client.Textures
 import li.cil.oc.common.entity.Drone
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.{MultiBufferSource, RenderType}
 import net.minecraft.client.renderer.entity.EntityRenderer
-import net.minecraft.client.renderer.entity.EntityRendererManager
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.util.Mth
 
 class DroneRenderer(manager: Context) extends EntityRenderer[Drone](manager) {
-  private val model = new ModelQuadcopter()
+  private val model = new ModelQuadcopter(ModelQuadcopter.createBodyLayer.bakeRoot())
 
   override def render(entity: Drone, yaw: Float, dt: Float, stack: PoseStack, buffer: MultiBufferSource, light: Int): Unit = {
     val renderType = getRenderType(entity)
@@ -37,7 +35,8 @@ class DroneRenderer(manager: Context) extends EntityRenderer[Drone](manager) {
     val mc = Minecraft.getInstance
     val texture = getTextureLocation(entity)
     if (!entity.isInvisible) model.renderType(texture)
-    else if (!entity.isInvisibleTo(mc.player)) RenderType.itemEntityTranslucentCull(texture)
+    else
+      if (!entity.isInvisibleTo(mc.player)) RenderType.itemEntityTranslucentCull(texture)
     else if (mc.shouldEntityAppearGlowing(entity)) RenderType.outline(texture)
     else null
   }

@@ -1,5 +1,6 @@
 package li.cil.oc.client
 
+import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.OpenComputers
 import li.cil.oc.common.Slot
 import li.cil.oc.common.Tier
@@ -18,10 +19,10 @@ object Textures {
     val Aliased = L("chars_aliased")
     val AntiAliased = L("chars")
 
-    override protected def basePath = "font/%s"
+    override protected def basePath = "textures/font/%s.png"
 
     override protected def loader(e: TextureStitchEvent.Pre, loc: ResourceLocation) =
-      Minecraft.getInstance.textureManager.register(loc, new SimpleTexture(new ResourceLocation(loc.getNamespace, s"textures/${loc.getPath}.png")))
+      Minecraft.getInstance.textureManager.register(loc, new SimpleTexture(loc))
   }
 
   object GUI extends TextureBundle {
@@ -65,10 +66,10 @@ object Textures {
     val UpgradeTab = L("upgrade_tab")
     val Waypoint = L("waypoint")
 
-    override protected def basePath = "gui/%s"
+    override protected def basePath = "textures/gui/%s.png"
 
-    override protected def loader(e: TextureStitchEvent.Pre, loc: ResourceLocation) =
-      Minecraft.getInstance.textureManager.register(loc, new SimpleTexture(new ResourceLocation(loc.getNamespace, s"textures/${loc.getPath}.png")))
+    override protected def loader(e: TextureStitchEvent.Pre, loc: ResourceLocation) = {}
+//      Minecraft.getInstance.textureManager.register(loc, new SimpleTexture(loc))
   }
 
   object Icons extends TextureBundle {
@@ -79,10 +80,10 @@ object Textures {
 
     def get(tier: Int) = ForTier.get(tier).orNull
 
-    override protected def basePath = "icons/%s"
+    override protected def basePath = "textures/icons/%s.png"
 
     override protected def loader(e: TextureStitchEvent.Pre, loc: ResourceLocation) =
-      Minecraft.getInstance.textureManager.register(loc, new SimpleTexture(new ResourceLocation(loc.getNamespace, s"textures/${loc.getPath}.png")))
+      Minecraft.getInstance.textureManager.register(loc, new SimpleTexture(loc))
   }
 
   object Model extends TextureBundle {
@@ -93,10 +94,10 @@ object Textures {
     val Drone = L("drone")
     val Robot = L("robot")
 
-    override protected def basePath = "model/%s"
+    override protected def basePath = "textures/model/%s.png"
 
     override protected def loader(e: TextureStitchEvent.Pre, loc: ResourceLocation) =
-      Minecraft.getInstance.textureManager.register(loc, new SimpleTexture(new ResourceLocation(loc.getNamespace, s"textures/${loc.getPath}.png")))
+      Minecraft.getInstance.textureManager.register(loc, new SimpleTexture(loc))
   }
 
   object Item extends TextureBundle {
@@ -537,9 +538,7 @@ object Textures {
   }
 
   def bind(location: ResourceLocation): Unit = {
-    val texture = if (location != null) Minecraft.getInstance.textureManager.getTexture(location) else null
-    if (texture != null) texture.bind()
-    else RenderState.bindTexture(0)
+    RenderSystem.setShaderTexture(0, location);
   }
 
   def getSprite(location: ResourceLocation): TextureAtlasSprite =

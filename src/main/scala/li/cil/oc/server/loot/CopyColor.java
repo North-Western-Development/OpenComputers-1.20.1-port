@@ -2,36 +2,32 @@ package li.cil.oc.server.loot;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
 import li.cil.oc.api.internal.Colored;
 import li.cil.oc.util.ItemColorizer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.loot.LootContext;
-import net.minecraft.loot.LootFunction;
-import net.minecraft.loot.LootFunctionType;
-import net.minecraft.loot.LootParameters;
-import net.minecraft.loot.functions.ILootFunction;
-import net.minecraft.loot.conditions.ILootCondition;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.Serializer;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import org.jetbrains.annotations.NotNull;
 
-public final class CopyColor extends LootFunction {
-    private CopyColor(ILootCondition[] conditions) {
-        super(conditions);
+public final class CopyColor implements LootItemFunction {
+    private CopyColor() {
+        super();
     }
 
     @Override
-    public LootFunctionType getType() {
-        return LootFunctions.COPY_COLOR;
+    public @NotNull LootItemFunctionType getType() {
+        return LootFunctions.COPY_COLOR_REG.get();
     }
 
-    public static class Builder extends LootFunction.Builder<Builder> {
+    public static class Builder implements LootItemFunction.Builder {
         @Override
-        protected Builder getThis() {
-            return this;
-        }
-
-        @Override
-        public ILootFunction build() {
-            return new CopyColor(getConditions());
+        public @NotNull LootItemFunction build() {
+            return new CopyColor();
         }
     }
 
@@ -40,9 +36,9 @@ public final class CopyColor extends LootFunction {
     }
 
     @Override
-    public ItemStack run(ItemStack stack, LootContext ctx) {
+    public ItemStack apply(ItemStack stack, LootContext ctx) {
         if (stack.isEmpty()) return stack;
-        BlockEntity te = ctx.getParamOrNull(LootParameters.BLOCK_ENTITY);
+        BlockEntity te = ctx.getParamOrNull(LootContextParams.BLOCK_ENTITY);
         if (te != null && te instanceof Colored) {
             // Can't use capability because it's already invalid - block breaks before drops are calculated.
             ItemColorizer.setColor(stack, ((Colored) te).getColor());
@@ -51,10 +47,14 @@ public final class CopyColor extends LootFunction {
         return stack;
     }
 
-    public static class Serializer extends LootFunction.Serializer<CopyColor> {
+    public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<CopyColor> {
         @Override
-        public CopyColor deserialize(JsonObject src, JsonDeserializationContext ctx, ILootCondition[] conditions) {
-            return new CopyColor(conditions);
+        public void serialize(JsonObject jsonObject, CopyColor copyColor, JsonSerializationContext ctx) {
+        }
+
+        @Override
+        public CopyColor deserialize(JsonObject src, JsonDeserializationContext ctx) {
+            return new CopyColor();
         }
     }
 }

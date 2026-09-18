@@ -7,7 +7,6 @@ import java.nio.channels.ReadableByteChannel
 import li.cil.oc.api
 import li.cil.oc.api.fs.Mode
 import net.minecraft.nbt.{CompoundTag, ListTag, Tag}
-import net.minecraftforge.common.util.Constants.NBT
 
 import scala.collection.mutable
 

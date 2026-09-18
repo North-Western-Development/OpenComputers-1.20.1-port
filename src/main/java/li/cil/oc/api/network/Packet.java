@@ -6,7 +6,7 @@ import net.minecraft.nbt.CompoundTag;
  * These packets represent messages sent using a network card or wireless
  * network card, and can be relayed by the switch and access point blocks.
  * <br>
- * These will be sent as the payload of <tt>network.message</tt> messages.
+ * These will be sent as the payload of {@code network.message} messages.
  * <br>
  * <em>Important</em>: do <em>not</em> implement this interface. Use the factory
  * methods in {@link li.cil.oc.api.Network} instead.
@@ -18,7 +18,7 @@ public interface Packet {
     String source();
 
     /**
-     * The address of the destination of the packet. This is <tt>null</tt> for
+     * The address of the destination of the packet. This is {@code null} for
      * broadcast packets.
      */
     String destination();

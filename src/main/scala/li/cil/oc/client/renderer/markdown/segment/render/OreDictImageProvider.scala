@@ -4,11 +4,14 @@ import li.cil.oc.api.manual.ImageProvider
 import li.cil.oc.api.manual.ImageRenderer
 import li.cil.oc.api.manual.InteractiveImageRenderer
 import li.cil.oc.client.Textures
+import net.minecraft.core.{Registry, RegistryAccess}
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.tags._
 import net.minecraft.resources.ResourceLocation
+import net.minecraftforge.registries.ForgeRegistries
+import net.minecraftforge.registries.tags.ITag
 
 import scala.collection.mutable
 import scala.collection.convert.ImplicitConversionsToScala._
@@ -17,13 +20,13 @@ object OreDictImageProvider extends ImageProvider {
   override def getImage(data: String): ImageRenderer = {
     val desired = new ResourceLocation(data.toLowerCase)
     val stacks = mutable.ArrayBuffer.empty[ItemStack]
-    ItemTags.getAllTags.getTag(desired) match {
-      case tag: ITag[Item] => stacks ++= tag.getValues.map(new ItemStack(_))
+    ForgeRegistries.ITEMS.tags().getTag(TagKey.create(Registry.ITEM_REGISTRY,desired)) match {
+      case tag: ITag[Item] => stacks ++= tag.stream().map(new ItemStack(_)).toList
       case _ =>
     }
     if (stacks.isEmpty) {
-      BlockTags.getAllTags.getTag(desired) match {
-        case tag: ITag[Block] => stacks ++= tag.getValues.map(new ItemStack(_))
+      ForgeRegistries.BLOCKS.tags().getTag(TagKey.create(Registry.BLOCK_REGISTRY,desired)) match {
+        case tag: ITag[Block] => stacks ++= tag.stream().map(new ItemStack(_)).toList
         case _ =>
       }
     }

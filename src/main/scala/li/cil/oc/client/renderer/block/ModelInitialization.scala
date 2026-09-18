@@ -8,11 +8,15 @@ import li.cil.oc.api
 import li.cil.oc.common.item.CustomModel
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.resources.model.ModelResourceLocation
+import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.client.renderer.block.BlockModelShaper
+import net.minecraft.client.renderer.block.model.ItemOverrides
+import net.minecraft.client.resources.model.{BakedModel, ModelResourceLocation}
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.LivingEntity
 import net.minecraftforge.client.event.{ModelBakeEvent, ModelRegistryEvent}
 import net.minecraftforge.client.model.data.IDynamicBakedModel
 import net.minecraftforge.client.model.data.IModelData
@@ -70,7 +74,7 @@ object ModelInitialization {
 
   // ----------------------------------------------------------------------- //
 
-  private def registerModel(blockName: String, blockLocation: ResourceLocation, itemLocation: ResourceLocation): Unit = {
+  private def registerModel(blockName: String, blockLocation: ModelResourceLocation, itemLocation: ModelResourceLocation): Unit = {
     val descriptor = api.Items.get(blockName)
     if (itemLocation != null) {
       val stack = descriptor.createItemStack(1)
@@ -82,7 +86,7 @@ object ModelInitialization {
     if (blockLocation != null) {
       val block = descriptor.block()
       block.getStateDefinition.getPossibleStates.foreach {
-        modelRemappings += BlockModelShapes.stateToModelLocation(_) -> blockLocation
+        modelRemappings += BlockModelShaper.stateToModelLocation(_) -> blockLocation
       }
     }
   }
@@ -108,10 +112,10 @@ object ModelInitialization {
         custom.bakeModels(e)
         val originalLocation = new ModelResourceLocation(custom.getRegistryName, "inventory")
         registry.get(originalLocation) match {
-          case original: IBakedModel => {
-            val overrides = new ItemOverrideList {
-              override def resolve(base: IBakedModel, stack: ItemStack, world: ClientLevel, holder: LivingEntity) =
-                Option(custom.getModelLocation(stack)).map(registry).getOrElse(original)
+          case original: BakedModel => {
+            val overrides = new ItemOverrides {
+              override def resolve(base: BakedModel, stack: ItemStack, world: ClientLevel, holder: LivingEntity, seed: Int) =
+                Option(custom.getModelLocation(stack)).map(loc =>registry.getOrElse(loc, original)).getOrElse(original)
             }
             val fake = new IDynamicBakedModel {
               @Deprecated
@@ -142,7 +146,7 @@ object ModelInitialization {
     }
     meshableItems.clear()
 
-    val modelOverrides = Map[String, IBakedModel => IBakedModel](
+    val modelOverrides = Map[String, BakedModel => BakedModel](
       Constants.BlockName.ScreenTier1 -> (_ => ScreenModel),
       Constants.BlockName.ScreenTier2 -> (_ => ScreenModel),
       Constants.BlockName.ScreenTier3 -> (_ => ScreenModel),

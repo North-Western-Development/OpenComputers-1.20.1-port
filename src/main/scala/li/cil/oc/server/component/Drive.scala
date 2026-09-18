@@ -6,7 +6,6 @@ import java.io.ByteArrayOutputStream
 import java.util
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
-
 import com.google.common.io.Files
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
@@ -25,8 +24,8 @@ import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.world.storage.FolderName
-import net.minecraftforge.fml.server.ServerLifecycleHooks
+import net.minecraft.world.level.storage.LevelResource
+import net.minecraftforge.server.ServerLifecycleHooks
 
 import scala.collection.convert.ImplicitConversionsToJava._
 
@@ -36,7 +35,7 @@ class Drive(val capacity: Int, val platterCount: Int, val label: Label, host: Op
     withConnector().
     create()
 
-  private def savePath = ServerLifecycleHooks.getCurrentServer.getLevelPath(new FolderName(Settings.savePath + node.address + ".bin")).toFile
+  private def savePath = ServerLifecycleHooks.getCurrentServer.getWorldPath(new LevelResource(Settings.savePath + node.address + ".bin")).toFile
 
   private final val sectorSize = 512
 

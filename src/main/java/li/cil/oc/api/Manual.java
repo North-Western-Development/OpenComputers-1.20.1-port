@@ -17,7 +17,7 @@ import net.minecraft.world.level.Level;
  * registering custom tabs and content callback handlers.
  * <br>
  * Note: this is a <em>client side only</em> API. It will do nothing on
- * dedicated servers (i.e. <tt>API.manual</tt> will be <tt>null</tt>).
+ * dedicated servers (i.e. {@code API.manual} will be {@code null}).
  */
 public class Manual {
     /**
@@ -29,7 +29,7 @@ public class Manual {
      * usually be one, for your main index page.
      *
      * @param renderer the renderer used to render the icon on your tab.
-     * @param tooltip  the unlocalized tooltip of the tab, or <tt>null</tt>.
+     * @param tooltip  the unlocalized tooltip of the tab, or {@code null}.
      * @param path     the path to the page to open when the tab is clicked.
      */
     public static void addTab(TabIconRenderer renderer, String tooltip, String path) {
@@ -70,11 +70,11 @@ public class Manual {
      * <br>
      * Image providers are used to render custom content in a page. These are
      * selected via the standard image tag of Markdown, based on the prefix of
-     * the image URL, i.e. <tt>![tooltip](prefix:data)</tt> will select the
-     * image provider registered for the prefix <tt>prefix</tt>, and pass to
-     * it the argument <tt>data</tt>, then use the returned renderer to draw
+     * the image URL, i.e. {@code ![tooltip](prefix:data)} will select the
+     * image provider registered for the prefix {@code prefix}, and pass to
+     * it the argument {@code data}, then use the returned renderer to draw
      * an element in the place of the tag. The provided prefix is expected to
-     * be <em>without</em> the colon (<tt>:</tt>).
+     * be <em>without</em> the colon ({@code :}).
      * <br>
      * Custom providers are only selected if a prefix is matched, otherwise
      * it'll treat it as a relative path to an image to load via Minecraft's
@@ -93,7 +93,7 @@ public class Manual {
      * <br>
      * This will look for {@link ImageProvider}s registered for a prefix in the
      * specified path. If there is no match, or the matched content provider
-     * does not provide a renderer, this will return <tt>null</tt>.
+     * does not provide a renderer, this will return {@code null}.
      *
      * @param path the path to the image to get the renderer for.
      * @return the custom renderer for that path.
@@ -110,7 +110,7 @@ public class Manual {
      * Look up the documentation path for the specified item stack.
      *
      * @param stack the stack to find the documentation path for.
-     * @return the path to the page, <tt>null</tt> if none is known.
+     * @return the path to the page, {@code null} if none is known.
      */
     public static String pathFor(ItemStack stack) {
         if (API.manual != null)
@@ -123,7 +123,7 @@ public class Manual {
      *
      * @param world the world containing the block.
      * @param pos   the position of the block.
-     * @return the path to the page, <tt>null</tt> if none is known.
+     * @return the path to the page, {@code null} if none is known.
      */
     public static String pathFor(Level world, BlockPos pos) {
         if (API.manual != null)
@@ -135,7 +135,7 @@ public class Manual {
      * Get the content of the documentation page at the specified location.
      *
      * @param path the path of the page to get the content of.
-     * @return the content of the page, or <tt>null</tt> if none exists.
+     * @return the content of the page, or {@code null} if none exists.
      */
     public static Iterable<String> contentFor(String path) {
         if (API.manual != null)

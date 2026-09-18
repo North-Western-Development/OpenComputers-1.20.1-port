@@ -1,37 +1,29 @@
 package li.cil.oc.common.tileentity
 
-import java.util
-import li.cil.oc.Settings
-import li.cil.oc.api
-import li.cil.oc.api.Driver
+import li.cil.oc.{Settings, api}
 import li.cil.oc.api.component.RackMountable
-import li.cil.oc.api.internal
-import li.cil.oc.api.network.Analyzable
-import li.cil.oc.api.network.Connector
-import li.cil.oc.api.network.EnvironmentHost
-import li.cil.oc.api.network.Message
-import li.cil.oc.api.network.Node
-import li.cil.oc.api.network.Packet
-import li.cil.oc.api.network.Visibility
+import li.cil.oc.api.{Driver, internal}
+import li.cil.oc.api.network._
 import li.cil.oc.api.util.StateAware
-import li.cil.oc.common.Slot
-import li.cil.oc.common.container
+import li.cil.oc.client.renderer.block.ServerRackModel
+import li.cil.oc.common.{Slot, container}
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.tileentity.traits.RedstoneChangedEventArgs
 import li.cil.oc.integration.opencomputers.DriverRedstoneCard
 import li.cil.oc.server.{PacketSender => ServerPacketSender}
 import li.cil.oc.util.ExtendedInventory._
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.world.entity.player.{Inventory, Player}
-import net.minecraft.world.{Container, MenuProvider}
-import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.{CompoundTag, IntArrayTag, Tag}
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.nbt.{CompoundTag, IntArrayTag, Tag}
+import net.minecraft.world.entity.player.{Inventory, Player}
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.api.distmarker.OnlyIn
+import net.minecraft.world.{Container, MenuProvider}
+import net.minecraftforge.api.distmarker.{Dist, OnlyIn}
+import net.minecraftforge.client.model.data.ModelDataMap
+
+import java.util
 
 class Rack(selfType: BlockEntityType[_ <: Rack], pos: BlockPos, state: BlockState) extends BlockEntity(selfType, pos, state) with traits.PowerAcceptor with traits.Hub with traits.PowerBalancer
   with traits.ComponentInventory with traits.Rotatable with traits.BundledRedstoneAware with Analyzable with internal.Rack with traits.StateAware with MenuProvider {
@@ -339,7 +331,7 @@ class Rack(selfType: BlockEntityType[_ <: Rack], pos: BlockPos, state: BlockStat
   }
 
   // ----------------------------------------------------------------------- //
-  // INamedContainerProvider
+  // MenuProvider
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
     new container.Rack(ContainerTypes.RACK, id, playerInventory, this)
@@ -354,6 +346,8 @@ class Rack(selfType: BlockEntityType[_ <: Rack], pos: BlockPos, state: BlockStat
       }
       lastData(slot) = null
       hasChanged(slot) = true
+    } else {
+      this.requestModelDataUpdate()
     }
     super.onItemAdded(slot, stack)
   }
@@ -364,6 +358,8 @@ class Rack(selfType: BlockEntityType[_ <: Rack], pos: BlockPos, state: BlockStat
         nodeMapping(slot)(connectable) = None
       }
       lastData(slot) = null
+    } else {
+      this.requestModelDataUpdate()
     }
     super.onItemRemoved(slot, stack)
   }
@@ -477,5 +473,13 @@ class Rack(selfType: BlockEntityType[_ <: Rack], pos: BlockPos, state: BlockStat
     case Some(mountable: EnvironmentHost with RackMountable with Container) if isWorking(mountable) =>
       mountable.exists(stack => DriverRedstoneCard.worksWith(stack, mountable.getClass))
     case _ => false
+  }
+
+  // ----------------------------------------------------------------------- //
+
+  override def getModelData() = {
+    (new ModelDataMap.Builder)
+      .withInitial(ServerRackModel.RACK_PROPERTY, this)
+      .build;
   }
 }

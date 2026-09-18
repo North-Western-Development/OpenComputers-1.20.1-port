@@ -108,7 +108,7 @@ class DiskDrive(selfType: BlockEntityType[_ <: DiskDrive], pos: BlockPos, state:
   }
 
   // ----------------------------------------------------------------------- //
-  // INamedContainerProvider
+  // MenuProvider
 
   override def createMenu(id: Int, playerInventory: Inventory, player: Player) =
     new container.DiskDrive(ContainerTypes.DISK_DRIVE, id, playerInventory, this)

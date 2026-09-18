@@ -1,11 +1,9 @@
 package li.cil.oc.client.renderer.tileentity
 
-import java.util.function.Function
-import com.mojang.blaze3d.vertex.{IVertexBuilder, PoseStack, VertexConsumer}
 import com.mojang.blaze3d.systems.RenderSystem
-import li.cil.oc.Constants
-import li.cil.oc.Settings
-import li.cil.oc.api
+import com.mojang.blaze3d.vertex.{PoseStack, VertexConsumer}
+import com.mojang.math.Vector3f
+import li.cil.oc.{Settings, api}
 import li.cil.oc.api.detail.ItemInfo
 import li.cil.oc.client.Textures
 import li.cil.oc.client.renderer.RenderTypes
@@ -14,11 +12,12 @@ import li.cil.oc.integration.util.Wrench
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.world.item.ItemStack
-import net.minecraft.core.Direction
-import com.mojang.math.Vector3f
 import net.minecraft.client.renderer.blockentity.{BlockEntityRenderer, BlockEntityRendererProvider}
+import net.minecraft.core.Direction
 import net.minecraft.world.InteractionHand
+import net.minecraft.world.item.ItemStack
+
+import java.util.function.Function
 
 object ScreenRenderer extends Function[BlockEntityRendererProvider.Context, ScreenRenderer] {
   override def apply(ctx: BlockEntityRendererProvider.Context) = new ScreenRenderer(ctx)
@@ -182,7 +181,7 @@ class ScreenRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockEnti
     RenderState.checkError(getClass.getName + ".draw: setup")
 
     // Render the actual text.
-    screen.buffer.renderText(stack)
+    screen.buffer.renderText(stack, buffer)
 
     RenderState.checkError(getClass.getName + ".draw: text")
   }

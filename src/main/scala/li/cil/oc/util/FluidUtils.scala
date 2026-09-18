@@ -46,7 +46,7 @@ object FluidUtils {
    * then insert it into the specified sink handler. If the insertion fails, the
    * fluid will remain in the source handler.
    * <br>
-   * This returns <tt>true</tt> if some fluid was transferred.
+   * This returns {@code true} if some fluid was transferred.
    */
   def transferBetweenFluidHandlers(source: IFluidHandler, sink: IFluidHandler, limit: Int = FluidAttributes.BUCKET_VOLUME, sourceTank: Int = -1): Int = {
     var stackToDrain: FluidStack = null
@@ -76,10 +76,10 @@ object FluidUtils {
   }
 
   /**
-   * Utility method for calling <tt>transferBetweenFluidHandlers</tt> on handlers
+   * Utility method for calling {@code transferBetweenFluidHandlers} on handlers
    * in the world.
    * <br>
-   * This uses the <tt>fluidHandlerAt</tt> method, and therefore handles special
+   * This uses the {@code fluidHandlerAt} method, and therefore handles special
    * cases such as fluid blocks.
    */
   def transferBetweenFluidHandlersAt(sourcePos: BlockPosition, sourceSide: Direction, sinkPos: BlockPosition, sinkSide: Direction, limit: Int = FluidAttributes.BUCKET_VOLUME, sourceTank: Int = -1): Int =

@@ -34,7 +34,8 @@ public interface DeviceInfo {
      * of the device (speeds, capacities).
      * <br>
      * For example, OC's tier one memory module returns the following:
-     * <table summary="Example table of device information.">
+     * <table>
+     * <caption>Example table of device information.</caption>
      * <tr><td>class</td><td>memory</td></tr>
      * <tr><td>description</td><td>Memory bank</td></tr>
      * <tr><td>vendor</td><td>MightyPirates GmbH &amp; Co. KG</td></tr>

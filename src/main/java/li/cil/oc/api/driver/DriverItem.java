@@ -12,9 +12,9 @@ import net.minecraft.nbt.CompoundTag;
  * memory and graphic cards.
  * <br>
  * When trying to add an item to a computer the list of registered drivers is
- * queried using the drivers' <tt>worksWith</tt> functions. The first driver
+ * queried using the drivers' {@code worksWith} functions. The first driver
  * that replies positively and whose check against the slot type is successful,
- * i.e. for which the <tt>slot</tt> matches the slot it should be inserted into,
+ * i.e. for which the {@code slot} matches the slot it should be inserted into,
  * will be used as the component's driver and the component will be added. If no
  * driver is found the item will be rejected and cannot be installed.
  * <br>
@@ -35,7 +35,7 @@ public interface DriverItem {
      * stuff, such as querying slot types and tier.
      *
      * @param stack the item to check.
-     * @return <tt>true</tt> if the item is supported; <tt>false</tt> otherwise.
+     * @return {@code true} if the item is supported; {@code false} otherwise.
      */
     boolean worksWith(ItemStack stack);
 
@@ -46,7 +46,7 @@ public interface DriverItem {
      * added to a computer, for example. The only kind of component that does
      * not need to be connected to the component network is probably memory, and
      * there's a built-in driver for that. You may still opt to not implement
-     * this - i.e. it is safe to return <tt>null</tt> here.
+     * this - i.e. it is safe to return {@code null} here.
      * <br>
      * Keep in mind that the host's location may change if the owner is
      * a robot. This is important if you cache the location somewhere. For
@@ -99,16 +99,16 @@ public interface DriverItem {
      * child tag of the item stack's own tag compound, it will not be saved
      * otherwise. Use this in the unlikely case that the default name collides
      * with something. The built-in components use a child tag-compound with
-     * the name <tt>oc:data</tt>, which will also be used if this returns
-     * <tt>null</tt>.
+     * the name {@code oc:data}, which will also be used if this returns
+     * {@code null}.
      * <br>
-     * This tag will be passed to the environment's <tt>save</tt> and
-     * <tt>load</tt> methods when appropriate (world save / load and when
+     * This tag will be passed to the environment's {@code save} and
+     * {@code load} methods when appropriate (world save / load and when
      * removed from their hosting inventory).
      *
      * @param stack the item to get the child tag from.
-     * @return the tag to use for saving and loading, or <tt>null</tt> to use
-     * the default tag <tt>oc:data</tt>.
+     * @return the tag to use for saving and loading, or {@code null} to use
+     * the default tag {@code oc:data}.
      */
     CompoundTag dataTag(ItemStack stack);
 }

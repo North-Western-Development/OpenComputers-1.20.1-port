@@ -1,7 +1,7 @@
 package li.cil.oc.util
 
-import net.minecraft.world.item.DyeColor
-import net.minecraft.world.item.ItemStack
+import net.minecraft.tags.TagKey
+import net.minecraft.world.item.{DyeColor, Item, ItemStack}
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
@@ -27,11 +27,16 @@ object Color {
 
   val byName = DyeColor.values.map(col => (col.getName, col)).toMap
 
-  val byTag = DyeColor.values.map(col => (col.getTag.getName, col)).toMap
+  val byTag = DyeColor.values.map(col => (col.getTag, col)).toMap
 
   val byTier = Array(DyeColor.LIGHT_GRAY, DyeColor.YELLOW, DyeColor.CYAN, DyeColor.MAGENTA)
 
-  def findDye(stack: ItemStack) = byTag.keys.find(stack.getItem.getTags.contains)
+  def findDye(stack: ItemStack): Option[TagKey[Item]] = {
+    for (tag <- byTag.keys){
+      if (stack.is(tag)) return Some(tag)
+    }
+    None
+  }
 
   def isDye(stack: ItemStack) = findDye(stack).isDefined
 

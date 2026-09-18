@@ -8,7 +8,7 @@ import li.cil.oc.client.renderer.RenderTypes
 import li.cil.oc.common.tileentity.DiskDrive
 import li.cil.oc.util.RenderState
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.{LevelRenderer, MultiBufferSource}
 import net.minecraft.core.Direction
 import com.mojang.math.Vector3f
 import net.minecraft.client.renderer.block.model.ItemTransforms
@@ -42,7 +42,10 @@ class DiskDriveRenderer(ctx: BlockEntityRendererProvider.Context) extends BlockE
         matrix.mulPose(Vector3f.XN.rotationDegrees(90))
         matrix.scale(0.5f, 0.5f, 0.5f)
 
-        Minecraft.getInstance.getItemRenderer.renderStatic(stack, ItemTransforms.TransformType.FIXED, light, overlay, matrix, buffer, 1)
+        Minecraft.getInstance.getItemRenderer.renderStatic(stack,
+          ItemTransforms.TransformType.FIXED,
+          LevelRenderer.getLightColor(drive.getLevel, drive.getBlockPos.relative(drive.yaw)),
+          overlay, matrix, buffer, 1)
         matrix.popPose()
       case _ =>
     }

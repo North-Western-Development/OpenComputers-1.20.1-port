@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 /**
  * Common interface for classes providing glyph data in a format that can be
- * rendered using the {@link li.cil.oc.client.renderer.font.DynamicFontRenderer}.
+ * rendered using the {@link li.cil.oc.client.renderer.font.DynamicFont}.
  */
 public interface IGlyphProvider {
     /**

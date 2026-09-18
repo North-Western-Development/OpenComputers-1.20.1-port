@@ -10,7 +10,7 @@ import li.cil.oc.integration.util.BundledRedstone
 import li.cil.oc.server.component
 import li.cil.oc.server.machine.Machine
 import net.minecraft.world.level.block.Block
-import net.minecraft.item.BlockItem
+import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.{BlockItem, ItemStack}
 
 /**

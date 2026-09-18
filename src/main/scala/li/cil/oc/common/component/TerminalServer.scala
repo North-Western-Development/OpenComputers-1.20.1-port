@@ -27,9 +27,9 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.{CompoundTag, StringTag, Tag}
 import net.minecraft.core.Direction
-import net.minecraft.util.Hand
 import net.minecraft.world.InteractionHand
-import net.minecraftforge.common.util.Constants.NBT
+import net.minecraft.world.InteractionHand
+import net.minecraft.nbt.Tag
 
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.collection.convert.ImplicitConversionsToJava._

@@ -19,7 +19,7 @@ public interface FileSystemAPI {
      * namespace).
      * <br>
      * If the specified path cannot be located, the creation fails and this
-     * returns <tt>null</tt>.
+     * returns {@code null}.
      *
      * @param location the location where the file system's contents are stored.
      * @return a file system wrapping the specified resource.
@@ -57,7 +57,7 @@ public interface FileSystemAPI {
      * Any contents created and written on this file system will be lost when
      * the node is removed from the network.
      * <br>
-     * This is used for computers' <tt>/tmp</tt> mount, for example.
+     * This is used for computers' {@code /tmp} mount, for example.
      *
      * @param capacity the capacity of the file system.
      * @return a file system residing in memory.
@@ -65,7 +65,7 @@ public interface FileSystemAPI {
     FileSystem fromMemory(long capacity);
 
     /**
-     * Wrap a file system retrieved via one of the <tt>from???</tt> methods to
+     * Wrap a file system retrieved via one of the {@code from???} methods to
      * make it read-only.
      *
      * @param fileSystem the file system to wrap.
@@ -88,11 +88,11 @@ public interface FileSystemAPI {
      * the disk event notifications to the client that are used to play disk
      * access sounds.
      * <br>
-     * The container may be <tt>null</tt>, if no such context can be provided.
+     * The container may be {@code null}, if no such context can be provided.
      * <br>
      * The access sound is the name of the sound effect to play when the file
      * system is accessed, for example by listing a directory or reading from
-     * a file. It may be <tt>null</tt> to create a silent file system.
+     * a file. It may be {@code null} to create a silent file system.
      * <br>
      * The speed multiplier controls how fast read and write operations on the
      * file system are. It must be a value in [1,6], and controls the access
@@ -107,7 +107,7 @@ public interface FileSystemAPI {
      * @param accessSound the name of the sound effect to play when the file
      *                    system is accessed. This has to be the fully
      *                    qualified resource name, e.g.
-     *                    <tt>opencomputers:floppy_access</tt>.
+     *                    {@code opencomputers:floppy_access}.
      * @param speed       the speed multiplier for this file system.
      * @return the network node wrapping the file system.
      */
@@ -126,7 +126,7 @@ public interface FileSystemAPI {
      * @param accessSound the name of the sound effect to play when the file
      *                    system is accessed. This has to be the fully
      *                    qualified resource name, e.g.
-     *                    <tt>opencomputers:floppy_access</tt>.
+     *                    {@code opencomputers:floppy_access}.
      * @param speed       the speed multiplier for this file system.
      * @return the network node wrapping the file system.
      */

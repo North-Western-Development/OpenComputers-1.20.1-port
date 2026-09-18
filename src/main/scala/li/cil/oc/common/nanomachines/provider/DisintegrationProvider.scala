@@ -1,23 +1,19 @@
 package li.cil.oc.common.nanomachines.provider
 
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Settings, api}
 import li.cil.oc.api.nanomachines.DisableReason
 import li.cil.oc.api.prefab.AbstractBehavior
-import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.ExtendedLevel._
-import li.cil.oc.util.StackOption
+import li.cil.oc.util.{BlockPosition, StackOption}
 import li.cil.oc.util.StackOption._
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.entity.player.Player
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.core.Direction
-import net.minecraft.util.Hand
-import net.minecraft.world.level.Level
-import net.minecraft.world.storage.IServerLevelInfo
+import net.minecraft.world.level.storage.ServerLevelData
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.common.util.FakePlayer
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
@@ -65,17 +61,17 @@ object DisintegrationProvider extends ScalaProvider("c4e7e3c2-8069-4fbb-b08e-74b
                 MinecraftForge.EVENT_BUS.post(event)
                 val allowed = !event.isCanceled && event.getUseBlock != Event.Result.DENY && event.getUseItem != Event.Result.DENY
                 val placingRestricted = world.getLevelData match {
-                  case srvInfo: IServerLevelInfo => srvInfo.getGameType.isBlockPlacingRestricted
+                  case srvInfo: ServerLevelData => srvInfo.getGameType.isBlockPlacingRestricted
                   case _ => true // Means it's not a server world (somehow).
                 }
-                val adventureOk = !placingRestricted || player.mayUseItemAt(pos.toBlockPos, null, player.getItemInHand(Hand.MAIN_HAND))
+                val adventureOk = !placingRestricted || player.mayUseItemAt(pos.toBlockPos, null, player.getItemInHand(InteractionHand.MAIN_HAND))
                 if (allowed && adventureOk && !world.isAirBlock(pos)) {
                   val blockState = world.getBlockState(pos.toBlockPos)
                   val hardness = blockState.getDestroyProgress(player, world, pos.toBlockPos)
                   if (hardness > 0) {
                     val timeToBreak = (1 / hardness).toInt
                     if (timeToBreak < 20 * 30) {
-                      val info = new SlowBreakInfo(now, now + timeToBreak, pos, StackOption(player.getItemInHand(Hand.MAIN_HAND)).map(_.copy()), blockState)
+                      val info = new SlowBreakInfo(now, now + timeToBreak, pos, StackOption(player.getItemInHand(InteractionHand.MAIN_HAND)).map(_.copy()), blockState)
                       world.destroyBlockInLevelPartially(pos.hashCode(), pos, 0)
                       breakingMapNew += pos -> info
                     }
@@ -111,7 +107,7 @@ object DisintegrationProvider extends ScalaProvider("c4e7e3c2-8069-4fbb-b08e-74b
     var lastDamageSent = 0
 
     def checkTool(player: Player): Boolean = {
-      val currentTool = StackOption(player.getItemInHand(Hand.MAIN_HAND)).map(_.copy())
+      val currentTool = StackOption(player.getItemInHand(InteractionHand.MAIN_HAND)).map(_.copy())
       (currentTool, originalTool) match {
         case (SomeStack(stackA), SomeStack(stackB)) => stackA.getItem == stackB.getItem && (stackA.isDamageableItem || stackA.getDamageValue == stackB.getDamageValue)
         case (EmptyStack, EmptyStack) => true

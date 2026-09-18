@@ -1,14 +1,13 @@
 package li.cil.oc.common.item.traits
 
-import li.cil.oc.{Settings, api}
-import li.cil.oc.integration.Mods
 import li.cil.oc.integration.opencomputers.ModOpenComputers
-import net.minecraft.util.{Direction, ResourceLocation}
+import li.cil.oc.{Settings, api}
+import net.minecraft.core.Direction
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 import net.minecraftforge.common.capabilities.{Capability, ICapabilityProvider}
+import net.minecraftforge.common.util.{LazyOptional, NonNullSupplier}
 import net.minecraftforge.energy.{CapabilityEnergy, IEnergyStorage}
-import net.minecraftforge.common.util.LazyOptional
-import net.minecraftforge.common.util.NonNullSupplier
 
 // TODO Forge power capabilities.
 trait Chargeable extends api.driver.item.Chargeable {

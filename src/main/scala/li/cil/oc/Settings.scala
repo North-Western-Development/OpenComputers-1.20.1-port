@@ -1,21 +1,17 @@
 package li.cil.oc
 
-import com.google.common.net.InetAddresses
 import com.mojang.authlib.GameProfile
 import com.typesafe.config._
-import com.typesafe.config.impl.OpenComputersConfigCommentManipulationHook
 import li.cil.oc.Settings.DebugCardAccess
 import li.cil.oc.common.Tier
 import li.cil.oc.server.component.DebugCard
 import li.cil.oc.server.component.DebugCard.AccessContext
-import li.cil.oc.util.{InetAddressRange, InternetFilteringRule}
+import li.cil.oc.util.InternetFilteringRule
 import net.minecraftforge.fml.loading.FMLPaths
 import org.apache.commons.codec.binary.Hex
-import org.apache.maven.artifact.versioning.DefaultArtifactVersion
-import org.apache.maven.artifact.versioning.VersionRange
+import org.apache.maven.artifact.versioning.{DefaultArtifactVersion, VersionRange}
 
 import java.io._
-import java.net.{Inet4Address, Inet6Address, InetAddress}
 import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
 import java.security.SecureRandom
@@ -668,13 +664,13 @@ object Settings {
               for (value <- patched.getStringList(prefix + key).asScala) {
                 comments += "\"" + value + "\""
               }
-              deprecatedValue = OpenComputersConfigCommentManipulationHook.setComments(deprecatedValue, comments.asJava)
+//              deprecatedValue = OpenComputersConfigCommentManipulationHook.setComments(deprecatedValue, comments.asJava)
               patched = patched.withValue(prefix + key, deprecatedValue)
             }
           }
-          patchedRules = OpenComputersConfigCommentManipulationHook.setComments(
-            patchedRules, defaults.getValue(prefix + "internet.filteringRules").origin().comments()
-          )
+//          patchedRules = OpenComputersConfigCommentManipulationHook.setComments(
+//            patchedRules, defaults.getValue(prefix + "internet.filteringRules").origin().comments()
+//          )
         } catch {
           case _: Throwable => /* pass */
         }

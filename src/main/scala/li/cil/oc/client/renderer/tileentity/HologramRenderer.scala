@@ -107,7 +107,7 @@ object HologramRenderer extends Function[BlockEntityRendererProvider.Context, Ho
     val relPos = Minecraft.getInstance.player.getEyePosition(f).
       subtract(pos.getX + 0.5, pos.getY + 0.5, pos.getZ + 0.5)
     val playerDistSq = relPos.dot(relPos)
-    val maxDistSq = hologram.getViewDistance * hologram.getViewDistance
+    val maxDistSq = 64*64 // hologram.getViewDistance * hologram.getViewDistance
     val fadeDistSq = hologram.getFadeStartDistanceSquared
     RenderState.setBlendAlpha(0.75f * (if (playerDistSq > fadeDistSq) math.max(0, 1 - ((playerDistSq - fadeDistSq) / (maxDistSq - fadeDistSq)).toFloat) else 1))
 

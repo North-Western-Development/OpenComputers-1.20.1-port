@@ -1,15 +1,13 @@
 package li.cil.oc.common.item
 
-import li.cil.oc.OpenComputers
 import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.inventory.DiskDriveMountableInventory
-import net.minecraft.world.entity.player.Player
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.item.Item
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item.Properties
-import net.minecraft.world.item.ItemStack
-import net.minecraft.util.{ActionResult, ActionResultType, Hand}
+import net.minecraft.world.item.{Item, ItemStack}
 import net.minecraft.world.level.Level
+import net.minecraft.world.{InteractionHand, InteractionResult, InteractionResultHolder}
 import net.minecraftforge.common.extensions.IForgeItem
 
 class DiskDriveMountable(props: Properties) extends Item(props) with IForgeItem with traits.SimpleItem {
@@ -22,7 +20,7 @@ class DiskDriveMountable(props: Properties) extends Item(props) with IForgeItem 
       })
       case _ =>
     }
-    player.swing(Hand.MAIN_HAND)
-    new ActionResult(ActionResultType.sidedSuccess(world.isClientSide), stack)
+    player.swing(InteractionHand.MAIN_HAND)
+    new InteractionResultHolder(InteractionResult.sidedSuccess(world.isClientSide), stack)
   }
 }

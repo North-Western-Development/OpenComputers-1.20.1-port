@@ -11,7 +11,7 @@ import net.minecraft.world.level.Level;
  * You will only need to implement this if you intend to host components, e.g.
  * by providing a custom computer case or such. In OpenComputers this interface
  * is usually implemented directly by the tile entities acting as the host, so
- * in most cases you should be able to cast this to <tt>BlockEntity</tt> for
+ * in most cases you should be able to cast this to {@code BlockEntity} for
  * more options, if necessary.
  */
 public interface EnvironmentHost {

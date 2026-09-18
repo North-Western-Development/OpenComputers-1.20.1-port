@@ -18,7 +18,7 @@ class Case(selfType: MenuType[_ <: Case], id: Int, playerInventory: Inventory, c
 
   for (i <- 0 to (if (tier == Tier.One) 0 else 1)) {
     val slot = InventorySlots.computer(tier)(getItems.size)
-    addSlotToContainer(120, 16 + (i + 1) * slots.size(), slot.slot, slot.tier)
+    addSlotToContainer(120, 16 + (i + 1) * slotSize, slot.slot, slot.tier)
   }
 
   for (i <- 0 to (if (tier == Tier.One) 0 else 1)) {

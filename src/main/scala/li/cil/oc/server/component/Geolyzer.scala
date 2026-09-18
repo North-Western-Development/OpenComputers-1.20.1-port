@@ -1,7 +1,6 @@
 package li.cil.oc.server.component
 
 import java.util
-
 import li.cil.oc.Constants
 import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
 import li.cil.oc.api.driver.DeviceInfo.DeviceClass
@@ -19,7 +18,7 @@ import li.cil.oc.api.network.Message
 import li.cil.oc.api.network.Visibility
 import li.cil.oc.api.prefab
 import li.cil.oc.api.prefab.AbstractManagedEnvironment
-import li.cil.oc.common.tileentity.{Robot => EntityRobot, Microcontroller}
+import li.cil.oc.common.tileentity.{Microcontroller, Robot => EntityRobot}
 import li.cil.oc.common.entity.{Drone => EntityDrone}
 import li.cil.oc.common.item.TabletWrapper
 import li.cil.oc.util.BlockPosition
@@ -33,8 +32,8 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.core.Direction
 import net.minecraft.world.level.Level
-import net.minecraft.world.biome.Biome.RainType
-import net.minecraft.world.server.ServerLevel
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.level.biome.Biome
 import net.minecraftforge.common.MinecraftForge
 
 import scala.collection.JavaConverters.mapAsJavaMap
@@ -96,7 +95,7 @@ class Geolyzer(val host: EnvironmentHost) extends AbstractManagedEnvironment wit
     result(
       host.world.isDay &&
       canSeeSky &&
-        (host.world.getBiome(blockPos.toBlockPos).getPrecipitation == RainType.NONE || (!host.world.isRaining && !host.world.isThundering)))
+        (host.world.getBiome(blockPos.toBlockPos).value().getPrecipitation == Biome.Precipitation.NONE || (!host.world.isRaining && !host.world.isThundering)))
   }
 
   @Callback(doc = """function(x:number, z:number[, y:number, w:number, d:number, h:number][, ignoreReplaceable:boolean|options:table]):table -- Analyzes the density of the column at the specified relative coordinates.""")

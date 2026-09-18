@@ -3,7 +3,7 @@ package li.cil.oc.client.renderer.item
 import com.google.common.collect.ImmutableList
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.{IVertexBuilder, PoseStack}
+import com.mojang.blaze3d.vertex.{VertexConsumer, PoseStack}
 import li.cil.oc.Constants
 import li.cil.oc.api
 import li.cil.oc.api.driver.item.UpgradeRenderer.MountPointName
@@ -65,7 +65,7 @@ object UpgradeRenderer {
   private val (minX, minY, minZ) = (-0.1f, -0.1f, -0.1f)
   private val (maxX, maxY, maxZ) = (0.1f, 0.1f, 0.1f)
 
-  private def drawSimpleBlock(stack: PoseStack, r: IVertexBuilder, mountPoint: MountPoint, frontOffset: Float = 0) {
+  private def drawSimpleBlock(stack: PoseStack, r: VertexConsumer, mountPoint: MountPoint, frontOffset: Float = 0) {
     stack.mulPose(new Vector3f(mountPoint.rotation.x, mountPoint.rotation.y, mountPoint.rotation.z).rotationDegrees(mountPoint.rotation.w))
     stack.translate(mountPoint.offset.x, mountPoint.offset.y, mountPoint.offset.z)
 

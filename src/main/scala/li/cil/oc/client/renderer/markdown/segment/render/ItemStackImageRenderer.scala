@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.systems.RenderSystem
 import li.cil.oc.api.manual.ImageRenderer
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.RenderHelper
+//import net.minecraft.client.renderer.RenderHelper
 import net.minecraft.world.item.ItemStack
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL12
@@ -23,13 +23,13 @@ private[markdown] class ItemStackImageRenderer(val stacks: Array[ItemStack]) ext
     val index = (System.currentTimeMillis() % (cycleSpeed * stacks.length)).toInt / cycleSpeed
     val stack = stacks(index)
 
-    matrix.scale(getWidth / 16, getHeight / 16, getWidth / 16)
-    // Translate manually because ItemRenderer generally can't take a PoseStack.
-    RenderSystem.pushMatrix()
-    RenderSystem.multMatrix(matrix.last().pose())
-    RenderSystem.enableRescaleNormal()
-    RenderSystem.glMultiTexCoord2f(GL13.GL_TEXTURE1, 240, 240)
-    mc.getItemRenderer.renderAndDecorateItem(stack, 0, 0)
-    RenderSystem.popMatrix()
+//    matrix.scale(getWidth / 16, getHeight / 16, getWidth / 16)
+//    // Translate manually because ItemRenderer generally can't take a PoseStack.
+//    RenderSystem.pushMatrix()
+//    RenderSystem.multMatrix(matrix.last().pose())
+//    RenderSystem.enableRescaleNormal()
+//    RenderSystem.glMultiTexCoord2f(GL13.GL_TEXTURE1, 240, 240)
+//    mc.getItemRenderer.renderAndDecorateItem(stack, 0, 0)
+//    RenderSystem.popMatrix()
   }
 }

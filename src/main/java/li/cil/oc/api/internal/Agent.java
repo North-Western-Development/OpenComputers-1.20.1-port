@@ -1,7 +1,7 @@
 package li.cil.oc.api.internal;
 
 import li.cil.oc.api.machine.MachineHost;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 
 import java.util.UUID;
@@ -67,7 +67,7 @@ public interface Agent extends MachineHost, Rotatable {
      *
      * @return the fake player for the agent.
      */
-    Player player();
+    ServerPlayer player();
 
     /**
      * Get the name of this agent.

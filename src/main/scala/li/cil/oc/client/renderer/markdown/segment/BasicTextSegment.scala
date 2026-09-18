@@ -1,14 +1,14 @@
 package li.cil.oc.client.renderer.markdown.segment
 
 import li.cil.oc.client.renderer.markdown.{Document, MarkupFormat}
-import net.minecraft.client.gui.FontRenderer
+import net.minecraft.client.gui.Font
 
 trait BasicTextSegment extends Segment {
   protected final val breaks = Set(' ', '.', ',', ':', ';', '!', '?', '_', '=', '-', '+', '*', '/', '\\')
   protected final val lists = Set("- ", "* ")
   protected lazy val rootPrefix = root.asInstanceOf[TextSegment].text.take(2)
 
-  override def nextX(indent: Int, maxWidth: Int, renderer: FontRenderer): Int = {
+  override def nextX(indent: Int, maxWidth: Int, renderer: Font): Int = {
     if (isLast) return 0
     var currentX = indent
     var chars = text
@@ -23,7 +23,7 @@ trait BasicTextSegment extends Segment {
     currentX + stringWidth(chars, renderer)
   }
 
-  override def nextY(indent: Int, maxWidth: Int, renderer: FontRenderer): Int = {
+  override def nextY(indent: Int, maxWidth: Int, renderer: Font): Int = {
     var lines = 0
     var chars = text
     if (ignoreLeadingWhitespace && indent == 0) chars = chars.dropWhile(_.isWhitespace)
@@ -46,11 +46,11 @@ trait BasicTextSegment extends Segment {
 
   protected def ignoreLeadingWhitespace: Boolean = true
 
-  protected def lineHeight(renderer: FontRenderer): Int = Document.lineHeight(renderer)
+  protected def lineHeight(renderer: Font): Int = Document.lineHeight(renderer)
 
-  protected def stringWidth(s: String, renderer: FontRenderer): Int
+  protected def stringWidth(s: String, renderer: Font): Int
 
-  protected def maxChars(s: String, maxWidth: Int, maxLineWidth: Int, renderer: FontRenderer): Int = {
+  protected def maxChars(s: String, maxWidth: Int, maxLineWidth: Int, renderer: Font): Int = {
     var pos = -1
     var lastBreak = -1
     val fullWidth = stringWidth(s, renderer)
@@ -78,5 +78,5 @@ trait BasicTextSegment extends Segment {
     pos
   }
 
-  protected def computeWrapIndent(renderer: FontRenderer) = if (lists.contains(rootPrefix)) renderer.width(rootPrefix) else 0
+  protected def computeWrapIndent(renderer: Font) = if (lists.contains(rootPrefix)) renderer.width(rootPrefix) else 0
 }

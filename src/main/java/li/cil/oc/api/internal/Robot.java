@@ -18,9 +18,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  * follows:
  * <ul>
  * <li>Tool</li>
- * <li><tt>equipmentInventory.getSizeInventory</tt> hot-swappable components.</li>
- * <li><tt>mainInventory.getSizeInventory</tt> internal inventory slots.</li>
- * <li><tt>componentCount</tt> hard-wired components.</li>
+ * <li>{@code equipmentInventory.getSizeInventory} hot-swappable components.</li>
+ * <li>{@code mainInventory.getSizeInventory} internal inventory slots.</li>
+ * <li>{@code componentCount} hard-wired components.</li>
  * </ul>
  * Note that there may be no hot-swappable (or even built-in) components or
  * no inventory, depending on the configuration of the robot. The hard-wired
@@ -40,11 +40,11 @@ public interface Robot extends Agent, Environment, EnvironmentHost, Tiered, Worl
      * This operates on the underlying, real inventory, as described in the
      * comment on top of this class.
      * <br>
-     * This will return <tt>null</tt> for slots that do not contain components,
+     * This will return {@code null} for slots that do not contain components,
      * or components that do not have an environment (on the calling side).
      *
      * @param index the index of the slot from which to get the environment.
-     * @return the environment for that slot, or <tt>null</tt>.
+     * @return the environment for that slot, or {@code null}.
      */
     Environment getComponentInSlot(int index);
 

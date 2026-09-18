@@ -17,7 +17,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.core.Direction
-import net.minecraft.world.server.ServerLevel
+import net.minecraft.server.level.ServerLevel
 
 import scala.collection.convert.ImplicitConversionsToJava._
 

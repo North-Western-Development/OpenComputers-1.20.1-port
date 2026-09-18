@@ -44,66 +44,66 @@ public final class BlockEntityTypes {
 
     @SubscribeEvent
     public static void registerTileEntities(RegistryEvent.Register<BlockEntityType<?>> e) {
-        register(e.getRegistry(), "adapter", BlockEntityType.Builder.of(() -> new Adapter(ADAPTER),
+        register(e.getRegistry(), "adapter", BlockEntityType.Builder.of((pos, state) -> new Adapter(ADAPTER, pos, state),
             Items.get(Constants.BlockName$.MODULE$.Adapter()).block()));
-        BlockEntityType<Adapter>.BlockEntityType.Builder.of(ADAPTER, Items.get(Constants.BlockName$.MODULE$.Adapter()).block());
-        register(e.getRegistry(), "assembler", BlockEntityType.Builder.of(() -> new Assembler(ASSEMBLER),
+//        BlockEntityType<Adapter>.BlockEntityType.Builder.of(ADAPTER, Items.get(Constants.BlockName$.MODULE$.Adapter()).block());
+        register(e.getRegistry(), "assembler", BlockEntityType.Builder.of((pos, state) -> new Assembler(ASSEMBLER, pos, state),
             Items.get(Constants.BlockName$.MODULE$.Assembler()).block()));
-        register(e.getRegistry(), "cable", BlockEntityType.Builder.of(() -> new Cable(CABLE),
+        register(e.getRegistry(), "cable", BlockEntityType.Builder.of((pos, state) -> new Cable(CABLE, pos, state),
             Items.get(Constants.BlockName$.MODULE$.Cable()).block()));
-        register(e.getRegistry(), "capacitor", BlockEntityType.Builder.of(() -> new Capacitor(CAPACITOR),
+        register(e.getRegistry(), "capacitor", BlockEntityType.Builder.of((pos, state) -> new Capacitor(CAPACITOR, pos, state),
             Items.get(Constants.BlockName$.MODULE$.Capacitor()).block()));
-        register(e.getRegistry(), "carpeted_capacitor", BlockEntityType.Builder.of(() -> new CarpetedCapacitor(CARPETED_CAPACITOR),
+        register(e.getRegistry(), "carpeted_capacitor", BlockEntityType.Builder.of((pos, state) -> new CarpetedCapacitor(CARPETED_CAPACITOR, pos, state),
             Items.get(Constants.BlockName$.MODULE$.CarpetedCapacitor()).block()));
-        register(e.getRegistry(), "case", BlockEntityType.Builder.of(() -> new Case(CASE),
+        register(e.getRegistry(), "case", BlockEntityType.Builder.of((pos, state) -> new Case(CASE, pos, state),
             Items.get(Constants.BlockName$.MODULE$.CaseCreative()).block(),
             Items.get(Constants.BlockName$.MODULE$.CaseTier1()).block(),
             Items.get(Constants.BlockName$.MODULE$.CaseTier2()).block(),
             Items.get(Constants.BlockName$.MODULE$.CaseTier3()).block()));
-        register(e.getRegistry(), "charger", BlockEntityType.Builder.of(() -> new Charger(CHARGER),
+        register(e.getRegistry(), "charger", BlockEntityType.Builder.of((pos, state) -> new Charger(CHARGER, pos, state),
             Items.get(Constants.BlockName$.MODULE$.Charger()).block()));
-        register(e.getRegistry(), "disassembler", BlockEntityType.Builder.of(() -> new Disassembler(DISASSEMBLER),
+        register(e.getRegistry(), "disassembler", BlockEntityType.Builder.of((pos, state) -> new Disassembler(DISASSEMBLER, pos, state),
             Items.get(Constants.BlockName$.MODULE$.Disassembler()).block()));
-        register(e.getRegistry(), "disk_drive", BlockEntityType.Builder.of(() -> new DiskDrive(DISK_DRIVE),
+        register(e.getRegistry(), "disk_drive", BlockEntityType.Builder.of((pos, state) -> new DiskDrive(DISK_DRIVE, pos, state),
             Items.get(Constants.BlockName$.MODULE$.DiskDrive()).block()));
-        register(e.getRegistry(), "geolyzer", BlockEntityType.Builder.of(() -> new Geolyzer(GEOLYZER),
+        register(e.getRegistry(), "geolyzer", BlockEntityType.Builder.of((pos, state) -> new Geolyzer(GEOLYZER, pos, state),
             Items.get(Constants.BlockName$.MODULE$.Geolyzer()).block()));
-        register(e.getRegistry(), "hologram", BlockEntityType.Builder.of(() -> new Hologram(HOLOGRAM),
+        register(e.getRegistry(), "hologram", BlockEntityType.Builder.of((pos, state) -> new Hologram(HOLOGRAM, pos, state),
             Items.get(Constants.BlockName$.MODULE$.HologramTier1()).block(),
             Items.get(Constants.BlockName$.MODULE$.HologramTier2()).block()));
-        register(e.getRegistry(), "keyboard", BlockEntityType.Builder.of(() -> new Keyboard(KEYBOARD),
+        register(e.getRegistry(), "keyboard", BlockEntityType.Builder.of((pos, state) -> new Keyboard(KEYBOARD, pos, state),
             Items.get(Constants.BlockName$.MODULE$.Keyboard()).block()));
-        register(e.getRegistry(), "microcontroller", BlockEntityType.Builder.of(() -> new Microcontroller(MICROCONTROLLER),
+        register(e.getRegistry(), "microcontroller", BlockEntityType.Builder.of((pos, state) -> new Microcontroller(MICROCONTROLLER, pos, state),
             Items.get(Constants.BlockName$.MODULE$.Microcontroller()).block()));
-        register(e.getRegistry(), "motion_sensor", BlockEntityType.Builder.of(() -> new MotionSensor(MOTION_SENSOR),
+        register(e.getRegistry(), "motion_sensor", BlockEntityType.Builder.of((pos, state) -> new MotionSensor(MOTION_SENSOR, pos, state),
             Items.get(Constants.BlockName$.MODULE$.MotionSensor()).block()));
-        register(e.getRegistry(), "net_splitter", BlockEntityType.Builder.of(() -> new NetSplitter(NET_SPLITTER),
+        register(e.getRegistry(), "net_splitter", BlockEntityType.Builder.of((pos, state) -> new NetSplitter(NET_SPLITTER, pos, state),
             Items.get(Constants.BlockName$.MODULE$.NetSplitter()).block()));
-        register(e.getRegistry(), "power_converter", BlockEntityType.Builder.of(() -> new PowerConverter(POWER_CONVERTER),
+        register(e.getRegistry(), "power_converter", BlockEntityType.Builder.of((pos, state) -> new PowerConverter(POWER_CONVERTER, pos, state),
             Items.get(Constants.BlockName$.MODULE$.PowerConverter()).block()));
-        register(e.getRegistry(), "power_distributor", BlockEntityType.Builder.of(() -> new PowerDistributor(POWER_DISTRIBUTOR),
+        register(e.getRegistry(), "power_distributor", BlockEntityType.Builder.of((pos, state) -> new PowerDistributor(POWER_DISTRIBUTOR, pos, state),
             Items.get(Constants.BlockName$.MODULE$.PowerDistributor()).block()));
-        register(e.getRegistry(), "print", BlockEntityType.Builder.of(() -> new Print(PRINT),
+        register(e.getRegistry(), "print", BlockEntityType.Builder.of((pos, state) -> new Print(PRINT, pos, state),
             Items.get(Constants.BlockName$.MODULE$.Print()).block()));
-        register(e.getRegistry(), "printer", BlockEntityType.Builder.of(() -> new Printer(PRINTER),
+        register(e.getRegistry(), "printer", BlockEntityType.Builder.of((pos, state) -> new Printer(PRINTER, pos, state),
             Items.get(Constants.BlockName$.MODULE$.Printer()).block()));
-        register(e.getRegistry(), "rack", BlockEntityType.Builder.of(() -> new Rack(RACK),
+        register(e.getRegistry(), "rack", BlockEntityType.Builder.of((pos, state) -> new Rack(RACK, pos, state),
             Items.get(Constants.BlockName$.MODULE$.Rack()).block()));
-        register(e.getRegistry(), "raid", BlockEntityType.Builder.of(() -> new Raid(RAID),
+        register(e.getRegistry(), "raid", BlockEntityType.Builder.of((pos, state) -> new Raid(RAID, pos, state),
             Items.get(Constants.BlockName$.MODULE$.Raid()).block()));
-        register(e.getRegistry(), "redstone_io", BlockEntityType.Builder.of(() -> new Redstone(REDSTONE_IO),
+        register(e.getRegistry(), "redstone_io", BlockEntityType.Builder.of((pos, state) -> new Redstone(REDSTONE_IO, pos, state),
             Items.get(Constants.BlockName$.MODULE$.Redstone()).block()));
-        register(e.getRegistry(), "relay", BlockEntityType.Builder.of(() -> new Relay(RELAY),
+        register(e.getRegistry(), "relay", BlockEntityType.Builder.of((pos, state) -> new Relay(RELAY, pos, state),
             Items.get(Constants.BlockName$.MODULE$.Relay()).block()));
-        register(e.getRegistry(), "robot", BlockEntityType.Builder.of(() -> new RobotProxy(ROBOT),
+        register(e.getRegistry(), "robot", BlockEntityType.Builder.of((pos, state) -> new RobotProxy(ROBOT, pos, state),
             Items.get(Constants.BlockName$.MODULE$.Robot()).block()));
-        register(e.getRegistry(), "screen", BlockEntityType.Builder.of(() -> new Screen(SCREEN),
+        register(e.getRegistry(), "screen", BlockEntityType.Builder.of((pos, state) -> new Screen(SCREEN, pos, state),
             Items.get(Constants.BlockName$.MODULE$.ScreenTier1()).block(),
             Items.get(Constants.BlockName$.MODULE$.ScreenTier2()).block(),
             Items.get(Constants.BlockName$.MODULE$.ScreenTier3()).block()));
-        register(e.getRegistry(), "transposer", BlockEntityType.Builder.of(() -> new Transposer(TRANSPOSER),
+        register(e.getRegistry(), "transposer", BlockEntityType.Builder.of((pos, state) -> new Transposer(TRANSPOSER, pos, state),
             Items.get(Constants.BlockName$.MODULE$.Transposer()).block()));
-        register(e.getRegistry(), "waypoint", BlockEntityType.Builder.of(() -> new Waypoint(WAYPOINT),
+        register(e.getRegistry(), "waypoint", BlockEntityType.Builder.of((pos, state) -> new Waypoint(WAYPOINT, pos, state),
             Items.get(Constants.BlockName$.MODULE$.Waypoint()).block()));
     }
 

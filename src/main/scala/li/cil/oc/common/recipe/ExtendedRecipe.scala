@@ -1,30 +1,21 @@
 package li.cil.oc.common.recipe
 
-import java.util.UUID
-
-import li.cil.oc.Constants
-import li.cil.oc.OpenComputers
-import li.cil.oc.Settings
-import li.cil.oc.api
+import li.cil.oc.{Constants, OpenComputers, Settings, api}
 import li.cil.oc.api.detail.ItemInfo
-import li.cil.oc.common.item.data.DroneData
-import li.cil.oc.common.item.data.MicrocontrollerData
-import li.cil.oc.common.item.data.PrintData
-import li.cil.oc.common.item.data.RobotData
-import li.cil.oc.common.item.data.TabletData
+import li.cil.oc.common.item.data._
 import li.cil.oc.server.machine.luac.LuaStateFactory
 import li.cil.oc.util.ExtendedNBT._
 import li.cil.oc.util.SideTracker
-import net.minecraft.world.level.block.Blocks
-import net.minecraft.inventory.CraftingInventory
-import net.minecraft.world.item.DyeColor
-import net.minecraft.world.item.Items
-import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.crafting.Recipe
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.StringTag
+import net.minecraft.nbt.{CompoundTag, StringTag}
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.ItemTags
+import net.minecraft.world.inventory.CraftingContainer
+import net.minecraft.world.item.{DyeColor, ItemStack, Items}
+import net.minecraft.world.item.crafting.Recipe
+import net.minecraft.world.level.block.Blocks
+import net.minecraftforge.registries.ForgeRegistries
 
+import java.util.UUID
 import scala.collection.convert.ImplicitConversionsToScala._
 import scala.util.control.Breaks._
 
@@ -51,7 +42,7 @@ object ExtendedRecipe {
   private lazy val robot = api.Items.get(Constants.BlockName.Robot)
   private lazy val tablet = api.Items.get(Constants.ItemName.Tablet)
   private lazy val print = api.Items.get(Constants.BlockName.Print)
-  private val beaconBlocks = ItemTags.bind("forge:beacon_base_blocks")
+  private val beaconBlocks = ItemTags.create(new ResourceLocation("forge", "beacon_base_blocks"))
 
   def patchRecipe[R <: Recipe[_]](recipe: R): R = {
     val resultStack = recipe.getResultItem
@@ -83,7 +74,7 @@ object ExtendedRecipe {
     recipe
   }
 
-  def addNBTToResult(recipe: Recipe[_], craftedStack: ItemStack, inventory: CraftingInventory): ItemStack = {
+  def addNBTToResult(recipe: Recipe[_], craftedStack: ItemStack, inventory: CraftingContainer): ItemStack = {
     val craftedItemName = api.Items.get(craftedStack)
 
     if (craftedItemName == navigationUpgrade) {
@@ -155,7 +146,7 @@ object ExtendedRecipe {
       val glowstoneDust = new ItemStack(Items.GLOWSTONE_DUST)
       val glowstone = new ItemStack(Blocks.GLOWSTONE)
       for (stack <- inputs) {
-        if (stack.getItem.is(beaconBlocks)) {
+        if (ForgeRegistries.ITEMS.tags().getTag(beaconBlocks).contains(stack.getItem)) {
           if (data.isBeaconBase) {
             // Crafting wouldn't change anything, prevent accidental resource loss.
             return ItemStack.EMPTY
@@ -206,9 +197,9 @@ object ExtendedRecipe {
     craftedStack
   }
 
-  private def getItems(inventory: CraftingInventory) = (0 until inventory.getContainerSize).map(inventory.getItem).filter(!_.isEmpty)
+  private def getItems(inventory: CraftingContainer) = (0 until inventory.getContainerSize).map(inventory.getItem).filter(!_.isEmpty)
 
-  private def recraft(craftedStack: ItemStack, inventory: CraftingInventory, descriptor: ItemInfo, dataFactory: (ItemStack) => ItemDataWrapper) {
+  private def recraft(craftedStack: ItemStack, inventory: CraftingContainer, descriptor: ItemInfo, dataFactory: (ItemStack) => ItemDataWrapper) {
     if (api.Items.get(craftedStack) == descriptor) {
       // Find old Microcontroller.
       getItems(inventory).find(api.Items.get(_) == descriptor) match {

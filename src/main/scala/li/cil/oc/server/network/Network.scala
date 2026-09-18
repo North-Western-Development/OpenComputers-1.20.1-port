@@ -452,7 +452,7 @@ object Network extends api.detail.NetworkAPI {
     val tileEntity = world.getBlockEntity(pos)
     if (tileEntity != null && !tileEntity.isRemoved && tileEntity.getLevel != null && !tileEntity.getLevel.isClientSide) {
       for (side <- Direction.values) {
-        val npos = tileEntity.getBlockPos.relative(side)
+        val npos: BlockPos = tileEntity.getBlockPos.relative(side)
         if (tileEntity.getLevel.isLoaded(npos)) {
           val localNode = getNetworkNode(tileEntity, side)
           val neighborBlockEntity = tileEntity.getLevel.getBlockEntity(npos)

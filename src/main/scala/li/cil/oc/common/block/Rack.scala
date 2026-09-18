@@ -2,28 +2,24 @@ package li.cil.oc.common.block
 
 import li.cil.oc.Settings
 import li.cil.oc.api.component.RackMountable
-import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.block.property.PropertyRotatable
+import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.tileentity
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.entity.player.Player
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.item.ItemStack
-import net.minecraft.state.StateContainer
-import net.minecraft.core.Direction
 import net.minecraft.core.Direction.Axis
-import net.minecraft.util.Hand
-import net.minecraft.core.BlockPos
-import net.minecraft.util.math.RayTraceResult
-import net.minecraft.util.math.RayTraceResult
-import net.minecraft.world.phys.Vec3
-import net.minecraft.world.level.BlockGetter
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityTicker, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.{BlockState, StateDefinition}
+import net.minecraft.world.phys.Vec3
 
 class Rack(props: Properties) extends RedstoneAware(props) with traits.PowerAcceptor with traits.StateAware with traits.GUI {
-  protected override def createBlockStateDefinition(builder: StateContainer.Builder[Block, BlockState]) =
+  protected override def createBlockStateDefinition(builder: StateDefinition.Builder[Block, BlockState]) =
     builder.add(PropertyRotatable.Facing)
 
   // ----------------------------------------------------------------------- //
@@ -35,11 +31,19 @@ class Rack(props: Properties) extends RedstoneAware(props) with traits.PowerAcce
     case _ =>
   }
 
-  override def newBlockEntity(world: BlockGetter) = new tileentity.Rack(tileentity.BlockEntityTypes.RACK)
+  override def newBlockEntity(pos:BlockPos, state: BlockState) = new tileentity.Rack(tileentity.BlockEntityTypes.RACK, pos, state)
+
+  override def getTicker[T <: BlockEntity](level: Level, blockState: BlockState, blockEntityType: BlockEntityType[T]): BlockEntityTicker[T] = {
+    (_: Level, pos: BlockPos, state: BlockState, entity: T) =>
+      entity match {
+        case tileEntity: tileentity.Rack => tileEntity.updateEntity()
+        case _ =>
+      }
+  }
 
   // ----------------------------------------------------------------------- //
 
-  override def localOnBlockActivated(world: Level, pos: BlockPos, player: Player, hand: Hand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Boolean = {
+  override def localOnBlockActivated(world: Level, pos: BlockPos, player: Player, hand: InteractionHand, heldItem: ItemStack, side: Direction, hitX: Float, hitY: Float, hitZ: Float): Boolean = {
     world.getBlockEntity(pos) match {
       case rack: tileentity.Rack => rack.slotAt(side, hitX, hitY, hitZ) match {
         case Some(slot) =>

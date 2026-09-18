@@ -44,6 +44,7 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.core.Direction
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.TextComponent
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.{SoundEvents, SoundSource}
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.EquipmentSlot
@@ -146,7 +147,7 @@ class Robot(state: BlockState, pos: BlockPos) extends BlockEntity(BlockEntityTyp
 
   override def getComponentInSlot(index: Int): ManagedEnvironment = if (components.length > index) components(index).orNull else null
 
-  override def player: net.minecraft.world.entity.player.Player = {
+  override def player: ServerPlayer = {
     agent.Player.updatePositionAndRotation(player_, facing, facing)
     agent.Player.setPlayerInventoryItems(player_)
     player_
@@ -217,7 +218,7 @@ class Robot(state: BlockState, pos: BlockPos) extends BlockEntity(BlockEntityTyp
 
   def move(direction: Direction): Boolean = {
     val oldPosition = getBlockPos
-    val newPosition = oldPosition.relative(direction)
+    val newPosition: BlockPos = oldPosition.relative(direction)
     if (!getLevel.isLoaded(newPosition)) {
       return false // Don't fall off the earth.
     }

@@ -22,7 +22,7 @@ public interface HostAware extends DriverItem {
      *
      * @param stack the item to check.
      * @param host  the type of host the environment would live in.
-     * @return <tt>true</tt> if the item is supported; <tt>false</tt> otherwise.
+     * @return {@code true} if the item is supported; {@code false} otherwise.
      */
     boolean worksWith(ItemStack stack, Class<? extends EnvironmentHost> host);
 }

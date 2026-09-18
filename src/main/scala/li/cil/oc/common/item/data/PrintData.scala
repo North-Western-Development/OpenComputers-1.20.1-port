@@ -1,16 +1,14 @@
 package li.cil.oc.common.item.data
 
-import java.lang.reflect.Method
-import li.cil.oc.Constants
-import li.cil.oc.Settings
-import li.cil.oc.api
 import li.cil.oc.common.IMC
 import li.cil.oc.common.item.data.PrintData.Shape
 import li.cil.oc.util.ExtendedNBT._
-import net.minecraft.world.item.ItemStack
+import li.cil.oc.{Constants, Settings, api}
 import net.minecraft.nbt.{CompoundTag, Tag}
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.AABB
 
+import java.lang.reflect.Method
 import scala.collection.mutable
 
 class PrintData extends ItemData(Constants.BlockName.Print) {
@@ -158,8 +156,8 @@ object PrintData {
   }
 
   def computeCosts(data: PrintData): Option[(Int, Int)] = {
-    val totalVolume = data.stateOn.foldLeft(0)((acc, shape) => acc + getVolume(shape.bounds)) + data.stateOff.foldLeft(0)((acc, shape) => acc + getVolume(shape.bounds))
-    val totalSurface = data.stateOn.foldLeft(0)((acc, shape) => acc + getSurface(shape.bounds)) + data.stateOff.foldLeft(0)((acc, shape) => acc + getSurface(shape.bounds))
+    val totalVolume = data.stateOn.map(shape =>getVolume(shape.bounds)).sum + data.stateOff.map(shape =>getVolume(shape.bounds)).sum
+    val totalSurface = data.stateOn.map(shape => getSurface(shape.bounds)).sum + data.stateOff.map(shape => getSurface(shape.bounds)).sum
     val multiplier = if (data.noclipOff || data.noclipOn) Settings.get.noclipMultiplier else 1
 
     if (totalVolume > 0) {
@@ -200,13 +198,13 @@ object PrintData {
   }
 
   private def getVolume(bounds: AABB): Int = {
-    (bounds.getXsize * bounds.getYsize * bounds.getZsize).asInstanceOf[Int]
+    (bounds.getXsize * bounds.getYsize * bounds.getZsize * 16 * 16 * 16).asInstanceOf[Int]
   }
 
   private def getSurface(bounds: AABB): Int = {
-    val width = bounds.getXsize
-    val height = bounds.getYsize
-    val depth = bounds.getZsize
+    val width = bounds.getXsize * 16
+    val height = bounds.getYsize * 16
+    val depth = bounds.getZsize * 16
     (2 * (width * height + width * depth + height * depth)).asInstanceOf[Int]
   }
 

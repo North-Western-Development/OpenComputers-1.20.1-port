@@ -5,11 +5,13 @@ import li.cil.oc.api.machine.Arguments
 import li.cil.oc.api.machine.Callback
 import li.cil.oc.api.machine.Context
 import li.cil.oc.server.component.result
+import li.cil.oc.server.driver.Registry
 import li.cil.oc.util.DatabaseAccess
 import li.cil.oc.util.ExtendedArguments._
 import li.cil.oc.util.InventoryUtils
 import li.cil.oc.util.StackOption._
 import net.minecraft.world.item.ItemStack
+import net.minecraftforge.registries.ForgeRegistries
 
 import scala.collection.convert.ImplicitConversionsToScala._
 
@@ -25,7 +27,12 @@ trait InventoryAnalytics extends InventoryAware with NetworkAware {
   def isEquivalentTo(context: Context, args: Arguments): Array[AnyRef] = {
     val slot = args.checkSlot(inventory, 0)
     result((stackInSlot(selectedSlot), stackInSlot(slot)) match {
-      case (SomeStack(stackA), SomeStack(stackB)) => stackA.getItem.getTags.intersect(stackB.getItem.getTags).nonEmpty
+      case (SomeStack(stackA), SomeStack(stackB)) => {
+
+        val tagA = ForgeRegistries.ITEMS.tags().getReverseTag(stackA.getItem)
+        if (tagA.isEmpty) return result(false)
+        result(tagA.get().getTagKeys.filter(t => stackB.is(t)).findAny())
+      }
       case (EmptyStack, EmptyStack) => true
       case _ => false
     })

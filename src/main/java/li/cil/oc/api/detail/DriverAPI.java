@@ -92,7 +92,7 @@ public interface DriverAPI {
      * @param world the world containing the block.
      * @param pos   the position of the block.
      * @param side  the side of the block.
-     * @return a driver for the block, or <tt>null</tt> if there is none.
+     * @return a driver for the block, or {@code null} if there is none.
      */
     @Nullable
     DriverBlock driverFor(Level world, BlockPos pos, Direction side);
@@ -106,7 +106,7 @@ public interface DriverAPI {
      *
      * @param stack the item stack to get a driver for.
      * @param host  the type that will host the environment created by returned driver.
-     * @return a driver for the item, or <tt>null</tt> if there is none.
+     * @return a driver for the item, or {@code null} if there is none.
      */
     @Nullable
     DriverItem driverFor(ItemStack stack, Class<? extends EnvironmentHost> host);
@@ -122,7 +122,7 @@ public interface DriverAPI {
      * stuff, such as querying slot types and tier.
      *
      * @param stack the item stack to get a driver for.
-     * @return a driver for the item, or <tt>null</tt> if there is none.
+     * @return a driver for the item, or {@code null} if there is none.
      */
     @Nullable
     DriverItem driverFor(ItemStack stack);
@@ -132,10 +132,10 @@ public interface DriverAPI {
      * <br>
      * This will use the registered {@link EnvironmentProvider}s to find
      * an environment type for the specified item stack. If none can be
-     * found, returns <tt>null</tt>.
+     * found, returns {@code null}.
      *
      * @param stack the item stack to get the environment type for.
-     * @return the type of environment associated with the stack, or <tt>null</tt>.
+     * @return the type of environment associated with the stack, or {@code null}.
      * @deprecated Use {@link #environmentsFor(ItemStack)} instead.
      */
     @Deprecated
@@ -158,14 +158,14 @@ public interface DriverAPI {
      * <br>
      * This will use the registered {@link InventoryProvider}s to find an
      * IItemHandler implementation providing access to the specified stack.
-     * If none can be found, returns <tt>null</tt>.
+     * If none can be found, returns {@code null}.
      * <br>
-     * Note that the specified <tt>player</tt> may be null, but will usually
+     * Note that the specified {@code player} may be null, but will usually
      * be the <em>fake player</em> of the agent making use of this API.
      *
      * @param stack  the item stack to get the inventory access for.
-     * @param player the player holding the item. May be <tt>null</tt>.
-     * @return the IItemHandler implementation interfacing the stack, or <tt>null</tt>.
+     * @param player the player holding the item. May be {@code null}.
+     * @return the IItemHandler implementation interfacing the stack, or {@code null}.
      */
     IItemHandler itemHandlerFor(ItemStack stack, Player player);
 

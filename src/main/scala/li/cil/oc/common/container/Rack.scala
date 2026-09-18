@@ -1,18 +1,13 @@
 package li.cil.oc.common.container
 
 import li.cil.oc.api.component.RackMountable
-import li.cil.oc.common.Slot
-import li.cil.oc.common.tileentity
+import li.cil.oc.common.{Slot, tileentity}
 import li.cil.oc.util.ExtendedNBT._
-import li.cil.oc.util.RotationHelper
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.world.Container
-import net.minecraft.inventory.container.ContainerType
-import net.minecraft.nbt.{CompoundTag, IntArrayNBT, IntArrayTag, Tag}
 import net.minecraft.core.Direction
+import net.minecraft.nbt.{CompoundTag, IntArrayTag, Tag}
+import net.minecraft.world.Container
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.MenuType
-import net.minecraftforge.common.util.Constants.NBT
 
 class Rack(selfType: MenuType[_ <: Rack], id: Int, playerInventory: Inventory, val rack: Container)
   extends Player(selfType, id, playerInventory, rack) {

@@ -30,7 +30,7 @@ public interface Tablet extends EnvironmentHost, MachineHost, Rotatable {
      * <br>
      * Note that this value may change over the lifetime of a tablet instance.
      * The player may also already have dropped the tablet - this value will
-     * <em>not</em> be set to <tt>null</tt> in that case!
+     * <em>not</em> be set to {@code null} in that case!
      *
      * @return the player last holding the tablet.
      */

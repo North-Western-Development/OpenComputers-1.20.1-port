@@ -1,25 +1,29 @@
 package li.cil.oc.client.renderer.block
 
-import java.util
-import java.util.Collections
-
 import li.cil.oc.client.Textures
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.client.world.ClientLevel
-import net.minecraft.client.renderer.model.BakedQuad
-import net.minecraft.client.renderer.model.IBakedModel
-import net.minecraft.client.renderer.model.ItemOverrideList
-import net.minecraft.entity.LivingEntity
-import net.minecraft.world.item.ItemStack
+import net.minecraft.client.multiplayer.ClientLevel
+import net.minecraft.client.renderer.block.model.{BakedQuad, ItemOverrides}
+import net.minecraft.client.resources.model.BakedModel
 import net.minecraft.core.Direction
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraftforge.client.model.data.IModelData
 
-import scala.collection.JavaConverters.bufferAsJavaList
+import java.util
+import java.util.{Collections, Random}
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 object RobotModel extends SmartBlockModelBase {
-  override def getOverrides: ItemOverrideList = ItemOverride
+  override def getOverrides: ItemOverrides = ItemOverride
+
+  override def getQuads(state: BlockState, side: Direction, rand: Random, extraData: IModelData): util.List[BakedQuad] = {
+    java.util.Collections.emptyList()
+  }
 
   object ItemModel extends SmartBlockModelBase {
+    override def getOverrides: ItemOverrides = ItemOverride
     private val size = 0.4f
     private val l = 0.5f - size
     private val h = 0.5f + size
@@ -60,7 +64,10 @@ object RobotModel extends SmartBlockModelBase {
       }.toArray
     }
 
-    override def getQuads(state: BlockState, side: Direction, rand: util.Random): util.List[BakedQuad] = {
+    override def getQuads(state: BlockState, side: Direction, rand: util.Random, data: IModelData): util.List[BakedQuad] = {
+      if (side != null)
+        return Collections.emptyList()
+
       val faces = mutable.ArrayBuffer.empty[BakedQuad]
 
       faces += new BakedQuad(quad(top, top1, top2), tint, Direction.NORTH, robotTexture, true)
@@ -73,12 +80,12 @@ object RobotModel extends SmartBlockModelBase {
       faces += new BakedQuad(quad(bottom, bottom3, bottom4), tint, Direction.SOUTH, robotTexture, true)
       faces += new BakedQuad(quad(bottom, bottom4, bottom1), tint, Direction.WEST, robotTexture, true)
 
-      bufferAsJavaList(faces)
+      faces.asJava
     }
   }
 
-  object ItemOverride extends ItemOverrideList {
-    override def resolve(originalModel: IBakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity): IBakedModel = ItemModel
+  object ItemOverride extends ItemOverrides {
+    override def resolve(originalModel: BakedModel, stack: ItemStack, world: ClientLevel, entity: LivingEntity, seed: Int): BakedModel = ItemModel
   }
 
 }

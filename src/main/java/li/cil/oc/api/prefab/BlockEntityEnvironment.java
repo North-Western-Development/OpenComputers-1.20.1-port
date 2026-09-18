@@ -47,7 +47,7 @@ public abstract class BlockEntityEnvironment extends BlockEntity implements Envi
      *       // annotation, making them callable from user code. The first
      *       // parameter is the name by which the component will be known in
      *       // the computer, in this case it could be accessed as
-     *       // <tt>component.example</tt>. The second parameter is the
+     *       // {@code component.example}. The second parameter is the
      *       // component's visibility. This is like the node's reachability,
      *       // but only applies to computers. For example, network cards can
      *       // only be <em>seen</em> by the computer they're installed in, but

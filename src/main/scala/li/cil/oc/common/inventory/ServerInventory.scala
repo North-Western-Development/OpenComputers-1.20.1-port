@@ -7,8 +7,6 @@ import li.cil.oc.common.container.ContainerTypes
 import li.cil.oc.common.container.{Server => ServerContainer}
 import li.cil.oc.util.ItemUtils
 import net.minecraft.world.entity.player.Player
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.inventory.container.INamedContainerProvider
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.item.ItemStack
 

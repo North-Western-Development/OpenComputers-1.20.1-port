@@ -4,7 +4,7 @@
  * casting to these interfaces.
  * <br>
  * For example, to determine whether a tile entity is a robot, you can
- * do an <tt>instanceof</tt> with the {@link li.cil.oc.api.internal.Robot}
+ * do an {@code instanceof} with the {@link li.cil.oc.api.internal.Robot}
  * interface - and cast to it if you wish to access some of the provided
  * functionality.
  * <br>

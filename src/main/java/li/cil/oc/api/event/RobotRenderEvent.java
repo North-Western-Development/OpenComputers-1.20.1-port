@@ -107,7 +107,7 @@ public class RobotRenderEvent extends RobotEvent {
         /**
          * The orientation of the mount point specified by the angle and the
          * vector to rotate around. The rotation is applied in one
-         * GL11.glRotate() call. Note that the <tt>W</tt> component of the
+         * GL11.glRotate() call. Note that the {@code W} component of the
          * vector is the rotation.
          * <br>
          * Note that the rotation is applied <em>before</em> the translation.

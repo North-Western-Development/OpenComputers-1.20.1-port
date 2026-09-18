@@ -1,21 +1,19 @@
 package li.cil.oc.common.tileentity
 
+import li.cil.oc.{Constants, Settings}
+import li.cil.oc.api.driver.DeviceInfo.{DeviceAttribute, DeviceClass}
+import net.minecraft.core.{BlockPos, Direction}
+import net.minecraft.world.damagesource.DamageSource
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.animal.{Ocelot, Sheep}
+import net.minecraft.world.level.block.entity.{BlockEntity, BlockEntityType}
+import net.minecraft.world.level.block.state.BlockState
+
 import java.util
-
-import li.cil.oc.Constants
-import li.cil.oc.api.driver.DeviceInfo.DeviceAttribute
-import li.cil.oc.api.driver.DeviceInfo.DeviceClass
-import li.cil.oc.Settings
-import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.passive.{OcelotEntity, SheepEntity}
-import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.util.DamageSource
-import net.minecraft.core.Direction
-
 import scala.collection.convert.ImplicitConversionsToJava._
 import scala.collection.convert.ImplicitConversionsToScala._
 
-class CarpetedCapacitor(selfType: BlockEntityType[_ <: CarpetedCapacitor]) extends Capacitor(selfType) with traits.Tickable {
+class CarpetedCapacitor(selfType: BlockEntityType[_ <: CarpetedCapacitor], pos: BlockPos, state: BlockState) extends Capacitor(selfType, pos, state) with traits.Tickable {
   private final lazy val deviceInfo = Map(
     DeviceAttribute.Class -> DeviceClass.Power,
     DeviceAttribute.Description -> "Battery",
@@ -56,8 +54,8 @@ class CarpetedCapacitor(selfType: BlockEntityType[_ <: CarpetedCapacitor]) exten
       val entities = _world.getEntitiesOfClass(classOf[LivingEntity], capacitorPowerBounds)
         .filter(entity => entity.isAlive)
         .toSet
-      val sheepPower = energyFromGroup(entities.filter(_.isInstanceOf[SheepEntity]), Settings.get.sheepPower)
-      val ocelotPower = energyFromGroup(entities.filter(_.isInstanceOf[OcelotEntity]), Settings.get.ocelotPower)
+      val sheepPower = energyFromGroup(entities.filter(_.isInstanceOf[Sheep]), Settings.get.sheepPower)
+      val ocelotPower = energyFromGroup(entities.filter(_.isInstanceOf[Ocelot]), Settings.get.ocelotPower)
       val totalPower = sheepPower + ocelotPower
       if (totalPower > 0) {
         node.changeBuffer(totalPower)

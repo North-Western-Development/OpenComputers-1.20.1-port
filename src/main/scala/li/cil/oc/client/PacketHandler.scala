@@ -148,6 +148,7 @@ object PacketHandler extends CommonPacketHandler {
       case Some(t) =>
         t.setColor(p.readInt())
         t.getLevel.notifyBlockUpdate(t.position)
+        t.requestModelDataUpdate()
       case _ => // Invalid packet.
     }
 

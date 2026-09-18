@@ -1,26 +1,21 @@
 package li.cil.oc.server.agent
 
-import java.util.function.Predicate
-
 import li.cil.oc.api.internal
 import li.cil.oc.util.ExtendedInventory._
-import li.cil.oc.util.InventoryUtils
-import li.cil.oc.util.StackOption
+import li.cil.oc.util.{InventoryUtils, StackOption}
 import li.cil.oc.util.StackOption._
-import net.minecraft.world.entity.player.Player
-import net.minecraft.entity.player.PlayerInventory
-import net.minecraft.world.Container
-import net.minecraft.world.item.ItemStack
-import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
-import net.minecraft.util.DamageSource
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
+import net.minecraft.network.chat.{Component, TextComponent}
+import net.minecraft.world.Container
+import net.minecraft.world.damagesource.DamageSource
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.state.BlockState
 
+import java.util.function.Predicate
 import scala.collection.immutable
 
-class Inventory(playerEntity: Player, val agent: internal.Agent) extends PlayerInventory(playerEntity) {
+class SimpleContainer(playerEntity: Player, val agent: internal.Agent) extends net.minecraft.world.entity.player.Inventory(playerEntity) {
 
   private def selectedItemStack: ItemStack = agent.mainInventory.getItem(agent.selectedSlot)
 
@@ -61,13 +56,13 @@ class Inventory(playerEntity: Player, val agent: internal.Agent) extends PlayerI
 
   override def getArmor(slot: Int): ItemStack = ItemStack.EMPTY
 
-  override def hurtArmor(source: DamageSource, damage: Float) {}
+  override def hurtArmor(source: DamageSource, damage: Float, slots : Array[Int]) {}
 
   override def dropAll(): Unit = {}
 
   override def contains(stack: ItemStack): Boolean = (0 until getContainerSize).map(getItem).filter(!_.isEmpty).exists(_.sameItem(stack))
 
-  override def replaceWith(from: PlayerInventory) {}
+  override def replaceWith(from: net.minecraft.world.entity.player.Inventory) {}
 
   // Container
 
@@ -92,7 +87,7 @@ class Inventory(playerEntity: Player, val agent: internal.Agent) extends PlayerI
     else agent.mainInventory.setItem(slot, stack)
   }
 
-  override def getName: ITextComponent = new StringTextComponent(agent.name)
+  override def getName: Component = new TextComponent(agent.name)
 
   override def getMaxStackSize: Int = agent.mainInventory.getMaxStackSize
 

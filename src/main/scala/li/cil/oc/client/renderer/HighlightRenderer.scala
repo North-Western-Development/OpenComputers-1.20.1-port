@@ -12,8 +12,8 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer._
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import net.minecraft.core.Direction
-import net.minecraft.util.Hand
-import net.minecraft.util.math.shapes.ISelectionContext
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.phys.shapes.CollisionContext
 import net.minecraftforge.client.event.DrawHighlightEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 
@@ -32,10 +32,10 @@ object HighlightRenderer {
     val world = Minecraft.getInstance.level
     val blockPos = BlockPosition(hitInfo.getBlockPos, world)
     val stack = e.getMatrix
-    if (api.Items.get(Minecraft.getInstance.player.getItemInHand(Hand.MAIN_HAND)) == tablet) {
+    if (api.Items.get(Minecraft.getInstance.player.getItemInHand(InteractionHand.MAIN_HAND)) == tablet) {
       val isAir = world.isAirBlock(blockPos)
       if (!isAir) {
-        val shape = world.getBlockState(hitInfo.getBlockPos).getShape(world, hitInfo.getBlockPos, ISelectionContext.of(e.getInfo.getEntity))
+        val shape = world.getBlockState(hitInfo.getBlockPos).getShape(world, hitInfo.getBlockPos, CollisionContext.of(e.getInfo.getEntity))
         val (minX, minY, minZ) = (shape.min(Direction.Axis.X).toFloat, shape.min(Direction.Axis.Y).toFloat, shape.min(Direction.Axis.Z).toFloat)
         val (maxX, maxY, maxZ) = (shape.max(Direction.Axis.X).toFloat, shape.max(Direction.Axis.Y).toFloat, shape.max(Direction.Axis.Z).toFloat)
         val sideHit = hitInfo.getDirection

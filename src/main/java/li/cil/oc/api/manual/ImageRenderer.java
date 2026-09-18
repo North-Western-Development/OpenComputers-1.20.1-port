@@ -10,7 +10,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
  * provider. A renderer will then be used to draw something at the position
  * of the image tag.
  * <br>
- * Built-in image renderers are <tt>item</tt>, <tt>block</tt> and <tt>oredict</tt>.
+ * Built-in image renderers are {@code item}, {@code block} and {@code oredict}.
  */
 public interface ImageRenderer {
     /**

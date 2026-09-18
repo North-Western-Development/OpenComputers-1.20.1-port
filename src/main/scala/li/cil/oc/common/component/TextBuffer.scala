@@ -31,6 +31,7 @@ import li.cil.oc.util.BlockPosition
 import li.cil.oc.util.PackedColor
 import li.cil.oc.util.SideTracker
 import net.minecraft.client.Minecraft
+import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.world.entity.player.Player
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.InteractionHand
@@ -361,7 +362,7 @@ class TextBuffer(val host: EnvironmentHost) extends AbstractManagedEnvironment w
   }
 
   @OnlyIn(Dist.CLIENT)
-  override def renderText(stack: PoseStack): Boolean = relativeLitArea != 0 && proxy.render(stack)
+  override def renderText(stack: PoseStack, buffer: MultiBufferSource): Boolean = relativeLitArea != 0 && proxy.render(stack, buffer)
 
   @OnlyIn(Dist.CLIENT)
   override def renderWidth: Int = TextBufferRenderCache.renderer.charRenderWidth * getViewportWidth
@@ -545,7 +546,7 @@ object TextBuffer {
     }
 
     @OnlyIn(Dist.CLIENT)
-    def render(stack: PoseStack) = false
+    def render(stack: PoseStack, buffer: MultiBufferSource) = false
 
     def onBufferColorChange(): Unit
 
@@ -631,9 +632,9 @@ object TextBuffer {
     }
 
     @OnlyIn(Dist.CLIENT)
-    override def render(stack: PoseStack) = {
+    override def render(stack: PoseStack, buffer: MultiBufferSource) = {
       val wasDirty = dirty
-      TextBufferRenderCache.render(stack, renderer)
+      TextBufferRenderCache.render(stack, renderer, buffer)
       wasDirty
     }
 

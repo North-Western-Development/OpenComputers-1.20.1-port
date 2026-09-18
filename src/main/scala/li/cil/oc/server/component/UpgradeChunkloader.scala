@@ -20,7 +20,7 @@ import li.cil.oc.common.event.ChunkloaderUpgradeHandler
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.Level
-import net.minecraft.world.server.ServerLevel
+import net.minecraft.server.level.ServerLevel
 
 import scala.collection.convert.ImplicitConversionsToJava._
 
