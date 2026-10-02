@@ -13,6 +13,7 @@ accessible field net/minecraft/world/level/block/entity/AbstractFurnaceBlockEnti
 accessible field net/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity litDuration I
 accessible field net/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity cookingProgress I
 accessible field net/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity cookingTotalTime I
+accessible field net/minecraft/world/level/block/entity/BeaconBlockEntity levels I
 accessible field net/minecraft/world/level/block/entity/BeaconBlockEntity primaryPower Lnet/minecraft/world/effect/MobEffect;
 accessible field net/minecraft/world/level/block/entity/BeaconBlockEntity secondaryPower Lnet/minecraft/world/effect/MobEffect;
 accessible field net/minecraft/world/level/block/entity/BrewingStandBlockEntity brewTime I

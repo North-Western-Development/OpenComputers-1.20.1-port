@@ -4,6 +4,7 @@
   "package": "li.cil.oc.common.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "ChunkMapAccessor",
     "PlayerPersistedDataMixin",
     "ServerPlayerPersistedDataMixin"
   ],
