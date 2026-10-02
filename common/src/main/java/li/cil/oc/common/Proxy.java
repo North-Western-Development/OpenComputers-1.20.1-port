@@ -37,7 +37,7 @@ import java.util.Map;
  * Common (dedicated server) proxy; {@code li.cil.oc.client.Proxy} extends it.
  * Lifecycle (see {@link OpenComputers#init()}):
  * <ul>
- * <li>{@link #preInit()}: mod construction, before blocks/items are registered.</li>
+ * <li>{@link #preInit()}: mod construction, after blocks/items are registered.</li>
  * <li>{@link #init()}: {@code LifecycleEvent.SETUP}.</li>
  * <li>{@link #postInit()}: {@code LifecycleEvent.SERVER_BEFORE_START}.</li>
  * <li>{@link #initClient()}: physical client only, after {@link OpenComputers#init()}.</li>

@@ -45,6 +45,9 @@ dependencies {
 
 processResources {
     inputs.property "version", project.version
+    // fabric.mod.json references the access widener, which lives in common's resources.
+    from(project(":common").loom.accessWidenerPath)
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     filesMatching("fabric.mod.json") {
         expand "version": rootProject.mod_version, "mcversion": rootProject.minecraft_version
     }
@@ -71,6 +74,7 @@ jar {
 }
 
 sourcesJar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     def commonSources = project(":common").sourcesJar
     dependsOn commonSources
     from commonSources.archiveFile.map { zipTree(it) }

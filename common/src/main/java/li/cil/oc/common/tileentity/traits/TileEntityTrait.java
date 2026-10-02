@@ -16,15 +16,15 @@ import javax.annotation.Nullable;
  */
 public interface TileEntityTrait {
     @Nullable
-    Level getLevel();
+    Level ocLevel();
 
-    BlockPos getBlockPos();
+    BlockPos ocBlockPos();
 
-    BlockState getBlockState();
+    BlockState ocBlockState();
 
-    void setChanged();
+    void ocSetChanged();
 
-    boolean isRemoved();
+    boolean ocIsRemoved();
 
     int x();
 

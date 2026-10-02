@@ -42,7 +42,7 @@ public interface PowerBalancer extends PowerInformation, SidedEnvironment, Ticka
     }
 
     static void onUpdateEntity(PowerBalancer self) {
-        if (self.isServer() && self.isConnected() && self.getLevel().getGameTime() % Settings.get().tickFrequency == 0) {
+        if (self.isServer() && self.isConnected() && self.ocLevel().getGameTime() % Settings.get().tickFrequency == 0) {
             final Connector[] nodes = self.connectors();
             // Yeeeeah, so that just happened... it's not a beauty, but it works. This
             // is necessary because power in networks can be updated asynchronously,

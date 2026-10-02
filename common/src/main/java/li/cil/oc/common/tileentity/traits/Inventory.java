@@ -63,7 +63,7 @@ public interface Inventory extends TileEntityTrait, li.cil.oc.common.inventory.I
     }
 
     default boolean dropSlot(int slot, int count, Optional<Direction> direction) {
-        return InventoryUtils.dropSlot(new li.cil.oc.util.BlockPosition(x(), y(), z(), getLevel()), this, slot, count, direction);
+        return InventoryUtils.dropSlot(new li.cil.oc.util.BlockPosition(x(), y(), z(), ocLevel()), this, slot, count, direction);
     }
 
     default boolean dropSlot(int slot, int count) {
@@ -75,11 +75,11 @@ public interface Inventory extends TileEntityTrait, li.cil.oc.common.inventory.I
     }
 
     default void dropAllSlots() {
-        InventoryUtils.dropAllSlots(new li.cil.oc.util.BlockPosition(x(), y(), z(), getLevel()), this);
+        InventoryUtils.dropAllSlots(new li.cil.oc.util.BlockPosition(x(), y(), z(), ocLevel()), this);
     }
 
     default ItemEntity spawnStackInWorld(ItemStack stack, Optional<Direction> direction) {
-        return InventoryUtils.spawnStackInWorld(new li.cil.oc.util.BlockPosition(x(), y(), z(), getLevel()), stack, direction);
+        return InventoryUtils.spawnStackInWorld(new li.cil.oc.util.BlockPosition(x(), y(), z(), ocLevel()), stack, direction);
     }
 
     default ItemEntity spawnStackInWorld(ItemStack stack) {

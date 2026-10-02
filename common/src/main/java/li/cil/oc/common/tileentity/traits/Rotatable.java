@@ -32,9 +32,9 @@ public interface Rotatable extends RotationAware, li.cil.oc.api.internal.Rotatab
     // ----------------------------------------------------------------------- //
 
     default Direction pitch() {
-        final Level level = getLevel();
-        if (level != null && level.isLoaded(getBlockPos())) {
-            final BlockState state = level.getBlockState(getBlockPos());
+        final Level level = ocLevel();
+        if (level != null && level.isLoaded(ocBlockPos())) {
+            final BlockState state = level.getBlockState(ocBlockPos());
             if (state.hasProperty(PropertyRotatable.Pitch)) return state.getValue(PropertyRotatable.Pitch);
             return Direction.NORTH;
         }
@@ -46,9 +46,9 @@ public interface Rotatable extends RotationAware, li.cil.oc.api.internal.Rotatab
     }
 
     default Direction yaw() {
-        final Level level = getLevel();
-        if (level != null && level.isLoaded(getBlockPos())) {
-            final BlockState state = level.getBlockState(getBlockPos());
+        final Level level = ocLevel();
+        if (level != null && level.isLoaded(ocBlockPos())) {
+            final BlockState state = level.getBlockState(ocBlockPos());
             if (state.hasProperty(PropertyRotatable.Yaw)) return state.getValue(PropertyRotatable.Yaw);
             if (state.hasProperty(PropertyRotatable.Facing)) return state.getValue(PropertyRotatable.Facing);
             return Direction.SOUTH;
@@ -86,8 +86,8 @@ public interface Rotatable extends RotationAware, li.cil.oc.api.internal.Rotatab
     }
 
     default boolean rotate(Direction axis) {
-        final Level level = getLevel();
-        final BlockPos pos = getBlockPos();
+        final Level level = ocLevel();
+        final BlockPos pos = ocBlockPos();
         final BlockState state = level.getBlockState(pos);
         if (state.getBlock() instanceof SimpleBlock simple) {
             final Direction[] valid = simple.getValidRotations(level, pos);
@@ -148,28 +148,28 @@ public interface Rotatable extends RotationAware, li.cil.oc.api.internal.Rotatab
     // ----------------------------------------------------------------------- //
 
     default void onRotationChanged() {
-        final Level level = getLevel();
+        final Level level = ocLevel();
         if (isServer()) {
             PacketSender.sendRotatableState(this);
         } else {
-            ExtendedWorld.notifyBlockUpdate(level, getBlockPos());
+            ExtendedWorld.notifyBlockUpdate(level, ocBlockPos());
         }
-        level.updateNeighborsAt(getBlockPos(), getBlockState().getBlock());
+        level.updateNeighborsAt(ocBlockPos(), ocBlockState().getBlock());
     }
 
     // ----------------------------------------------------------------------- //
 
     /** Updates cached translation array and sends notification to clients. */
     default void updateTranslation() {
-        if (getLevel() != null) {
+        if (ocLevel() != null) {
             onRotationChanged();
         }
     }
 
     /** Validates new values against the allowed rotations as set in our block. */
     default boolean trySetPitchYaw(Direction pitch, Direction yaw) {
-        final Level level = getLevel();
-        final BlockPos pos = getBlockPos();
+        final Level level = ocLevel();
+        final BlockPos pos = ocBlockPos();
         final BlockState oldState = level.getBlockState(pos);
         final BlockState newState;
         if (oldState.hasProperty(PropertyRotatable.Pitch) && oldState.hasProperty(PropertyRotatable.Yaw)) {

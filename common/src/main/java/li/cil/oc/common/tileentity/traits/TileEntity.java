@@ -167,6 +167,35 @@ public abstract class TileEntity extends BlockEntity implements TileEntityTrait 
     }
 
     // ----------------------------------------------------------------------- //
+    // TileEntityTrait accessors. These must not share names with BlockEntity's methods:
+    // interface methods are not remapped together with Minecraft's, so an interface method
+    // called "getLevel" would not be implemented by the remapped BlockEntity#getLevel in
+    // production (AbstractMethodError).
+
+    @Override
+    public final Level ocLevel() {
+        return getLevel();
+    }
+
+    @Override
+    public final BlockPos ocBlockPos() {
+        return getBlockPos();
+    }
+
+    @Override
+    public final BlockState ocBlockState() {
+        return getBlockState();
+    }
+
+    @Override
+    public final void ocSetChanged() {
+        setChanged();
+    }
+
+    @Override
+    public final boolean ocIsRemoved() {
+        return isRemoved();
+    }
 
     @Override
     public int x() {

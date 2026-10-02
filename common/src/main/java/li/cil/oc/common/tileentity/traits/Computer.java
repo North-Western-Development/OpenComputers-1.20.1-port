@@ -99,10 +99,10 @@ public interface Computer extends Environment, ComponentInventory, Rotatable, Bu
             if (value) {
                 state.hasErrored = false;
             }
-            final Level level = getLevel();
+            final Level level = ocLevel();
             if (level != null) {
-                final BlockState blockState = level.getBlockState(getBlockPos());
-                level.sendBlockUpdated(getBlockPos(), blockState, blockState, 3);
+                final BlockState blockState = level.getBlockState(ocBlockPos());
+                level.sendBlockUpdated(ocBlockPos(), blockState, blockState, 3);
                 if (level.isClientSide) {
                     runSound().ifPresent(sound -> {
                         if (state.isRunning) li.cil.oc.client.Sound.startLoop((TileEntity) this, sound, 0.5f, 50 + level.random.nextInt(50));
@@ -187,7 +187,7 @@ public interface Computer extends Environment, ComponentInventory, Rotatable, Bu
     }
 
     default void onRunningChanged() {
-        setChanged();
+        ocSetChanged();
         PacketSender.sendComputerState(this);
     }
 
@@ -204,7 +204,7 @@ public interface Computer extends Environment, ComponentInventory, Rotatable, Bu
         // This is required for loading auxiliary data (kernel state), because the
         // coordinates in the actual robot won't be set properly, otherwise.
         if (self instanceof RobotProxy proxy) {
-            proxy.robot.setLevelAndPosition(self.getLevel(), self.getBlockPos());
+            proxy.robot.setLevelAndPosition(self.ocLevel(), self.ocBlockPos());
         }
         self.machine().loadData(nbt.getCompound(ComputerTag));
 
@@ -228,7 +228,7 @@ public interface Computer extends Environment, ComponentInventory, Rotatable, Bu
         self.setRunning(nbt.getBoolean(IsRunningTag));
         final List<String> users = ExtendedNBT.<StringTag, String>map(nbt.getList(UsersTag, Tag.TAG_STRING), StringTag::getAsString);
         self.setUsers(users);
-        final Level level = self.getLevel();
+        final Level level = self.ocLevel();
         if (state.isRunning && level != null) {
             self.runSound().ifPresent(sound -> li.cil.oc.client.Sound.startLoop((TileEntity) self, sound, 0.5f, 1000 + level.random.nextInt(2000)));
         }

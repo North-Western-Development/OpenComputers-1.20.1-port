@@ -243,6 +243,17 @@ public abstract class LuaStateFactory {
             libraryUrl = Machine.class.getResource("/assets/" + Settings.resourceDomain + "/lib//" + libraryName);
         }
         if (libraryUrl == null) {
+            // On module-based loaders (Forge) Class#getResource only searches the class' own
+            // module; in development the natives live in a separate library jar.
+            final String path = "assets/" + Settings.resourceDomain + "/lib/" + libraryName;
+            final ClassLoader[] loaders = {Machine.class.getClassLoader(), Thread.currentThread().getContextClassLoader(), ClassLoader.getSystemClassLoader()};
+            for (ClassLoader loader : loaders) {
+                if (loader == null) continue;
+                libraryUrl = loader.getResource(path);
+                if (libraryUrl != null) break;
+            }
+        }
+        if (libraryUrl == null) {
             OpenComputers.log.warn("Native library with name '" + version() + "/" + libraryName + "' not found.");
             return;
         }

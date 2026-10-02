@@ -68,14 +68,14 @@ public interface ComponentInventory extends Environment, Inventory, li.cil.oc.co
                 if (!ItemStack.isSameItemSameTags(removed, added)) {
                     li.cil.oc.common.inventory.ComponentInventory.super.onItemRemoved(slot, removed);
                     li.cil.oc.common.inventory.ComponentInventory.super.onItemAdded(slot, added);
-                    setChanged();
+                    ocSetChanged();
                 } // else: No change, ignore.
             } else if (!removed.isEmpty()) {
                 li.cil.oc.common.inventory.ComponentInventory.super.onItemRemoved(slot, removed);
-                setChanged();
+                ocSetChanged();
             } else if (!added.isEmpty()) {
                 li.cil.oc.common.inventory.ComponentInventory.super.onItemAdded(slot, added);
-                setChanged();
+                ocSetChanged();
             } // else: No change.
 
             pendingRemovals().set(slot, ItemStack.EMPTY);

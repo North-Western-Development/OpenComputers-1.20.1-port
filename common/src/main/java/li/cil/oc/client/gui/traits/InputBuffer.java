@@ -47,9 +47,11 @@ public interface InputBuffer extends DisplayBuffer {
 
     boolean hasKeyboard();
 
-    boolean shouldCloseOnEsc();
+    /** Screen#shouldCloseOnEsc; separate name because interface methods are not remapped with Minecraft's. */
+    boolean inputShouldCloseOnEsc();
 
-    void onClose();
+    /** Screen#onClose; see {@link #inputShouldCloseOnEsc()}. */
+    void inputClose();
 
     @Override
     default int bufferColumns() {
@@ -175,8 +177,8 @@ public interface InputBuffer extends DisplayBuffer {
      */
     default boolean handleKeyPressed(int keyCode, int scanCode, int mods) {
         if (!isItemSearchFocused()) {
-            if (keyCode == GLFW.GLFW_KEY_ESCAPE && shouldCloseOnEsc()) {
-                onClose();
+            if (keyCode == GLFW.GLFW_KEY_ESCAPE && inputShouldCloseOnEsc()) {
+                inputClose();
                 return true;
             }
             if (onInput(InputConstants.getKey(keyCode, scanCode))) return true;

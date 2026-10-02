@@ -77,18 +77,19 @@ public final class OpenComputers {
 
         Settings.load(Platform.getConfigFolder().resolve("opencomputers").resolve("settings.conf").toFile());
 
-        // Instantiating the proxy runs its constructor, which (like on 1.16.5)
-        // sets up the registries it owns (menu / entity / block entity types,
-        // recipe serializers, loot functions).
-        final Proxy proxy = proxy();
-        proxy.preInit();
-
         ThreadPoolFactory.init();
         Mods.preInit(); // Must happen after loading Settings but before registries are registered.
 
+        // Fabric registers entries immediately when a DeferredRegister is registered, so
+        // blocks and items must exist before the block entity types etc. that reference them.
         CreativeTab.register();
         Blocks.init();
         Items.init();
+
+        // Sets up the registries the proxy owns (menu / entity / block entity types,
+        // recipe serializers, sounds, loot functions), packets, events and API implementations.
+        final Proxy proxy = proxy();
+        proxy.preInit();
 
         // Formerly FMLCommonSetupEvent / FMLLoadCompleteEvent subscriptions on the proxy.
         LifecycleEvent.SETUP.register(() -> proxy().init());

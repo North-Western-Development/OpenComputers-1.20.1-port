@@ -225,4 +225,14 @@ public class Screen extends net.minecraft.client.gui.screens.Screen implements I
         y = (height - (innerHeight + bufferMargin * 2)) / 2;
         return scale;
     }
+
+    @Override
+    public boolean inputShouldCloseOnEsc() {
+        return shouldCloseOnEsc();
+    }
+
+    @Override
+    public void inputClose() {
+        onClose();
+    }
 }

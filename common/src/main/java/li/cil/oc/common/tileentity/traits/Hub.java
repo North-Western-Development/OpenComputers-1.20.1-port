@@ -179,7 +179,7 @@ public interface Hub extends Environment, SidedEnvironment, Tickable {
                         state.relayCooldown = state.relayDelay - 1;
                     }
                 }
-            } else if (self.getLevel().getGameTime() % state.relayDelay == 0) {
+            } else if (self.ocLevel().getGameTime() % state.relayDelay == 0) {
                 state.packetsPerCycleAvg.add(0);
             }
         }

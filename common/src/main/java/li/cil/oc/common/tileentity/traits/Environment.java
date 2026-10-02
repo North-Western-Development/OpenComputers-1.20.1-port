@@ -25,7 +25,7 @@ public interface Environment extends TileEntityTrait, li.cil.oc.api.network.Envi
 
     @Override
     default Level world() {
-        return getLevel();
+        return ocLevel();
     }
 
     @Override
@@ -46,7 +46,7 @@ public interface Environment extends TileEntityTrait, li.cil.oc.api.network.Envi
     @Override
     default void markChanged() {
         if (this instanceof Tickable) environmentState().isChangeScheduled = true;
-        else getLevel().blockEntityChanged(getBlockPos());
+        else ocLevel().blockEntityChanged(ocBlockPos());
     }
 
     default boolean isConnected() {
@@ -65,7 +65,7 @@ public interface Environment extends TileEntityTrait, li.cil.oc.api.network.Envi
     static void onUpdateEntity(Environment self) {
         final State state = self.environmentState();
         if (state.isChangeScheduled) {
-            self.getLevel().blockEntityChanged(self.getBlockPos());
+            self.ocLevel().blockEntityChanged(self.ocBlockPos());
             state.isChangeScheduled = false;
         }
     }

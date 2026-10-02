@@ -200,27 +200,27 @@ public interface RedstoneAware extends RotationAware {
     }
 
     default void onRedstoneOutputEnabledChanged() {
-        final Level level = getLevel();
+        final Level level = ocLevel();
         if (level != null) {
-            level.updateNeighborsAt(getBlockPos(), getBlockState().getBlock());
+            level.updateNeighborsAt(ocBlockPos(), ocBlockState().getBlock());
             if (isServer()) PacketSender.sendRedstoneState(this);
             else {
-                final BlockState state = level.getBlockState(getBlockPos());
-                level.sendBlockUpdated(getBlockPos(), state, state, 3);
+                final BlockState state = level.getBlockState(ocBlockPos());
+                level.sendBlockUpdated(ocBlockPos(), state, state, 3);
             }
         }
     }
 
     default void onRedstoneOutputChanged(Direction side) {
-        final Level level = getLevel();
-        final BlockPos blockPos = getBlockPos().relative(side);
-        level.neighborChanged(blockPos, getBlockState().getBlock(), blockPos);
+        final Level level = ocLevel();
+        final BlockPos blockPos = ocBlockPos().relative(side);
+        level.neighborChanged(blockPos, ocBlockState().getBlock(), blockPos);
         level.updateNeighborsAtExceptFromFacing(blockPos, level.getBlockState(blockPos).getBlock(), side.getOpposite());
 
         if (isServer()) PacketSender.sendRedstoneState(this);
         else {
-            final BlockState state = level.getBlockState(getBlockPos());
-            level.sendBlockUpdated(getBlockPos(), state, state, 3);
+            final BlockState state = level.getBlockState(ocBlockPos());
+            level.sendBlockUpdated(ocBlockPos(), state, state, 3);
         }
     }
 }

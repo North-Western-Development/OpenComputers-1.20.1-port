@@ -41,7 +41,7 @@ public interface Colored extends TileEntityTrait, li.cil.oc.api.internal.Colored
     }
 
     default void onColorChanged() {
-        if (getLevel() != null && isServer()) {
+        if (ocLevel() != null && isServer()) {
             PacketSender.sendColorChange(this);
         }
     }

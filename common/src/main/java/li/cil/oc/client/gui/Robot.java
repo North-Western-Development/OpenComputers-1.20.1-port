@@ -362,4 +362,14 @@ public class Robot extends DynamicGuiContainer<li.cil.oc.common.container.Robot>
                     0, 1, offsetV, offsetV + selectionStepV);
         }
     }
+
+    @Override
+    public boolean inputShouldCloseOnEsc() {
+        return shouldCloseOnEsc();
+    }
+
+    @Override
+    public void inputClose() {
+        onClose();
+    }
 }

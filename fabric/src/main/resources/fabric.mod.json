@@ -30,7 +30,7 @@
   },
   "accessWidener": "opencomputers.accesswidener",
   "depends": {
-    "fabricloader": ">=0.15.0",
+    "fabricloader": ">=0.16.10",
     "fabric-api": "*",
     "minecraft": "~${mcversion}",
     "java": ">=17",
