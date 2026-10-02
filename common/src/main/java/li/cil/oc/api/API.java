@@ -3,6 +3,7 @@ package li.cil.oc.api;
 import com.typesafe.config.Config;
 import li.cil.oc.api.detail.DriverAPI;
 import li.cil.oc.api.detail.FileSystemAPI;
+import li.cil.oc.api.detail.IMCAPI;
 import li.cil.oc.api.detail.ItemAPI;
 import li.cil.oc.api.detail.MachineAPI;
 import li.cil.oc.api.detail.ManualAPI;
@@ -40,6 +41,7 @@ public class API {
 
     public static DriverAPI driver = null;
     public static FileSystemAPI fileSystem = null;
+    public static IMCAPI imc = null;
     public static ItemAPI items = null;
     public static MachineAPI machine = null;
     public static ManualAPI manual = null;

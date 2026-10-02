@@ -5,6 +5,7 @@ import li.cil.oc.api.network.Environment;
 import li.cil.oc.api.network.Message;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.Visibility;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -17,6 +18,11 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
  * <p/>
  * Nodes in such a network can communicate with each other, or just use the
  * network as an index structure to find other nodes connected to them.
+ * <p/>
+ * Note for 1.20.1: {@link #onLoad()} and {@link #onChunkUnloaded()} are
+ * Forge block entity hooks. On Forge they are called automatically (these
+ * methods override Forge's at runtime); on other loaders you have to invoke
+ * them yourself (e.g. on the first tick and on chunk unload, respectively).
  */
 @SuppressWarnings("UnusedDeclaration")
 public abstract class TileEntityEnvironment extends BlockEntity implements Environment {
@@ -61,8 +67,8 @@ public abstract class TileEntityEnvironment extends BlockEntity implements Envir
 
     // ----------------------------------------------------------------------- //
     
-    public TileEntityEnvironment(BlockEntityType<?> type) {
-        super(type);
+    public TileEntityEnvironment(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
 
     @Override
@@ -100,14 +106,13 @@ public abstract class TileEntityEnvironment extends BlockEntity implements Envir
 
     // ----------------------------------------------------------------------- //
 
-    @Override
+    // Not annotated with @Override, see class Javadoc.
     public void onLoad() {
         Network.joinOrCreateNetwork(this);
     }
 
-    @Override
+    // Not annotated with @Override, see class Javadoc.
     public void onChunkUnloaded() {
-        super.onChunkUnloaded();
         // Make sure to remove the node from its network when its environment,
         // meaning this tile entity, gets unloaded.
         if (node != null) node.remove();
@@ -124,8 +129,8 @@ public abstract class TileEntityEnvironment extends BlockEntity implements Envir
     // ----------------------------------------------------------------------- //
 
     @Override
-    public void load(final BlockState state, final CompoundTag nbt) {
-        super.load(state, nbt);
+    public void load(final CompoundTag nbt) {
+        super.load(nbt);
         // The host check may be superfluous for you. It's just there to allow
         // some special cases, where getNode() returns some node managed by
         // some other instance (for example when you have multiple internal
@@ -140,14 +145,13 @@ public abstract class TileEntityEnvironment extends BlockEntity implements Envir
     }
 
     @Override
-    public CompoundTag save(final CompoundTag nbt) {
-        super.save(nbt);
+    protected void saveAdditional(final CompoundTag nbt) {
+        super.saveAdditional(nbt);
         // See load() regarding host check.
         if (node != null && node.host() == this) {
             final CompoundTag nodeNbt = new CompoundTag();
             node.saveData(nodeNbt);
             nbt.put(TAG_NODE, nodeNbt);
         }
-        return nbt;
     }
 }

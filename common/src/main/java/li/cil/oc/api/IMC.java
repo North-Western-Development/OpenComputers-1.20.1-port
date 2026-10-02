@@ -4,8 +4,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
-import net.minecraftforge.fml.InterModComms;
 import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is a pure utility class to more comfortably register things that can
@@ -20,6 +22,12 @@ import org.apache.commons.lang3.tuple.Pair;
  * Feel free to copy these functions into your own code, just please don't
  * copy this class while keeping the package name, to avoid conflicts if this
  * class gets updated.
+ * <p/>
+ * <b>1.20.1 note:</b> Forge's <tt>InterModComms</tt> is no longer used. The
+ * methods in this class hand their messages directly to
+ * {@link API#imc} (see {@link li.cil.oc.api.detail.IMCAPI}). Messages sent
+ * before OpenComputers has initialized are queued and delivered once
+ * OpenComputers calls {@link #processPending()}.
  */
 @SuppressWarnings("unused")
 public final class IMC {
@@ -53,7 +61,7 @@ public final class IMC {
      * @param callback the callback to register as a filtering method.
      */
     public static void registerAssemblerFilter(final String callback) {
-        InterModComms.sendTo(MOD_ID, REGISTER_ASSEMBLER_FILTER, () -> callback);
+        send(REGISTER_ASSEMBLER_FILTER, callback);
     }
 
     /**
@@ -166,7 +174,7 @@ public final class IMC {
             nbt.put("componentSlots", componentsNbt);
         }
 
-        InterModComms.sendTo(MOD_ID, REGISTER_ASSEMBLER_TEMPLATE, () -> nbt);
+        send(REGISTER_ASSEMBLER_TEMPLATE, nbt);
     }
 
     /**
@@ -210,7 +218,7 @@ public final class IMC {
         nbt.putString("select", select);
         nbt.putString("disassemble", disassemble);
 
-        InterModComms.sendTo(MOD_ID, REGISTER_DISASSEMBLER_TEMPLATE, () -> nbt);
+        send(REGISTER_DISASSEMBLER_TEMPLATE, nbt);
     }
 
     /**
@@ -234,7 +242,7 @@ public final class IMC {
      * @param callback the callback to register as a durability provider.
      */
     public static void registerToolDurabilityProvider(final String callback) {
-        InterModComms.sendTo(MOD_ID, REGISTER_TOOL_DURABILITY_PROVIDER, () -> callback);
+        send(REGISTER_TOOL_DURABILITY_PROVIDER, callback);
     }
 
     /**
@@ -258,7 +266,7 @@ public final class IMC {
      * @param callback the callback to register as a wrench tool handler.
      */
     public static void registerWrenchTool(final String callback) {
-        InterModComms.sendTo(MOD_ID, REGISTER_WRENCH_TOOL, () -> callback);
+        send(REGISTER_WRENCH_TOOL, callback);
     }
 
     /**
@@ -281,7 +289,7 @@ public final class IMC {
      * @param callback the callback to register as a wrench tool tester.
      */
     public static void registerWrenchToolCheck(final String callback) {
-        InterModComms.sendTo(MOD_ID, REGISTER_WRENCH_TOOL_CHECK, () -> callback);
+        send(REGISTER_WRENCH_TOOL_CHECK, callback);
     }
 
     /**
@@ -311,7 +319,7 @@ public final class IMC {
         nbt.putString("name", name);
         nbt.putString("canCharge", canCharge);
         nbt.putString("charge", charge);
-        InterModComms.sendTo(MOD_ID, REGISTER_ITEM_CHARGE, () -> nbt);
+        send(REGISTER_ITEM_CHARGE, nbt);
     }
 
     /**
@@ -335,7 +343,7 @@ public final class IMC {
      * @param callback the callback to register as an ink provider.
      */
     public static void registerInkProvider(final String callback) {
-        InterModComms.sendTo(MOD_ID, REGISTER_INK_PROVIDER, () -> callback);
+        send(REGISTER_INK_PROVIDER, callback);
     }
 
     /**
@@ -348,7 +356,7 @@ public final class IMC {
      * @param peripheral the class of the peripheral to blacklist.
      */
     public static void blacklistPeripheral(final Class peripheral) {
-        InterModComms.sendTo(MOD_ID, BLACKLIST_PERIPHERAL, () -> peripheral.getName());
+        send(BLACKLIST_PERIPHERAL, peripheral.getName());
     }
 
     /**
@@ -373,7 +381,7 @@ public final class IMC {
         final CompoundTag stackNbt = new CompoundTag();
         stack.save(stackNbt);
         nbt.put("item", stackNbt);
-        InterModComms.sendTo(MOD_ID, BLACKLIST_HOST, () -> nbt);
+        send(BLACKLIST_HOST, nbt);
     }
 
     /**
@@ -411,12 +419,42 @@ public final class IMC {
             }
             nbt.put("architectures", architecturesNbt);
         }
-        InterModComms.sendTo(MOD_ID, REGISTER_PROGRAM_DISK_LABEL, () -> nbt);
+        send(REGISTER_PROGRAM_DISK_LABEL, nbt);
     }
 
     // ----------------------------------------------------------------------- //
 
-    private static final String MOD_ID = "opencomputers";
+    private static final List<Object[]> pending = new ArrayList<>();
+
+    private static void send(final String method, final Object payload) {
+        synchronized (pending) {
+            if (API.imc == null) {
+                pending.add(new Object[]{method, payload});
+                return;
+            }
+        }
+        API.imc.handle(method, payload);
+    }
+
+    /**
+     * Delivers all messages that were sent before {@link API#imc} was set.
+     * <p/>
+     * Called by OpenComputers itself right after it assigned {@link API#imc};
+     * there is no need to call this from other mods.
+     */
+    public static void processPending() {
+        final List<Object[]> messages;
+        synchronized (pending) {
+            if (API.imc == null) {
+                return;
+            }
+            messages = new ArrayList<>(pending);
+            pending.clear();
+        }
+        for (final Object[] message : messages) {
+            API.imc.handle((String) message[0], message[1]);
+        }
+    }
 
     private IMC() {
     }
