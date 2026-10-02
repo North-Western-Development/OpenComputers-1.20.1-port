@@ -60,6 +60,7 @@ public class Proxy {
 
         // Event handlers.
         EventHandler.register();
+        li.cil.oc.server.command.DebugCommands.register();
         SaveHandler.register();
         Loot.register();
         LifecycleEvent.SERVER_LEVEL_UNLOAD.register(li.cil.oc.server.ComponentTracker.INSTANCE::onWorldUnload);

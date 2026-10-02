@@ -1,0 +1,38 @@
+forceload add 0 0 80 0
+forceload add 0 0 80 0
+setblock 0 -58 0 opencomputers:adapter
+setblock 2 -58 0 opencomputers:assembler
+setblock 4 -58 0 opencomputers:cable
+setblock 6 -58 0 opencomputers:capacitor
+setblock 8 -58 0 opencomputers:carpetedcapacitor
+setblock 10 -58 0 opencomputers:case1
+setblock 12 -58 0 opencomputers:case2
+setblock 14 -58 0 opencomputers:case3
+setblock 16 -58 0 opencomputers:casecreative
+setblock 18 -58 0 opencomputers:chameliumblock
+setblock 20 -58 0 opencomputers:charger
+setblock 22 -58 0 opencomputers:disassembler
+setblock 24 -58 0 opencomputers:diskdrive
+setblock 26 -58 0 opencomputers:endstone
+setblock 28 -58 0 opencomputers:geolyzer
+setblock 30 -58 0 opencomputers:hologram1
+setblock 32 -58 0 opencomputers:hologram2
+setblock 34 -58 0 opencomputers:keyboard
+setblock 36 -58 0 opencomputers:microcontroller
+setblock 38 -58 0 opencomputers:motionsensor
+setblock 40 -58 0 opencomputers:netsplitter
+setblock 42 -58 0 opencomputers:powerconverter
+setblock 44 -58 0 opencomputers:powerdistributor
+setblock 46 -58 0 opencomputers:print
+setblock 48 -58 0 opencomputers:printer
+setblock 50 -58 0 opencomputers:rack
+setblock 52 -58 0 opencomputers:raid
+setblock 54 -58 0 opencomputers:redstone
+setblock 56 -58 0 opencomputers:relay
+setblock 58 -58 0 opencomputers:robot
+setblock 60 -58 0 opencomputers:screen1
+setblock 62 -58 0 opencomputers:screen2
+setblock 64 -58 0 opencomputers:screen3
+setblock 66 -58 0 opencomputers:transposer
+setblock 68 -58 0 opencomputers:waypoint
+save-all

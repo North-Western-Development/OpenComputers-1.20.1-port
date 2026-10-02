@@ -1,6 +1,5 @@
 package li.cil.oc.common.component;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import li.cil.oc.api.internal.TextBuffer.ColorDepth;
 import li.cil.oc.api.network.Message;
 import li.cil.oc.api.network.Node;
@@ -139,7 +138,7 @@ public class GpuTextBuffer implements TextBufferProxy {
     }
 
     @Override
-    public boolean renderText(PoseStack stack) {
+    public boolean renderText(Object stack) {
         return false;
     }
 

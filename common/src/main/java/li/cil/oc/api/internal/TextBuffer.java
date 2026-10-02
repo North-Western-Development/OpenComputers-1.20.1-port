@@ -1,6 +1,5 @@
 package li.cil.oc.api.internal;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import li.cil.oc.api.Persistable;
 import li.cil.oc.api.network.ManagedEnvironment;
 import net.minecraft.world.entity.player.Player;
@@ -446,8 +445,14 @@ public interface TextBuffer extends ManagedEnvironment, Persistable {
      * call to this method.
      * <p/>
      * <em>Client side only.</em>
+     * <p/>
+     * The parameter is a {@code com.mojang.blaze3d.vertex.PoseStack}. It is typed as
+     * {@code Object} so that this interface (which components implement and which is
+     * inspected via reflection on dedicated servers) never references client classes.
+     *
+     * @param poseStack the {@code PoseStack} to render with.
      */
-    boolean renderText(PoseStack stack);
+    boolean renderText(Object poseStack);
 
     /**
      * The natural width of the rendered text.

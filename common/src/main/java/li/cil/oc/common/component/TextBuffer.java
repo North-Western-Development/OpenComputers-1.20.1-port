@@ -476,8 +476,8 @@ public class TextBuffer extends AbstractManagedEnvironment implements TextBuffer
 
     // Client only.
     @Override
-    public boolean renderText(PoseStack stack) {
-        return relativeLitArea != 0 && proxy.render(stack);
+    public boolean renderText(Object poseStack) {
+        return relativeLitArea != 0 && proxy.render((PoseStack) poseStack);
     }
 
     // Client only.

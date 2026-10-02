@@ -1,0 +1,20 @@
+forceload add 0 0 16 16
+setblock 0 -60 0 opencomputers:casecreative
+item replace block 0 -60 0 container.0 with opencomputers:redstonecard2
+item replace block 0 -60 0 container.3 with opencomputers:ram6
+item replace block 0 -60 0 container.8 with opencomputers:cpu3
+item replace block 0 -60 0 container.9 with opencomputers:eeprom{"oc:data":{"oc:eeprom":[B;101B,114B,114B,111B,114B,40B,34B,79B,67B,45B,84B,69B,83B,84B,45B,79B,75B,32B,34B,32B,46B,46B,32B,95B,86B,69B,82B,83B,73B,79B,78B,32B,46B,46B,32B,34B,32B,114B,115B,61B,34B,32B,46B,46B,32B,116B,111B,115B,116B,114B,105B,110B,103B,40B,99B,111B,109B,112B,111B,110B,101B,110B,116B,46B,108B,105B,115B,116B,40B,34B,114B,101B,100B,115B,116B,111B,110B,101B,34B,41B,40B,41B,41B,41B]}}
+setblock 4 -60 0 opencomputers:casecreative
+item replace block 4 -60 0 container.0 with opencomputers:redstonecard2
+item replace block 4 -60 0 container.3 with opencomputers:ram6
+item replace block 4 -60 0 container.8 with opencomputers:cpu3
+item replace block 4 -60 0 container.9 with opencomputers:eeprom{"oc:data":{"oc:eeprom":[B;108B,111B,99B,97B,108B,32B,114B,115B,61B,99B,111B,109B,112B,111B,110B,101B,110B,116B,46B,112B,114B,111B,120B,121B,40B,99B,111B,109B,112B,111B,110B,101B,110B,116B,46B,108B,105B,115B,116B,40B,34B,114B,101B,100B,115B,116B,111B,110B,101B,34B,41B,40B,41B,41B,32B,102B,111B,114B,32B,115B,61B,48B,44B,53B,32B,100B,111B,32B,114B,115B,46B,115B,101B,116B,79B,117B,116B,112B,117B,116B,40B,115B,44B,49B,53B,41B,32B,101B,110B,100B,32B,119B,104B,105B,108B,101B,32B,116B,114B,117B,101B,32B,100B,111B,32B,99B,111B,109B,112B,117B,116B,101B,114B,46B,112B,117B,108B,108B,83B,105B,103B,110B,97B,108B,40B,49B,41B,32B,101B,110B,100B]}}
+setblock 5 -60 0 minecraft:redstone_lamp
+WAIT
+oc_debug start 0 -60 0
+oc_debug start 4 -60 0
+WAIT
+oc_debug status 0 -60 0
+oc_debug status 4 -60 0
+execute if block 5 -60 0 minecraft:redstone_lamp[lit=true] run say LAMP-LIT
+execute unless block 5 -60 0 minecraft:redstone_lamp[lit=true] run say LAMP-OFF
