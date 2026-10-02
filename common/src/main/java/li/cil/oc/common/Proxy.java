@@ -64,6 +64,7 @@ public class Proxy {
         Loot.register();
         LifecycleEvent.SERVER_LEVEL_UNLOAD.register(li.cil.oc.server.ComponentTracker.INSTANCE::onWorldUnload);
         AngelUpgradeHandler.register();
+        li.cil.oc.common.event.BlockBreakHandler.register();
         ChunkloaderUpgradeHandler.register();
         ExperienceUpgradeHandler.register();
         FileSystemAccessHandler.register();
