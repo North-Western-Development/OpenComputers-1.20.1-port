@@ -234,3 +234,24 @@ Mixins: common mixins go in `li.cil.oc.common.mixin` (client ones in
   (Forge `ModelEvent.ModifyBakingResult`, Fabric `ModelLoadingPlugin`). The drone item uses
   `builtin/entity` → needs a BEWLR (Forge `IClientItemExtensions`, Fabric `BuiltinItemRendererRegistry`).
 - Lang: `block.opencomputers.<id>`, `itemGroup.opencomputers`, `entity.opencomputers.drone` added.
+
+## API changes (done; callers must follow)
+
+- Type swaps only; API class/method names unchanged. `internal.Case/Rack/Adapter` extend `Container`,
+  `internal.Robot` extends `WorldlyContainer`; `Agent.mainInventory()/equipmentInventory()` and
+  `InventoryProvider.getInventory()` return `Container`. Vector3f/Vector4f are `org.joml` (`.x()`).
+- Manual rendering uses `GuiGraphics`: `TabIconRenderer.render(GuiGraphics)`,
+  `ImageRenderer.render(GuiGraphics, int, int)`. `TextBuffer.renderText(PoseStack)` and
+  `UpgradeRenderer.render(PoseStack, MultiBufferSource, ...)` stay on PoseStack.
+- `api.CreativeTab.instance` (CreativeModeTab) is null until OC sets it after registering its tab.
+- `prefab.TileEntityEnvironment` / `TileEntitySidedEnvironment`: ctor `(type, pos, state, ...)`,
+  `load`/`saveAdditional`; ticking via the block's `getTicker`; `onLoad()`/`onChunkUnloaded()` must be
+  called by OC itself on Fabric.
+- **Events:** API events extend `li.cil.oc.api.event.OCEvent`; post with
+  `EventBus.INSTANCE.post(event)` (returns true if canceled), listen with
+  `EventBus.INSTANCE.register(Type.class, listener)`. Replaces `MinecraftForge.EVENT_BUS`.
+- **IMC:** `li.cil.oc.api.detail.IMCAPI.handle(String method, Object payload)`; OC init sets `API.imc`
+  (implemented by `common.IMC`) and then calls `li.cil.oc.api.IMC.processPending()`.
+- `Driver.itemHandlerFor` / `DriverAPI.itemHandlerFor` return `li.cil.oc.common.transfer.ItemHandler`.
+  `MultiTank.getFluidTank(int)` returns `li.cil.oc.common.transfer.FluidHandler` (single-tank view, mB).
+- `SideTracker.addServerThread()` registers extra server threads.
