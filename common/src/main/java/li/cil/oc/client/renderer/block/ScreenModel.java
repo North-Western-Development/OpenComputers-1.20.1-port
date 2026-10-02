@@ -40,6 +40,9 @@ public final class ScreenModel extends SmartBlockModelBase {
     public List<BakedQuad> getBlockQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand, @Nullable BlockEntity blockEntity) {
         final Direction safeSide = side != null ? side : Direction.SOUTH;
         if (blockEntity instanceof Screen screen) {
+            // Every face is a culled face quad (the old code also emitted the
+            // south face for the unculled list, rendering it twice).
+            if (side == null) return Collections.emptyList();
             final Direction facing = screen.toLocal(safeSide);
 
             final Pair<Integer, Integer> local = screen.localPosition();

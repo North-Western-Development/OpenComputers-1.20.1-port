@@ -65,7 +65,7 @@ public final class ServerRackModel extends SmartBlockModelBase {
             for (int slot = 0; slot < 4; slot++) {
                 final RackMountable mountable = rack.getMountable(slot);
                 if (mountable != null) {
-                    final RackMountableRenderEvent.Block event = new RackMountableRenderEvent.Block(rack, slot, rack.lastData[slot], side);
+                    final RackMountableRenderEvent.Block event = new RackMountableRenderEvent.Block(rack, slot, rack.getMountableData(slot), side);
                     if (!EventBus.INSTANCE.post(event)) {
                         final TextureAtlasSprite front = event.getFrontTextureOverride() != null ? event.getFrontTextureOverride() : defaultFront;
                         for (int i = 2; i < 6; i++) textures[i] = front;

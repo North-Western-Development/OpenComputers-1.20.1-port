@@ -37,7 +37,7 @@ public class RackRenderer implements BlockEntityRenderer<Rack> {
             if (!rack.getItem(i).isEmpty()) {
                 final float v0 = vOffset + i * vSize;
                 final float v1 = vOffset + (i + 1) * vSize;
-                final RackMountableRenderEvent.TileEntity event = new RackMountableRenderEvent.TileEntity(rack, i, rack.lastData[i], stack, buffer, light, overlay, v0, v1);
+                final RackMountableRenderEvent.TileEntity event = new RackMountableRenderEvent.TileEntity(rack, i, rack.getMountableData(i), stack, buffer, light, overlay, v0, v1);
                 EventBus.INSTANCE.post(event);
             }
         }

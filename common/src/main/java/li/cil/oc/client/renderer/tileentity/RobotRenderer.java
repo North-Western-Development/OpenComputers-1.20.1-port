@@ -42,12 +42,13 @@ import java.util.Map;
 import java.util.Set;
 
 public class RobotRenderer implements BlockEntityRenderer<RobotProxy> {
-    private static final RobotRenderer instance = new RobotRenderer(null);
+    private static RobotRenderer instance;
 
     /**
      * Renders a robot chassis without a robot (used for pets).
      */
     public static void renderChassis(PoseStack stack, MultiBufferSource buffer, int light, double offset, boolean isRunningOverride) {
+        if (instance == null) instance = new RobotRenderer(null);
         instance.renderChassis(stack, buffer, light, null, offset, isRunningOverride);
     }
 

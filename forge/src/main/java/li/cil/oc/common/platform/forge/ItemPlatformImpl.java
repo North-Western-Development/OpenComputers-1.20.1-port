@@ -48,7 +48,15 @@ public final class ItemPlatformImpl {
                     public HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
                         if (equipmentSlot == EquipmentSlot.FEET && HoverBoots.armorModel != null) {
                             final Object model = HoverBoots.armorModel.apply(itemStack);
-                            if (model instanceof HumanoidModel<?> humanoid) return humanoid;
+                            if (model instanceof HumanoidModel<?> humanoid) {
+                                // Follow the wearer's leg animation.
+                                @SuppressWarnings("unchecked")
+                                final HumanoidModel<LivingEntity> source = (HumanoidModel<LivingEntity>) original;
+                                @SuppressWarnings("unchecked")
+                                final HumanoidModel<LivingEntity> target = (HumanoidModel<LivingEntity>) humanoid;
+                                source.copyPropertiesTo(target);
+                                return humanoid;
+                            }
                         }
                         return original;
                     }
