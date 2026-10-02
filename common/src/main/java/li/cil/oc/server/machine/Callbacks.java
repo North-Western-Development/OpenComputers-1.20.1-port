@@ -118,28 +118,51 @@ public final class Callbacks {
 
     private static Map<String, Callback> staticAnalyze(Class<?> seed, Optional<Predicate<String>> shouldAdd, Optional<Map<String, Callback>> optCallbacks) {
         final Map<String, Callback> callbacks = optCallbacks.orElseGet(HashMap::new);
+        // Classes first (subclass to superclass, as before), then all interfaces
+        // implemented anywhere in the hierarchy (Scala traits became Java
+        // interfaces with @Callback default methods). Methods declared by a
+        // class take precedence over interface defaults.
+        final Set<Class<?>> interfaces = new java.util.LinkedHashSet<>();
+        final java.util.ArrayDeque<Class<?>> pending = new java.util.ArrayDeque<>();
         Class<?> c = seed;
         while (c != null && c != Object.class) {
-            for (Method m : c.getDeclaredMethods()) {
-                if (!m.isAnnotationPresent(li.cil.oc.api.machine.Callback.class)) continue;
-                final Class<?>[] params = m.getParameterTypes();
-                if (params.length != 2 || params[0] != Context.class || params[1] != Arguments.class) {
-                    OpenComputers.log.error("Invalid use of Callback annotation on " + m.getDeclaringClass().getName() + "." + m.getName() + ": invalid argument types or count.");
-                } else if (m.getReturnType() != Object[].class) {
-                    OpenComputers.log.error("Invalid use of Callback annotation on " + m.getDeclaringClass().getName() + "." + m.getName() + ": invalid return type.");
-                } else if (!Modifier.isPublic(m.getModifiers())) {
-                    OpenComputers.log.error("Invalid use of Callback annotation on " + m.getDeclaringClass().getName() + "." + m.getName() + ": method must be public.");
-                } else {
-                    final li.cil.oc.api.machine.Callback a = m.getAnnotation(li.cil.oc.api.machine.Callback.class);
-                    final String name = a.value() != null && !a.value().trim().isEmpty() ? a.value() : m.getName();
-                    if (shouldAdd.map(f -> f.test(name)).orElse(true)) {
-                        callbacks.put(name, new ComponentCallback(m, a));
-                    }
-                }
-            }
+            analyzeDeclared(c, shouldAdd, callbacks, false);
+            pending.addAll(List.of(c.getInterfaces()));
             c = c.getSuperclass();
         }
+        while (!pending.isEmpty()) {
+            final Class<?> iface = pending.poll();
+            if (interfaces.add(iface)) {
+                pending.addAll(List.of(iface.getInterfaces()));
+            }
+        }
+        for (Class<?> iface : interfaces) {
+            analyzeDeclared(iface, shouldAdd, callbacks, true);
+        }
         return callbacks;
+    }
+
+    private static void analyzeDeclared(Class<?> c, Optional<Predicate<String>> shouldAdd, Map<String, Callback> callbacks, boolean isInterface) {
+        for (Method m : c.getDeclaredMethods()) {
+            if (!m.isAnnotationPresent(li.cil.oc.api.machine.Callback.class)) continue;
+            final Class<?>[] params = m.getParameterTypes();
+            if (params.length != 2 || params[0] != Context.class || params[1] != Arguments.class) {
+                OpenComputers.log.error("Invalid use of Callback annotation on " + m.getDeclaringClass().getName() + "." + m.getName() + ": invalid argument types or count.");
+            } else if (m.getReturnType() != Object[].class) {
+                OpenComputers.log.error("Invalid use of Callback annotation on " + m.getDeclaringClass().getName() + "." + m.getName() + ": invalid return type.");
+            } else if (!Modifier.isPublic(m.getModifiers())) {
+                OpenComputers.log.error("Invalid use of Callback annotation on " + m.getDeclaringClass().getName() + "." + m.getName() + ": method must be public.");
+            } else if (Modifier.isStatic(m.getModifiers()) || (isInterface && Modifier.isAbstract(m.getModifiers()))) {
+                OpenComputers.log.error("Invalid use of Callback annotation on " + m.getDeclaringClass().getName() + "." + m.getName() + ": method must be an instance method with an implementation.");
+            } else {
+                final li.cil.oc.api.machine.Callback a = m.getAnnotation(li.cil.oc.api.machine.Callback.class);
+                final String name = a.value() != null && !a.value().trim().isEmpty() ? a.value() : m.getName();
+                if (isInterface && callbacks.containsKey(name)) continue; // Class methods take precedence.
+                if (shouldAdd.map(f -> f.test(name)).orElse(true)) {
+                    callbacks.put(name, new ComponentCallback(m, a));
+                }
+            }
+        }
     }
 
     // ----------------------------------------------------------------------- //

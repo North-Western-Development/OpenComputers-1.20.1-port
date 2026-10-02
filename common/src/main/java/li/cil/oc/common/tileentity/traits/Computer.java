@@ -152,7 +152,7 @@ public interface Computer extends Environment, ComponentInventory, Rotatable, Bu
 
     default boolean hasRedstoneCard() {
         for (ItemStack item : items()) {
-            if (!item.isEmpty() && machine().isRunning() && DriverRedstoneCard.worksWith(item, getClass())) return true;
+            if (!item.isEmpty() && machine().isRunning() && DriverRedstoneCard.INSTANCE.worksWith(item, getClass())) return true;
         }
         return false;
     }
