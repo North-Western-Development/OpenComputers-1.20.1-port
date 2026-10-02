@@ -72,8 +72,8 @@ public final class DriverRedstoneCard implements Item, HostAware {
 
         @Override
         public Class<?> getEnvironment(ItemStack stack) {
-            if (INSTANCE.worksWith(stack)) {
-                final boolean isAdvanced = INSTANCE.tier(stack) == Tier.Two;
+            if (DriverRedstoneCard.INSTANCE.worksWith(stack)) {
+                final boolean isAdvanced = DriverRedstoneCard.INSTANCE.tier(stack) == Tier.Two;
                 final boolean hasBundled = BundledRedstone.isAvailable() && isAdvanced;
                 final boolean hasWireless = WirelessRedstone.isAvailable() && isAdvanced;
                 if (hasBundled) {

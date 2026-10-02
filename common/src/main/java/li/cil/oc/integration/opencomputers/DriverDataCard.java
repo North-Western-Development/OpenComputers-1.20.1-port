@@ -57,8 +57,8 @@ public final class DriverDataCard implements Item {
 
         @Override
         public Class<?> getEnvironment(ItemStack stack) {
-            if (INSTANCE.worksWith(stack)) {
-                switch (INSTANCE.tier(stack)) {
+            if (DriverDataCard.INSTANCE.worksWith(stack)) {
+                switch (DriverDataCard.INSTANCE.tier(stack)) {
                     case Tier.One:
                         return li.cil.oc.server.component.DataCard.Tier1.class;
                     case Tier.Two:

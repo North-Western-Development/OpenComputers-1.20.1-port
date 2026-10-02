@@ -54,8 +54,8 @@ public final class DriverWirelessNetworkCard implements Item {
 
         @Override
         public Class<?> getEnvironment(ItemStack stack) {
-            if (INSTANCE.worksWith(stack)) {
-                switch (INSTANCE.tier(stack)) {
+            if (DriverWirelessNetworkCard.INSTANCE.worksWith(stack)) {
+                switch (DriverWirelessNetworkCard.INSTANCE.tier(stack)) {
                     case Tier.One:
                         return li.cil.oc.server.component.WirelessNetworkCard.Tier1.class;
                     case Tier.Two:
