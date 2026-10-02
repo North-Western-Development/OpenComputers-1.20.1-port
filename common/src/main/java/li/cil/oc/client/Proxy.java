@@ -59,8 +59,8 @@ public class Proxy extends li.cil.oc.common.Proxy {
         // Block entity / entity renderers, models and client event handlers of the renderer package.
         ClientRenderers.register();
 
-        li.cil.oc.common.event.NanomachinesHandler.Client.register();
-        li.cil.oc.common.event.RackMountableRenderHandler.register();
+        li.cil.oc.client.event.NanomachinesHandlerClient.register();
+        li.cil.oc.client.event.RackMountableRenderHandler.register();
         // TODO(port): registerModel(Item/Block, id) overrides (ModelInitialization) are gone.
 
         ClientLifecycleEvent.CLIENT_SETUP.register(minecraft -> clientSetup());

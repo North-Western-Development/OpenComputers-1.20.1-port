@@ -17,7 +17,6 @@ import li.cil.oc.api.internal.TextBuffer;
 import li.cil.oc.api.network.ManagedEnvironment;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.client.ItemClientHooks;
-import li.cil.oc.client.KeyBindings;
 import li.cil.oc.common.Tier;
 import li.cil.oc.common.container.ContainerTypes;
 import li.cil.oc.common.item.data.TabletData;
@@ -63,7 +62,7 @@ public class Tablet extends SimpleItem implements CustomModel, Chargeable {
 
     @Override
     protected void tooltipExtended(ItemStack stack, List<Component> tooltip) {
-        if (KeyBindings.showExtendedTooltips()) {
+        if (li.cil.oc.util.Tooltip.showExtended()) {
             final TabletData info = new TabletData(stack);
             // Ignore/hide the screen.
             final ItemStack[] components = Arrays.copyOfRange(info.items, Math.min(1, info.items.length), info.items.length);

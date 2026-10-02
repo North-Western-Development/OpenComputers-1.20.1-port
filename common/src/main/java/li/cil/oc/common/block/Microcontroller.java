@@ -3,7 +3,6 @@ package li.cil.oc.common.block;
 import li.cil.oc.Constants;
 import li.cil.oc.Settings;
 import li.cil.oc.api.Items;
-import li.cil.oc.client.KeyBindings;
 import li.cil.oc.common.Tier;
 import li.cil.oc.common.block.property.PropertyRotatable;
 import li.cil.oc.common.block.traits.PowerAcceptor;
@@ -59,7 +58,7 @@ public class Microcontroller extends RedstoneAware implements PowerAcceptor, Sta
     @Override
     protected void tooltipTail(ItemStack stack, @Nullable BlockGetter world, List<Component> tooltip, TooltipFlag advanced) {
         super.tooltipTail(stack, world, tooltip, advanced);
-        if (KeyBindings.showExtendedTooltips()) {
+        if (li.cil.oc.util.Tooltip.showExtended()) {
             MicrocontrollerData info = new MicrocontrollerData(stack);
             for (ItemStack component : info.components) {
                 if (!component.isEmpty()) {

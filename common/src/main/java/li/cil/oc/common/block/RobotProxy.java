@@ -3,7 +3,6 @@ package li.cil.oc.common.block;
 import li.cil.oc.Constants;
 import li.cil.oc.Settings;
 import li.cil.oc.api.Items;
-import li.cil.oc.client.KeyBindings;
 import li.cil.oc.common.block.traits.StateAware;
 import li.cil.oc.common.container.ContainerTypes;
 import li.cil.oc.common.item.data.RobotData;
@@ -100,7 +99,7 @@ public class RobotProxy extends RedstoneAware implements StateAware {
     @Override
     protected void tooltipTail(ItemStack stack, @Nullable BlockGetter world, List<Component> tooltip, TooltipFlag flag) {
         super.tooltipTail(stack, world, tooltip, flag);
-        if (KeyBindings.showExtendedTooltips()) {
+        if (li.cil.oc.util.Tooltip.showExtended()) {
             RobotData info = new RobotData(stack);
             List<ItemStack> components = new ArrayList<>(Arrays.asList(info.containers));
             components.addAll(Arrays.asList(info.components));

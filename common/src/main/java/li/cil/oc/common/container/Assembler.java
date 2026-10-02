@@ -1,7 +1,6 @@
 package li.cil.oc.common.container;
 
 import li.cil.oc.api.network.EnvironmentHost;
-import li.cil.oc.client.Textures;
 import li.cil.oc.common.InventorySlots.InventorySlot;
 import li.cil.oc.common.Tier;
 import li.cil.oc.common.template.AssemblerTemplates;
@@ -40,7 +39,7 @@ public class Assembler extends Player {
 
                 @Override
                 public ResourceLocation getBackgroundLocation() {
-                    return isAssembling() ? Textures.Icons.get(Tier.None) : super.getBackgroundLocation();
+                    return isAssembling() ? SlotIcons.get(Tier.None) : super.getBackgroundLocation();
                 }
             });
         }

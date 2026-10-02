@@ -2,15 +2,11 @@ package li.cil.oc.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import li.cil.oc.OpenComputers;
-import li.cil.oc.common.Slot;
-import li.cil.oc.common.Tier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Texture locations used by OpenComputers' client side code.
@@ -97,33 +93,17 @@ public final class Textures {
         }
     }
 
+    /** Slot icons live in common code, see {@link li.cil.oc.common.container.SlotIcons}. */
     public static final class Icons {
         private Icons() {
         }
 
-        private static final Map<String, ResourceLocation> ForSlotType = new HashMap<>();
-        private static final Map<Integer, ResourceLocation> ForTier = new HashMap<>();
-
-        static {
-            for (String name : Slot.All) {
-                ForSlotType.put(name, L(name));
-            }
-            ForTier.put(Tier.None, L("na"));
-            for (int tier = Tier.One; tier <= Tier.Three; tier++) {
-                ForTier.put(tier, L("tier" + tier));
-            }
-        }
-
         public static ResourceLocation get(String slotType) {
-            return ForSlotType.get(slotType);
+            return li.cil.oc.common.container.SlotIcons.get(slotType);
         }
 
         public static ResourceLocation get(int tier) {
-            return ForTier.get(tier);
-        }
-
-        private static ResourceLocation L(String name) {
-            return texture("icons/" + name);
+            return li.cil.oc.common.container.SlotIcons.get(tier);
         }
     }
 

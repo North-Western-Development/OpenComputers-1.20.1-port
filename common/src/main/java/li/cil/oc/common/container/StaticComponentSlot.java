@@ -1,7 +1,6 @@
 package li.cil.oc.common.container;
 
 import li.cil.oc.api.network.EnvironmentHost;
-import li.cil.oc.client.Textures;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 
@@ -36,12 +35,12 @@ public class StaticComponentSlot extends ComponentSlot {
 
     @Override
     public ResourceLocation tierIcon() {
-        return Textures.Icons.get(tier);
+        return SlotIcons.get(tier);
     }
 
     @Override
     public ResourceLocation getBackgroundLocation() {
-        return Textures.Icons.get(slot);
+        return SlotIcons.get(slot);
     }
 
     @Override

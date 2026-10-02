@@ -1,4 +1,4 @@
-package li.cil.oc.common.event;
+package li.cil.oc.client.event;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;

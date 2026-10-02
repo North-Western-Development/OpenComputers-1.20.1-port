@@ -1,7 +1,6 @@
 package li.cil.oc.common.container;
 
 import li.cil.oc.api.network.EnvironmentHost;
-import li.cil.oc.client.Textures;
 import li.cil.oc.common.Tier;
 import li.cil.oc.integration.opencomputers.DriverKeyboard;
 import li.cil.oc.integration.opencomputers.DriverScreen;
@@ -167,7 +166,7 @@ public class Robot extends Player {
         @Override
         public ResourceLocation getBackgroundLocation() {
             if (isValid()) return super.getBackgroundLocation();
-            return Textures.Icons.get(Tier.None);
+            return SlotIcons.get(Tier.None);
         }
 
         @Override

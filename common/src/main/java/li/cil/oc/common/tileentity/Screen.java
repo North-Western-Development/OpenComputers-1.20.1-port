@@ -278,7 +278,7 @@ public class Screen extends TileEntity implements TextBuffer, SidedEnvironment, 
                     queue.add(screen);
                 }
             }
-            if (isClient()) ClientHooks.updateMergedModels(this);
+            if (isClient()) li.cil.oc.client.ClientHooks.updateMergedScreenModels(this);
             // Update visibility after everything is done, to avoid noise.
             for (Screen screen : queue) {
                 final li.cil.oc.api.internal.TextBuffer buffer = screen.buffer();
@@ -307,7 +307,7 @@ public class Screen extends TileEntity implements TextBuffer, SidedEnvironment, 
                 final double hitX = arrow.getX() - x();
                 final double hitY = arrow.getY() - y();
                 final double hitZ = arrow.getZ() - z();
-                if (isClient() && ClientHooks.isLocalPlayer(arrow.getOwner())) {
+                if (isClient() && li.cil.oc.client.ClientHooks.isLocalPlayer(arrow.getOwner())) {
                     click(hitX, hitY, hitZ);
                 }
             }
@@ -327,7 +327,7 @@ public class Screen extends TileEntity implements TextBuffer, SidedEnvironment, 
         super.dispose();
         for (Screen screen : new ArrayList<>(screens)) screen.checkMultiBlock();
         if (isClient()) {
-            ClientHooks.closeGuiFor(buffer());
+            li.cil.oc.client.ClientHooks.closeScreenGuiFor(buffer());
         }
     }
 
@@ -490,31 +490,5 @@ public class Screen extends TileEntity implements TextBuffer, SidedEnvironment, 
             east.getStepX() * x + east.getStepY() * y + east.getStepZ() * z,
             up.getStepX() * x + up.getStepY() * y + up.getStepZ() * z,
             south.getStepX() * x + south.getStepY() * y + south.getStepZ() * z);
-    }
-
-    // ----------------------------------------------------------------------- //
-
-    /** Client-only code, in a separate class so it is never loaded on a dedicated server. */
-    private static final class ClientHooks {
-        static void updateMergedModels(Screen self) {
-            final net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
-            if (self.getLevel() == mc.level) {
-                final net.minecraft.client.renderer.LevelRenderer renderer = mc.levelRenderer;
-                for (Screen screen : self.screens) {
-                    final BlockPos pos = screen.getBlockPos();
-                    renderer.setSectionDirty(pos.getX() >> 4, pos.getY() >> 4, pos.getZ() >> 4);
-                }
-            }
-        }
-
-        static boolean isLocalPlayer(Entity entity) {
-            return entity instanceof Player player && player == net.minecraft.client.Minecraft.getInstance().player;
-        }
-
-        static void closeGuiFor(li.cil.oc.api.internal.TextBuffer buffer) {
-            if (net.minecraft.client.Minecraft.getInstance().screen instanceof li.cil.oc.client.gui.Screen screenGui && screenGui.buffer == buffer) {
-                screenGui.onClose();
-            }
-        }
     }
 }

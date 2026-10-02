@@ -8,7 +8,6 @@ import li.cil.oc.common.tileentity.TileEntityTypes;
 import li.cil.oc.integration.util.Wrench;
 import li.cil.oc.util.PackedColor;
 import li.cil.oc.util.Tooltip;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -85,11 +84,11 @@ public class Screen extends RedstoneAware {
                 // Yep, this GUI is actually purely client side (to trigger it from
                 // the server we would have to give screens a "container", which we
                 // do not want).
-                if (world.isClientSide) ClientOnly.showGui(screen);
+                if (world.isClientSide) li.cil.oc.client.ClientHooks.showScreenGui(screen);
                 return true;
             }
             if (screen.tier > 0 && side == screen.facing()) {
-                if (world.isClientSide && ClientOnly.isLocalPlayer(player)) {
+                if (world.isClientSide && li.cil.oc.client.ClientHooks.isLocalPlayer(player)) {
                     return screen.click(hitX, hitY, hitZ);
                 }
                 return true;
@@ -143,18 +142,5 @@ public class Screen extends RedstoneAware {
             return Arrays.stream(Direction.values()).filter(d -> d != facing && d != facing.getOpposite()).toArray(Direction[]::new);
         }
         return super.getValidRotations(world, pos);
-    }
-
-    // Separate class so client classes are only loaded when actually used (on the client).
-    private static final class ClientOnly {
-        static void showGui(li.cil.oc.common.tileentity.Screen screen) {
-            li.cil.oc.common.tileentity.Screen origin = screen.origin;
-            Minecraft.getInstance().setScreen(new li.cil.oc.client.gui.Screen(origin.buffer(), screen.tier > 0,
-                () -> origin.hasKeyboard(), () -> origin.buffer().isRenderingEnabled()));
-        }
-
-        static boolean isLocalPlayer(Player player) {
-            return player == Minecraft.getInstance().player;
-        }
     }
 }

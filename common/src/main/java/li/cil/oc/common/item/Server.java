@@ -1,6 +1,5 @@
 package li.cil.oc.common.item;
 
-import li.cil.oc.client.KeyBindings;
 import li.cil.oc.common.container.ContainerTypes;
 import li.cil.oc.common.inventory.ServerInventory;
 import li.cil.oc.common.item.traits.SimpleItem;
@@ -72,7 +71,7 @@ public class Server extends SimpleItem {
     @Override
     protected void tooltipExtended(ItemStack stack, List<Component> tooltip) {
         super.tooltipExtended(stack, tooltip);
-        if (KeyBindings.showExtendedTooltips()) {
+        if (li.cil.oc.util.Tooltip.showExtended()) {
             helperContainer[0] = stack;
             final ServerInventory helper = helperInventory();
             helper.reinitialize();

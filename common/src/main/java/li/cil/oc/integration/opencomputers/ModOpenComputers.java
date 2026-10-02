@@ -14,9 +14,6 @@ import li.cil.oc.api.detail.ItemInfo;
 import li.cil.oc.api.driver.item.Chargeable;
 import li.cil.oc.api.internal.Wrench;
 import li.cil.oc.api.manual.PathProvider;
-import li.cil.oc.api.prefab.ItemStackTabIconRenderer;
-import li.cil.oc.api.prefab.ResourceContentProvider;
-import li.cil.oc.api.prefab.TextureTabIconRenderer;
 import li.cil.oc.common.block.SimpleBlock;
 import li.cil.oc.common.nanomachines.provider.DisintegrationProvider;
 import li.cil.oc.common.nanomachines.provider.HungryProvider;
@@ -306,22 +303,8 @@ public final class ModOpenComputers implements ModProxy {
         Nanomachines.addProvider(MagnetProvider.INSTANCE);
 
         if (Platform.getEnvironment() == Env.CLIENT) {
-            initializeClient();
+            li.cil.oc.client.ClientHooks.registerManualContent();
         }
-    }
-
-    // Client only; only referenced when running on the physical client.
-    private static void initializeClient() {
-        Manual.addProvider(DefinitionPathProvider.INSTANCE);
-        Manual.addProvider(new ResourceContentProvider(Settings.resourceDomain, "doc/"));
-        Manual.addProvider("", li.cil.oc.client.renderer.markdown.segment.render.TextureImageProvider.INSTANCE);
-        Manual.addProvider("item", li.cil.oc.client.renderer.markdown.segment.render.ItemImageProvider.INSTANCE);
-        Manual.addProvider("block", li.cil.oc.client.renderer.markdown.segment.render.BlockImageProvider.INSTANCE);
-        Manual.addProvider("oredict", li.cil.oc.client.renderer.markdown.segment.render.OreDictImageProvider.INSTANCE);
-
-        Manual.addTab(new TextureTabIconRenderer(li.cil.oc.client.Textures.GUI.ManualHome), "oc:gui.Manual.Home", "%LANGUAGE%/index.md");
-        Manual.addTab(new ItemStackTabIconRenderer(Items.get("case1").createItemStack(1)), "oc:gui.Manual.Blocks", "%LANGUAGE%/block/index.md");
-        Manual.addTab(new ItemStackTabIconRenderer(Items.get("cpu1").createItemStack(1)), "oc:gui.Manual.Items", "%LANGUAGE%/item/index.md");
     }
 
     public static boolean hasRedstoneCardT2 = false;

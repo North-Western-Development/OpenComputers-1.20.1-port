@@ -1,8 +1,6 @@
 package li.cil.oc.common;
 
 import dev.architectury.event.EventResult;
-import dev.architectury.event.events.client.ClientPlayerEvent;
-import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.event.events.common.BlockEvent;
 import dev.architectury.event.events.common.EntityEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
@@ -17,7 +15,6 @@ import li.cil.oc.api.Network;
 import li.cil.oc.api.detail.ItemInfo;
 import li.cil.oc.api.driver.DriverItem;
 import li.cil.oc.api.machine.MachineHost;
-import li.cil.oc.common.component.TerminalServer;
 import li.cil.oc.common.item.data.MicrocontrollerData;
 import li.cil.oc.common.item.data.RobotData;
 import li.cil.oc.common.item.data.TabletData;
@@ -126,7 +123,7 @@ public final class EventHandler {
     public static synchronized void registerClient() {
         if (registeredClient) return;
         registeredClient = true;
-        Client.register();
+        li.cil.oc.client.ClientEventHandler.register();
     }
 
     // ----------------------------------------------------------------------- //
@@ -167,6 +164,11 @@ public final class EventHandler {
         synchronized (pendingServerTimed) {
             pendingServerTimed.add(new TimedCallback(serverTicks + Math.max(delay, 0), f));
         }
+    }
+
+    /** Runs the callbacks queued with {@link #scheduleClient}; called by the client tick hook. */
+    public static void runPendingClient() {
+        runAll(pendingClient);
     }
 
     public static void scheduleClient(Runnable f) {
@@ -450,26 +452,5 @@ public final class EventHandler {
         }
 
         Callbacks.clear();
-    }
-
-    // ----------------------------------------------------------------------- //
-
-    private static final class Client {
-        static void register() {
-            ClientTickEvent.CLIENT_PRE.register(client -> runAll(pendingClient));
-            ClientPlayerEvent.CLIENT_PLAYER_JOIN.register(player -> clientLoggedIn());
-            // Formerly the client side branch of WorldEvent.Unload.
-            ClientPlayerEvent.CLIENT_PLAYER_QUIT.register(player -> TerminalServer.loaded.clear());
-        }
-
-        private static void clientLoggedIn() {
-            li.cil.oc.client.renderer.PetRenderer.isInitialized = false;
-            li.cil.oc.client.renderer.PetRenderer.hidden.clear();
-            Loot.disksForClient.clear();
-            Loot.disksForCyclingClient.clear();
-
-            li.cil.oc.client.Sound.startLoop(null, "computer_running", 0f, 0);
-            scheduleServer(() -> li.cil.oc.client.Sound.stopLoop(null));
-        }
     }
 }

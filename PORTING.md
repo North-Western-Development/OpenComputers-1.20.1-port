@@ -204,6 +204,26 @@ Mixins: common mixins go in `li.cil.oc.common.mixin` (client ones in
   lifecycle events (`LifecycleEvent.SETUP`, `ClientLifecycleEvent.CLIENT_SETUP`,
   `LifecycleEvent.SERVER_STARTING`, ...).
 
+## Dedicated server safety (client class references)
+
+Every class a dedicated server can load must not reference `net.minecraft.client.*`,
+`com.mojang.blaze3d.*` or (beyond static calls with common-typed signatures)
+`li.cil.oc.client.*`: Forge refuses to load client classes, Fabric doesn't have
+them, and the bytecode verifier loads classes for assignability checks even in
+code that never runs (e.g. passing `mc.level` where a `Level` is expected).
+
+- Put client code in `li.cil.oc.client` (`ClientHooks`, `ItemClientHooks`,
+  `TextBufferClient`, `TooltipClient`, `ClientEventHandler`, ...); call it from
+  common code only on the client (`level.isClientSide`, `Platform.getEnvironment() == Env.CLIENT`),
+  through static methods whose signatures use common types only.
+- Client-only API types (`UpgradeRenderer`, `ImageRenderer`, `TabIconRenderer`, the
+  `api.prefab` tab icon renderers / `ResourceContentProvider`) and `util.Audio` /
+  `util.RenderState` / `integration.util.ItemSearch` must only be loaded from client code.
+  Abstract API methods mentioning client types (e.g. `TextBuffer.renderText(PoseStack)`)
+  are fine: descriptors alone never load classes.
+- Check: scan the Forge jar's constant pools (CONSTANT_Class entries) for client
+  classes outside `li/cil/oc/client/`.
+
 ## Scope notes
 
 - Third-party integrations (AE2, ComputerCraft, Mekanism, ProjectRed, TIS-3D,

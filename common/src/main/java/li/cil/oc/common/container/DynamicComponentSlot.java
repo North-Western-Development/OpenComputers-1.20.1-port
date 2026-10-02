@@ -1,7 +1,6 @@
 package li.cil.oc.common.container;
 
 import li.cil.oc.api.network.EnvironmentHost;
-import li.cil.oc.client.Textures;
 import li.cil.oc.common.InventorySlots.InventorySlot;
 import li.cil.oc.util.InventoryUtils;
 import li.cil.oc.util.SideTracker;
@@ -41,7 +40,7 @@ public class DynamicComponentSlot extends ComponentSlot {
 
     @Override
     public ResourceLocation tierIcon() {
-        return Textures.Icons.get(tier());
+        return SlotIcons.get(tier());
     }
 
     @Override
@@ -53,12 +52,12 @@ public class DynamicComponentSlot extends ComponentSlot {
 
     @Override
     public boolean hasBackground() {
-        return Textures.Icons.get(slot()) != null;
+        return SlotIcons.get(slot()) != null;
     }
 
     @Override
     public ResourceLocation getBackgroundLocation() {
-        ResourceLocation location = Textures.Icons.get(slot());
+        ResourceLocation location = SlotIcons.get(slot());
         return location != null ? location : super.getBackgroundLocation();
     }
 

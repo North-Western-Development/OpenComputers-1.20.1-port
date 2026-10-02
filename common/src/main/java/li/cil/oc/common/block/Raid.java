@@ -1,6 +1,5 @@
 package li.cil.oc.common.block;
 
-import li.cil.oc.client.KeyBindings;
 import li.cil.oc.common.block.property.PropertyRotatable;
 import li.cil.oc.common.block.traits.GUI;
 import li.cil.oc.common.container.ContainerTypes;
@@ -41,7 +40,7 @@ public class Raid extends SimpleBlock implements GUI {
     @Override
     protected void tooltipTail(ItemStack stack, @Nullable BlockGetter world, List<Component> tooltip, TooltipFlag advanced) {
         super.tooltipTail(stack, world, tooltip, advanced);
-        if (KeyBindings.showExtendedTooltips()) {
+        if (li.cil.oc.util.Tooltip.showExtended()) {
             RaidData data = new RaidData(stack);
             for (ItemStack disk : data.disks) {
                 if (!disk.isEmpty()) {

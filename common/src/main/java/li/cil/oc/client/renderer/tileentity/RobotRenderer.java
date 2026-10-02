@@ -356,7 +356,8 @@ public class RobotRenderer implements BlockEntityRenderer<RobotProxy> {
             for (int slot : robot.containerSlots()) slots.add(slot);
             for (int slot : slots) {
                 final ItemStack upgrade = robot.getItem(slot);
-                if (!upgrade.isEmpty() && upgrade.getItem() instanceof UpgradeRenderer renderer) {
+                final UpgradeRenderer renderer = upgrade.isEmpty() ? null : li.cil.oc.client.renderer.item.UpgradeRenderer.forStack(upgrade);
+                if (renderer != null) {
                     final String preferredSlot = renderer.computePreferredMountPoint(upgrade, robot, availableSlots);
                     if (availableSlots.remove(preferredSlot)) {
                         slotMapping[slotNameMapping.get(preferredSlot)] = new Object[]{upgrade, renderer};

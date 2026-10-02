@@ -1,6 +1,5 @@
 package li.cil.oc.common.item;
 
-import li.cil.oc.client.KeyBindings;
 import li.cil.oc.common.entity.EntityTypes;
 import li.cil.oc.common.item.data.DroneData;
 import li.cil.oc.common.item.traits.SimpleItem;
@@ -37,7 +36,7 @@ public class Drone extends SimpleItem {
 
     @Override
     protected void tooltipExtended(ItemStack stack, List<Component> tooltip) {
-        if (KeyBindings.showExtendedTooltips()) {
+        if (li.cil.oc.util.Tooltip.showExtended()) {
             final DroneData info = new DroneData(stack);
             for (ItemStack component : info.components) {
                 if (!component.isEmpty()) {

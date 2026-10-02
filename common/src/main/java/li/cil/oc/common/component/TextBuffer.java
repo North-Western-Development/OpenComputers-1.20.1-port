@@ -2,13 +2,11 @@ package li.cil.oc.common.component;
 
 import com.google.common.base.Strings;
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.architectury.event.events.client.ClientTickEvent;
 import li.cil.oc.Constants;
 import li.cil.oc.OpenComputers;
 import li.cil.oc.Settings;
 import li.cil.oc.api.Items;
 import li.cil.oc.api.Network;
-import li.cil.oc.api.detail.ItemInfo;
 import li.cil.oc.api.driver.DeviceInfo;
 import li.cil.oc.api.machine.Arguments;
 import li.cil.oc.api.machine.Callback;
@@ -18,8 +16,6 @@ import li.cil.oc.api.network.EnvironmentHost;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.Visibility;
 import li.cil.oc.api.prefab.AbstractManagedEnvironment;
-import li.cil.oc.client.renderer.TextBufferRenderCache;
-import li.cil.oc.client.renderer.font.TextBufferRenderData;
 import li.cil.oc.common.CompressedPacketBuilder;
 import li.cil.oc.common.PacketBuilder;
 import li.cil.oc.common.PacketType;
@@ -30,10 +26,8 @@ import li.cil.oc.common.component.traits.VideoRamDevice;
 import li.cil.oc.common.component.traits.VideoRamRasterizer;
 import li.cil.oc.common.item.data.NodeData;
 import li.cil.oc.server.component.Keyboard;
-import li.cil.oc.util.BlockPosition;
 import li.cil.oc.util.PackedColor;
 import li.cil.oc.util.SideTracker;
-import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -43,7 +37,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -100,7 +93,7 @@ public class TextBuffer extends AbstractManagedEnvironment implements TextBuffer
                 create();
         setNode(node);
         this.fullyLitCost = computeFullyLitCost();
-        this.proxy = SideTracker.isClient() ? new ClientProxy(this) : new ServerProxy(this);
+        this.proxy = SideTracker.isClient() ? li.cil.oc.client.TextBufferClient.createProxy(this) : new ServerProxy(this);
         this.data = new li.cil.oc.util.TextBuffer(maxResolution, PackedColor.Depth.format(maxDepth));
         this.viewport = data.size();
     }
@@ -490,13 +483,13 @@ public class TextBuffer extends AbstractManagedEnvironment implements TextBuffer
     // Client only.
     @Override
     public int renderWidth() {
-        return TextBufferRenderCache.renderer.charRenderWidth() * getViewportWidth();
+        return li.cil.oc.client.TextBufferClient.charRenderWidth() * getViewportWidth();
     }
 
     // Client only.
     @Override
     public int renderHeight() {
-        return TextBufferRenderCache.renderer.charRenderHeight() * getViewportHeight();
+        return li.cil.oc.client.TextBufferClient.charRenderHeight() * getViewportHeight();
     }
 
     @Override
@@ -591,7 +584,7 @@ public class TextBuffer extends AbstractManagedEnvironment implements TextBuffer
         if (SideTracker.isClient()) {
             if (!Strings.isNullOrEmpty(proxy.nodeAddress)) return; // Only load once.
             proxy.nodeAddress = nbt.getCompound(NodeData.NodeTag).getString(NodeData.AddressTag);
-            TextBuffer.registerClientBuffer(this);
+            li.cil.oc.client.TextBufferClient.registerClientBuffer(this);
         } else {
             if (nbt.contains(NodeData.BufferTag)) {
                 data.loadData(nbt.getCompound(NodeData.BufferTag));
@@ -656,49 +649,6 @@ public class TextBuffer extends AbstractManagedEnvironment implements TextBuffer
 
     // ----------------------------------------------------------------------- //
     // Companion object.
-
-    public static final List<TextBuffer> clientBuffers = new ArrayList<>();
-
-    private static boolean clientHooksRegistered = false;
-
-    /**
-     * Replaces the Forge {@code ChunkEvent.Unload} / {@code WorldEvent.Unload} subscriptions:
-     * once per client tick, buffers whose level was unloaded or whose chunk is no longer
-     * loaded are dropped. Registered lazily on the first client buffer.
-     */
-    private static synchronized void registerClientHooks() {
-        if (clientHooksRegistered) return;
-        clientHooksRegistered = true;
-        ClientTickEvent.CLIENT_POST.register(minecraft -> pruneClientBuffers(minecraft.level));
-    }
-
-    private static void pruneClientBuffers(Level currentLevel) {
-        synchronized (clientBuffers) {
-            final Iterator<TextBuffer> it = clientBuffers.iterator();
-            while (it.hasNext()) {
-                final TextBuffer t = it.next();
-                final Level world = t.host.world();
-                boolean keep = currentLevel != null && world == currentLevel;
-                if (keep) {
-                    final BlockPosition blockPos = BlockPosition.apply(t.host);
-                    keep = world.getChunkSource().hasChunk(blockPos.x >> 4, blockPos.z >> 4);
-                }
-                if (!keep) {
-                    li.cil.oc.client.ComponentTracker.INSTANCE.remove(world, t);
-                    it.remove();
-                }
-            }
-        }
-    }
-
-    public static void registerClientBuffer(TextBuffer t) {
-        registerClientHooks();
-        li.cil.oc.client.PacketSender.sendTextBufferInit(t.proxy.nodeAddress);
-        li.cil.oc.client.ComponentTracker.INSTANCE.add(t.host.world(), t.proxy.nodeAddress, t);
-        synchronized (clientBuffers) {
-            clientBuffers.add(t);
-        }
-    }
 
     public abstract static class Proxy {
         public abstract TextBuffer owner();
@@ -786,163 +736,6 @@ public class TextBuffer extends AbstractManagedEnvironment implements TextBuffer
         public abstract void mouseScroll(double x, double y, int delta, Player player);
 
         public abstract void copyToAnalyzer(int line, Player player);
-    }
-
-    public static class ClientProxy extends Proxy {
-        public final TextBuffer owner;
-
-        public final TextBufferRenderData renderer;
-
-        public ClientProxy(TextBuffer owner) {
-            this.owner = owner;
-            this.renderer = new TextBufferRenderData() {
-                @Override
-                public boolean dirty() {
-                    return ClientProxy.this.dirty;
-                }
-
-                @Override
-                public void setDirty(boolean value) {
-                    ClientProxy.this.dirty = value;
-                }
-
-                @Override
-                public li.cil.oc.util.TextBuffer data() {
-                    return ClientProxy.this.owner.data;
-                }
-
-                @Override
-                public Pair<Integer, Integer> viewport() {
-                    return ClientProxy.this.owner.viewport;
-                }
-            };
-        }
-
-        @Override
-        public TextBuffer owner() {
-            return owner;
-        }
-
-        @Override
-        public boolean render(PoseStack stack) {
-            final boolean wasDirty = dirty;
-            TextBufferRenderCache.render(stack, renderer);
-            return wasDirty;
-        }
-
-        @Override
-        public void onBufferColorChange() {
-            setChanged();
-        }
-
-        @Override
-        public void onBufferCopy(int col, int row, int w, int h, int tx, int ty) {
-            super.onBufferCopy(col, row, w, h, tx, ty);
-            setChanged();
-        }
-
-        @Override
-        public void onBufferDepthChange(li.cil.oc.api.internal.TextBuffer.ColorDepth depth) {
-            setChanged();
-        }
-
-        @Override
-        public void onBufferFill(int col, int row, int w, int h, char c) {
-            super.onBufferFill(col, row, w, h, c);
-            setChanged();
-        }
-
-        @Override
-        public void onBufferPaletteChange(int index) {
-            setChanged();
-        }
-
-        @Override
-        public void onBufferResolutionChange(int w, int h) {
-            super.onBufferResolutionChange(w, h);
-            setChanged();
-        }
-
-        @Override
-        public void onBufferViewportResolutionChange(int w, int h) {
-            super.onBufferViewportResolutionChange(w, h);
-            setChanged();
-        }
-
-        @Override
-        public void onBufferSet(int col, int row, String s, boolean vertical) {
-            super.onBufferSet(col, row, s, vertical);
-            setChanged();
-        }
-
-        @Override
-        public void onBufferBitBlt(int col, int row, int w, int h, GpuTextBuffer ram, int fromCol, int fromRow) {
-            super.onBufferBitBlt(col, row, w, h, ram, fromCol, fromRow);
-            setChanged();
-        }
-
-        @Override
-        public void keyDown(char character, int code, Player player) {
-            debug("{type = keyDown, char = " + character + ", code = " + code + "}");
-            li.cil.oc.client.PacketSender.sendKeyDown(nodeAddress, character, code);
-        }
-
-        @Override
-        public void keyUp(char character, int code, Player player) {
-            debug("{type = keyUp, char = " + character + ", code = " + code + "}");
-            li.cil.oc.client.PacketSender.sendKeyUp(nodeAddress, character, code);
-        }
-
-        @Override
-        public void textInput(int codePt, Player player) {
-            debug("{type = textInput, codePt = " + codePt + "}");
-            li.cil.oc.client.PacketSender.sendTextInput(nodeAddress, codePt);
-        }
-
-        @Override
-        public void clipboard(String value, Player player) {
-            debug("{type = clipboard}");
-            li.cil.oc.client.PacketSender.sendClipboard(nodeAddress, value);
-        }
-
-        @Override
-        public void mouseDown(double x, double y, int button, Player player) {
-            debug("{type = mouseDown, x = " + x + ", y = " + y + ", button = " + button + "}");
-            li.cil.oc.client.PacketSender.sendMouseClick(nodeAddress, x, y, false, button);
-        }
-
-        @Override
-        public void mouseDrag(double x, double y, int button, Player player) {
-            debug("{type = mouseDrag, x = " + x + ", y = " + y + ", button = " + button + "}");
-            li.cil.oc.client.PacketSender.sendMouseClick(nodeAddress, x, y, true, button);
-        }
-
-        @Override
-        public void mouseUp(double x, double y, int button, Player player) {
-            debug("{type = mouseUp, x = " + x + ", y = " + y + ", button = " + button + "}");
-            li.cil.oc.client.PacketSender.sendMouseUp(nodeAddress, x, y, button);
-        }
-
-        @Override
-        public void mouseScroll(double x, double y, int delta, Player player) {
-            debug("{type = mouseScroll, x = " + x + ", y = " + y + ", delta = " + delta + "}");
-            li.cil.oc.client.PacketSender.sendMouseScroll(nodeAddress, x, y, delta);
-        }
-
-        @Override
-        public void copyToAnalyzer(int line, Player player) {
-            li.cil.oc.client.PacketSender.sendCopyToAnalyzer(nodeAddress, line);
-        }
-
-        private ItemInfo debugger;
-
-        private void debug(String message) {
-            if (debugger == null) debugger = Items.get(Constants.ItemName.Debugger);
-            final Minecraft mc = Minecraft.getInstance();
-            if (mc != null && mc.player != null && Items.get(mc.player.getItemInHand(InteractionHand.MAIN_HAND)) == debugger) {
-                OpenComputers.log.info("[NETWORK DEBUGGER] Sending packet to node " + nodeAddress + ": " + message);
-            }
-        }
     }
 
     public static class ServerProxy extends Proxy {

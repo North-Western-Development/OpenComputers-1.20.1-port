@@ -1,14 +1,11 @@
 package li.cil.oc.common.item.traits;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import li.cil.oc.Localization;
 import li.cil.oc.Settings;
 import li.cil.oc.api.event.RobotRenderEvent.MountPoint;
 import li.cil.oc.api.internal.Robot;
-import li.cil.oc.client.renderer.item.UpgradeRenderer;
 import li.cil.oc.util.BlockPosition;
 import li.cil.oc.util.Tooltip;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -42,7 +39,10 @@ import java.util.Set;
  * the base tooltip, then the tier line for {@link ItemTier} items; subclasses
  * append their own lines after calling {@code super}.
  */
-public abstract class SimpleItem extends Item implements li.cil.oc.api.driver.item.UpgradeRenderer {
+// Note: the robot upgrade rendering formerly implemented here (api.driver.item.UpgradeRenderer)
+// lives in li.cil.oc.client.renderer.item.UpgradeRenderer.DEFAULT, which RobotRenderer uses for
+// SimpleItems, so this server-loaded class doesn't reference client types.
+public abstract class SimpleItem extends Item {
     @Deprecated
     protected String unlocalizedName = getClass().getSimpleName().toLowerCase(Locale.ROOT);
 
@@ -181,17 +181,5 @@ public abstract class SimpleItem extends Item implements li.cil.oc.api.driver.it
     public static int barColor(double durabilityForDisplay) {
         final double d = Double.isNaN(durabilityForDisplay) ? 1.0 : Math.max(0.0, Math.min(1.0, durabilityForDisplay));
         return Mth.hsvToRgb((float) Math.max(0.0, 1.0 - d) / 3.0F, 1.0F, 1.0F);
-    }
-
-    // ----------------------------------------------------------------------- //
-
-    @Override
-    public String computePreferredMountPoint(ItemStack stack, Robot robot, Set<String> availableMountPoints) {
-        return UpgradeRenderer.preferredMountPoint(stack, availableMountPoints);
-    }
-
-    @Override
-    public void render(PoseStack matrix, MultiBufferSource buffer, ItemStack stack, MountPoint mountPoint, Robot robot, float pt) {
-        UpgradeRenderer.render(matrix, buffer, stack, mountPoint);
     }
 }

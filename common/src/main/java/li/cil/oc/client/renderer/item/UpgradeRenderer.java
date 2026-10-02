@@ -35,6 +35,30 @@ public final class UpgradeRenderer {
         return Items.get(Constants.ItemName.InventoryUpgrade);
     }
 
+    /**
+     * Robot upgrade renderer used for OC's own items ({@link li.cil.oc.common.item.traits.SimpleItem}),
+     * which no longer implement the API interface themselves (that would make the
+     * server-side item classes reference client types).
+     */
+    public static final li.cil.oc.api.driver.item.UpgradeRenderer DEFAULT = new li.cil.oc.api.driver.item.UpgradeRenderer() {
+        @Override
+        public String computePreferredMountPoint(ItemStack stack, li.cil.oc.api.internal.Robot robot, Set<String> availableMountPoints) {
+            return preferredMountPoint(stack, availableMountPoints);
+        }
+
+        @Override
+        public void render(PoseStack matrix, MultiBufferSource buffer, ItemStack stack, MountPoint mountPoint, li.cil.oc.api.internal.Robot robot, float pt) {
+            UpgradeRenderer.render(matrix, buffer, stack, mountPoint);
+        }
+    };
+
+    /** The API renderer for the given upgrade, or null if it has none. */
+    public static li.cil.oc.api.driver.item.UpgradeRenderer forStack(ItemStack stack) {
+        if (stack.getItem() instanceof li.cil.oc.api.driver.item.UpgradeRenderer renderer) return renderer;
+        if (stack.getItem() instanceof li.cil.oc.common.item.traits.SimpleItem) return DEFAULT;
+        return null;
+    }
+
     public static String preferredMountPoint(ItemStack stack, Set<String> availableMountPoints) {
         final ItemInfo descriptor = Items.get(stack);
 

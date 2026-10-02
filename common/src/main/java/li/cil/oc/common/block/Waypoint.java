@@ -2,7 +2,6 @@ package li.cil.oc.common.block;
 
 import li.cil.oc.common.block.property.PropertyRotatable;
 import li.cil.oc.common.tileentity.TileEntityTypes;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -40,7 +39,7 @@ public class Waypoint extends RedstoneAware {
     public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult trace) {
         if (!player.isCrouching()) {
             if (world.isClientSide && world.getBlockEntity(pos) instanceof li.cil.oc.common.tileentity.Waypoint t) {
-                ClientOnly.showGui(t);
+                li.cil.oc.client.ClientHooks.showWaypointGui(t);
             }
             return InteractionResult.sidedSuccess(world.isClientSide);
         }
@@ -54,12 +53,5 @@ public class Waypoint extends RedstoneAware {
             return Arrays.stream(Direction.values()).filter(d -> d != facing && d != facing.getOpposite()).toArray(Direction[]::new);
         }
         return super.getValidRotations(world, pos);
-    }
-
-    // Separate class so client classes are only loaded when actually used (on the client).
-    private static final class ClientOnly {
-        static void showGui(li.cil.oc.common.tileentity.Waypoint t) {
-            Minecraft.getInstance().setScreen(new li.cil.oc.client.gui.Waypoint(t));
-        }
     }
 }

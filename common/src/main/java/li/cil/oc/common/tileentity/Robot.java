@@ -567,7 +567,7 @@ public class Robot extends TileEntity implements Computer, PowerInformation, Rot
     public void dispose() {
         super.dispose();
         if (isClient()) {
-            ClientHooks.closeGuiFor(this);
+            li.cil.oc.client.ClientHooks.closeRobotGuiFor(this);
         } else EventHandler.onRobotStopped(this);
     }
 
@@ -763,7 +763,7 @@ public class Robot extends TileEntity implements Computer, PowerInformation, Rot
         if (inventorySize >= 0) {
             updateInventorySize();
         } else if (isClient()) {
-            ClientHooks.closeGuiFor(this);
+            li.cil.oc.client.ClientHooks.closeRobotGuiFor(this);
         }
         renderingErrored = false;
     }
@@ -1105,17 +1105,5 @@ public class Robot extends TileEntity implements Computer, PowerInformation, Rot
     @Override
     public FluidStack drain(long maxDrain, boolean simulate) {
         return tryGetTank(selectedTank).map(t -> t.drain(maxDrain, simulate)).orElse(FluidStack.empty());
-    }
-
-    // ----------------------------------------------------------------------- //
-
-    /** Client-only code, in a separate class so it is never loaded on a dedicated server. */
-    private static final class ClientHooks {
-        static void closeGuiFor(Robot robot) {
-            if (net.minecraft.client.Minecraft.getInstance().screen instanceof li.cil.oc.client.gui.Robot robotGui
-                && robotGui.inventoryContainer.otherInventory == robot) {
-                robotGui.onClose();
-            }
-        }
     }
 }
