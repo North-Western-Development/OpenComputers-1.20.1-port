@@ -1,5 +1,6 @@
 {
   "type": "opencomputers:crafting_shapeless_extended",
+  "category": "misc",
   "ingredients": [
     {
       "item": "opencomputers:floppy"

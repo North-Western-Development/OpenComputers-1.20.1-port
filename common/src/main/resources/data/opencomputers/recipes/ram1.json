@@ -1,12 +1,13 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "cic",
     " P "
   ],
   "key": {
     "i": {
-      "tag": "forge:nuggets/iron"
+      "tag": "opencomputers:nuggets/iron"
     },
     "c": {
       "tag": "opencomputers:circuitchip1"

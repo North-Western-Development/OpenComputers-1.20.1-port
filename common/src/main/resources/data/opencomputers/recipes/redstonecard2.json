@@ -1,15 +1,16 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "rCe",
     " B "
   ],
   "key": {
     "e": {
-      "tag": "forge:ender_pearls"
+      "tag": "opencomputers:ender_pearls"
     },
     "r": {
-      "tag": "forge:storage_blocks/redstone"
+      "tag": "opencomputers:storage_blocks/redstone"
     },
     "C": {
       "tag": "opencomputers:circuitchip2"

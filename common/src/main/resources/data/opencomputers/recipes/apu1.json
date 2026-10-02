@@ -1,5 +1,6 @@
 {
   "type": "opencomputers:crafting_shaped_extended",
+  "category": "misc",
   "pattern": [
     "gCg",
     "PBG",
@@ -7,7 +8,7 @@
   ],
   "key": {
     "g": {
-      "tag": "forge:nuggets/gold"
+      "tag": "opencomputers:nuggets/gold"
     },
     "C": {
       "tag": "opencomputers:circuitchip1"

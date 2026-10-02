@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "gCg",
     "pc ",
@@ -7,13 +8,13 @@
   ],
   "key": {
     "g": {
-      "tag": "forge:ingots/gold"
+      "tag": "opencomputers:ingots/gold"
     },
     "c": {
-      "tag": "forge:chests"
+      "tag": "opencomputers:chests"
     },
     "p": {
-      "tag": "forge:pistons"
+      "tag": "opencomputers:pistons"
     },
     "C": {
       "tag": "opencomputers:circuitchip2"

@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "redstone",
   "pattern": [
     "gcg",
     "eCe",
@@ -7,7 +8,7 @@
   ],
   "key": {
     "g": {
-      "tag": "forge:ingots/gold"
+      "tag": "opencomputers:ingots/gold"
     },
     "c": {
       "item": "minecraft:compass"

@@ -1,5 +1,6 @@
 {
   "type": "opencomputers:crafting_shaped_extended",
+  "category": "misc",
   "pattern": [
     "drd",
     "CUC",
@@ -10,7 +11,7 @@
       "tag": "opencomputers:chipdiamond"
     },
     "r": {
-      "tag": "forge:dusts/redstone"
+      "tag": "opencomputers:dusts/redstone"
     },
     "C": {
       "tag": "opencomputers:circuitchip3"

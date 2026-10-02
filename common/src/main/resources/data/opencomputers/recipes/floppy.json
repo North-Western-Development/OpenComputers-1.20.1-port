@@ -1,5 +1,6 @@
 {
-  "type": "minecraft:crafting_shaped",
+  "type": "opencomputers:crafting_shaped_extended",
+  "category": "misc",
   "pattern": [
     "ili",
     "pDp",
@@ -7,7 +8,7 @@
   ],
   "key": {
     "i": {
-      "tag": "forge:nuggets/iron"
+      "tag": "opencomputers:nuggets/iron"
     },
     "p": {
       "item": "minecraft:paper"

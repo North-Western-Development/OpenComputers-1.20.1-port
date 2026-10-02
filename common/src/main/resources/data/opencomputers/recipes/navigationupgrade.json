@@ -1,5 +1,6 @@
 {
   "type": "opencomputers:crafting_shaped_extended",
+  "category": "misc",
   "pattern": [
     "gcg",
     "CmC",
@@ -7,7 +8,7 @@
   ],
   "key": {
     "g": {
-      "tag": "forge:ingots/gold"
+      "tag": "opencomputers:ingots/gold"
     },
     "c": {
       "item": "minecraft:compass"

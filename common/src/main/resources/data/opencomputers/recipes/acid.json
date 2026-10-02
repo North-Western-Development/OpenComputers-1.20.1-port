@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shapeless",
+  "category": "misc",
   "ingredients": [
     {
       "item": "minecraft:water_bucket"
@@ -8,7 +9,7 @@
       "item": "minecraft:sugar"
     },
     {
-      "tag": "forge:slimeballs"
+      "tag": "opencomputers:slimeballs"
     },
     {
       "item": "minecraft:fermented_spider_eye"

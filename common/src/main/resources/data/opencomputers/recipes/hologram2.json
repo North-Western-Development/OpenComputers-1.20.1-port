@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "redstone",
   "pattern": [
     "CgC",
     "PdP",
@@ -7,13 +8,13 @@
   ],
   "key": {
     "d": {
-      "tag": "forge:gems/diamond"
+      "tag": "opencomputers:gems/diamond"
     },
     "g": {
-      "tag": "forge:glass"
+      "tag": "opencomputers:glass"
     },
     "o": {
-      "tag": "forge:obsidian"
+      "tag": "opencomputers:obsidian"
     },
     "b": {
       "item": "minecraft:blaze_powder"

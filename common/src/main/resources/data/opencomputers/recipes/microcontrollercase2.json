@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "gCg",
     "rcr",
@@ -7,13 +8,13 @@
   ],
   "key": {
     "g": {
-      "tag": "forge:nuggets/gold"
+      "tag": "opencomputers:nuggets/gold"
     },
     "r": {
-      "tag": "forge:storage_blocks/redstone"
+      "tag": "opencomputers:storage_blocks/redstone"
     },
     "c": {
-      "tag": "forge:chests"
+      "tag": "opencomputers:chests"
     },
     "C": {
       "tag": "opencomputers:circuitchip3"

@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "redstone",
   "pattern": [
     "ici",
     "cLc",
@@ -7,7 +8,7 @@
   ],
   "key": {
     "i": {
-      "tag": "forge:ingots/iron"
+      "tag": "opencomputers:ingots/iron"
     },
     "P": {
       "tag": "opencomputers:materialcircuitboardprinted"

@@ -1,11 +1,12 @@
 {
   "type": "opencomputers:crafting_shapeless_extended",
+  "category": "redstone",
   "ingredients": [
     {
       "item": "opencomputers:print"
     },
     {
-      "tag": "forge:beacon_base_blocks"
+      "tag": "opencomputers:beacon_base_blocks"
     }
   ],
   "result": {

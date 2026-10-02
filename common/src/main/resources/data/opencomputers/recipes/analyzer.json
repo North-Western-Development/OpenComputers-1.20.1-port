@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "equipment",
   "pattern": [
     "r ",
     "Tg",
@@ -7,7 +8,7 @@
   ],
   "key": {
     "g": {
-      "tag": "forge:nuggets/gold"
+      "tag": "opencomputers:nuggets/gold"
     },
     "r": {
       "item": "minecraft:redstone_torch"

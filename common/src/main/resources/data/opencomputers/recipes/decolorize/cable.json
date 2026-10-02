@@ -1,4 +1,5 @@
 {
   "type": "opencomputers:crafting_decolorize",
+  "category": "redstone",
   "item": "opencomputers:cable"
 }

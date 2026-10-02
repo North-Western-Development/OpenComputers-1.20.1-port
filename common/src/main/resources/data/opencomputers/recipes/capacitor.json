@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "redstone",
   "pattern": [
     "iTi",
     "gpg",
@@ -7,10 +8,10 @@
   ],
   "key": {
     "i": {
-      "tag": "forge:ingots/iron"
+      "tag": "opencomputers:ingots/iron"
     },
     "g": {
-      "tag": "forge:nuggets/gold"
+      "tag": "opencomputers:nuggets/gold"
     },
     "p": {
       "item": "minecraft:paper"

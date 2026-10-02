@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "iCi",
     "pc ",
@@ -7,13 +8,13 @@
   ],
   "key": {
     "i": {
-      "tag": "forge:ingots/iron"
+      "tag": "opencomputers:ingots/iron"
     },
     "c": {
-      "tag": "forge:chests"
+      "tag": "opencomputers:chests"
     },
     "p": {
-      "tag": "forge:pistons"
+      "tag": "opencomputers:pistons"
     },
     "C": {
       "tag": "opencomputers:circuitchip2"

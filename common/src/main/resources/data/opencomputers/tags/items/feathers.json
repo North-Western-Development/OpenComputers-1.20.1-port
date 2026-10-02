@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#forge:feathers",
+      "required": false
+    },
+    {
+      "id": "#c:feathers",
+      "required": false
+    },
+    "minecraft:feather"
+  ]
+}

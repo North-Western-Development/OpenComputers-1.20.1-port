@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "redstone",
   "pattern": [
     "eCe",
     "CeC",
@@ -7,7 +8,7 @@
   ],
   "key": {
     "e": {
-      "tag": "forge:ender_pearls"
+      "tag": "opencomputers:ender_pearls"
     },
     "C": {
       "tag": "opencomputers:chameliumblock"

@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "wbw",
     "dcp",
@@ -19,7 +20,7 @@
       "item": "minecraft:dispenser"
     },
     "p": {
-      "tag": "forge:pistons"
+      "tag": "opencomputers:pistons"
     },
     "C": {
       "tag": "opencomputers:circuitchip1"

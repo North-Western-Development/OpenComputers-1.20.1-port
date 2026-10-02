@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "redstone",
   "pattern": [
     " i ",
     "iri",
@@ -7,10 +8,10 @@
   ],
   "key": {
     "i": {
-      "tag": "forge:nuggets/iron"
+      "tag": "opencomputers:nuggets/iron"
     },
     "r": {
-      "tag": "forge:dusts/redstone"
+      "tag": "opencomputers:dusts/redstone"
     }
   },
   "result": {

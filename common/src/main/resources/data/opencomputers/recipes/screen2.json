@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "redstone",
   "pattern": [
     "gcg",
     "pCG",
@@ -7,19 +8,19 @@
   ],
   "key": {
     "c": {
-      "tag": "forge:dyes/red"
+      "tag": "opencomputers:dyes/red"
     },
     "p": {
-      "tag": "forge:dyes/green"
+      "tag": "opencomputers:dyes/green"
     },
     "y": {
-      "tag": "forge:dyes/blue"
+      "tag": "opencomputers:dyes/blue"
     },
     "g": {
-      "tag": "forge:ingots/gold"
+      "tag": "opencomputers:ingots/gold"
     },
     "G": {
-      "tag": "forge:glass"
+      "tag": "opencomputers:glass"
     },
     "C": {
       "tag": "opencomputers:circuitchip2"

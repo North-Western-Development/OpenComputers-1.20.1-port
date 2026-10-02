@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#forge:ingots/gold",
+      "required": false
+    },
+    {
+      "id": "#c:gold_ingots",
+      "required": false
+    },
+    "minecraft:gold_ingot"
+  ]
+}

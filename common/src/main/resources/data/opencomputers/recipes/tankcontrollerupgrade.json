@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "gbg",
     "dCp",
@@ -7,7 +8,7 @@
   ],
   "key": {
     "g": {
-      "tag": "forge:ingots/gold"
+      "tag": "opencomputers:ingots/gold"
     },
     "b": {
       "item": "minecraft:glass_bottle"
@@ -16,7 +17,7 @@
       "item": "minecraft:dispenser"
     },
     "p": {
-      "tag": "forge:pistons"
+      "tag": "opencomputers:pistons"
     },
     "C": {
       "tag": "opencomputers:circuitchip2"

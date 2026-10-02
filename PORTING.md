@@ -212,3 +212,25 @@ Mixins: common mixins go in `li.cil.oc.common.mixin` (client ones in
   built-in `opencomputers` / `minecraft` integration.
 - Keep behaviour identical where possible; mark anything you could not port
   faithfully with `// TODO(port): ...` so it can be found later.
+
+## Resource migration notes (done; Java side must follow)
+
+- Recipes use OC-owned item tags (`opencomputers:ingots/iron`, `opencomputers:dyes/<color>`,
+  `opencomputers:beacon_base_blocks`, ...) in `data/opencomputers/tags/items/`, which include
+  the matching `#forge:` and `#c:` tags. Java code must reference these instead of `forge:` tags
+  (e.g. `ExtendedRecipe.beaconBlocks` → `opencomputers:beacon_base_blocks`).
+- `opencomputers:crafting_shaped_extended` / `crafting_shapeless_extended` serializers must read
+  `result.nbt` themselves (SNBT string or JSON object) — vanilla drops it.
+- Register loot function `opencomputers:copy_color`; dynamic drops `opencomputers:item_data` and
+  `opencomputers:volatile_contents` are still used by loot tables.
+- Damage types `opencomputers:nanomachines_overload` / `nanomachines_hungry` exist as data; build
+  sources with `new DamageSource(level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(key))`.
+  Keep `.1/.2/.3` random death message suffixes by overriding `getLocalizedDeathMessage`.
+- Mining: all OC blocks are in `minecraft:mineable/pickaxe`; blocks must NOT set `requiresCorrectToolForDrops`.
+- Atlas: `assets/minecraft/atlases/blocks.json` stitches `blocks/` and `items/` dirs, so every
+  `opencomputers:blocks/*` / `opencomputers:items/*` texture is an atlas sprite.
+- Code-baked models (cable, netsplitter, print, robot, robotafterimage use `block/air`; screen and
+  rack were replaced at bake time) need either BERs or platform model hooks
+  (Forge `ModelEvent.ModifyBakingResult`, Fabric `ModelLoadingPlugin`). The drone item uses
+  `builtin/entity` → needs a BEWLR (Forge `IClientItemExtensions`, Fabric `BuiltinItemRendererRegistry`).
+- Lang: `block.opencomputers.<id>`, `itemGroup.opencomputers`, `entity.opencomputers.drone` added.

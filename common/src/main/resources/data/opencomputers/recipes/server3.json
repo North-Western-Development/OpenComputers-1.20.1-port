@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "dRd",
     "CBC",
@@ -7,10 +8,10 @@
   ],
   "key": {
     "d": {
-      "tag": "forge:gems/diamond"
+      "tag": "opencomputers:gems/diamond"
     },
     "o": {
-      "tag": "forge:obsidian"
+      "tag": "opencomputers:obsidian"
     },
     "C": {
       "tag": "opencomputers:circuitchip3"

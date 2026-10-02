@@ -1,14 +1,15 @@
 {
   "type": "minecraft:crafting_shapeless",
+  "category": "misc",
   "ingredients": [
     {
-      "tag": "forge:ingots/gold"
+      "tag": "opencomputers:ingots/gold"
     },
     {
       "item": "minecraft:clay"
     },
     {
-      "tag": "forge:dyes/green"
+      "tag": "opencomputers:dyes/green"
     }
   ],
   "result": {

@@ -1,4 +1,5 @@
 {
   "type": "opencomputers:crafting_decolorize",
+  "category": "equipment",
   "item": "opencomputers:hoverboots"
 }

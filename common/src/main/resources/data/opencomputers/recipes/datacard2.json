@@ -1,12 +1,13 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "gPC",
     " B "
   ],
   "key": {
     "g": {
-      "tag": "forge:nuggets/gold"
+      "tag": "opencomputers:nuggets/gold"
     },
     "C": {
       "tag": "opencomputers:circuitchip3"

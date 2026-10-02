@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "equipment",
   "pattern": [
     "DRG",
     "BAP",
@@ -7,28 +8,28 @@
   ],
   "key": {
     "D": {
-      "tag": "forge:dyes/black"
+      "tag": "opencomputers:dyes/black"
     },
     "R": {
-      "tag": "forge:dyes/red"
+      "tag": "opencomputers:dyes/red"
     },
     "G": {
-      "tag": "forge:dyes/green"
+      "tag": "opencomputers:dyes/green"
     },
     "B": {
-      "tag": "forge:dyes/blue"
+      "tag": "opencomputers:dyes/blue"
     },
     "P": {
-      "tag": "forge:dyes/purple"
+      "tag": "opencomputers:dyes/purple"
     },
     "Y": {
-      "tag": "forge:dyes/yellow"
+      "tag": "opencomputers:dyes/yellow"
     },
     "M": {
-      "tag": "forge:dyes/magenta"
+      "tag": "opencomputers:dyes/magenta"
     },
     "W": {
-      "tag": "forge:dyes/white"
+      "tag": "opencomputers:dyes/white"
     },
     "A": {
       "tag": "opencomputers:analyzer"

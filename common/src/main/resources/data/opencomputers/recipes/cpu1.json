@@ -1,5 +1,6 @@
 {
   "type": "opencomputers:crafting_shaped_extended",
+  "category": "misc",
   "pattern": [
     "iri",
     "CUC",
@@ -7,10 +8,10 @@
   ],
   "key": {
     "i": {
-      "tag": "forge:nuggets/iron"
+      "tag": "opencomputers:nuggets/iron"
     },
     "r": {
-      "tag": "forge:dusts/redstone"
+      "tag": "opencomputers:dusts/redstone"
     },
     "C": {
       "tag": "opencomputers:circuitchip1"

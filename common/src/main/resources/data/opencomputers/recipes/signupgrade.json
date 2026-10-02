@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "ibi",
     "CsC",
@@ -7,13 +8,13 @@
   ],
   "key": {
     "s": {
-      "tag": "forge:rods/wooden"
+      "tag": "opencomputers:rods/wooden"
     },
     "b": {
-      "tag": "forge:dyes/black"
+      "tag": "opencomputers:dyes/black"
     },
     "i": {
-      "tag": "forge:ingots/iron"
+      "tag": "opencomputers:ingots/iron"
     },
     "p": {
       "item": "minecraft:sticky_piston"

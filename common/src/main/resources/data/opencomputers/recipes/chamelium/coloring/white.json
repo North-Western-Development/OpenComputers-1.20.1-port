@@ -1,11 +1,12 @@
 {
   "type": "opencomputers:crafting_shapeless_extended",
+  "category": "redstone",
   "ingredients": [
     {
       "item": "opencomputers:chameliumblock"
     },
     {
-      "tag": "forge:dyes/white"
+      "tag": "opencomputers:dyes/white"
     }
   ],
   "result": {

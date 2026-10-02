@@ -1,11 +1,12 @@
 {
   "type": "opencomputers:crafting_shapeless_extended",
+  "category": "misc",
   "ingredients": [
     {
       "item": "opencomputers:floppy"
     },
     {
-      "tag": "forge:dyes/light_blue"
+      "tag": "opencomputers:dyes/light_blue"
     }
   ],
   "result": {

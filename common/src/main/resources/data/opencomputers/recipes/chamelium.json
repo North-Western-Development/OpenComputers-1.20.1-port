@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "grg",
     "rcr",
@@ -7,13 +8,13 @@
   ],
   "key": {
     "g": {
-      "tag": "forge:gravel"
+      "tag": "opencomputers:gravel"
     },
     "c": {
       "item": "minecraft:coal"
     },
     "r": {
-      "tag": "forge:dusts/redstone"
+      "tag": "opencomputers:dusts/redstone"
     },
     "w": {
       "item": "minecraft:water_bucket"

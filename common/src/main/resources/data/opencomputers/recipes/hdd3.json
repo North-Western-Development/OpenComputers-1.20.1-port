@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "CDd",
     "PDp",
@@ -7,10 +8,10 @@
   ],
   "key": {
     "d": {
-      "tag": "forge:gems/diamond"
+      "tag": "opencomputers:gems/diamond"
     },
     "p": {
-      "tag": "forge:pistons"
+      "tag": "opencomputers:pistons"
     },
     "D": {
       "tag": "opencomputers:materialdisk"

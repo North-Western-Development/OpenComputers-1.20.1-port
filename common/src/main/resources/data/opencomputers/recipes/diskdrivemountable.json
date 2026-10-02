@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "oCo",
     "fDf",
@@ -7,7 +8,7 @@
   ],
   "key": {
     "o": {
-      "tag": "forge:obsidian"
+      "tag": "opencomputers:obsidian"
     },
     "f": {
       "item": "minecraft:iron_bars"

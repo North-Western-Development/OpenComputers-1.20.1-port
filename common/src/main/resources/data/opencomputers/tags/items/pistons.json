@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#forge:pistons",
+      "required": false
+    },
+    {
+      "id": "#c:pistons",
+      "required": false
+    },
+    "minecraft:piston",
+    "minecraft:sticky_piston"
+  ]
+}

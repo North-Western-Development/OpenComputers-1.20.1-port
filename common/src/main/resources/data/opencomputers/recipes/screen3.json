@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "redstone",
   "pattern": [
     "ogo",
     "gCG",
@@ -7,13 +8,13 @@
   ],
   "key": {
     "g": {
-      "tag": "forge:dusts/glowstone"
+      "tag": "opencomputers:dusts/glowstone"
     },
     "G": {
-      "tag": "forge:glass"
+      "tag": "opencomputers:glass"
     },
     "o": {
-      "tag": "forge:obsidian"
+      "tag": "opencomputers:obsidian"
     },
     "C": {
       "tag": "opencomputers:circuitchip3"

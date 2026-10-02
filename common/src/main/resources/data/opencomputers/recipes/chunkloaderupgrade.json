@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "gsg",
     "CeC",
@@ -7,13 +8,13 @@
   ],
   "key": {
     "g": {
-      "tag": "forge:ingots/gold"
+      "tag": "opencomputers:ingots/gold"
     },
     "s": {
-      "tag": "forge:glass"
+      "tag": "opencomputers:glass"
     },
     "o": {
-      "tag": "forge:obsidian"
+      "tag": "opencomputers:obsidian"
     },
     "e": {
       "item": "minecraft:ender_eye"

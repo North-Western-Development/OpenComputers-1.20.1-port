@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "gTg",
     "pCp",
@@ -7,7 +8,7 @@
   ],
   "key": {
     "g": {
-      "tag": "forge:nuggets/gold"
+      "tag": "opencomputers:nuggets/gold"
     },
     "p": {
       "item": "minecraft:paper"

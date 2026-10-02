@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "g g",
     "CeC",
@@ -7,10 +8,10 @@
   ],
   "key": {
     "g": {
-      "tag": "forge:ingots/gold"
+      "tag": "opencomputers:ingots/gold"
     },
     "e": {
-      "tag": "forge:gems/emerald"
+      "tag": "opencomputers:gems/emerald"
     },
     "C": {
       "tag": "opencomputers:circuitchip2"

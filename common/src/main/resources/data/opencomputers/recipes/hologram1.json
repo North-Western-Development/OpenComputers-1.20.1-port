@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "redstone",
   "pattern": [
     "CgC",
     "PdP",
@@ -10,13 +11,13 @@
       "tag": "opencomputers:chipdiamond"
     },
     "g": {
-      "tag": "forge:glass_panes"
+      "tag": "opencomputers:glass_panes"
     },
     "o": {
-      "tag": "forge:obsidian"
+      "tag": "opencomputers:obsidian"
     },
     "G": {
-      "tag": "forge:dusts/glowstone"
+      "tag": "opencomputers:dusts/glowstone"
     },
     "C": {
       "tag": "opencomputers:circuitchip2"

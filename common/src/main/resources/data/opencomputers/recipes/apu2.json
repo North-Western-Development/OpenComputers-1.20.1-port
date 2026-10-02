@@ -1,5 +1,6 @@
 {
   "type": "opencomputers:crafting_shaped_extended",
+  "category": "misc",
   "pattern": [
     "dCd",
     "PBG",

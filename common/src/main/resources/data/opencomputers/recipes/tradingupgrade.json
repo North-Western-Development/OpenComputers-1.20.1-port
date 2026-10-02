@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "gcg",
     "eCe",
@@ -7,19 +8,19 @@
   ],
   "key": {
     "g": {
-      "tag": "forge:ingots/gold"
+      "tag": "opencomputers:ingots/gold"
     },
     "e": {
-      "tag": "forge:gems/emerald"
+      "tag": "opencomputers:gems/emerald"
     },
     "c": {
-      "tag": "forge:chests"
+      "tag": "opencomputers:chests"
     },
     "d": {
       "item": "minecraft:dropper"
     },
     "p": {
-      "tag": "forge:pistons"
+      "tag": "opencomputers:pistons"
     },
     "C": {
       "tag": "opencomputers:circuitchip2"

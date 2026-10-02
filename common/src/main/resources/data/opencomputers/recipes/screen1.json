@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "redstone",
   "pattern": [
     "iri",
     "rCG",
@@ -7,13 +8,13 @@
   ],
   "key": {
     "i": {
-      "tag": "forge:ingots/iron"
+      "tag": "opencomputers:ingots/iron"
     },
     "r": {
-      "tag": "forge:dusts/redstone"
+      "tag": "opencomputers:dusts/redstone"
     },
     "G": {
-      "tag": "forge:glass"
+      "tag": "opencomputers:glass"
     },
     "C": {
       "tag": "opencomputers:circuitchip1"

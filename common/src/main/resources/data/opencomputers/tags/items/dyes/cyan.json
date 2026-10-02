@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#forge:dyes/cyan",
+      "required": false
+    },
+    {
+      "id": "#c:cyan_dyes",
+      "required": false
+    },
+    "minecraft:cyan_dye"
+  ]
+}

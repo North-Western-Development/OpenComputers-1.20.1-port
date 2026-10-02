@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "ipi",
     "sCs",
@@ -7,13 +8,13 @@
   ],
   "key": {
     "s": {
-      "tag": "forge:rods/wooden"
+      "tag": "opencomputers:rods/wooden"
     },
     "i": {
-      "tag": "forge:ingots/iron"
+      "tag": "opencomputers:ingots/iron"
     },
     "p": {
-      "tag": "forge:pistons"
+      "tag": "opencomputers:pistons"
     },
     "C": {
       "tag": "opencomputers:circuitchip1"

@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#forge:beacon_base_blocks",
+      "required": false
+    },
+    "minecraft:netherite_block",
+    "minecraft:emerald_block",
+    "minecraft:diamond_block",
+    "minecraft:gold_block",
+    "minecraft:iron_block"
+  ]
+}

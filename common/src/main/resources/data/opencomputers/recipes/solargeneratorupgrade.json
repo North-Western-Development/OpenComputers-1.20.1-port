@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "ggg",
     "ClC",
@@ -7,13 +8,13 @@
   ],
   "key": {
     "i": {
-      "tag": "forge:ingots/iron"
+      "tag": "opencomputers:ingots/iron"
     },
     "g": {
-      "tag": "forge:glass"
+      "tag": "opencomputers:glass"
     },
     "l": {
-      "tag": "forge:storage_blocks/lapis"
+      "tag": "opencomputers:storage_blocks/lapis"
     },
     "C": {
       "tag": "opencomputers:circuitchip3"

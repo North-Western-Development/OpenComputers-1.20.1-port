@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "redstone",
   "pattern": [
     "gCg",
     "bcb",
@@ -7,10 +8,10 @@
   ],
   "key": {
     "g": {
-      "tag": "forge:ingots/gold"
+      "tag": "opencomputers:ingots/gold"
     },
     "c": {
-      "tag": "forge:chests"
+      "tag": "opencomputers:chests"
     },
     "b": {
       "item": "minecraft:iron_bars"

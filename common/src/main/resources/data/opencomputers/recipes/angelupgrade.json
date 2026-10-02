@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "iei",
     "CpC",
@@ -7,10 +8,10 @@
   ],
   "key": {
     "i": {
-      "tag": "forge:ingots/iron"
+      "tag": "opencomputers:ingots/iron"
     },
     "e": {
-      "tag": "forge:ender_pearls"
+      "tag": "opencomputers:ender_pearls"
     },
     "p": {
       "item": "minecraft:sticky_piston"

@@ -1,12 +1,13 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "eC",
     " B"
   ],
   "key": {
     "e": {
-      "tag": "forge:ender_pearls"
+      "tag": "opencomputers:ender_pearls"
     },
     "C": {
       "tag": "opencomputers:circuitchip2"

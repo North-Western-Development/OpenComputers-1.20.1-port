@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "iCi",
     "rcr",
@@ -7,13 +8,13 @@
   ],
   "key": {
     "i": {
-      "tag": "forge:nuggets/iron"
+      "tag": "opencomputers:nuggets/iron"
     },
     "r": {
-      "tag": "forge:dusts/redstone"
+      "tag": "opencomputers:dusts/redstone"
     },
     "c": {
-      "tag": "forge:chests"
+      "tag": "opencomputers:chests"
     },
     "C": {
       "tag": "opencomputers:circuitchip1"

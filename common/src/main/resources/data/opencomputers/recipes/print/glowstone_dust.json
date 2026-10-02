@@ -1,11 +1,12 @@
 {
   "type": "opencomputers:crafting_shapeless_extended",
+  "category": "redstone",
   "ingredients": [
     {
       "item": "opencomputers:print"
     },
     {
-      "tag": "forge:dusts/glowstone"
+      "tag": "opencomputers:dusts/glowstone"
     }
   ],
   "result": {

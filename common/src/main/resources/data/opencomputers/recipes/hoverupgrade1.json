@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "fCf",
     "ili",
@@ -7,13 +8,13 @@
   ],
   "key": {
     "i": {
-      "tag": "forge:nuggets/iron"
+      "tag": "opencomputers:nuggets/iron"
     },
     "f": {
-      "tag": "forge:feathers"
+      "tag": "opencomputers:feathers"
     },
     "l": {
-      "tag": "forge:leather"
+      "tag": "opencomputers:leather"
     },
     "C": {
       "tag": "opencomputers:circuitchip1"

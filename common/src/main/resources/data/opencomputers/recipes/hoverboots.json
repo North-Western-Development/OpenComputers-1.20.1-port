@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "equipment",
   "pattern": [
     "iHi",
     "LDL",
@@ -7,10 +8,10 @@
   ],
   "key": {
     "i": {
-      "tag": "forge:nuggets/iron"
+      "tag": "opencomputers:nuggets/iron"
     },
     "L": {
-      "tag": "forge:leather"
+      "tag": "opencomputers:leather"
     },
     "C": {
       "tag": "opencomputers:capacitor"

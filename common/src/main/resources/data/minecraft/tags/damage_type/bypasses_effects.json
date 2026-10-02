@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "opencomputers:nanomachines_overload",
+    "opencomputers:nanomachines_hungry"
+  ]
+}

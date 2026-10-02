@@ -1,5 +1,6 @@
 {
-  "type": "minecraft:crafting_shapeless",
+  "type": "opencomputers:crafting_shapeless_extended",
+  "category": "misc",
   "ingredients": [
     {
       "tag": "opencomputers:floppy"
@@ -17,7 +18,7 @@
       "oc:lootFactory": "opencomputers:openos",
       "oc:color": 13,
       "display": {
-        "Name": "OpenOS (Operating System)"
+        "Name": "{\"text\": \"OpenOS (Operating System)\"}"
       }
     }
   }

@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "redstone",
   "pattern": [
     "dWd",
     "bcb",
@@ -7,10 +8,10 @@
   ],
   "key": {
     "d": {
-      "tag": "forge:gems/diamond"
+      "tag": "opencomputers:gems/diamond"
     },
     "c": {
-      "tag": "forge:chests"
+      "tag": "opencomputers:chests"
     },
     "b": {
       "item": "minecraft:iron_bars"

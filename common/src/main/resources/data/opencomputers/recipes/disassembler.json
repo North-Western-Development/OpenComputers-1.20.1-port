@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "redstone",
   "pattern": [
     "UgA",
     "p o",
@@ -7,19 +8,19 @@
   ],
   "key": {
     "i": {
-      "tag": "forge:ingots/iron"
+      "tag": "opencomputers:ingots/iron"
     },
     "g": {
-      "tag": "forge:glass_panes"
+      "tag": "opencomputers:glass_panes"
     },
     "l": {
       "item": "minecraft:lava_bucket"
     },
     "o": {
-      "tag": "forge:obsidian"
+      "tag": "opencomputers:obsidian"
     },
     "p": {
-      "tag": "forge:pistons"
+      "tag": "opencomputers:pistons"
     },
     "U": {
       "tag": "opencomputers:materialcu"

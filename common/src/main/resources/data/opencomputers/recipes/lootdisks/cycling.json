@@ -1,3 +1,4 @@
 {
-  "type": "opencomputers:crafting_lootdisk_cycling"
+  "type": "opencomputers:crafting_lootdisk_cycling",
+  "category": "misc"
 }

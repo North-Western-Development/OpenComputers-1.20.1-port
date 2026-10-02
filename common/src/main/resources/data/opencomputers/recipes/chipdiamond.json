@@ -1,11 +1,12 @@
 {
   "type": "minecraft:crafting_shapeless",
+  "category": "misc",
   "ingredients": [
     {
       "tag": "opencomputers:materialcuttingwire"
     },
     {
-      "tag": "forge:gems/diamond"
+      "tag": "opencomputers:gems/diamond"
     }
   ],
   "result": {

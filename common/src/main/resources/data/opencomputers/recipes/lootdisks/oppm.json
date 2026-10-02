@@ -1,5 +1,6 @@
 {
-  "type": "minecraft:crafting_shapeless",
+  "type": "opencomputers:crafting_shapeless_extended",
+  "category": "misc",
   "ingredients": [
     {
       "tag": "opencomputers:floppy"
@@ -17,7 +18,7 @@
       "oc:lootFactory": "opencomputers:oppm",
       "oc:color": 9,
       "display": {
-        "Name": "OPPM (Package Manager)"
+        "Name": "{\"text\": \"OPPM (Package Manager)\"}"
       }
     }
   }

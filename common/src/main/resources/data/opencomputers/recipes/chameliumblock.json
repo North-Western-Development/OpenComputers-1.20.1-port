@@ -1,5 +1,6 @@
 {
-  "type": "minecraft:crafting_shaped",
+  "type": "opencomputers:crafting_shaped_extended",
+  "category": "redstone",
   "pattern": [
     "CCC",
     "CCC",

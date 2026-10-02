@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "whw",
     "dcp",
@@ -10,7 +11,7 @@
       "tag": "minecraft:planks"
     },
     "c": {
-      "tag": "forge:chests"
+      "tag": "opencomputers:chests"
     },
     "h": {
       "item": "minecraft:hopper"
@@ -19,7 +20,7 @@
       "item": "minecraft:dropper"
     },
     "p": {
-      "tag": "forge:pistons"
+      "tag": "opencomputers:pistons"
     },
     "C": {
       "tag": "opencomputers:circuitchip1"

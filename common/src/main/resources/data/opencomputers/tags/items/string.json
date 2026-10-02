@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#forge:string",
+      "required": false
+    },
+    {
+      "id": "#c:string",
+      "required": false
+    },
+    "minecraft:string"
+  ]
+}

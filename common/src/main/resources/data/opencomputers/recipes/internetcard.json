@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
   "pattern": [
     "ICr",
     " Bo"
@@ -9,7 +10,7 @@
       "item": "minecraft:redstone_torch"
     },
     "o": {
-      "tag": "forge:obsidian"
+      "tag": "opencomputers:obsidian"
     },
     "C": {
       "tag": "opencomputers:circuitchip2"

@@ -1,20 +1,21 @@
 {
   "type": "minecraft:crafting_shapeless",
+  "category": "misc",
   "ingredients": [
     {
       "tag": "opencomputers:inkcartridgeempty"
     },
     {
-      "tag": "forge:dyes/cyan"
+      "tag": "opencomputers:dyes/cyan"
     },
     {
-      "tag": "forge:dyes/magenta"
+      "tag": "opencomputers:dyes/magenta"
     },
     {
-      "tag": "forge:dyes/yellow"
+      "tag": "opencomputers:dyes/yellow"
     },
     {
-      "tag": "forge:dyes/black"
+      "tag": "opencomputers:dyes/black"
     }
   ],
   "result": {
