@@ -9,7 +9,9 @@
     "PlayerPersistedDataMixin",
     "ServerPlayerPersistedDataMixin",
     "ServerPlayerGameModeAccessor",
-    "BlockPopExperienceMixin"
+    "BlockPopExperienceMixin",
+    "LivingEntityHoverBootsMixin",
+    "PlayerDataStorageMixin"
   ],
   "client": [],
   "injectors": {
