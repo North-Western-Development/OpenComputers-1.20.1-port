@@ -1,6 +1,7 @@
 package li.cil.oc.common.platform.fabric;
 
 import dev.architectury.fluid.FluidStack;
+import li.cil.oc.common.item.traits.Chargeable;
 import li.cil.oc.common.transfer.ContainerItemHandler;
 import li.cil.oc.common.transfer.EnergyHandler;
 import li.cil.oc.common.transfer.FluidHandler;
@@ -79,6 +80,10 @@ public final class PlatformHooksImpl {
     @Nullable
     public static FluidHandler getFluidHandler(Level level, BlockPos pos, @Nullable Direction side) {
         if (!level.isLoaded(pos)) return null;
+        if (level.getBlockEntity(pos) instanceof FluidHandler handler && handler.getClass().getName().startsWith("li.cil.oc.")) {
+            // OC's own tanks: no need to go through the (mB rounding) Transfer API adapter.
+            return handler;
+        }
         final Storage<FluidVariant> storage = FluidStorage.SIDED.find(level, pos, side);
         return storage == null ? null : new StorageFluidHandler(storage);
     }
@@ -99,7 +104,11 @@ public final class PlatformHooksImpl {
 
     @Nullable
     public static EnergyHandler getEnergyHandler(ItemStack stack) {
-        if (!FabricLoader.getInstance().isModLoaded("team_reborn_energy") || stack.isEmpty()) return null;
+        if (stack.isEmpty()) return null;
+        if (stack.getItem() instanceof Chargeable chargeable) {
+            return new Chargeable.Provider(stack, chargeable);
+        }
+        if (!FabricLoader.getInstance().isModLoaded("team_reborn_energy")) return null;
         return TeamRebornEnergyCompat.find(stack);
     }
 

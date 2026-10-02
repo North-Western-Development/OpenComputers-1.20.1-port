@@ -56,6 +56,9 @@ shadowJar {
     exclude "fabric.mod.json"
     exclude "architectury.common.json"
     configurations = [project.configurations.shadowCommon, project.configurations.embedded]
+    // Embedded jars (LuaJ, JNLua, JNLua natives -> /assets/opencomputers/lib/*, typesafe config) are
+    // unpacked into the mod jar; drop their signatures and build metadata.
+    exclude "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA", "META-INF/*.EC", "META-INF/maven/**", "META-INF/INDEX.LIST"
     relocate "com.typesafe.config", "li.cil.oc.repack.com.typesafe.config"
     archiveClassifier = "dev-shadow"
 }

@@ -2,6 +2,7 @@ package li.cil.oc.common.platform.forge;
 
 import dev.architectury.fluid.FluidStack;
 import dev.architectury.hooks.fluid.forge.FluidStackHooksForge;
+import li.cil.oc.common.item.traits.Chargeable;
 import li.cil.oc.common.transfer.EnergyHandler;
 import li.cil.oc.common.transfer.FluidHandler;
 import li.cil.oc.common.transfer.ItemFluidHandler;
@@ -91,6 +92,9 @@ public final class PlatformHooksImpl {
     @Nullable
     public static EnergyHandler getEnergyHandler(ItemStack stack) {
         if (stack.isEmpty()) return null;
+        if (stack.getItem() instanceof Chargeable chargeable) {
+            return new Chargeable.Provider(stack, chargeable);
+        }
         final IEnergyStorage storage = find(stack, ForgeCapabilities.ENERGY, null);
         return storage == null ? null : new ForgeEnergyHandler(storage);
     }

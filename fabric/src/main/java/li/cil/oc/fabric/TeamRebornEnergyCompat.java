@@ -1,8 +1,11 @@
 package li.cil.oc.fabric;
 
+import li.cil.oc.common.item.traits.Chargeable;
 import li.cil.oc.common.transfer.EnergyHandler;
 import li.cil.oc.common.transfer.EnergyHandlerProvider;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
@@ -30,6 +33,10 @@ public final class TeamRebornEnergyCompat {
             }
             return null;
         });
+
+        // OC's chargeable items (batteries, tablets, hover boots, ...).
+        EnergyStorage.ITEM.registerFallback((stack, context) ->
+            stack.getItem() instanceof Chargeable ? new ChargeableItemStorage(context) : null);
     }
 
     @Nullable
@@ -164,6 +171,69 @@ public final class TeamRebornEnergyCompat {
             if (pendingExtract > 0) handler.extractEnergy(pendingExtract, false);
             pendingInsert = 0;
             pendingExtract = 0;
+        }
+    }
+
+    /**
+     * Team Reborn view of an OC {@link Chargeable} item in a {@link ContainerItemContext}.
+     * Works on a copy of one item of the context's stack and commits changes by
+     * exchanging it in the context, which makes it transactional.
+     */
+    private record ChargeableItemStorage(ContainerItemContext context) implements EnergyStorage {
+        @Nullable
+        private static Chargeable.Provider provider(ItemStack stack) {
+            return !stack.isEmpty() && stack.getItem() instanceof Chargeable chargeable ? new Chargeable.Provider(stack, chargeable) : null;
+        }
+
+        private ItemStack current() {
+            final ItemVariant variant = context.getItemVariant();
+            return variant.isBlank() ? ItemStack.EMPTY : variant.toStack(1);
+        }
+
+        @Override
+        public boolean supportsInsertion() {
+            final Chargeable.Provider provider = provider(current());
+            return provider != null && provider.canReceive();
+        }
+
+        @Override
+        public boolean supportsExtraction() {
+            final Chargeable.Provider provider = provider(current());
+            return provider != null && provider.canExtract();
+        }
+
+        @Override
+        public long insert(long maxAmount, TransactionContext transaction) {
+            StoragePreconditions.notNegative(maxAmount);
+            final ItemStack stack = current();
+            final Chargeable.Provider provider = provider(stack);
+            if (provider == null || !provider.canReceive() || maxAmount == 0) return 0;
+            final long inserted = Math.min(maxAmount, provider.receiveEnergy(maxAmount, false));
+            if (inserted <= 0) return 0;
+            return context.exchange(ItemVariant.of(stack), 1, transaction) == 1 ? inserted : 0;
+        }
+
+        @Override
+        public long extract(long maxAmount, TransactionContext transaction) {
+            StoragePreconditions.notNegative(maxAmount);
+            final ItemStack stack = current();
+            final Chargeable.Provider provider = provider(stack);
+            if (provider == null || !provider.canExtract() || maxAmount == 0) return 0;
+            final long extracted = Math.min(maxAmount, provider.extractEnergy(maxAmount, false));
+            if (extracted <= 0) return 0;
+            return context.exchange(ItemVariant.of(stack), 1, transaction) == 1 ? extracted : 0;
+        }
+
+        @Override
+        public long getAmount() {
+            final Chargeable.Provider provider = provider(current());
+            return provider == null ? 0 : provider.getEnergyStored();
+        }
+
+        @Override
+        public long getCapacity() {
+            final Chargeable.Provider provider = provider(current());
+            return provider == null ? 0 : provider.getMaxEnergyStored();
         }
     }
 }
