@@ -2,9 +2,7 @@ package li.cil.oc.api.internal;
 
 import li.cil.oc.api.network.EnvironmentHost;
 import li.cil.oc.api.network.Environment;
-import net.minecraft.inventory.ISidedInventory;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.WorldlyContainer;
 
 /**
  * This interface allows interaction with robots.
@@ -28,7 +26,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  * <p/>
  * This interface is <em>not meant to be implemented</em>, just used.
  */
-public interface Robot extends Agent, Environment, EnvironmentHost, Tiered, ISidedInventory {
+public interface Robot extends Agent, Environment, EnvironmentHost, Tiered, WorldlyContainer {
     /**
      * The number of built-in components in this robot.
      */
@@ -73,8 +71,9 @@ public interface Robot extends Agent, Environment, EnvironmentHost, Tiered, ISid
      * This is explicitly meant for client side use, to allow upgrade renderers
      * to know whether to resume animations or not, based on whether the robot
      * is currently powered on or not.
+     * <p/>
+     * <em>Client side only.</em>
      */
-    @OnlyIn(Dist.CLIENT)
     boolean shouldAnimate();
 }
 

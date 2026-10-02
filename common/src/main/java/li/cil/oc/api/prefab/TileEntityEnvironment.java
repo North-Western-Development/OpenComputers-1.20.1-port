@@ -5,10 +5,10 @@ import li.cil.oc.api.network.Environment;
 import li.cil.oc.api.network.Message;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.Visibility;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 
 /**
  * TileEntities can implement the {@link li.cil.oc.api.network.Environment}
@@ -19,7 +19,7 @@ import net.minecraft.tileentity.TileEntityType;
  * network as an index structure to find other nodes connected to them.
  */
 @SuppressWarnings("UnusedDeclaration")
-public abstract class TileEntityEnvironment extends TileEntity implements Environment {
+public abstract class TileEntityEnvironment extends BlockEntity implements Environment {
     private static final String TAG_NODE = "oc:node";
 
     /**
@@ -61,7 +61,7 @@ public abstract class TileEntityEnvironment extends TileEntity implements Enviro
 
     // ----------------------------------------------------------------------- //
     
-    public TileEntityEnvironment(TileEntityType<?> type) {
+    public TileEntityEnvironment(BlockEntityType<?> type) {
         super(type);
     }
 
@@ -124,7 +124,7 @@ public abstract class TileEntityEnvironment extends TileEntity implements Enviro
     // ----------------------------------------------------------------------- //
 
     @Override
-    public void load(final BlockState state, final CompoundNBT nbt) {
+    public void load(final BlockState state, final CompoundTag nbt) {
         super.load(state, nbt);
         // The host check may be superfluous for you. It's just there to allow
         // some special cases, where getNode() returns some node managed by
@@ -140,11 +140,11 @@ public abstract class TileEntityEnvironment extends TileEntity implements Enviro
     }
 
     @Override
-    public CompoundNBT save(final CompoundNBT nbt) {
+    public CompoundTag save(final CompoundTag nbt) {
         super.save(nbt);
         // See load() regarding host check.
         if (node != null && node.host() == this) {
-            final CompoundNBT nodeNbt = new CompoundNBT();
+            final CompoundTag nodeNbt = new CompoundTag();
             node.saveData(nodeNbt);
             nbt.put(TAG_NODE, nodeNbt);
         }

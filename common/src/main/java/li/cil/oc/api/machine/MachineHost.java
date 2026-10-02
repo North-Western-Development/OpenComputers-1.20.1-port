@@ -3,7 +3,7 @@ package li.cil.oc.api.machine;
 import li.cil.oc.api.network.EnvironmentHost;
 import li.cil.oc.api.network.Environment;
 import li.cil.oc.api.network.Node;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * This interface has to be implemented by 'hosts' of machine instances.

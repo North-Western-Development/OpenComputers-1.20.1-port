@@ -3,12 +3,13 @@ package li.cil.oc.api.prefab;
 import li.cil.oc.api.Network;
 import li.cil.oc.api.network.Node;
 import li.cil.oc.api.network.SidedEnvironment;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 
 /**
  * TileEntities can implement the {@link li.cil.oc.api.network.SidedEnvironment}
@@ -19,9 +20,15 @@ import net.minecraft.util.Direction;
  * <p/>
  * Nodes in such a network can communicate with each other, or just use the
  * network as an index structure to find other nodes connected to them.
+ * <p/>
+ * Since 1.20.1 there is no <tt>ITickableTileEntity</tt> anymore: your block's
+ * {@link net.minecraft.world.level.block.EntityBlock#getTicker} must return a
+ * ticker that calls {@link #tick()} (e.g. {@link #serverTicker}). Likewise,
+ * {@link #onChunkUnloaded()} is only invoked automatically on Forge; on other
+ * loaders you have to call it yourself when the chunk unloads.
  */
 @SuppressWarnings("UnusedDeclaration")
-public abstract class TileEntitySidedEnvironment extends TileEntity implements SidedEnvironment, ITickableTileEntity {
+public abstract class TileEntitySidedEnvironment extends BlockEntity implements SidedEnvironment {
     // See constructor.
     protected Node[] nodes = new Node[6];
 
@@ -62,8 +69,8 @@ public abstract class TileEntitySidedEnvironment extends TileEntity implements S
      *       .create(), ...);
      * </pre>
      */
-    protected TileEntitySidedEnvironment(TileEntityType<?> type, final Node... nodes) {
-        super(type);
+    protected TileEntitySidedEnvironment(BlockEntityType<?> type, final BlockPos pos, final BlockState state, final Node... nodes) {
+        super(type, pos, state);
         System.arraycopy(nodes, 0, this.nodes, 0, Math.min(nodes.length, this.nodes.length));
     }
 
@@ -81,7 +88,15 @@ public abstract class TileEntitySidedEnvironment extends TileEntity implements S
 
     // ----------------------------------------------------------------------- //
 
-    @Override
+    /**
+     * Convenience ticker that can be returned from
+     * {@link net.minecraft.world.level.block.EntityBlock#getTicker} (on the
+     * server side) for block entities extending this class.
+     */
+    public static <T extends TileEntitySidedEnvironment> void serverTicker(final Level level, final BlockPos pos, final BlockState state, final T blockEntity) {
+        blockEntity.tick();
+    }
+
     public void tick() {
         // On the first update, try to add our node to nearby networks. We do
         // this in the update logic, not in clearRemoved() because we need to access
@@ -96,9 +111,10 @@ public abstract class TileEntitySidedEnvironment extends TileEntity implements S
         }
     }
 
-    @Override
+    // Not annotated with @Override: this overrides Forge's
+    // IForgeBlockEntity#onChunkUnloaded() at runtime on Forge; other loaders
+    // must invoke it manually.
     public void onChunkUnloaded() {
-        super.onChunkUnloaded();
         // Make sure to remove the node from its network when its environment,
         // meaning this tile entity, gets unloaded.
         for (Node node : nodes) {
@@ -119,8 +135,8 @@ public abstract class TileEntitySidedEnvironment extends TileEntity implements S
     // ----------------------------------------------------------------------- //
 
     @Override
-    public void load(final BlockState state, final CompoundNBT nbt) {
-        super.load(state, nbt);
+    public void load(final CompoundTag nbt) {
+        super.load(nbt);
         int index = 0;
         for (Node node : nodes) {
             // The host check may be superfluous for you. It's just there to allow
@@ -139,18 +155,17 @@ public abstract class TileEntitySidedEnvironment extends TileEntity implements S
     }
 
     @Override
-    public CompoundNBT save(CompoundNBT nbt) {
-        super.save(nbt);
+    protected void saveAdditional(final CompoundTag nbt) {
+        super.saveAdditional(nbt);
         int index = 0;
         for (Node node : nodes) {
             // See load() regarding host check.
             if (node != null && node.host() == this) {
-                final CompoundNBT nodeNbt = new CompoundNBT();
+                final CompoundTag nodeNbt = new CompoundTag();
                 node.saveData(nodeNbt);
                 nbt.put("oc:node" + index, nodeNbt);
             }
             ++index;
         }
-        return nbt;
     }
 }

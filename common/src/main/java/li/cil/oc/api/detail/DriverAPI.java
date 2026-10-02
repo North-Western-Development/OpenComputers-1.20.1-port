@@ -6,12 +6,12 @@ import li.cil.oc.api.driver.InventoryProvider;
 import li.cil.oc.api.driver.DriverItem;
 import li.cil.oc.api.driver.DriverBlock;
 import li.cil.oc.api.network.EnvironmentHost;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.items.IItemHandler;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import li.cil.oc.common.transfer.ItemHandler;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -95,7 +95,7 @@ public interface DriverAPI {
      * @return a driver for the block, or <tt>null</tt> if there is none.
      */
     @Nullable
-    DriverBlock driverFor(World world, BlockPos pos, Direction side);
+    DriverBlock driverFor(Level world, BlockPos pos, Direction side);
 
     /**
      * Looks up a driver for the specified item stack.
@@ -154,10 +154,10 @@ public interface DriverAPI {
     Set<Class<?>> environmentsFor(ItemStack stack);
 
     /**
-     * Get an IItemHandler implementation providing access to an item inventory.
+     * Get an {@link ItemHandler} implementation providing access to an item inventory.
      * <p/>
      * This will use the registered {@link InventoryProvider}s to find an
-     * IItemHandler implementation providing access to the specified stack.
+     * ItemHandler implementation providing access to the specified stack.
      * If none can be found, returns <tt>null</tt>.
      * <p/>
      * Note that the specified <tt>player</tt> may be null, but will usually
@@ -165,9 +165,9 @@ public interface DriverAPI {
      *
      * @param stack  the item stack to get the inventory access for.
      * @param player the player holding the item. May be <tt>null</tt>.
-     * @return the IItemHandler implementation interfacing the stack, or <tt>null</tt>.
+     * @return the ItemHandler implementation interfacing the stack, or <tt>null</tt>.
      */
-    IItemHandler itemHandlerFor(ItemStack stack, PlayerEntity player);
+    ItemHandler itemHandlerFor(ItemStack stack, Player player);
 
     /**
      * Get a list of all registered item drivers.

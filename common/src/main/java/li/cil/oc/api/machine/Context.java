@@ -36,7 +36,7 @@ public interface Context {
      * Use this to check whether you should signal something to the computer,
      * for example. Note that for signals triggered via network messages there
      * is a <tt>computer.checked_signal</tt> message, that expects an
-     * <tt>PlayerEntity</tt> as the first argument and performs this check
+     * <tt>Player</tt> as the first argument and performs this check
      * before pushing the signal.
      *
      * @param player the name of the player to check for.

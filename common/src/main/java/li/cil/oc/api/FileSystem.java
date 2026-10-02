@@ -3,7 +3,7 @@ package li.cil.oc.api;
 import li.cil.oc.api.network.EnvironmentHost;
 import li.cil.oc.api.fs.Label;
 import li.cil.oc.api.network.ManagedEnvironment;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * This class provides factory methods for creating file systems that are

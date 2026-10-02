@@ -1,9 +1,9 @@
 package li.cil.oc.api;
 
 import li.cil.oc.api.detail.ItemInfo;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.concurrent.Callable;
 

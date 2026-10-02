@@ -3,8 +3,8 @@ package li.cil.oc.api.internal;
 import li.cil.oc.api.component.RackMountable;
 import li.cil.oc.api.network.EnvironmentHost;
 import li.cil.oc.api.network.SidedEnvironment;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.Container;
+import net.minecraft.nbt.CompoundTag;
 
 /**
  * This interface is implemented by the rack tile entity.
@@ -20,7 +20,7 @@ import net.minecraft.nbt.CompoundNBT;
  * i.e. without having to link against internal classes. This also means that
  * <em>you should not implement this</em>.
  */
-public interface Rack extends SidedEnvironment, EnvironmentHost, Rotatable, IInventory {
+public interface Rack extends SidedEnvironment, EnvironmentHost, Rotatable, Container {
     /**
      * Determine the index of the specified mountable.
      *
@@ -48,7 +48,7 @@ public interface Rack extends SidedEnvironment, EnvironmentHost, Rotatable, IInv
      * @param slot the slot of the mountable to get the data for.
      * @return the data of the mountable in that slot, or <tt>null</tt>.
      */
-    CompoundNBT getMountableData(int slot);
+    CompoundTag getMountableData(int slot);
 
     /**
      * Mark the mountable in the specified slot as changed.

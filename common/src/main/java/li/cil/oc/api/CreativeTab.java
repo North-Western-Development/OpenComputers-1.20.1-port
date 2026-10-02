@@ -1,6 +1,6 @@
 package li.cil.oc.api;
 
-import net.minecraft.item.ItemGroup;
+import net.minecraft.world.item.CreativeModeTab;
 
 /**
  * Allows access to the creative tab used by OpenComputers.
@@ -13,7 +13,7 @@ public final class CreativeTab {
      * <em>not</em> try to access this anyway when OpenComputers isn't
      * present (don't ship the API in your mod), so don't rely on this!
      */
-    public static ItemGroup instance = ItemGroup.TAB_REDSTONE;
+    public static CreativeModeTab instance = CreativeModeTab.TAB_REDSTONE;
 
     private CreativeTab() {
     }

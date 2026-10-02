@@ -1,7 +1,7 @@
 package li.cil.oc.api.nanomachines;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
 
 /**
  * Implemented by providers for behaviors.
@@ -31,7 +31,7 @@ public interface BehaviorProvider {
      * @param player the player the behaviors should be created for.
      * @return list of new behaviors, may be <tt>null</tt>.
      */
-    Iterable<Behavior> createBehaviors(PlayerEntity player);
+    Iterable<Behavior> createBehaviors(Player player);
 
     /**
      * Write a behavior to NBT.
@@ -45,7 +45,7 @@ public interface BehaviorProvider {
      * @param behavior the behavior to serialize.
      * @return the serialized representation of the specified behavior.
      */
-    CompoundNBT save(Behavior behavior);
+    CompoundTag save(Behavior behavior);
 
     /**
      * Restore a behavior from NBT.
@@ -62,5 +62,5 @@ public interface BehaviorProvider {
      * @param nbt    the tag to restore the behavior from.
      * @return the restored behavior, or <tt>null</tt> if unhandled.
      */
-    Behavior load(PlayerEntity player, CompoundNBT nbt);
+    Behavior load(Player player, CompoundTag nbt);
 }

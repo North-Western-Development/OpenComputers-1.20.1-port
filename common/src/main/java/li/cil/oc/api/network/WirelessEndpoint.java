@@ -1,6 +1,6 @@
 package li.cil.oc.api.network;
 
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 /**
  * Interface for wireless endpoints that can be registered with the internal
@@ -32,7 +32,7 @@ public interface WirelessEndpoint {
     /**
      * The world this endpoint lives in.
      */
-    World world();
+    Level world();
 
     /**
      * Makes the endpoint receive a single packet.

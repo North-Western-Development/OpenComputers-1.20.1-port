@@ -4,7 +4,7 @@ import li.cil.oc.api.network.EnvironmentHost;
 import li.cil.oc.api.fs.FileSystem;
 import li.cil.oc.api.fs.Label;
 import li.cil.oc.api.network.ManagedEnvironment;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public interface FileSystemAPI {
     /**
