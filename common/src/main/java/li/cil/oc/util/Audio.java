@@ -81,7 +81,7 @@ public final class Audio {
         final float gain = distanceBasedGain * volume();
         if (gain <= 0 || amplitude() <= 0) return;
 
-        if (disableAudio) {
+        if (disableAudio || !isOpenALAvailable()) {
             // Fallback audio generation, using built-in Minecraft sound. This can be
             // necessary on certain systems with audio cards that do not have enough
             // memory. May still fail, but at least we can say we tried!
@@ -147,8 +147,21 @@ public final class Audio {
         }
     }
 
+    /**
+     * Whether Minecraft's sound engine has a current OpenAL context. It does not when the
+     * system has no audio device (or the engine failed to start); every AL call would then
+     * throw an IllegalStateException.
+     */
+    private static boolean isOpenALAvailable() {
+        try {
+            return org.lwjgl.openal.ALC10.alcGetCurrentContext() != 0L;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
     public static void update() {
-        if (!disableAudio) {
+        if (!disableAudio && isOpenALAvailable()) {
             synchronized (sources) {
                 sources.removeIf(Source::checkFinished);
             }
@@ -156,7 +169,7 @@ public final class Audio {
             // Clear error stack.
             try {
                 AL10.alGetError();
-            } catch (UnsatisfiedLinkError e) {
+            } catch (UnsatisfiedLinkError | IllegalStateException e) {
                 OpenComputers.log.warn("Negotiations with OpenAL broke down, disabling sounds.");
                 disableAudio = true;
             }

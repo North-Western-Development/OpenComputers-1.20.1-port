@@ -6,9 +6,12 @@
 > converted to Java. See [PORTING.md](PORTING.md) for the conventions and design decisions, and
 > [docs/reports](docs/reports) for per-area notes and known gaps (`TODO(port)` markers in code).
 >
-> **Status:** all code is converted. It has not been run in game yet. Not yet ported: third-party
-> integrations (AE2, ComputerCraft, Mekanism, ProjectRed, TIS-3D, EnderStorage, JEI, WAILA), which
-> are parked in `legacy/`, and advancements.
+> **Status:** all code is converted and both jars build. Tested on real Forge 47.4 and Fabric
+> (Loader 0.16, API 0.92.12) 1.20.1 servers and clients: every block places and ticks, computers run
+> Lua 5.2/5.3 with components (GPU, screen, redstone), OpenOS boots, screens render text, GUIs open
+> (see `tools/servertest`). Not yet ported: third-party integrations (AE2, ComputerCraft,
+> Mekanism, ProjectRed, TIS-3D, EnderStorage, JEI, WAILA), which are parked in `legacy/`, and
+> advancements.
 >
 > **Building:** `./gradlew build` (Java 17). Output: `fabric/build/libs/*-fabric.jar` and
 > `forge/build/libs/*-forge.jar`. The patched Lua runtimes (OC-LuaJ, OC-JNLua, OC-JNLua-Natives)

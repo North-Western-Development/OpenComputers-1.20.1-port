@@ -172,10 +172,16 @@ public abstract class RenderTypes extends RenderType {
 
     private static RenderType create(String name, VertexFormat format, VertexFormat.Mode mode, int bufferSize,
                                      boolean affectsCrumbling, boolean sortOnUpload, RenderStateShard... shards) {
+        // Vanilla's composite render types always set a depth test; ours must too, or they
+        // inherit whatever the previous render type left behind (e.g. overlays showing
+        // through blocks). Types that don't want one pass NO_DEPTH_TEST explicitly.
+        final boolean hasDepthTest = java.util.Arrays.stream(shards).anyMatch(shard -> shard instanceof DepthTestStateShard);
+        final RenderStateShard[] allShards = hasDepthTest ? shards : java.util.stream.Stream.concat(
+            java.util.Arrays.stream(shards), java.util.stream.Stream.of(LEQUAL_DEPTH_TEST)).toArray(RenderStateShard[]::new);
         return new RenderType(name, format, mode, bufferSize, affectsCrumbling, sortOnUpload, () -> {
-            for (RenderStateShard shard : shards) shard.setupRenderState();
+            for (RenderStateShard shard : allShards) shard.setupRenderState();
         }, () -> {
-            for (RenderStateShard shard : shards) shard.clearRenderState();
+            for (RenderStateShard shard : allShards) shard.clearRenderState();
         }) {
         };
     }
