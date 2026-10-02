@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import li.cil.oc.OpenComputers;
 import li.cil.oc.Settings;
-import org.apache.maven.artifact.versioning.ComparableVersion;
 
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
@@ -51,10 +50,8 @@ public final class UpdateCheck {
                 }
                 reader.endArray();
                 if (!candidates.isEmpty()) {
-                    final Release latest = candidates.stream().max(Comparator.comparing(release -> new ComparableVersion(stripPrefix(release.tag_name)))).get();
-                    final ComparableVersion remoteVersion = new ComparableVersion(stripPrefix(latest.tag_name));
-                    final ComparableVersion localVersion = new ComparableVersion(OpenComputers.version());
-                    if (remoteVersion.compareTo(localVersion) > 0) {
+                    final Release latest = candidates.stream().max((a, b) -> VersionUtil.compare(stripPrefix(a.tag_name), stripPrefix(b.tag_name))).get();
+                    if (VersionUtil.compare(stripPrefix(latest.tag_name), OpenComputers.version()) > 0) {
                         OpenComputers.log.info("A newer version of OpenComputers is available: " + latest.tag_name + ".");
                         return Optional.of(latest);
                     }

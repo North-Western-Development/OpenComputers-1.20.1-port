@@ -9,7 +9,7 @@ import li.cil.oc.api.internal.TextBuffer;
 import li.cil.oc.common.component.TerminalServer;
 import li.cil.oc.common.item.Tablet;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.BakedModel;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;

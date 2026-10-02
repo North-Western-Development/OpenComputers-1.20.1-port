@@ -44,7 +44,9 @@ public final class EventHandlerVanilla {
         final boolean includeReplaceable = !(includeReplaceableOption instanceof Boolean value) || value;
 
         final byte[] noise = new byte[e.data.length];
-        world.random.nextBytes(noise);
+        for (int i = 0; i < noise.length; i++) {
+            noise[i] = (byte) world.random.nextInt(256);
+        }
         // Map to [-1, 1). The additional /33f is for normalization below.
         for (int i = 0; i < noise.length; i++) {
             e.data[i] = noise[i] / 128f / 33f;

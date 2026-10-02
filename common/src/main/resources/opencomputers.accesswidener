@@ -21,3 +21,5 @@ accessible field net/minecraft/world/level/BaseSpawner nextSpawnData Lnet/minecr
 
 # Code generated models provide stack dependent item models (protected via AT on Forge).
 accessible method net/minecraft/client/renderer/block/model/ItemOverrides <init> ()V
+accessible class net/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier
+accessible method net/minecraft/world/level/storage/LevelResource <init> (Ljava/lang/String;)V

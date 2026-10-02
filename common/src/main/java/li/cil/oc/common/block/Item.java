@@ -64,7 +64,8 @@ public class Item extends BlockItem {
         if (needsCopying) {
             ItemStack stackToUse = new RobotData(ctx.getItemInHand()).copyItemStack();
             BlockHitResult hitResult = new BlockHitResult(ctx.getClickLocation(), ctx.getClickedFace(), ctx.getClickedPos(), ctx.isInside());
-            ctxToUse = new BlockPlaceContext(ctx.getLevel(), ctx.getPlayer(), ctx.getHand(), stackToUse, hitResult);
+            ctxToUse = new BlockPlaceContext(ctx.getLevel(), ctx.getPlayer(), ctx.getHand(), stackToUse, hitResult) {
+            };
         }
         if (super.placeBlock(ctxToUse, newState)) {
             // If it's a rotatable block try to make it face the player.

@@ -893,7 +893,7 @@ public class Drone extends Entity implements MachineHost, li.cil.oc.api.internal
         if (level().isClientSide || isChangingDimension) return;
         if (reason == RemovalReason.UNLOADED_TO_CHUNK || reason == RemovalReason.UNLOADED_WITH_PLAYER) {
             // State was saved with the chunk; just make sure the machine gets closed.
-            EventHandler.scheduleClose(machine);
+            if (machine instanceof li.cil.oc.server.machine.Machine m) EventHandler.scheduleClose(m);
         }
         else {
             dispose();

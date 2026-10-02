@@ -11,9 +11,6 @@ import li.cil.oc.common.Tier;
 import li.cil.oc.server.component.DebugCard;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
-import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
-import org.apache.maven.artifact.versioning.VersionRange;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -894,19 +891,19 @@ public class Settings {
         }
     }
 
-    // Usage: VersionRange.createFromVersionSpec("[0.0,1.5)") -> Array("computer.ramSizes") will
-    // re-set the value of `computer.ramSizes` if a config saved with a version < 1.5 is loaded.
-    private static final List<Pair<VersionRange, String[]>> configPatches = Arrays.asList(
+    // Usage: Pair.of("1.5", new String[]{"computer.ramSizes"}) will re-set the value of
+    // `computer.ramSizes` if a config saved with a version < 1.5 is loaded.
+    private static final List<Pair<String, String[]>> configPatches = Arrays.asList(
             // Upgrading to version 1.5.20, changed relay delay default.
-            Pair.of(versionRange("[0.0, 1.5.20)"), new String[]{
+            Pair.of("1.5.20", new String[]{
                     "switch.relayDelayUpgrade"
             }),
             // Potion whitelist was fixed in 1.6.2.
-            Pair.of(versionRange("[0.0, 1.6.2)"), new String[]{
+            Pair.of("1.6.2", new String[]{
                     "nanomachines.potionWhitelist"
             }),
             // Upgrading past version 1.7.1, changed wireless card stuff for t1 card.
-            Pair.of(versionRange("[0.0, 1.7.2)"), new String[]{
+            Pair.of("1.7.2", new String[]{
                     "power.cost.wirelessCostPerRange",
                     "misc.maxWirelessRange",
                     "misc.maxOpenPorts",
@@ -914,27 +911,19 @@ public class Settings {
             })
     );
 
-    private static VersionRange versionRange(String spec) {
-        try {
-            return VersionRange.createFromVersionSpec(spec);
-        } catch (InvalidVersionSpecificationException e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
-
     // Checks the config version (i.e. the version of the mod the config was
     // created by) against the current version to see if some hard changes
     // were made. If so, the new default values are copied over.
     private static Config patchConfig(Config config, Config defaults) {
-        final DefaultArtifactVersion modVersion = new DefaultArtifactVersion(OpenComputers.version());
+        final String modVersion = OpenComputers.version();
         final String prefix = "opencomputers.";
-        final DefaultArtifactVersion configVersion = new DefaultArtifactVersion(config.hasPath(prefix + "version") ? config.getString(prefix + "version") : "0.0.0");
+        final String configVersion = config.hasPath(prefix + "version") ? config.getString(prefix + "version") : "0.0.0";
         Config patched = config;
-        if (configVersion.compareTo(modVersion) != 0) {
+        if (li.cil.oc.util.VersionUtil.compare(configVersion, modVersion) != 0) {
             OpenComputers.log.info("Updating config from version '" + configVersion + "' to '" + defaults.getString(prefix + "version") + "'.");
             patched = patched.withValue(prefix + "version", defaults.getValue(prefix + "version"));
-            for (Pair<VersionRange, String[]> patch : configPatches) {
-                if (!patch.getLeft().containsVersion(configVersion)) continue;
+            for (Pair<String, String[]> patch : configPatches) {
+                if (li.cil.oc.util.VersionUtil.compare(configVersion, patch.getLeft()) >= 0) continue;
                 for (String path : patch.getRight()) {
                     final String fullPath = prefix + path;
                     OpenComputers.log.info("Updating setting '" + fullPath + "'. ");

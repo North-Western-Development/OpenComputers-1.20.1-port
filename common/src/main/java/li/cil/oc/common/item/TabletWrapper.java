@@ -95,7 +95,7 @@ public class TabletWrapper implements ComponentInventory, MachineHost, li.cil.oc
     }
 
     @Override
-    public ComponentInventory.ComponentState componentInventoryState() {
+    public ComponentInventory.ComponentState componentState() {
         return componentState;
     }
 

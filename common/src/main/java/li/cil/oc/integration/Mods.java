@@ -82,11 +82,11 @@ public final class Mods {
 
     private static void tryPreInit(ModProxy proxy) {
         if (isEnabled(proxy)) {
-            OpenComputers.log.debug("Pre-initializing mod integration for '" + nameOf(proxy) + "'.");
+            li.cil.oc.OpenComputers.log.debug("Pre-initializing mod integration for '" + nameOf(proxy) + "'.");
             try {
                 proxy.preInitialize();
             } catch (Throwable e) {
-                OpenComputers.log.warn("Error pre-initializing integration for '" + nameOf(proxy) + "'", e);
+                li.cil.oc.OpenComputers.log.warn("Error pre-initializing integration for '" + nameOf(proxy) + "'", e);
             }
         }
     }
@@ -102,11 +102,11 @@ public final class Mods {
 
     private static void tryInit(ModProxy proxy) {
         if (isEnabled(proxy)) {
-            OpenComputers.log.debug("Initializing mod integration for '" + nameOf(proxy) + "'.");
+            li.cil.oc.OpenComputers.log.debug("Initializing mod integration for '" + nameOf(proxy) + "'.");
             try {
                 proxy.initialize();
             } catch (Throwable e) {
-                OpenComputers.log.warn("Error initializing integration for '" + nameOf(proxy) + "'", e);
+                li.cil.oc.OpenComputers.log.warn("Error initializing integration for '" + nameOf(proxy) + "'", e);
             }
         }
     }
