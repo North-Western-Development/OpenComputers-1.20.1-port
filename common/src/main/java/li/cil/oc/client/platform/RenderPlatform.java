@@ -115,8 +115,9 @@ public final class RenderPlatform {
 
     /**
      * Registers a renderer for an item using a {@code builtin/entity} model
-     * (Forge: {@code IClientItemExtensions#getCustomRenderer}, Fabric:
-     * {@code BuiltinItemRendererRegistry}). Must be called after items are registered.
+     * (Fabric: {@code BuiltinItemRendererRegistry}). No-op on Forge, where the item
+     * itself must provide {@code IClientItemExtensions#getCustomRenderer} (see
+     * {@code Drone.customRenderer}). Must be called after items are registered.
      */
     @ExpectPlatform
     public static void registerItemRenderer(Item item, ItemRenderCallback renderer) {
@@ -124,10 +125,10 @@ public final class RenderPlatform {
     }
 
     /**
-     * Registers a custom armor model (Forge: {@code IClientItemExtensions#getHumanoidArmorModel},
-     * Fabric: {@code ArmorRenderer}). The texture is used on Fabric; on Forge the
-     * item has to provide it via {@code getArmorTexture}. Must be called after
-     * items are registered.
+     * Registers a custom armor model (Fabric: {@code ArmorRenderer}). No-op on
+     * Forge, where the item itself provides {@code getHumanoidArmorModel} /
+     * {@code getArmorTexture} (see {@code HoverBoots.armorModel}). Must be called
+     * after items are registered.
      */
     @ExpectPlatform
     public static void registerArmorModel(Item item, ArmorModelProvider provider, ResourceLocation texture) {

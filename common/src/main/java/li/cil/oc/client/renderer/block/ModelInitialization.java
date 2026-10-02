@@ -3,6 +3,7 @@ package li.cil.oc.client.renderer.block;
 import li.cil.oc.Constants;
 import li.cil.oc.OpenComputers;
 import li.cil.oc.client.platform.RenderPlatform;
+import li.cil.oc.common.item.CustomModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -42,9 +43,10 @@ import java.util.function.Supplier;
  *     all their model locations (including {@code #inventory}) are replaced.</li>
  *     <li>robot afterimage: replaced with an empty model.</li>
  *     <li>screens and rack: replaced at bake time, wrapping the JSON model.</li>
- *     <li>items registered via {@link #registerItemModelOverride}: their
- *     {@code #inventory} model is wrapped so that the model is chosen per stack
- *     (replaces the old {@code CustomModel} mechanism).</li>
+ *     <li>items implementing {@link CustomModel} or registered via
+ *     {@link #registerItemModelOverride}: their {@code #inventory} model is wrapped
+ *     so that the model is chosen per stack; {@link CustomModel#modelLocations()}
+ *     are loaded as additional models.</li>
  * </ul>
  */
 public final class ModelInitialization {
@@ -97,7 +99,16 @@ public final class ModelInitialization {
      * Called by the platform hooks to determine which additional models to load.
      */
     public static synchronized Collection<ResourceLocation> additionalModels() {
-        return Collections.unmodifiableList(new ArrayList<>(additionalModels));
+        final Set<ResourceLocation> result = new LinkedHashSet<>(additionalModels);
+        // Items with stack dependent models (floppies, tablets, terminals).
+        for (Item item : BuiltInRegistries.ITEM) {
+            if (item instanceof CustomModel custom && OpenComputers.ID.equals(BuiltInRegistries.ITEM.getKey(item).getNamespace())) {
+                for (ResourceLocation location : custom.modelLocations()) {
+                    result.add(normalize(location));
+                }
+            }
+        }
+        return Collections.unmodifiableList(new ArrayList<>(result));
     }
 
     /**
@@ -123,6 +134,10 @@ public final class ModelInitialization {
 
         if (isItem && model != null) {
             final List<Function<ItemStack, ResourceLocation>> overrides = new ArrayList<>();
+            final Item item = BuiltInRegistries.ITEM.get(new ResourceLocation(location.getNamespace(), name));
+            if (item instanceof CustomModel custom) {
+                overrides.add(custom::getModelLocation);
+            }
             synchronized (ModelInitialization.class) {
                 for (ItemModelOverride entry : itemModelOverrides) {
                     final ResourceLocation itemId = itemId(entry.item());

@@ -1,32 +1,21 @@
 package li.cil.oc.client.platform.forge;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.architectury.platform.forge.EventBuses;
 import li.cil.oc.OpenComputers;
 import li.cil.oc.client.platform.RenderPlatform;
 import li.cil.oc.client.renderer.block.ModelInitialization;
 import li.cil.oc.client.renderer.block.SmartBlockModelBase;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RenderHighlightEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.Map;
 
 public final class RenderPlatformImpl {
@@ -81,67 +70,15 @@ public final class RenderPlatformImpl {
     // ----------------------------------------------------------------------- //
     // Items.
 
-    private static final Map<Item, ItemExtensions> extensions = new HashMap<>();
+    // On Forge, custom item renderers / armor models must be provided by the item
+    // itself (IClientItemExtensions from Item#initializeClient). OC's Forge items
+    // do that in li.cil.oc.common.platform.forge.ItemPlatformImpl, reading the
+    // client hooks Drone.customRenderer / HoverBoots.armorModel, which
+    // ClientRenderers sets on both loaders. Nothing to do here.
 
     public static void registerItemRenderer(Item item, RenderPlatform.ItemRenderCallback renderer) {
-        extensionsFor(item).renderer = renderer;
     }
 
     public static void registerArmorModel(Item item, RenderPlatform.ArmorModelProvider provider, ResourceLocation texture) {
-        // The texture is provided by the item itself on Forge (IForgeItem#getArmorTexture).
-        extensionsFor(item).armorModel = provider;
-    }
-
-    private static synchronized ItemExtensions extensionsFor(Item item) {
-        return extensions.computeIfAbsent(item, key -> {
-            final ItemExtensions result = new ItemExtensions();
-            try {
-                // Forge only collects client extensions from Item#initializeClient
-                // during item construction, which common code can't override.
-                final Field field = Item.class.getDeclaredField("renderProperties");
-                field.setAccessible(true);
-                field.set(key, result);
-            } catch (ReflectiveOperationException e) {
-                OpenComputers.log.error("Failed registering client item extensions for " + key + ".", e);
-            }
-            return result;
-        });
-    }
-
-    private static final class ItemExtensions implements IClientItemExtensions {
-        RenderPlatform.ItemRenderCallback renderer;
-        RenderPlatform.ArmorModelProvider armorModel;
-        private BlockEntityWithoutLevelRenderer itemRenderer;
-
-        @Override
-        public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-            if (renderer == null) {
-                return IClientItemExtensions.super.getCustomRenderer();
-            }
-            if (itemRenderer == null) {
-                final Minecraft mc = Minecraft.getInstance();
-                final RenderPlatform.ItemRenderCallback callback = renderer;
-                itemRenderer = new BlockEntityWithoutLevelRenderer(mc.getBlockEntityRenderDispatcher(), mc.getEntityModels()) {
-                    @Override
-                    public void renderByItem(ItemStack stack, ItemDisplayContext context, PoseStack poseStack, MultiBufferSource buffers, int light, int overlay) {
-                        callback.render(stack, context, poseStack, buffers, light, overlay);
-                    }
-                };
-            }
-            return itemRenderer;
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public HumanoidModel<?> getHumanoidArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> original) {
-            if (armorModel != null) {
-                final HumanoidModel<LivingEntity> model = armorModel.getModel(entity, stack, slot);
-                if (model != null) {
-                    ((HumanoidModel<LivingEntity>) original).copyPropertiesTo(model);
-                    return model;
-                }
-            }
-            return original;
-        }
     }
 }
