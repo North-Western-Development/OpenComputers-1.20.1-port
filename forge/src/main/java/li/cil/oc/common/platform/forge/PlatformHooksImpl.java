@@ -98,7 +98,7 @@ public final class PlatformHooksImpl {
     // ----------------------------------------------------------------------- //
 
     public static boolean isFakePlayer(Player player) {
-        return player instanceof FakePlayer;
+        return player instanceof FakePlayer || player instanceof li.cil.oc.server.agent.Player;
     }
 
     public static boolean canBreakBlock(ServerLevel level, BlockPos pos, ServerPlayer player) {
