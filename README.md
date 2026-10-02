@@ -1,5 +1,20 @@
 ![Welcome to OpenComputers](assets/misc/banner.png)
 
+> **About this port.** This branch ports OpenComputers to **Minecraft 1.20.1** as a multi-loader
+> mod built with [Architectury](https://docs.architectury.dev/): one codebase producing a **Forge**
+> jar (which also runs on NeoForge 1.20.1) and a **Fabric** jar. The original Scala sources were
+> converted to Java. See [PORTING.md](PORTING.md) for the conventions and design decisions, and
+> [docs/reports](docs/reports) for per-area notes and known gaps (`TODO(port)` markers in code).
+>
+> **Status:** all code is converted. It has not been run in game yet. Not yet ported: third-party
+> integrations (AE2, ComputerCraft, Mekanism, ProjectRed, TIS-3D, EnderStorage, JEI, WAILA), which
+> are parked in `legacy/`, and advancements.
+>
+> **Building:** `./gradlew build` (Java 17). Output: `fabric/build/libs/*-fabric.jar` and
+> `forge/build/libs/*-forge.jar`. The patched Lua runtimes (OC-LuaJ, OC-JNLua, OC-JNLua-Natives)
+> come from `https://asie.pl/javadeps/`. If that is unreachable, put the three jars into `libs/`.
+
+
 OpenComputers is a Minecraft mod that adds programmable computers and robots to the game. The built-in computer implementation uses Lua 5.2 and is fully persistent. This means programs will continue running across reloads. For more information, please [see the wiki][wiki]. Feel invited to visit the [community forums][forums] or drop by in the [IRC channel #oc on esper.net][irc].
 
 A few useful links:
