@@ -1,18 +1,24 @@
-modLoader="scorge"
-loaderVersion="[${sversion},)"
+modLoader="javafml"
+loaderVersion="[47,)"
 license="MIT, CC0 (see LICENSE)"
-issueTrackerURL="https://github.com/MightyPirates/OpenComputers/issues"
+issueTrackerURL="https://github.com/North-Western-Development/OpenComputers-1.20.1-port/issues"
 
 [[mods]]
 modId="opencomputers"
-entryClass="li.cil.oc.OpenComputers"
 version="${version}"
 displayName="OpenComputers"
-displayURL="http://oc.cil.li/"
+displayURL="https://oc.cil.li/"
 logoFile="pack.png"
 credits="Inspired by a couple of other mods, most notably ComputerCraft."
 authors="Sangar, Vexatos, payonel, magik6k, Lord Joda and Github Contributors"
-description="This mod adds modular computers and robots that can be programmed in Lua."
+description='''This mod adds modular computers and robots that can be programmed in Lua.'''
+
+[[dependencies.opencomputers]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
 
 [[dependencies.opencomputers]]
     modId="minecraft"
@@ -22,8 +28,8 @@ description="This mod adds modular computers and robots that can be programmed i
     side="BOTH"
 
 [[dependencies.opencomputers]]
-    modId="jei"
-    mandatory=false
-    versionRange="[7,)"
+    modId="architectury"
+    mandatory=true
+    versionRange="[9.2.14,)"
     ordering="AFTER"
     side="BOTH"

@@ -1,0 +1,80 @@
+plugins {
+    id "com.github.johnrengelman.shadow" version "8.1.1"
+}
+
+architectury {
+    platformSetupLoomIde()
+    fabric()
+}
+
+loom {
+    accessWidenerPath = project(":common").loom.accessWidenerPath
+}
+
+configurations {
+    common
+    shadowCommon // Don't use shadow from the shadow plugin since it *excludes* files.
+    embedded
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentFabric.extendsFrom common
+    implementation.extendsFrom embedded
+}
+
+repositories {
+    maven { url "https://maven.fabricmc.net/" }
+}
+
+dependencies {
+    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    modApi "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
+    modApi "dev.architectury:architectury-fabric:${rootProject.architectury_version}"
+
+    // Forge Energy equivalent on Fabric. Optional at runtime (see fabric.mod.json "suggests").
+    modCompileOnly "teamreborn:energy:${rootProject.tr_energy_version}"
+    modLocalRuntime "teamreborn:energy:${rootProject.tr_energy_version}"
+
+    common(project(path: ":common", configuration: "namedElements")) { transitive false }
+    shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
+
+    embedded "com.typesafe:config:${rootProject.typesafe_config_version}"
+    embedded name: "OC-LuaJ", version: rootProject.luaj_version, ext: "jar"
+    embedded name: "OC-JNLua", version: rootProject.jnlua_version, ext: "jar"
+    embedded name: "OC-JNLua-Natives", version: rootProject.jnlua_version, ext: "jar"
+}
+
+processResources {
+    inputs.property "version", project.version
+    filesMatching("fabric.mod.json") {
+        expand "version": rootProject.mod_version, "mcversion": rootProject.minecraft_version
+    }
+}
+
+shadowJar {
+    exclude "architectury.common.json"
+    configurations = [project.configurations.shadowCommon, project.configurations.embedded]
+    relocate "com.typesafe.config", "li.cil.oc.repack.com.typesafe.config"
+    archiveClassifier = "dev-shadow"
+}
+
+remapJar {
+    inputFile.set shadowJar.archiveFile
+    dependsOn shadowJar
+    archiveClassifier = "fabric"
+}
+
+jar {
+    archiveClassifier = "dev"
+}
+
+sourcesJar {
+    def commonSources = project(":common").sourcesJar
+    dependsOn commonSources
+    from commonSources.archiveFile.map { zipTree(it) }
+}
+
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}

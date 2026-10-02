@@ -1,0 +1,35 @@
+architectury {
+    common(rootProject.enabled_platforms.split(","))
+}
+
+loom {
+    accessWidenerPath = file("src/main/resources/opencomputers.accesswidener")
+}
+
+dependencies {
+    // Only for @Environment / mixin annotations; never use Fabric Loader APIs directly in common code.
+    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    modApi "dev.architectury:architectury:${rootProject.architectury_version}"
+
+    api "com.typesafe:config:${rootProject.typesafe_config_version}"
+    api name: "OC-LuaJ", version: rootProject.luaj_version, ext: "jar"
+    api name: "OC-JNLua", version: rootProject.jnlua_version, ext: "jar"
+}
+
+processResources {
+    inputs.property "version", project.version
+    filesMatching("application.conf") {
+        filter { line -> line.replace("@VERSION@", rootProject.mod_version) }
+    }
+}
+
+tasks.register("apiJar", Jar) {
+    archiveClassifier = "api"
+    from sourceSets.main.allSource
+    from sourceSets.main.output
+    include "li/cil/oc/api/**"
+}
+
+javadoc {
+    include "li/cil/oc/api/**"
+}

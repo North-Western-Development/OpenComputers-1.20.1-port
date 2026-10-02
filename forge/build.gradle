@@ -1,0 +1,83 @@
+plugins {
+    id "com.github.johnrengelman.shadow" version "8.1.1"
+}
+
+architectury {
+    platformSetupLoomIde()
+    forge()
+}
+
+loom {
+    accessWidenerPath = project(":common").loom.accessWidenerPath
+
+    forge {
+        convertAccessWideners = true
+        extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
+        mixinConfig "opencomputers-common.mixins.json"
+    }
+}
+
+configurations {
+    common
+    shadowCommon
+    embedded
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentForge.extendsFrom common
+    implementation.extendsFrom embedded
+    forgeRuntimeLibrary.extendsFrom embedded
+}
+
+repositories {
+    maven { url "https://maven.minecraftforge.net/" }
+}
+
+dependencies {
+    forge "net.minecraftforge:forge:${rootProject.forge_version}"
+    modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}"
+
+    common(project(path: ":common", configuration: "namedElements")) { transitive false }
+    shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
+
+    embedded "com.typesafe:config:${rootProject.typesafe_config_version}"
+    embedded name: "OC-LuaJ", version: rootProject.luaj_version, ext: "jar"
+    embedded name: "OC-JNLua", version: rootProject.jnlua_version, ext: "jar"
+    embedded name: "OC-JNLua-Natives", version: rootProject.jnlua_version, ext: "jar"
+}
+
+processResources {
+    inputs.property "version", project.version
+    filesMatching("META-INF/mods.toml") {
+        expand "version": rootProject.mod_version, "mcversion": rootProject.minecraft_version
+    }
+}
+
+shadowJar {
+    exclude "fabric.mod.json"
+    exclude "architectury.common.json"
+    configurations = [project.configurations.shadowCommon, project.configurations.embedded]
+    relocate "com.typesafe.config", "li.cil.oc.repack.com.typesafe.config"
+    archiveClassifier = "dev-shadow"
+}
+
+remapJar {
+    inputFile.set shadowJar.archiveFile
+    dependsOn shadowJar
+    archiveClassifier = "forge"
+}
+
+jar {
+    archiveClassifier = "dev"
+}
+
+sourcesJar {
+    def commonSources = project(":common").sourcesJar
+    dependsOn commonSources
+    from commonSources.archiveFile.map { zipTree(it) }
+}
+
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}

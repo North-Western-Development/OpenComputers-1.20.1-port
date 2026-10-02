@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "id": "opencomputers",
+  "version": "${version}",
+  "name": "OpenComputers",
+  "description": "This mod adds modular computers and robots that can be programmed in Lua.",
+  "authors": [
+    "Sangar",
+    "Vexatos",
+    "payonel",
+    "magik6k",
+    "Lord Joda",
+    "Github Contributors"
+  ],
+  "contact": {
+    "homepage": "https://oc.cil.li/",
+    "sources": "https://github.com/North-Western-Development/OpenComputers-1.20.1-port",
+    "issues": "https://github.com/North-Western-Development/OpenComputers-1.20.1-port/issues"
+  },
+  "license": "MIT",
+  "icon": "pack.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "li.cil.oc.fabric.OpenComputersFabric"
+    ],
+    "client": [
+      "li.cil.oc.fabric.OpenComputersFabricClient"
+    ]
+  },
+  "accessWidener": "opencomputers.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "fabric-api": "*",
+    "minecraft": "~${mcversion}",
+    "java": ">=17",
+    "architectury": ">=9.2.14"
+  },
+  "suggests": {
+    "team_reborn_energy": "*"
+  },
+  "mixins": [
+    "opencomputers-common.mixins.json"
+  ]
+}

@@ -1,0 +1,19 @@
+accessWidener v2 named
+
+# Robots push blocks around like pistons do.
+accessible method net/minecraft/world/level/block/piston/PistonBaseBlock moveBlocks (Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;Z)Z
+
+# The agent fake player swaps out its inventory implementation.
+accessible field net/minecraft/world/entity/player/Player inventory Lnet/minecraft/world/entity/player/Inventory;
+mutable field net/minecraft/world/entity/player/Player inventory Lnet/minecraft/world/entity/player/Inventory;
+mutable field net/minecraft/world/entity/player/Player inventoryMenu Lnet/minecraft/world/inventory/InventoryMenu;
+
+# Vanilla block entity drivers (integration.minecraft).
+accessible field net/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity litTime I
+accessible field net/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity litDuration I
+accessible field net/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity cookingProgress I
+accessible field net/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity cookingTotalTime I
+accessible field net/minecraft/world/level/block/entity/BeaconBlockEntity primaryPower Lnet/minecraft/world/effect/MobEffect;
+accessible field net/minecraft/world/level/block/entity/BeaconBlockEntity secondaryPower Lnet/minecraft/world/effect/MobEffect;
+accessible field net/minecraft/world/level/block/entity/BrewingStandBlockEntity brewTime I
+accessible field net/minecraft/world/level/BaseSpawner nextSpawnData Lnet/minecraft/world/level/SpawnData;
