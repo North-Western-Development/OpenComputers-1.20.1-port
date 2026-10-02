@@ -19,10 +19,17 @@ public interface ComponentInventory extends Environment, Inventory, li.cil.oc.co
         public final List<ItemStack> pendingRemovals = new ArrayList<>();
         public final List<ItemStack> pendingAdds = new ArrayList<>();
         public boolean updateScheduled = false;
+        /** Backing state of {@link li.cil.oc.common.inventory.ComponentInventory}. */
+        public final li.cil.oc.common.inventory.ComponentInventory.ComponentState componentState = new li.cil.oc.common.inventory.ComponentInventory.ComponentState();
     }
 
     /** Provided by {@link TileEntity}. */
     State componentInventoryState();
+
+    @Override
+    default li.cil.oc.common.inventory.ComponentInventory.ComponentState componentState() {
+        return componentInventoryState().componentState;
+    }
 
     @Override
     default EnvironmentHost host() {
