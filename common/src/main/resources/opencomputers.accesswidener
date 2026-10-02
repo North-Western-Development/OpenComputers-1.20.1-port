@@ -18,3 +18,6 @@ accessible field net/minecraft/world/level/block/entity/BeaconBlockEntity primar
 accessible field net/minecraft/world/level/block/entity/BeaconBlockEntity secondaryPower Lnet/minecraft/world/effect/MobEffect;
 accessible field net/minecraft/world/level/block/entity/BrewingStandBlockEntity brewTime I
 accessible field net/minecraft/world/level/BaseSpawner nextSpawnData Lnet/minecraft/world/level/SpawnData;
+
+# Code generated models provide stack dependent item models (protected via AT on Forge).
+accessible method net/minecraft/client/renderer/block/model/ItemOverrides <init> ()V

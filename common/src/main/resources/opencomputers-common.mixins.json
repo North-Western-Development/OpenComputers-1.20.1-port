@@ -5,8 +5,11 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "ChunkMapAccessor",
+    "PistonBaseBlockInvoker",
     "PlayerPersistedDataMixin",
-    "ServerPlayerPersistedDataMixin"
+    "ServerPlayerPersistedDataMixin",
+    "ServerPlayerGameModeAccessor",
+    "BlockPopExperienceMixin"
   ],
   "client": [],
   "injectors": {

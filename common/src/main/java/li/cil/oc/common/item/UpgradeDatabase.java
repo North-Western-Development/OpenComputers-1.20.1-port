@@ -46,6 +46,13 @@ public class UpgradeDatabase extends SimpleItem implements ItemTier {
         if (!player.isCrouching()) {
             if (!world.isClientSide && player instanceof ServerPlayer srvPlr) {
                 ContainerTypes.openDatabaseGui(srvPlr, new DatabaseInventory() {
+                private final ItemsHolder itemsHolder = new ItemsHolder();
+
+                @Override
+                public ItemStack[] items() {
+                    return itemsHolder.get(this);
+                }
+
                     @Override
                     public ItemStack container() {
                         return stack;

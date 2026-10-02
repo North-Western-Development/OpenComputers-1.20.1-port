@@ -20,6 +20,13 @@ public class DiskDriveMountable extends SimpleItem {
     public InteractionResultHolder<ItemStack> use(ItemStack stack, Level world, Player player) {
         if (!world.isClientSide && player instanceof ServerPlayer srvPlr) {
             ContainerTypes.openDiskDriveGui(srvPlr, new DiskDriveMountableInventory() {
+                private final ItemsHolder itemsHolder = new ItemsHolder();
+
+                @Override
+                public ItemStack[] items() {
+                    return itemsHolder.get(this);
+                }
+
                 @Override
                 public ItemStack container() {
                     return stack;

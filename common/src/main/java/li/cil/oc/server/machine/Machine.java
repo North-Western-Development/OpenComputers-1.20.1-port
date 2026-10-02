@@ -74,7 +74,9 @@ public class Machine extends AbstractManagedEnvironment implements li.cil.oc.api
 
     public Architecture architecture;
 
-    final ArrayDeque<State> state = new ArrayDeque<>();
+    // Formerly private[machine]; also used by the native Lua architecture (persistence).
+    // Lock on it before access.
+    public final ArrayDeque<State> state = new ArrayDeque<>();
 
     private final Map<String, String> _components = new HashMap<>();
 
@@ -1348,7 +1350,7 @@ public class Machine extends AbstractManagedEnvironment implements li.cil.oc.api
      * Possible states of the computer, and in particular its executor.
      * The ordinal is persisted, so never reorder these.
      */
-    enum State {
+    public enum State {
         /**
          * The computer is not running right now and there is no Lua state.
          */

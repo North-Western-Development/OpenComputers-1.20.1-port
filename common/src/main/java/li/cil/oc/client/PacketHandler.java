@@ -54,7 +54,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 
-import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,53 +62,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.ToIntFunction;
-import java.util.zip.InflaterInputStream;
 
 /**
  * Handles server to client packets.
  * <p>
- * Transport: Architectury {@link NetworkManager}, S2C receiver on channel
- * {@code opencomputers:main} (see {@link #registerClientReceiver()}). The
- * payload is OC's own packet format written as a single byte array
- * ({@code FriendlyByteBuf#writeByteArray}): first byte 0 = uncompressed, else
- * deflate compressed, followed by the packet type byte and the data.
+ * Transport is owned by {@link li.cil.oc.common.PacketHandler}: Architectury
+ * {@link NetworkManager} S2C receiver on channel {@code opencomputers:main},
+ * registered via {@link #registerClientReceiver()}.
  */
 public final class PacketHandler extends li.cil.oc.common.PacketHandler {
     public static final PacketHandler INSTANCE = new PacketHandler();
-
-    public static final ResourceLocation CHANNEL = new ResourceLocation(OpenComputers.ID, "main");
-
-    private static boolean receiverRegistered = false;
 
     private PacketHandler() {
     }
 
     /**
-     * Registers the S2C receiver for OC's packets. Client only; called by
-     * {@link Proxy#initClient()}.
+     * Registers the S2C receiver and sets {@code common.PacketHandler.clientHandler}.
+     * Physical client only; called by {@link Proxy#initClient()}.
      */
     public static void registerClientReceiver() {
-        if (receiverRegistered) return;
-        receiverRegistered = true;
-        NetworkManager.registerReceiver(NetworkManager.s2c(), CHANNEL, (buf, context) -> {
-            final byte[] data = buf.readByteArray();
-            context.queue(() -> INSTANCE.handleClientPacket(data, context.getPlayer()));
-        });
-    }
-
-    /**
-     * Client side equivalent of the common {@code handlePacket} for
-     * {@code PLAY_TO_CLIENT}.
-     */
-    public void handleClientPacket(byte[] arr, Player player) {
-        try {
-            final ByteArrayInputStream stream = new ByteArrayInputStream(arr);
-            if (stream.read() == 0) dispatch(createParser(stream, player));
-            else dispatch(createParser(new InflaterInputStream(stream), player));
-        } catch (Throwable e) {
-            // Don't crash on badly formatted packets.
-            OpenComputers.log.warn("Received a badly formatted packet.", e);
-        }
+        li.cil.oc.common.PacketHandler.registerClientReceiver(INSTANCE);
     }
 
     @Override
@@ -121,84 +93,75 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
 
     @Override
     protected void dispatch(PacketParser p) {
-        try {
-            switch (p.packetType) {
-                case AdapterState: onAdapterState(p); break;
-                case Analyze: onAnalyze(p); break;
-                case ChargerState: onChargerState(p); break;
-                case ClientLog: onClientLog(p); break;
-                case Clipboard: onClipboard(p); break;
-                case ColorChange: onColorChange(p); break;
-                case MachineItemStateResponse: onMachineItemStateResponse(p); break;
-                case ComputerState: onComputerState(p); break;
-                case ComputerUserList: onComputerUserList(p); break;
-                case ContainerUpdate: onContainerUpdate(p); break;
-                case DisassemblerActiveChange: onDisassemblerActiveChange(p); break;
-                case FileSystemActivity: onFileSystemActivity(p); break;
-                case FloppyChange: onFloppyChange(p); break;
-                case HologramArea: onHologramArea(p); break;
-                case HologramClear: onHologramClear(p); break;
-                case HologramColor: onHologramColor(p); break;
-                case HologramPowerChange: onHologramPowerChange(p); break;
-                case HologramRotation: onHologramRotation(p); break;
-                case HologramRotationSpeed: onHologramRotationSpeed(p); break;
-                case HologramScale: onHologramScale(p); break;
-                case HologramTranslation: onHologramPositionOffsetY(p); break;
-                case HologramValues: onHologramValues(p); break;
-                case LootDisk: onLootDisk(p); break;
-                case CyclingDisk: onCyclingDisk(p); break;
-                case NanomachinesConfiguration: onNanomachinesConfiguration(p); break;
-                case NanomachinesInputs: onNanomachinesInputs(p); break;
-                case NanomachinesPower: onNanomachinesPower(p); break;
-                case NetSplitterState: onNetSplitterState(p); break;
-                case NetworkActivity: onNetworkActivity(p); break;
-                case ParticleEffect: onParticleEffect(p); break;
-                case PetVisibility: onPetVisibility(p); break;
-                case PowerState: onPowerState(p); break;
-                case PrinterState: onPrinterState(p); break;
-                case RackInventory: onRackInventory(p); break;
-                case RackMountableData: onRackMountableData(p); break;
-                case RaidStateChange: onRaidStateChange(p); break;
-                case RedstoneState: onRedstoneState(p); break;
-                case RobotAnimateSwing: onRobotAnimateSwing(p); break;
-                case RobotAnimateTurn: onRobotAnimateTurn(p); break;
-                case RobotAssemblingState: onRobotAssemblingState(p); break;
-                case RobotInventoryChange: onRobotInventoryChange(p); break;
-                case RobotLightChange: onRobotLightChange(p); break;
-                case RobotMove: onRobotMove(p); break;
-                case RobotNameChange: onRobotNameChange(p); break;
-                case RobotSelectedSlotChange: onRobotSelectedSlotChange(p); break;
-                case RotatableState: onRotatableState(p); break;
-                case SwitchActivity: onSwitchActivity(p); break;
-                case TextBufferInit: onTextBufferInit(p); break;
-                case TextBufferPowerChange: onTextBufferPowerChange(p); break;
-                case TextBufferMulti: onTextBufferMulti(p); break;
-                case ScreenTouchMode: onScreenTouchMode(p); break;
-                case SoundEffect: onSoundEffect(p); break;
-                case Sound: onSound(p); break;
-                case SoundPattern: onSoundPattern(p); break;
-                case TransposerActivity: onTransposerActivity(p); break;
-                case WaypointLabel: onWaypointLabel(p); break;
-                default: // Invalid packet.
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        switch (p.packetType) {
+            case AdapterState: onAdapterState(p); break;
+            case Analyze: onAnalyze(p); break;
+            case ChargerState: onChargerState(p); break;
+            case ClientLog: onClientLog(p); break;
+            case Clipboard: onClipboard(p); break;
+            case ColorChange: onColorChange(p); break;
+            case MachineItemStateResponse: onMachineItemStateResponse(p); break;
+            case ComputerState: onComputerState(p); break;
+            case ComputerUserList: onComputerUserList(p); break;
+            case ContainerUpdate: onContainerUpdate(p); break;
+            case DisassemblerActiveChange: onDisassemblerActiveChange(p); break;
+            case FileSystemActivity: onFileSystemActivity(p); break;
+            case FloppyChange: onFloppyChange(p); break;
+            case HologramArea: onHologramArea(p); break;
+            case HologramClear: onHologramClear(p); break;
+            case HologramColor: onHologramColor(p); break;
+            case HologramPowerChange: onHologramPowerChange(p); break;
+            case HologramRotation: onHologramRotation(p); break;
+            case HologramRotationSpeed: onHologramRotationSpeed(p); break;
+            case HologramScale: onHologramScale(p); break;
+            case HologramTranslation: onHologramPositionOffsetY(p); break;
+            case HologramValues: onHologramValues(p); break;
+            case LootDisk: onLootDisk(p); break;
+            case CyclingDisk: onCyclingDisk(p); break;
+            case NanomachinesConfiguration: onNanomachinesConfiguration(p); break;
+            case NanomachinesInputs: onNanomachinesInputs(p); break;
+            case NanomachinesPower: onNanomachinesPower(p); break;
+            case NetSplitterState: onNetSplitterState(p); break;
+            case NetworkActivity: onNetworkActivity(p); break;
+            case ParticleEffect: onParticleEffect(p); break;
+            case PetVisibility: onPetVisibility(p); break;
+            case PowerState: onPowerState(p); break;
+            case PrinterState: onPrinterState(p); break;
+            case RackInventory: onRackInventory(p); break;
+            case RackMountableData: onRackMountableData(p); break;
+            case RaidStateChange: onRaidStateChange(p); break;
+            case RedstoneState: onRedstoneState(p); break;
+            case RobotAnimateSwing: onRobotAnimateSwing(p); break;
+            case RobotAnimateTurn: onRobotAnimateTurn(p); break;
+            case RobotAssemblingState: onRobotAssemblingState(p); break;
+            case RobotInventoryChange: onRobotInventoryChange(p); break;
+            case RobotLightChange: onRobotLightChange(p); break;
+            case RobotMove: onRobotMove(p); break;
+            case RobotNameChange: onRobotNameChange(p); break;
+            case RobotSelectedSlotChange: onRobotSelectedSlotChange(p); break;
+            case RotatableState: onRotatableState(p); break;
+            case SwitchActivity: onSwitchActivity(p); break;
+            case TextBufferInit: onTextBufferInit(p); break;
+            case TextBufferPowerChange: onTextBufferPowerChange(p); break;
+            case TextBufferMulti: onTextBufferMulti(p); break;
+            case ScreenTouchMode: onScreenTouchMode(p); break;
+            case SoundEffect: onSoundEffect(p); break;
+            case Sound: onSound(p); break;
+            case SoundPattern: onSoundPattern(p); break;
+            case TransposerActivity: onTransposerActivity(p); break;
+            case WaypointLabel: onWaypointLabel(p); break;
+            default: // Invalid packet.
         }
     }
 
     @Override
     protected PacketParser createParser(InputStream stream, Player player) {
-        try {
-            return new PacketParser(stream, Minecraft.getInstance().player);
-        } catch (Exception e) {
-            if (e instanceof RuntimeException runtimeException) throw runtimeException;
-            throw new RuntimeException(e);
-        }
+        return new PacketParser(stream, Minecraft.getInstance().player);
     }
 
     // ----------------------------------------------------------------------- //
 
-    public void onAdapterState(PacketParser p) throws IOException {
+    public void onAdapterState(PacketParser p) {
         final Optional<Adapter> te = p.readBlockEntity(Adapter.class);
         if (te.isPresent()) {
             final Adapter t = te.get();
@@ -207,7 +170,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onAnalyze(PacketParser p) throws IOException {
+    public void onAnalyze(PacketParser p) {
         final String address = p.readUTF();
         if (KeyBindings.isAnalyzeCopyingAddress()) {
             RenderSystem.recordRenderCall(() -> {
@@ -218,7 +181,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onChargerState(PacketParser p) throws IOException {
+    public void onChargerState(PacketParser p) {
         final Optional<Charger> te = p.readBlockEntity(Charger.class);
         if (te.isPresent()) {
             final Charger t = te.get();
@@ -228,16 +191,16 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onClientLog(PacketParser p) throws IOException {
+    public void onClientLog(PacketParser p) {
         OpenComputers.log.info(p.readUTF());
     }
 
-    public void onClipboard(PacketParser p) throws IOException {
+    public void onClipboard(PacketParser p) {
         final String contents = p.readUTF();
         RenderSystem.recordRenderCall(() -> Minecraft.getInstance().keyboardHandler.setClipboard(contents));
     }
 
-    public void onColorChange(PacketParser p) throws IOException {
+    public void onColorChange(PacketParser p) {
         final Optional<li.cil.oc.api.internal.Colored> te = p.readBlockEntity(li.cil.oc.api.internal.Colored.class);
         if (te.isPresent()) {
             te.get().setColor(p.readInt());
@@ -247,7 +210,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onMachineItemStateResponse(PacketParser p) throws IOException {
+    public void onMachineItemStateResponse(PacketParser p) {
         final ItemStack stack = p.readItemStack();
         final boolean running = p.readBoolean();
         final TabletWrapper wrapper = Tablet.get(stack, p.player);
@@ -256,7 +219,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         wrapper.isDirty = false;
     }
 
-    public void onComputerState(PacketParser p) throws IOException {
+    public void onComputerState(PacketParser p) {
         final Optional<Computer> te = p.readBlockEntity(Computer.class);
         if (te.isPresent()) {
             te.get().setRunning(p.readBoolean());
@@ -264,7 +227,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onComputerUserList(PacketParser p) throws IOException {
+    public void onComputerUserList(PacketParser p) {
         final Optional<Computer> te = p.readBlockEntity(Computer.class);
         if (te.isPresent()) {
             final int count = p.readInt();
@@ -274,7 +237,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onContainerUpdate(PacketParser p) throws IOException {
+    public void onContainerUpdate(PacketParser p) {
         final int containerId = p.readInt();
         if (p.player.containerMenu != null && p.player.containerMenu.containerId == containerId) {
             if (p.player.containerMenu instanceof li.cil.oc.common.container.Player container) {
@@ -283,14 +246,14 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onDisassemblerActiveChange(PacketParser p) throws IOException {
+    public void onDisassemblerActiveChange(PacketParser p) {
         final Optional<Disassembler> te = p.readBlockEntity(Disassembler.class);
         if (te.isPresent()) te.get().isActive = p.readBoolean();
     }
 
-    public void onFileSystemActivity(PacketParser p) throws IOException {
+    public void onFileSystemActivity(PacketParser p) {
         final String sound = p.readUTF();
-        final CompoundTag data = NbtIo.read(p);
+        final CompoundTag data = readRawNBT(p);
         if (p.readBoolean()) {
             final Optional<BlockEntity> te = p.readBlockEntity(BlockEntity.class);
             te.ifPresent(t -> EventBus.INSTANCE.post(new FileSystemAccessEvent.Client(sound, t, data)));
@@ -305,8 +268,16 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onNetworkActivity(PacketParser p) throws IOException {
-        final CompoundTag data = NbtIo.read(p);
+    private static CompoundTag readRawNBT(PacketParser p) {
+        try {
+            return NbtIo.read(p);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void onNetworkActivity(PacketParser p) {
+        final CompoundTag data = readRawNBT(p);
         if (p.readBoolean()) {
             final Optional<BlockEntity> te = p.readBlockEntity(BlockEntity.class);
             te.ifPresent(t -> EventBus.INSTANCE.post(new NetworkActivityEvent.Client(t, data)));
@@ -321,12 +292,12 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onFloppyChange(PacketParser p) throws IOException {
+    public void onFloppyChange(PacketParser p) {
         final Optional<DiskDrive> te = p.readBlockEntity(DiskDrive.class);
         if (te.isPresent()) te.get().setItem(0, p.readItemStack());
     }
 
-    public void onHologramClear(PacketParser p) throws IOException {
+    public void onHologramClear(PacketParser p) {
         final Optional<Hologram> te = p.readBlockEntity(Hologram.class);
         if (te.isPresent()) {
             final Hologram t = te.get();
@@ -335,7 +306,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onHologramColor(PacketParser p) throws IOException {
+    public void onHologramColor(PacketParser p) {
         final Optional<Hologram> te = p.readBlockEntity(Hologram.class);
         if (te.isPresent()) {
             final Hologram t = te.get();
@@ -346,17 +317,17 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onHologramPowerChange(PacketParser p) throws IOException {
+    public void onHologramPowerChange(PacketParser p) {
         final Optional<Hologram> te = p.readBlockEntity(Hologram.class);
         if (te.isPresent()) te.get().hasPower = p.readBoolean();
     }
 
-    public void onHologramScale(PacketParser p) throws IOException {
+    public void onHologramScale(PacketParser p) {
         final Optional<Hologram> te = p.readBlockEntity(Hologram.class);
         if (te.isPresent()) te.get().scale = p.readDouble();
     }
 
-    public void onHologramArea(PacketParser p) throws IOException {
+    public void onHologramArea(PacketParser p) {
         final Optional<Hologram> te = p.readBlockEntity(Hologram.class);
         if (te.isPresent()) {
             final Hologram t = te.get();
@@ -374,7 +345,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onHologramValues(PacketParser p) throws IOException {
+    public void onHologramValues(PacketParser p) {
         final Optional<Hologram> te = p.readBlockEntity(Hologram.class);
         if (te.isPresent()) {
             final Hologram t = te.get();
@@ -390,7 +361,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onHologramPositionOffsetY(PacketParser p) throws IOException {
+    public void onHologramPositionOffsetY(PacketParser p) {
         final Optional<Hologram> te = p.readBlockEntity(Hologram.class);
         if (te.isPresent()) {
             final double x = p.readDouble();
@@ -400,7 +371,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onHologramRotation(PacketParser p) throws IOException {
+    public void onHologramRotation(PacketParser p) {
         final Optional<Hologram> te = p.readBlockEntity(Hologram.class);
         if (te.isPresent()) {
             final Hologram t = te.get();
@@ -411,7 +382,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onHologramRotationSpeed(PacketParser p) throws IOException {
+    public void onHologramRotationSpeed(PacketParser p) {
         final Optional<Hologram> te = p.readBlockEntity(Hologram.class);
         if (te.isPresent()) {
             final Hologram t = te.get();
@@ -422,7 +393,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onLootDisk(PacketParser p) throws IOException {
+    public void onLootDisk(PacketParser p) {
         final ItemStack stack = p.readItemStack();
         if (!stack.isEmpty()) {
             Loot.disksForClient.add(stack);
@@ -430,14 +401,14 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         // TODO(port): integration (JEI: ModJEI.addDiskAtRuntime(stack)).
     }
 
-    public void onCyclingDisk(PacketParser p) throws IOException {
+    public void onCyclingDisk(PacketParser p) {
         final ItemStack stack = p.readItemStack();
         if (!stack.isEmpty()) {
             Loot.disksForCyclingClient.add(stack);
         }
     }
 
-    public void onNanomachinesConfiguration(PacketParser p) throws IOException {
+    public void onNanomachinesConfiguration(PacketParser p) {
         final Optional<Player> entity = p.readEntity(Player.class);
         if (entity.isPresent()) {
             final Player player = entity.get();
@@ -451,7 +422,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onNanomachinesInputs(PacketParser p) throws IOException {
+    public void onNanomachinesInputs(PacketParser p) {
         final Optional<Player> entity = p.readEntity(Player.class);
         if (entity.isPresent()) {
             final Controller c = li.cil.oc.api.Nanomachines.getController(entity.get());
@@ -470,7 +441,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onNanomachinesPower(PacketParser p) throws IOException {
+    public void onNanomachinesPower(PacketParser p) {
         final Optional<Player> entity = p.readEntity(Player.class);
         if (entity.isPresent()) {
             final Controller c = li.cil.oc.api.Nanomachines.getController(entity.get());
@@ -478,7 +449,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onNetSplitterState(PacketParser p) throws IOException {
+    public void onNetSplitterState(PacketParser p) {
         final Optional<NetSplitter> te = p.readBlockEntity(NetSplitter.class);
         if (te.isPresent()) {
             final NetSplitter t = te.get();
@@ -488,7 +459,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onParticleEffect(PacketParser p) throws IOException {
+    public void onParticleEffect(PacketParser p) {
         final Optional<Level> w = world(p.player, new ResourceLocation(p.readUTF()));
         if (w.isEmpty()) return;
         final Level world = w.get();
@@ -525,7 +496,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         return x + 0.5 + v * velocity;
     }
 
-    public void onPetVisibility(PacketParser p) throws IOException {
+    public void onPetVisibility(PacketParser p) {
         if (!PetRenderer.isInitialized) {
             PetRenderer.isInitialized = true;
             if (Settings.get().hideOwnPet) {
@@ -545,7 +516,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onPowerState(PacketParser p) throws IOException {
+    public void onPowerState(PacketParser p) {
         final Optional<PowerInformation> te = p.readBlockEntity(PowerInformation.class);
         if (te.isPresent()) {
             te.get().setGlobalBuffer(p.readDouble());
@@ -553,7 +524,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onPrinterState(PacketParser p) throws IOException {
+    public void onPrinterState(PacketParser p) {
         final Optional<Printer> te = p.readBlockEntity(Printer.class);
         if (te.isPresent()) {
             if (p.readBoolean()) te.get().requiredEnergy = 9001;
@@ -561,7 +532,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onRackInventory(PacketParser p) throws IOException {
+    public void onRackInventory(PacketParser p) {
         final Optional<Rack> te = p.readBlockEntity(Rack.class);
         if (te.isPresent()) {
             final int count = p.readInt();
@@ -572,7 +543,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onRackMountableData(PacketParser p) throws IOException {
+    public void onRackMountableData(PacketParser p) {
         final Optional<Rack> te = p.readBlockEntity(Rack.class);
         if (te.isPresent()) {
             final Rack t = te.get();
@@ -582,7 +553,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onRaidStateChange(PacketParser p) throws IOException {
+    public void onRaidStateChange(PacketParser p) {
         final Optional<Raid> te = p.readBlockEntity(Raid.class);
         if (te.isPresent()) {
             final Raid t = te.get();
@@ -592,7 +563,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onRedstoneState(PacketParser p) throws IOException {
+    public void onRedstoneState(PacketParser p) {
         final Optional<RedstoneAware> te = p.readBlockEntity(RedstoneAware.class);
         if (te.isPresent()) {
             final RedstoneAware t = te.get();
@@ -603,12 +574,12 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onRobotAnimateSwing(PacketParser p) throws IOException {
+    public void onRobotAnimateSwing(PacketParser p) {
         final Optional<RobotProxy> te = p.readBlockEntity(RobotProxy.class);
         if (te.isPresent()) te.get().robot.setAnimateSwing(p.readInt());
     }
 
-    public void onRobotAnimateTurn(PacketParser p) throws IOException {
+    public void onRobotAnimateTurn(PacketParser p) {
         final Optional<RobotProxy> te = p.readBlockEntity(RobotProxy.class);
         if (te.isPresent()) {
             final int axis = p.readByte();
@@ -617,7 +588,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onRobotAssemblingState(PacketParser p) throws IOException {
+    public void onRobotAssemblingState(PacketParser p) {
         final Optional<Assembler> te = p.readBlockEntity(Assembler.class);
         if (te.isPresent()) {
             if (p.readBoolean()) te.get().requiredEnergy = 9001;
@@ -625,7 +596,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onRobotInventoryChange(PacketParser p) throws IOException {
+    public void onRobotInventoryChange(PacketParser p) {
         final Optional<RobotProxy> te = p.readBlockEntity(RobotProxy.class);
         if (te.isPresent()) {
             final Robot robot = te.get().robot;
@@ -637,12 +608,12 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onRobotLightChange(PacketParser p) throws IOException {
+    public void onRobotLightChange(PacketParser p) {
         final Optional<RobotProxy> te = p.readBlockEntity(RobotProxy.class);
         if (te.isPresent()) te.get().robot.info.lightColor = p.readInt();
     }
 
-    public void onRobotNameChange(PacketParser p) throws IOException {
+    public void onRobotNameChange(PacketParser p) {
         final Optional<RobotProxy> te = p.readBlockEntity(RobotProxy.class);
         if (te.isPresent()) {
             final short len = p.readShort();
@@ -654,7 +625,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onRobotMove(PacketParser p) throws IOException {
+    public void onRobotMove(PacketParser p) {
         final ResourceLocation dimension = new ResourceLocation(p.readUTF());
         final int x = p.readInt();
         final int y = p.readInt();
@@ -670,12 +641,12 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onRobotSelectedSlotChange(PacketParser p) throws IOException {
+    public void onRobotSelectedSlotChange(PacketParser p) {
         final Optional<RobotProxy> te = p.readBlockEntity(RobotProxy.class);
         if (te.isPresent()) te.get().robot.selectedSlot = p.readInt();
     }
 
-    public void onRotatableState(PacketParser p) throws IOException {
+    public void onRotatableState(PacketParser p) {
         final Optional<Rotatable> te = p.readBlockEntity(Rotatable.class);
         if (te.isPresent()) {
             te.get().setPitch(p.readDirection().get());
@@ -683,19 +654,19 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onSwitchActivity(PacketParser p) throws IOException {
+    public void onSwitchActivity(PacketParser p) {
         final Optional<Relay> te = p.readBlockEntity(Relay.class);
         if (te.isPresent()) te.get().lastMessage = System.currentTimeMillis();
     }
 
-    public void onTextBufferPowerChange(PacketParser p) throws IOException {
+    public void onTextBufferPowerChange(PacketParser p) {
         final Optional<ManagedEnvironment> env = ComponentTracker.INSTANCE.get(p.player.level(), p.readUTF());
         if (env.isPresent() && env.get() instanceof li.cil.oc.api.internal.TextBuffer buffer) {
             buffer.setRenderingEnabled(p.readBoolean());
         }
     }
 
-    public void onTextBufferInit(PacketParser p) throws IOException {
+    public void onTextBufferInit(PacketParser p) {
         final Optional<ManagedEnvironment> env = ComponentTracker.INSTANCE.get(p.player.level(), p.readUTF());
         if (env.isPresent() && env.get() instanceof li.cil.oc.common.component.TextBuffer buffer) {
             final CompoundTag nbt = p.readNBT();
@@ -715,7 +686,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onTextBufferMulti(PacketParser p) throws IOException {
+    public void onTextBufferMulti(PacketParser p) {
         if (p.player == null) return;
         final Optional<ManagedEnvironment> env = ComponentTracker.INSTANCE.get(p.player.level(), p.readUTF());
         if (env.isPresent() && env.get() instanceof li.cil.oc.api.internal.TextBuffer buffer) {
@@ -740,13 +711,14 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
                         default: // Invalid packet.
                     }
                 }
-            } catch (EOFException ignored) {
-                // No more commands.
+            } catch (UncheckedIOException e) {
+                // No more commands (the parser wraps the EOFException).
+                if (!(e.getCause() instanceof EOFException)) throw e;
             }
         }
     }
 
-    public void onTextBufferMultiColorChange(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) throws IOException {
+    public void onTextBufferMultiColorChange(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) {
         final int foreground = p.readInt();
         final boolean foregroundIsPalette = p.readBoolean();
         buffer.setForegroundColor(foreground, foregroundIsPalette);
@@ -755,7 +727,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         buffer.setBackgroundColor(background, backgroundIsPalette);
     }
 
-    public void onTextBufferMultiCopy(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) throws IOException {
+    public void onTextBufferMultiCopy(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) {
         final int col = p.readInt();
         final int row = p.readInt();
         final int w = p.readInt();
@@ -765,11 +737,11 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         buffer.copy(col, row, w, h, tx, ty);
     }
 
-    public void onTextBufferMultiDepthChange(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) throws IOException {
+    public void onTextBufferMultiDepthChange(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) {
         buffer.setColorDepth(li.cil.oc.api.internal.TextBuffer.ColorDepth.values()[p.readInt()]);
     }
 
-    public void onTextBufferMultiFill(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) throws IOException {
+    public void onTextBufferMultiFill(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) {
         final int col = p.readInt();
         final int row = p.readInt();
         final int w = p.readInt();
@@ -778,31 +750,31 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         buffer.fill(col, row, w, h, c);
     }
 
-    public void onTextBufferMultiPaletteChange(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) throws IOException {
+    public void onTextBufferMultiPaletteChange(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) {
         final int index = p.readInt();
         final int color = p.readInt();
         buffer.setPaletteColor(index, color);
     }
 
-    public void onTextBufferMultiResolutionChange(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) throws IOException {
+    public void onTextBufferMultiResolutionChange(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) {
         final int w = p.readInt();
         final int h = p.readInt();
         buffer.setResolution(w, h);
     }
 
-    public void onTextBufferMultiViewportResolutionChange(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) throws IOException {
+    public void onTextBufferMultiViewportResolutionChange(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) {
         final int w = p.readInt();
         final int h = p.readInt();
         buffer.setViewport(w, h);
     }
 
-    public void onTextBufferMultiMaxResolutionChange(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) throws IOException {
+    public void onTextBufferMultiMaxResolutionChange(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) {
         final int w = p.readInt();
         final int h = p.readInt();
         buffer.setMaximumResolution(w, h);
     }
 
-    public void onTextBufferMultiSet(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) throws IOException {
+    public void onTextBufferMultiSet(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) {
         final int col = p.readInt();
         final int row = p.readInt();
         final String s = p.readUTF();
@@ -810,7 +782,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         buffer.set(col, row, s, vertical);
     }
 
-    public void onTextBufferRamInit(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) throws IOException {
+    public void onTextBufferRamInit(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) {
         final String owner = p.readUTF();
         final int id = p.readInt();
         final CompoundTag nbt = p.readNBT();
@@ -818,7 +790,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         ClientGpuTextBufferHandler.loadBuffer(buffer, owner, id, nbt);
     }
 
-    public void onTextBufferBitBlt(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) throws IOException {
+    public void onTextBufferBitBlt(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) {
         final int col = p.readInt();
         final int row = p.readInt();
         final int w = p.readInt();
@@ -831,14 +803,14 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         ClientGpuTextBufferHandler.bitblt(buffer, col, row, w, h, owner, id, fromCol, fromRow);
     }
 
-    public void onTextBufferRamDestroy(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) throws IOException {
+    public void onTextBufferRamDestroy(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) {
         final String owner = p.readUTF();
         final int id = p.readInt();
 
         ClientGpuTextBufferHandler.removeBuffer(buffer, owner, id);
     }
 
-    public void onTextBufferMultiRawSetText(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) throws IOException {
+    public void onTextBufferMultiRawSetText(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) {
         final int col = p.readInt();
         final int row = p.readInt();
 
@@ -856,19 +828,19 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         buffer.rawSetText(col, row, text);
     }
 
-    public void onTextBufferMultiRawSetBackground(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) throws IOException {
+    public void onTextBufferMultiRawSetBackground(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) {
         final int col = p.readInt();
         final int row = p.readInt();
         buffer.rawSetBackground(col, row, readColorMatrix(p));
     }
 
-    public void onTextBufferMultiRawSetForeground(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) throws IOException {
+    public void onTextBufferMultiRawSetForeground(PacketParser p, li.cil.oc.api.internal.TextBuffer buffer) {
         final int col = p.readInt();
         final int row = p.readInt();
         buffer.rawSetForeground(col, row, readColorMatrix(p));
     }
 
-    private static int[][] readColorMatrix(PacketParser p) throws IOException {
+    private static int[][] readColorMatrix(PacketParser p) {
         final short rows = p.readShort();
         final int[][] color = new int[rows][];
         for (int y = 0; y < rows; y++) {
@@ -882,12 +854,12 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         return color;
     }
 
-    public void onScreenTouchMode(PacketParser p) throws IOException {
+    public void onScreenTouchMode(PacketParser p) {
         final Optional<Screen> te = p.readBlockEntity(Screen.class);
         if (te.isPresent()) te.get().invertTouchMode = p.readBoolean();
     }
 
-    public void onSoundEffect(PacketParser p) throws IOException {
+    public void onSoundEffect(PacketParser p) {
         final Optional<Level> world = world(p.player, new ResourceLocation(p.readUTF()));
         if (world.isPresent()) {
             final double x = p.readDouble();
@@ -900,7 +872,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onSound(PacketParser p) throws IOException {
+    public void onSound(PacketParser p) {
         if (world(p.player, new ResourceLocation(p.readUTF())).isPresent()) {
             final int x = p.readInt();
             final int y = p.readInt();
@@ -911,7 +883,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onSoundPattern(PacketParser p) throws IOException {
+    public void onSoundPattern(PacketParser p) {
         if (world(p.player, new ResourceLocation(p.readUTF())).isPresent()) {
             final int x = p.readInt();
             final int y = p.readInt();
@@ -921,12 +893,12 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         }
     }
 
-    public void onTransposerActivity(PacketParser p) throws IOException {
+    public void onTransposerActivity(PacketParser p) {
         final Optional<Transposer> te = p.readBlockEntity(Transposer.class);
         if (te.isPresent()) te.get().lastOperation = System.currentTimeMillis();
     }
 
-    public void onWaypointLabel(PacketParser p) throws IOException {
+    public void onWaypointLabel(PacketParser p) {
         final Optional<Waypoint> te = p.readBlockEntity(Waypoint.class);
         if (te.isPresent()) te.get().label = p.readUTF();
     }
