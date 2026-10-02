@@ -33,6 +33,17 @@ public final class RenderUtil {
     }
 
     /**
+     * Rotates around an arbitrary (not necessarily normalized) axis. Does
+     * nothing for a zero axis (the old Quaternion code produced an identity
+     * rotation there, JOML would produce NaNs).
+     */
+    public static void rotate(PoseStack stack, float angleDegrees, float x, float y, float z) {
+        final float lengthSq = x * x + y * y + z * z;
+        if (lengthSq < 1e-12f || angleDegrees == 0) return;
+        stack.mulPose(new org.joml.Quaternionf().rotationAxis((float) Math.toRadians(angleDegrees), x, y, z));
+    }
+
+    /**
      * Draws a front overlay quad in the (0,0)-(1,1) square at z = 0 (for the
      * {@code BLOCK_OVERLAY} render type).
      */

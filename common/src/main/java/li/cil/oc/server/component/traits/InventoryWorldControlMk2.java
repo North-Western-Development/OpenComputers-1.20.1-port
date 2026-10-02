@@ -18,6 +18,12 @@ import java.util.function.Function;
 import static li.cil.oc.util.ResultWrapper.result;
 
 public interface InventoryWorldControlMk2 extends InventoryAware, WorldAware, SideRestricted {
+    // Declared abstractly by InventoryAware and as a default by WorldAware; resolve the clash.
+    @Override
+    default net.minecraft.world.entity.player.Player fakePlayer() {
+        return WorldAware.super.fakePlayer();
+    }
+
     @Callback(doc = "function(facing:number, slot:number[, count:number[, fromSide:number]]):boolean -- Drops the selected item stack into the specified slot of an inventory.")
     default Object[] dropIntoSlot(Context context, Arguments args) {
         final Direction facing = checkSideForAction(args, 0);

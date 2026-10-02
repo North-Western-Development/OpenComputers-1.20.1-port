@@ -23,6 +23,12 @@ import java.util.function.Predicate;
 import static li.cil.oc.util.ResultWrapper.result;
 
 public interface InventoryWorldControl extends InventoryAware, WorldAware, SideRestricted {
+    // Declared abstractly by InventoryAware and as a default by WorldAware; resolve the clash.
+    @Override
+    default net.minecraft.world.entity.player.Player fakePlayer() {
+        return WorldAware.super.fakePlayer();
+    }
+
     @Callback(doc = "function(side:number):boolean -- Compare the block on the specified side with the one in the selected slot. Returns true if equal.")
     default Object[] compare(Context context, Arguments args) {
         final Direction side = checkSideForAction(args, 0);

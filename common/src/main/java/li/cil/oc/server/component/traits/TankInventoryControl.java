@@ -17,6 +17,12 @@ import java.util.function.BiFunction;
 import static li.cil.oc.util.ResultWrapper.result;
 
 public interface TankInventoryControl extends WorldAware, InventoryAware, TankAware {
+    // Declared abstractly by InventoryAware and as a default by WorldAware; resolve the clash.
+    @Override
+    default net.minecraft.world.entity.player.Player fakePlayer() {
+        return WorldAware.super.fakePlayer();
+    }
+
     @Callback(doc = "function([slot:number]):number -- Get the amount of fluid in the tank item in the specified slot or the selected slot.")
     default Object[] getTankLevelInSlot(Context context, Arguments args) {
         return withFluidInfo(optSlot(args, 0), (fluid, capacity) -> result(fluid.map(FluidStack::getAmount).orElse(0L)));
