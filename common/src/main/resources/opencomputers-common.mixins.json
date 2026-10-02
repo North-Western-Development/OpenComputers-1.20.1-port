@@ -3,7 +3,10 @@
   "minVersion": "0.8",
   "package": "li.cil.oc.common.mixin",
   "compatibilityLevel": "JAVA_17",
-  "mixins": [],
+  "mixins": [
+    "PlayerPersistedDataMixin",
+    "ServerPlayerPersistedDataMixin"
+  ],
   "client": [],
   "injectors": {
     "defaultRequire": 1

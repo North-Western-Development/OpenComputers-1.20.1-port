@@ -255,3 +255,38 @@ Mixins: common mixins go in `li.cil.oc.common.mixin` (client ones in
 - `Driver.itemHandlerFor` / `DriverAPI.itemHandlerFor` return `li.cil.oc.common.transfer.ItemHandler`.
   `MultiTank.getFluidTank(int)` returns `li.cil.oc.common.transfer.FluidHandler` (single-tank view, mB).
 - `SideTracker.addServerThread()` registers extra server threads.
+
+## util / top-level contracts (done; callers must follow)
+
+- **Proxy:** `common.Proxy` has no-arg `preInit()`, `init()`, `postInit()`, `initClient()`;
+  `client.Proxy` overrides. `OpenComputers.init()` loads Settings, creates the proxy reflectively,
+  calls `preInit()`, `ThreadPoolFactory.init()`, `Mods.preInit()` (static), `CreativeTab.register()`,
+  `Blocks.init()`, `Items.init()`; `LifecycleEvent.SETUP` → `proxy().init()`,
+  `SERVER_BEFORE_START` → `proxy().postInit()`. Client proxy must call `Audio.init()` and set
+  `api.CreativeTab.instance = CreativeTab.TAB.get()`. `Items.decorateCreativeTab(NonNullList<ItemStack>)` must exist.
+  `DebugCard.AccessContext` needs public fields `player`, `nonce`.
+- **Settings:** `Settings.get().field`; tuples are `Pair`; `Settings.basicScreenPixels()` static;
+  `Settings.DebugCardAccess` (`Forbidden.INSTANCE`, `Allowed.INSTANCE`, `Whitelist`).
+- **Extension helpers:** `ExtendedWorld.getBlock(world, pos)` (BlockGetter/Level variants),
+  `ExtendedArguments.checkSlot(args, ItemHandler|Container, n)`, `checkSideForAction(args, i)`,
+  `ExtendedArguments.BUCKET_VOLUME = 1000`, `TankProperties(long capacity, FluidStack contents)`;
+  `ExtendedInventory.asList(container)` (live List view); `ExtendedLuaState.pushValue(lua, v)`;
+  `ExtendedEnumFacing.getRotation(facing, axis)`.
+- **ExtendedNBT:** `toNbt(...)` overloads; `xxxIterableToNbt(Iterable)` → `List<XTag>`;
+  `setNewCompoundTag(nbt, name, Consumer<CompoundTag>)`, `setNewTagList(nbt, name, Iterable|Tag...)`,
+  `getDirection/setDirection` (Optional<Direction>), `get/setBooleanArray`,
+  `appendNewCompoundTag(list, Consumer)`, `append`, `foreach`, `map(list, Function)` → List,
+  `toTagArray(list, Class<T>)`, `toTypedMap(tag)`, `typedMapToNbt(map)`.
+- **BlockPosition:** public final `x,y,z`, `Optional<Level> world`; static `BlockPosition.apply(...)`
+  overloads (ints/doubles/Vec3/BlockPos [+Level], EnvironmentHost, Entity); `bounds()`, `toBlockPos()`, `toVec3()`.
+- **InventoryUtils / FluidUtils:** operate on `ItemHandler`/`FluidHandler`/`ItemFluidHandler`;
+  `InventoryUtils.asItemHandler(Container[, side])`; Scala default args → overloads; Extractor = `IntSupplier`;
+  fluid amounts `long` mB; `FluidUtils.fluidHandlerOf(stack)` works on a copy (`getContainer()`).
+- **Lua:** `li.cil.repack.org.luaj.vm2.*`, `li.cil.repack.com.naef.jnlua.*`. `new ScalaClosure(Function<Varargs,Varargs>)`.
+- **ResultWrapper.result(Object...)** (varargs; pass `(Object) arr` for a single array); `ResultWrapper.unit` sentinel.
+- `MovingAverage.apply()` / `add(v)`. `util.TextBuffer`: `foreground()/setForeground`, `background()/setBackground`,
+  `format()/setFormat`, `size()` → Pair, `setSize(w,h)`; fields `color`, `buffer`, `width`, `height`.
+- `PackedColor`: `Color(value[, isPalette])`, `ColorFormat`, `SingleBitFormat.INSTANCE`, `PackedColor.Depth.format(depth)`.
+- `RTree<Data>(int M, Function<Data, Triple<Double,Double,Double>>)`; `GameTimeFormatter.mktime` → `Optional<Integer>`.
+- `PlayerUtils.persistedData(player)` (backed by mixins replacing Forge persistent data).
+- `ScalaEnum` gone → Java enums. `StackOption` gone → `ItemStack`/`ItemStack.EMPTY`.
