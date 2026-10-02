@@ -69,9 +69,10 @@ public class Relay extends TileEntity implements Hub, ComponentInventory, PowerA
         return linkedCard;
     }
 
-    public int wirelessTier = -1;
-
+    // Port note: initialized before wirelessTier like in Scala, i.e. while wirelessTier is still 0.
     public double strength = maxWirelessRange();
+
+    public int wirelessTier = -1;
 
     public boolean isRepeater = true;
 
