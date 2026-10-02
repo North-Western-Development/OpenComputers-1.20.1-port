@@ -1,35 +1,36 @@
-# Gradle
-/.gradle
-/build
 
+# Debugging
 # Eclipse
-/.classpath
-/.project
-/.settings
-/bin
-
+# Gradle
 # IntelliJ IDEA
+# OS X
+# VSCode
+# Windows...
+**/Thumbs.db
+*.iml
+.DS_Store
+.gradle/
+.idea/
 /*.iml
 /*.ipr
 /*.iws
+/.classpath
+/.gradle
 /.idea
-/out
-
-# Debugging
-/eclipse
-/run
-
-# Windows...
-**/Thumbs.db
-
-# OS X
-.DS_Store
-/run
-
-# VSCode
+/.project
+/.settings
 /.vscode
-/saves
-/logs
+/bin
+/build
 /config
+/eclipse
+/logs
 /options.txt
+/out
+/run
+/saves
 /usernamecache.json
+build/
+libs/*.jar
+out/
+run/

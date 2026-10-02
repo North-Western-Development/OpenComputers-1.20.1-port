@@ -36,6 +36,9 @@ subprojects {
     dependencies {
         minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
         mappings loom.officialMojangMappings()
+
+        // javax.annotation.Nullable & co. (not on the 1.20.1 compile classpath by default).
+        compileOnly "com.google.code.findbugs:jsr305:3.0.2"
     }
 }
 
@@ -75,6 +78,7 @@ allprojects {
     tasks.withType(JavaCompile).configureEach {
         options.encoding = "UTF-8"
         options.release = 17
+        options.compilerArgs << "-Xmaxerrs" << "10000"
     }
 
     tasks.withType(Javadoc).configureEach {

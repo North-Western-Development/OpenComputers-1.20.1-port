@@ -37,7 +37,8 @@ public class Capacitor extends SimpleBlock {
     @Override
     public int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos) {
         if (!world.isClientSide && world.getBlockEntity(pos) instanceof li.cil.oc.common.tileentity.Capacitor capacitor
-            && capacitor.node() instanceof Connector node) {
+            && capacitor.node() != null) {
+            final Connector node = capacitor.node();
             return (int) Math.round(15 * node.localBuffer() / node.localBufferSize());
         }
         return 0;
