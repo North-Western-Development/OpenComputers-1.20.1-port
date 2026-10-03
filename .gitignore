@@ -35,3 +35,4 @@ libs/*.jar
 out/
 run/
 .claude/worktrees/
+dist/
