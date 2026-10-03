@@ -2,9 +2,9 @@ This package contains code use to integrate with other mods. This is usually don
 
 ###General Structure
 The general structure for mod integration is as follows:
-- All mods' IDs are defined in `Mods.IDs` (`Mods.scala` file).
+- All mods' IDs are defined in `Mods.IDs` (`Mods.java`).
 - For most mods, a `SimpleMod` instance suffices, some may require a specialized implementation. These instances are an internal way of checking for mod availablity.
-- For each individual mod, there is a package with a `ModModname` class implementing the `ModProxy` interface. This class is initialized from `Mods.init()` if the mod it represents is available.
+- For each individual mod, there is a package with a `ModModname` class implementing the `ModProxy` interface. Common integrations are listed in `Mods.OPTIONAL`; loader-specific ones are registered by the loader module via `Mods.registerOptional`. The proxy is loaded reflectively, and only if the mod it represents is present.
 - Integration such as driver registration is performed in `ModProxy.initialize()`.
 
 Have a look at the existing modules for examples if that description was too abstract for you.

@@ -226,10 +226,10 @@ code that never runs (e.g. passing `mc.level` where a `Level` is expected).
 
 ## Scope notes
 
-- Third-party integrations (AE2, ComputerCraft, Mekanism, ProjectRed, TIS-3D,
-  EnderStorage, JEI, WAILA) are parked in `legacy/integration-scala` and are not
-  part of the first pass. `integration.Mods` keeps only what is needed for the
-  built-in `opencomputers` / `minecraft` integration.
+- Third-party integrations are ported to the 1.20.1 versions of their mods (see
+  `docs/integration-brief.md` and `common/.../integration/README.md`): AE2 15, CC: Tweaked,
+  JEI 15, Jade (replaces WAILA), TIS-3D on both loaders; Mekanism, EnderStorage, ProjectRed
+  on Forge.
 - Keep behaviour identical where possible; mark anything you could not port
   faithfully with `// TODO(port): ...` so it can be found later.
 

@@ -1,6 +1,6 @@
 # Adapter
 
-![Freeeedooooooom!](block:OpenComputers:adapter)
+![Freeeedooooooom!](block:opencomputers:adapter)
 
 The adapter's serial interface does not implement a hard-coded protocol. Instead, the protocol is defined by the software running on the computer controlling the adapter. Please refer to the component's API using an OpenComputers computer for specifics.
 
