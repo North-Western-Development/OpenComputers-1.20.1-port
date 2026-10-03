@@ -19,8 +19,10 @@ import java.util.Optional;
  * <li>{@link #preInit()} - called from {@code OpenComputers.init()} after settings were loaded.</li>
  * <li>{@link #init()} - called from {@code common.Proxy.init()} (common setup); registers drivers etc.</li>
  * </ul>
- * Third-party integrations (AE2, ComputerCraft, Mekanism, ProjectRed, TIS-3D, EnderStorage, JEI, WAILA)
- * are parked in {@code legacy/}; only their ids are kept here.
+ * Optional third-party integrations are listed in {@link #OPTIONAL} (common) or registered by a
+ * loader module via {@link #registerOptional(String, String)} (loader-specific mods), by class name.
+ * Their proxy classes are only loaded when the mod is present, so they may freely reference the
+ * other mod's classes. Each such class must have a {@code public static final INSTANCE} field.
  */
 public final class Mods {
     private Mods() {
@@ -41,22 +43,62 @@ public final class Mods {
 
     public static final SimpleMod Minecraft = new SimpleMod(IDs.Minecraft);
     public static final SimpleMod OpenComputers = new SimpleMod(IDs.OpenComputers);
-    // TODO(port): integration - AppliedEnergistics2, ComputerCraft, Forge, JustEnoughItems, Mekanism,
-    //  TIS3D, ProjectRedTransmission, DraconicEvolution, EnderStorage mod handles were dropped with
-    //  their integrations (see legacy/).
+    public static final SimpleMod AppliedEnergistics2 = new SimpleMod(IDs.AppliedEnergistics2);
+    public static final SimpleMod ComputerCraft = new SimpleMod(IDs.ComputerCraft);
+    public static final SimpleMod JustEnoughItems = new SimpleMod(IDs.JustEnoughItems);
+    public static final SimpleMod Jade = new SimpleMod(IDs.Jade);
+    public static final SimpleMod TIS3D = new SimpleMod(IDs.TIS3D);
+    public static final SimpleMod Mekanism = new SimpleMod(IDs.Mekanism);
+    public static final SimpleMod EnderStorage = new SimpleMod(IDs.EnderStorage);
+    public static final SimpleMod ProjectRedTransmission = new SimpleMod(IDs.ProjectRedTransmission);
 
     // ----------------------------------------------------------------------- //
 
-    private static ModProxy[] proxies() {
-        return new ModProxy[]{
-                // Loader-generic item/fluid/energy drivers (formerly integration.minecraftforge).
-                ModPlatform.INSTANCE,
-                ModMinecraft.INSTANCE,
+    /** Optional integrations available on both loaders: mod id -> proxy class name. */
+    private static final String[][] OPTIONAL = {
+            {IDs.AppliedEnergistics2, "li.cil.oc.integration.appeng.ModAppEng"},
+            {IDs.ComputerCraft, "li.cil.oc.integration.computercraft.ModComputerCraft"},
+            {IDs.JustEnoughItems, "li.cil.oc.integration.jei.ModJEI"},
+            {IDs.Jade, "li.cil.oc.integration.jade.ModJade"},
+            {IDs.TIS3D, "li.cil.oc.integration.tis3d.ModTIS3D"},
+    };
 
-                // We go late to ensure all other mod integration is done, e.g. to
-                // allow properly checking if wireless redstone is present.
-                ModOpenComputers.INSTANCE
-        };
+    private static final List<String[]> registeredOptional = new ArrayList<>();
+
+    /**
+     * Registers a loader-specific optional integration (called by the loader entrypoint before
+     * {@code OpenComputers.init()}). The proxy class is only loaded if {@code modId} is present.
+     */
+    public static synchronized void registerOptional(String modId, String proxyClassName) {
+        registeredOptional.add(new String[]{modId, proxyClassName});
+    }
+
+    private static List<ModProxy> proxies;
+
+    private static synchronized List<ModProxy> proxies() {
+        if (proxies == null) {
+            final List<ModProxy> result = new ArrayList<>();
+            // Loader-generic item/fluid/energy drivers (formerly integration.minecraftforge).
+            result.add(ModPlatform.INSTANCE);
+            result.add(ModMinecraft.INSTANCE);
+
+            final List<String[]> optional = new ArrayList<>(List.of(OPTIONAL));
+            optional.addAll(registeredOptional);
+            for (String[] entry : optional) {
+                if (!Platform.isModLoaded(entry[0])) continue;
+                try {
+                    result.add((ModProxy) Class.forName(entry[1]).getField("INSTANCE").get(null));
+                } catch (Throwable e) {
+                    li.cil.oc.OpenComputers.log.warn("Failed loading integration for '" + entry[0] + "'.", e);
+                }
+            }
+
+            // We go late to ensure all other mod integration is done, e.g. to
+            // allow properly checking if wireless redstone is present.
+            result.add(ModOpenComputers.INSTANCE);
+            proxies = result;
+        }
+        return proxies;
     }
 
     public static void preInit() {
@@ -117,7 +159,7 @@ public final class Mods {
         private IDs() {
         }
 
-        public static final String AppliedEnergistics2 = "appliedenergistics2";
+        public static final String AppliedEnergistics2 = "ae2";
         public static final String ComputerCraft = "computercraft";
         public static final String Forge = "forge";
         public static final String JustEnoughItems = "jei";
@@ -125,8 +167,9 @@ public final class Mods {
         public static final String Minecraft = "minecraft";
         public static final String OpenComputers = "opencomputers";
         public static final String TIS3D = "tis3d";
-        public static final String Waila = "waila";
-        public static final String ProjectRedTransmission = "projectred-transmission";
+        public static final String Jade = "jade";
+        public static final String ProjectRedCore = "projectred_core";
+        public static final String ProjectRedTransmission = "projectred_transmission";
         public static final String DraconicEvolution = "draconicevolution";
         public static final String EnderStorage = "enderstorage";
     }
