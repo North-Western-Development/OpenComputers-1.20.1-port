@@ -194,6 +194,21 @@ public final class PackedColor {
         private static final int greens = 8;
         private static final int blues = 5;
 
+        // The fixed 6x8x5 color cube, precomputed (inflate is called for every rendered cell).
+        private static final int[] staticPalette = new int[reds * greens * blues];
+
+        static {
+            for (int index = 0; index < staticPalette.length; index++) {
+                final int idxB = index % blues;
+                final int idxG = (index / blues) % greens;
+                final int idxR = (index / blues / greens) % reds;
+                final int r = (int) (idxR * 0xFF / (reds - 1.0) + 0.5);
+                final int g = (int) (idxG * 0xFF / (greens - 1.0) + 0.5);
+                final int b = (int) (idxB * 0xFF / (blues - 1.0) + 0.5);
+                staticPalette[index] = (r << rShift32) | (g << gShift32) | (b << bShift32);
+            }
+        }
+
         public HybridFormat() {
             // Initialize palette to grayscale, excluding black and white, because
             // those are already contained in the normal color cube.
@@ -211,16 +226,7 @@ public final class PackedColor {
         @Override
         public int inflate(int value) {
             if (isFromPalette(value)) return super.inflate(value);
-            else {
-                final int index = value - palette.length;
-                final int idxB = index % blues;
-                final int idxG = (index / blues) % greens;
-                final int idxR = (index / blues / greens) % reds;
-                final int r = (int) (idxR * 0xFF / (reds - 1.0) + 0.5);
-                final int g = (int) (idxG * 0xFF / (greens - 1.0) + 0.5);
-                final int b = (int) (idxB * 0xFF / (blues - 1.0) + 0.5);
-                return (r << rShift32) | (g << gShift32) | (b << bShift32);
-            }
+            else return staticPalette[Math.floorMod(value - palette.length, staticPalette.length)];
         }
 
         @Override

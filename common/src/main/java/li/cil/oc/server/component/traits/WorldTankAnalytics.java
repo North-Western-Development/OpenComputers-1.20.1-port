@@ -71,4 +71,12 @@ public interface WorldTankAnalytics extends WorldAware, SideRestricted {
             }
         } else return result(null, "not enabled in config");
     }
+
+    @Callback(doc = "function(side:number):number -- Get the number of tanks available on the specified side.")
+    default Object[] getTankCount(Context context, Arguments args) {
+        final Direction facing = checkSideForAction(args, 0);
+        final Optional<FluidHandler> handler = FluidUtils.fluidHandlerAt(position().offset(facing), facing.getOpposite());
+        if (handler.isPresent() && handler.get().getTanks() > 0) return result(handler.get().getTanks());
+        return result(null, "no tank");
+    }
 }
