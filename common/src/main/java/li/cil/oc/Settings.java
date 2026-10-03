@@ -1,10 +1,11 @@
 package li.cil.oc;
 
-import com.google.common.net.InetAddresses;
 import com.mojang.authlib.GameProfile;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigRenderOptions;
+import com.typesafe.config.ConfigValueFactory;
+import com.typesafe.config.ConfigValue;
 import dev.architectury.platform.Platform;
 import li.cil.oc.api.internal.TextBuffer;
 import li.cil.oc.common.Tier;
@@ -20,8 +21,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.net.Inet4Address;
-import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
@@ -34,7 +33,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.BiPredicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -258,8 +256,9 @@ public class Settings {
     public final boolean httpEnabled;
     public final boolean httpHeadersEnabled;
     public final boolean tcpEnabled;
-    public final AddressValidator[] httpHostBlacklist;
-    public final AddressValidator[] httpHostWhitelist;
+    public final li.cil.oc.util.InternetFilteringRule[] internetFilteringRules;
+    public final boolean internetFilteringRulesObserved;
+    public final String httpUserAgent;
     public final int httpTimeout;
     public final int maxConnections;
     public final int internetThreads;
@@ -285,6 +284,8 @@ public class Settings {
     public final int maxScreenWidth;
     public final int maxScreenHeight;
     public final boolean inputUsername;
+    public final int initialNetworkPacketTTL;
+    public final int transposerFluidTransferRate;
     public final int maxNetworkPacketSize;
     // Need at least 4 for nanomachine protocol. Because I can!
     public final int maxNetworkPacketParts;
@@ -396,6 +397,15 @@ public class Settings {
 
     public final double bitbltCost;
 
+    // >= 1.8.2
+    public final int diskActivitySoundDelay;
+    public final double maxNetworkClientPacketDistance;
+    public final double maxNetworkClientEffectPacketDistance;
+    public final double maxNetworkClientSoundPacketDistance;
+
+    // >= 1.8.10
+    public final int maxClipboardTextLength;
+
     public Settings(Config config) {
         this.config = config;
 
@@ -448,7 +458,7 @@ public class Settings {
         allowActivateBlocks = config.getBoolean("robot.allowActivateBlocks");
         allowUseItemsWithDuration = config.getBoolean("robot.allowUseItemsWithDuration");
         canAttackPlayers = config.getBoolean("robot.canAttackPlayers");
-        limitFlightHeight = Math.max(config.getInt("robot.limitFlightHeight"), 0);
+        limitFlightHeight = Math.max(config.getInt("robot.limitFlightHeight"), -1);
         screwCobwebs = config.getBoolean("robot.notAfraidOfSpiders");
         swingRange = config.getDouble("robot.swingRange");
         useAndPlaceRange = config.getDouble("robot.useAndPlaceRange");
@@ -614,8 +624,12 @@ public class Settings {
         httpEnabled = config.getBoolean("internet.enableHttp");
         httpHeadersEnabled = config.getBoolean("internet.enableHttpHeaders");
         tcpEnabled = config.getBoolean("internet.enableTcp");
-        httpHostBlacklist = config.getStringList("internet.blacklist").stream().map(AddressValidator::new).toArray(AddressValidator[]::new);
-        httpHostWhitelist = config.getStringList("internet.whitelist").stream().map(AddressValidator::new).toArray(AddressValidator[]::new);
+        internetFilteringRules = config.getStringList("internet.filteringRules").stream()
+                .filter(p -> !p.equals("removeme"))
+                .map(li.cil.oc.util.InternetFilteringRule::new)
+                .toArray(li.cil.oc.util.InternetFilteringRule[]::new);
+        internetFilteringRulesObserved = !config.getStringList("internet.filteringRules").contains("removeme");
+        httpUserAgent = config.getString("internet.httpUserAgent");
         httpTimeout = Math.max(config.getInt("internet.requestTimeout"), 0) * 1000;
         maxConnections = Math.max(config.getInt("internet.maxTcpConnections"), 0);
         internetThreads = Math.max(config.getInt("internet.threads"), 1);
@@ -641,6 +655,8 @@ public class Settings {
         maxScreenWidth = Math.max(config.getInt("misc.maxScreenWidth"), 1);
         maxScreenHeight = Math.max(config.getInt("misc.maxScreenHeight"), 1);
         inputUsername = config.getBoolean("misc.inputUsername");
+        initialNetworkPacketTTL = Math.max(config.getInt("misc.initialNetworkPacketTTL"), 5);
+        transposerFluidTransferRate = config.getInt("misc.transposerFluidTransferRate");
         maxNetworkPacketSize = Math.max(config.getInt("misc.maxNetworkPacketSize"), 0);
         // Need at least 4 for nanomachine protocol. Because I can!
         maxNetworkPacketParts = Math.max(config.getInt("misc.maxNetworkPacketParts"), 4);
@@ -745,12 +761,36 @@ public class Settings {
         disableLocaleChanging = config.getBoolean("debug.disableLocaleChanging");
 
         // >= 1.7.4
-        maxSignalQueueSize = Math.min(config.hasPath("computer.maxSignalQueueSize") ? config.getInt("computer.maxSignalQueueSize") : 256, 256);
+        maxSignalQueueSize = Math.max(config.hasPath("computer.maxSignalQueueSize") ? config.getInt("computer.maxSignalQueueSize") : 256, 256);
 
         // >= 1.7.6
         vramSizes = doubleArray(config.getDoubleList("gpu.vramSizes"), 3, "Bad number of VRAM sizes (expected 3), ignoring.", new double[]{1, 2, 3});
 
         bitbltCost = config.hasPath("gpu.bitbltCost") ? config.getDouble("gpu.bitbltCost") : 0.5;
+
+        // >= 1.8.2
+        diskActivitySoundDelay = Math.max(config.getInt("misc.diskActivitySoundDelay"), -1);
+        maxNetworkClientPacketDistance = Math.max(config.getDouble("misc.maxNetworkClientPacketDistance"), 0);
+        maxNetworkClientEffectPacketDistance = Math.max(config.getDouble("misc.maxNetworkClientEffectPacketDistance"), 0);
+        maxNetworkClientSoundPacketDistance = Math.max(config.getDouble("misc.maxNetworkClientSoundPacketDistance"), 0);
+
+        // >= 1.8.10
+        maxClipboardTextLength = config.getInt("misc.maxClipboard");
+    }
+
+    public boolean internetFilteringRulesInvalid() {
+        for (li.cil.oc.util.InternetFilteringRule rule : internetFilteringRules) {
+            if (rule.invalid()) return true;
+        }
+        return false;
+    }
+
+    public boolean internetAccessConfigured() {
+        return httpEnabled || tcpEnabled;
+    }
+
+    public boolean internetAccessAllowed() {
+        return internetAccessConfigured() && !internetFilteringRulesInvalid();
     }
 
     // ----------------------------------------------------------------------- //
@@ -863,10 +903,16 @@ public class Settings {
             settings = new Settings(config.getConfig("opencomputers"));
         } catch (Throwable e) {
             if (file.exists()) {
-                OpenComputers.log.warn("Failed loading config, using defaults.", e);
+                // Don't silently replace the user's (broken) configuration with the defaults.
+                throw new RuntimeException("Error parsing configuration file. To restore defaults, delete '" + file.getName() + "' and restart the game.", e);
             }
             settings = new Settings(defaults.getConfig("opencomputers"));
             config = defaults;
+        }
+        for (String key : forbiddenConfigLists) {
+            if (config.hasPath(configPrefix + key) && !config.getStringList(configPrefix + key).isEmpty()) {
+                throw new RuntimeException("Error parsing configuration file: removed configuration option '" + key + "' is not empty. This option should no longer be used.");
+            }
         }
         try {
             final ConfigRenderOptions renderSettings = ConfigRenderOptions.defaults().setJson(false).setOriginComments(false);
@@ -910,12 +956,17 @@ public class Settings {
             })
     );
 
+    private static final String configPrefix = "opencomputers.";
+
+    // Lists replaced by internet.filteringRules (1.8.3+); they are migrated and must stay empty.
+    private static final List<String> forbiddenConfigLists = Arrays.asList("internet.blacklist", "internet.whitelist");
+
     // Checks the config version (i.e. the version of the mod the config was
     // created by) against the current version to see if some hard changes
     // were made. If so, the new default values are copied over.
     private static Config patchConfig(Config config, Config defaults) {
         final String modVersion = OpenComputers.version();
-        final String prefix = "opencomputers.";
+        final String prefix = configPrefix;
         final String configVersion = config.hasPath(prefix + "version") ? config.getString(prefix + "version") : "0.0.0";
         Config patched = config;
         if (li.cil.oc.util.VersionUtil.compare(configVersion, modVersion) != 0) {
@@ -934,50 +985,56 @@ public class Settings {
                 }
             }
         }
+        // Configs written before the Internet Card filtering rules existed (independent of the
+        // version, which this port did not bump for these changes).
+        if (!patched.hasPath(prefix + "internet.filteringRules")) {
+            // misc.maxClipboard was not respected before, so reset it to its (new) default.
+            if (patched.hasPath(prefix + "misc.maxClipboard") && defaults.hasPath(prefix + "misc.maxClipboard")) {
+                OpenComputers.log.info("=> Updating setting '" + prefix + "misc.maxClipboard'. ");
+                patched = patched.withValue(prefix + "misc.maxClipboard", defaults.getValue(prefix + "misc.maxClipboard"));
+            }
+            patched = migrateInternetFilteringRules(patched, defaults);
+        }
         return patched;
     }
 
-    public static final Pattern cidrPattern = Pattern.compile("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})(?:/(\\d{1,2}))");
-
-    public static class AddressValidator {
-        public final String value;
-        public final BiPredicate<InetAddress, String> validator;
-
-        public AddressValidator(String value) {
-            this.value = value;
-            this.validator = createValidator(value);
+    /** Converts the internet.blacklist / internet.whitelist of pre-1.8.3 configs to internet.filteringRules. */
+    private static Config migrateInternetFilteringRules(Config config, Config defaults) {
+        final String prefix = configPrefix;
+        if (!config.hasPath(prefix + "internet.whitelist") && !config.hasPath(prefix + "internet.blacklist")) {
+            return config;
         }
+        OpenComputers.log.info("=> Migrating Internet Card filtering rules. ");
+        final Pattern cidrPattern = Pattern.compile("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})(?:/(\\d{1,2}))");
+        final List<String> httpHostWhitelist = config.hasPath(prefix + "internet.whitelist") ? config.getStringList(prefix + "internet.whitelist") : List.of();
+        final List<String> httpHostBlacklist = config.hasPath(prefix + "internet.blacklist") ? config.getStringList(prefix + "internet.blacklist") : List.of();
+        final List<String> internetFilteringRules = new java.util.ArrayList<>();
+        for (String blockedAddress : httpHostBlacklist) {
+            internetFilteringRules.add((cidrPattern.matcher(blockedAddress).find() ? "deny ip:" : "deny domain:") + blockedAddress);
+        }
+        for (String allowedAddress : httpHostWhitelist) {
+            internetFilteringRules.add((cidrPattern.matcher(allowedAddress).find() ? "allow ip:" : "allow domain:") + allowedAddress);
+        }
+        if (!httpHostWhitelist.isEmpty()) {
+            internetFilteringRules.add("deny all");
+        }
+        internetFilteringRules.addAll(defaults.getStringList(prefix + "internet.filteringRules"));
 
-        private static BiPredicate<InetAddress, String> createValidator(String value) {
-            try {
-                final Matcher matcher = cidrPattern.matcher(value);
-                if (matcher.find()) {
-                    final String address = matcher.group(1);
-                    final String prefix = matcher.group(2);
-                    final int addr = InetAddresses.coerceToInteger(InetAddresses.forString(address));
-                    final int mask = 0xFFFFFFFF << (32 - Integer.parseInt(prefix));
-                    final int min = addr & mask;
-                    final int max = min | ~mask;
-                    return (inetAddress, host) -> {
-                        if (inetAddress instanceof Inet4Address v4) {
-                            final int numeric = InetAddresses.coerceToInteger(v4);
-                            return min <= numeric && numeric <= max;
-                        }
-                        return true; // Can't check IPv6 addresses so we pass them.
-                    };
-                } else {
-                    final InetAddress address = InetAddress.getByName(value);
-                    return (inetAddress, host) -> host.equals(value) || address.equals(inetAddress);
+        Config patched = config;
+        for (String key : forbiddenConfigLists) {
+            if (patched.hasPath(prefix + key)) {
+                final ConfigValue originalValue = patched.getValue(prefix + key);
+                final List<String> comments = new java.util.ArrayList<>(List.of("No longer used! See internet.filteringRules.", "", "Previous contents:"));
+                for (String value : patched.getStringList(prefix + key)) {
+                    comments.add("\"" + value + "\"");
                 }
-            } catch (Throwable t) {
-                OpenComputers.log.warn("Invalid entry in internet blacklist / whitelist: " + value, t);
-                return (inetAddress, host) -> true;
+                final ConfigValue deprecatedValue = ConfigValueFactory.fromIterable(new java.util.ArrayList<String>(), originalValue.origin().description());
+                patched = patched.withValue(prefix + key, deprecatedValue.withOrigin(deprecatedValue.origin().withComments(comments)));
             }
         }
-
-        public boolean apply(InetAddress inetAddress, String host) {
-            return validator.test(inetAddress, host);
-        }
+        final ConfigValue rules = ConfigValueFactory.fromIterable(internetFilteringRules);
+        final ConfigValue defaultRules = defaults.getValue(prefix + "internet.filteringRules");
+        return patched.withValue(prefix + "internet.filteringRules", rules.withOrigin(rules.origin().withComments(defaultRules.origin().comments())));
     }
 
     public interface DebugCardAccess {
