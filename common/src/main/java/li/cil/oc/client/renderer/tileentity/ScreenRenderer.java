@@ -65,7 +65,9 @@ public class ScreenRenderer implements BlockEntityRenderer<Screen> {
         RenderState.checkError(getClass().getName() + ".render: entering (aka: wasntme)");
 
         this.screen = screen;
-        if (!screen.isOrigin()) {
+        // Stale block entities of unloaded chunks may still be handed to us
+        // until their render section is rebuilt.
+        if (screen.isRemoved() || !screen.isOrigin()) {
             return;
         }
 

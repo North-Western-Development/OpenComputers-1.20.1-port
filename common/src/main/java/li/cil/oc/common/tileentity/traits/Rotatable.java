@@ -32,13 +32,21 @@ public interface Rotatable extends RotationAware, li.cil.oc.api.internal.Rotatab
     // ----------------------------------------------------------------------- //
 
     default Direction pitch() {
+        final BlockState state = rotationState();
+        if (state.hasProperty(PropertyRotatable.Pitch)) return state.getValue(PropertyRotatable.Pitch);
+        return Direction.NORTH;
+    }
+
+    /**
+     * The block state to read the rotation from: the one in the world while
+     * our chunk is loaded, otherwise the one this block entity was created
+     * with (e.g. for a stale block entity the client still renders after its
+     * chunk was unloaded).
+     */
+    private BlockState rotationState() {
         final Level level = ocLevel();
-        if (level != null && level.isLoaded(ocBlockPos())) {
-            final BlockState state = level.getBlockState(ocBlockPos());
-            if (state.hasProperty(PropertyRotatable.Pitch)) return state.getValue(PropertyRotatable.Pitch);
-            return Direction.NORTH;
-        }
-        return null;
+        if (level != null && level.isLoaded(ocBlockPos())) return level.getBlockState(ocBlockPos());
+        return ocBlockState();
     }
 
     default void setPitch(Direction value) {
@@ -46,14 +54,10 @@ public interface Rotatable extends RotationAware, li.cil.oc.api.internal.Rotatab
     }
 
     default Direction yaw() {
-        final Level level = ocLevel();
-        if (level != null && level.isLoaded(ocBlockPos())) {
-            final BlockState state = level.getBlockState(ocBlockPos());
-            if (state.hasProperty(PropertyRotatable.Yaw)) return state.getValue(PropertyRotatable.Yaw);
-            if (state.hasProperty(PropertyRotatable.Facing)) return state.getValue(PropertyRotatable.Facing);
-            return Direction.SOUTH;
-        }
-        return null;
+        final BlockState state = rotationState();
+        if (state.hasProperty(PropertyRotatable.Yaw)) return state.getValue(PropertyRotatable.Yaw);
+        if (state.hasProperty(PropertyRotatable.Facing)) return state.getValue(PropertyRotatable.Facing);
+        return Direction.SOUTH;
     }
 
     default void setYaw(Direction value) {
