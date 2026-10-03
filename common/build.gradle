@@ -18,6 +18,9 @@ dependencies {
     // Optional integrations whose APIs are loader-independent. Fabric variants are used for
     // compiling common code (the Architectury convention); see integration/** for usage.
     compileOnly "cc.tweaked:cc-tweaked-1.20.1-common-api:${rootProject.cct_version}"
+    // CC: Tweaked's (Minecraft-independent) core, for invoking @LuaFunction peripheral methods
+    // (dan200.computercraft.core.methods.*); bundled in the forge/fabric jars at runtime.
+    compileOnly("cc.tweaked:cc-tweaked-1.20.1-core:${rootProject.cct_version}") { transitive = false }
     compileOnly "mezz.jei:jei-1.20.1-common-api:${rootProject.jei_version}"
     modCompileOnly("appeng:appliedenergistics2-fabric:${rootProject.ae2_version}") { transitive = false }
     modCompileOnly("maven.modrinth:jade:${rootProject.jade_version}+fabric") { transitive = false }

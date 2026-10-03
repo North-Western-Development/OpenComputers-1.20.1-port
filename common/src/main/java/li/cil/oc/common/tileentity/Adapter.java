@@ -152,7 +152,7 @@ public class Adapter extends TileEntity implements Environment, ComponentInvento
                 if (existing.isPresent()) {
                     final ManagedEnvironment oldEnvironment = existing.get().getLeft();
                     final DriverBlock driver = existing.get().getRight();
-                    if (newDriver != driver) {
+                    if (!newDriver.equals(driver)) { // Scala != is equals (CompoundBlockDriver is rebuilt per lookup)
                         // This is... odd. Maybe moved by some other mod? First, clean up.
                         blocks[index] = Optional.empty();
                         updatingBlocks.remove(oldEnvironment);

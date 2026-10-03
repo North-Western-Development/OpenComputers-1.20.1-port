@@ -10,7 +10,11 @@ import li.cil.oc.api.prefab.AbstractValue;
 
 import java.util.Map;
 
+// TODO(port): only IDynamicLuaObject results are converted; objects exposing @LuaFunction methods
+// (e.g. CC file handles) would need CC's internal Lua method supplier.
 public final class ConverterLuaObject implements Converter {
+    public static final ConverterLuaObject INSTANCE = new ConverterLuaObject();
+
     @Override
     public void convert(final Object value, final Map<Object, Object> output) {
         if (value instanceof IDynamicLuaObject) {
@@ -46,7 +50,7 @@ public final class ConverterLuaObject implements Converter {
             if (value != null) {
                 final int index = helper.methodIndex(method);
                 final Object[] argArray = CallableHelper.convertArguments(args);
-                return value.callMethod(DriverPeripheral.Environment.UnsupportedLuaContext.instance(), index, new ObjectArguments(argArray)).getResult();
+                return CallableHelper.unwrapResult(value.callMethod(new CallableHelper.LuaContext(context), index, new ObjectArguments(argArray)));
             }
             return new Object[]{null, "ComputerCraft userdata cannot be persisted"};
         }
