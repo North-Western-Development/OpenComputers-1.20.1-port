@@ -120,8 +120,10 @@ public class PrintData extends ItemData {
         nbt.putBoolean(IsButtonModeTag, isButtonMode);
         nbt.putInt(RedstoneLevelTag, redstoneLevel);
         nbt.putBoolean(PressurePlateTag, pressurePlate);
-        ExtendedNBT.setNewTagList(nbt, StateOffTag, stateOff.stream().map(PrintData::shapeToNBT).toList());
-        ExtendedNBT.setNewTagList(nbt, StateOnTag, stateOn.stream().map(PrintData::shapeToNBT).toList());
+        // Shapes are kept in (unordered) sets, but NBT list comparison considers the order: sort them,
+        // so identical prints get identical NBT and stack (KosmosPrime fork).
+        ExtendedNBT.setNewTagList(nbt, StateOffTag, stateOff.stream().sorted(ShapeOrder).map(PrintData::shapeToNBT).toList());
+        ExtendedNBT.setNewTagList(nbt, StateOnTag, stateOn.stream().sorted(ShapeOrder).map(PrintData::shapeToNBT).toList());
         nbt.putBoolean(IsBeaconBaseTag, isBeaconBase);
         nbt.putByte(LightLevelTag, (byte) lightLevel);
         nbt.putBoolean(NoclipOffTag, noclipOff);
@@ -248,6 +250,16 @@ public class PrintData extends ItemData {
         final Optional<Integer> tint = nbt.contains("tint") ? Optional.of(nbt.getInt("tint")) : Optional.empty();
         return new Shape(aabb, texture, tint);
     }
+
+    private static final java.util.Comparator<Shape> ShapeOrder = java.util.Comparator
+            .<Shape>comparingDouble(shape -> shape.bounds.minX)
+            .thenComparingDouble(shape -> shape.bounds.minY)
+            .thenComparingDouble(shape -> shape.bounds.minZ)
+            .thenComparingDouble(shape -> shape.bounds.maxX)
+            .thenComparingDouble(shape -> shape.bounds.maxY)
+            .thenComparingDouble(shape -> shape.bounds.maxZ)
+            .thenComparing(shape -> shape.tint.orElse(null), java.util.Comparator.nullsFirst(java.util.Comparator.<Integer>naturalOrder()))
+            .thenComparing(shape -> shape.texture, java.util.Comparator.nullsFirst(java.util.Comparator.<String>naturalOrder()));
 
     public static CompoundTag shapeToNBT(Shape shape) {
         final CompoundTag nbt = new CompoundTag();
