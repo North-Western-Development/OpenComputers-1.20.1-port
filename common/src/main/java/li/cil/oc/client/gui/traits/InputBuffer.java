@@ -92,7 +92,8 @@ public interface InputBuffer extends DisplayBuffer {
         final State s = inputBufferState();
         if (s.hasQueuedKey) {
             s.hasQueuedKey = false;
-            if (!s.pressedKeys.containsKey(s.queuedKey)) {
+            // Key repeats are sent as key_down again, except for modifier keys.
+            if (!s.pressedKeys.containsKey(s.queuedKey) || !ignoreRepeat(s.queuedKey)) {
                 final int lwjglCode = GLFWTranslator.glfwToLWJGL(s.queuedKey);
                 if (lwjglCode > 0) {
                     s.pressedKeys.put(s.queuedKey, s.queuedChar);
@@ -152,6 +153,18 @@ public interface InputBuffer extends DisplayBuffer {
             return true;
         }
         return false;
+    }
+
+    private static boolean ignoreRepeat(int keyCode) {
+        return keyCode == GLFW.GLFW_KEY_LEFT_CONTROL ||
+                keyCode == GLFW.GLFW_KEY_RIGHT_CONTROL ||
+                keyCode == GLFW.GLFW_KEY_MENU ||
+                keyCode == GLFW.GLFW_KEY_LEFT_ALT ||
+                keyCode == GLFW.GLFW_KEY_RIGHT_ALT ||
+                keyCode == GLFW.GLFW_KEY_LEFT_SHIFT ||
+                keyCode == GLFW.GLFW_KEY_RIGHT_SHIFT ||
+                keyCode == GLFW.GLFW_KEY_LEFT_SUPER ||
+                keyCode == GLFW.GLFW_KEY_RIGHT_SUPER;
     }
 
     /** Input is not captured while an item list mod's (JEI) search field in a container screen has focus. */
