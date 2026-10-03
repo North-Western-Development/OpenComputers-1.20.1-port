@@ -79,16 +79,21 @@ public class Rack extends TileEntity implements PowerAcceptor, Hub, PowerBalance
         }
     }
 
+    /**
+     * @param connectableIndex -1 for the mountable's own node, otherwise the index of the connectable
+     *                         (nodeMapping holds the own node at index 0, connectables after it, #3635).
+     */
     public void connect(int slot, int connectableIndex, Optional<Direction> side) {
+        if (slot < 0 || slot >= nodeMapping.length || connectableIndex < -1 || connectableIndex >= snifferNodes[slot].length) return;
         final Optional<Direction> newSide = side.isPresent() && side.get() != Direction.SOUTH ? side : Optional.empty();
 
-        final Optional<Direction> oldSide = nodeMapping[slot][connectableIndex];
+        final Optional<Direction> oldSide = nodeMapping[slot][connectableIndex + 1];
         if (oldSide.equals(newSide)) return;
 
         // Cut connection / remove sniffer node.
         final RackMountable mountable = getMountable(slot);
         if (mountable != null && oldSide.isPresent()) {
-            if (connectableIndex == 0) {
+            if (connectableIndex == -1) {
                 final Node node = mountable.node();
                 final Node plug = sidedNode(toGlobal(oldSide.get()));
                 if (node != null && plug != null) {
@@ -99,17 +104,17 @@ public class Rack extends TileEntity implements PowerAcceptor, Hub, PowerBalance
             }
         }
 
-        nodeMapping[slot][connectableIndex] = newSide;
+        nodeMapping[slot][connectableIndex + 1] = newSide;
 
         // Establish connection / add sniffer node.
         if (mountable != null && newSide.isPresent()) {
-            if (connectableIndex == 0) {
+            if (connectableIndex == -1) {
                 final Node node = mountable.node();
                 final Node plug = sidedNode(toGlobal(newSide.get()));
                 if (node != null && plug != null) {
                     node.connect(plug);
                 }
-            } else if (connectableIndex < mountable.getConnectableCount()) {
+            } else if (connectableIndex >= 0 && connectableIndex < mountable.getConnectableCount()) {
                 final RackBusConnectable connectable = mountable.getConnectableAt(connectableIndex);
                 if (connectable != null && connectable.node() != null) {
                     if (connectable.node().network() == null) {
@@ -133,7 +138,7 @@ public class Rack extends TileEntity implements PowerAcceptor, Hub, PowerBalance
                 }
             } // else: Not connected to this side.
             for (int connectableIndex = 0; connectableIndex < 3; connectableIndex++) {
-                if (mapping[connectableIndex].isPresent() && toGlobal(mapping[connectableIndex].get()) == plugSide) {
+                if (mapping[connectableIndex + 1].isPresent() && toGlobal(mapping[connectableIndex + 1].get()) == plugSide) {
                     final RackMountable mountable = getMountable(slot);
                     if (mountable != null && connectableIndex < mountable.getConnectableCount()) {
                         final RackBusConnectable connectable = mountable.getConnectableAt(connectableIndex);

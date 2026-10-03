@@ -105,7 +105,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         final boolean setPower = p.readBoolean();
         if (p.player.containerMenu instanceof li.cil.oc.common.container.Server server && server.containerId == containerId) {
             if (server.otherInventory instanceof li.cil.oc.server.component.Server comp && p.player instanceof ServerPlayer player
-                    && comp.rack.getMountable(index) == comp) {
+                    && comp.rack != null && comp.rack.getMountable(index) == comp) {
                 trySetComputerPower(comp.machine(), setPower, player);
             }
         }
@@ -242,7 +242,8 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         final Optional<Direction> side = p.readDirection();
         if (p.player.containerMenu instanceof li.cil.oc.common.container.Rack rack && rack.containerId == containerId) {
             if (rack.otherInventory instanceof Rack t && p.player instanceof ServerPlayer player && t.stillValid(player)) {
-                t.connect(mountableIndex, nodeIndex, side);
+                // nodeIndex 0 is the mountable's own node, Rack.connect wants the connectable index.
+                t.connect(mountableIndex, nodeIndex - 1, side);
             }
         }
     }
