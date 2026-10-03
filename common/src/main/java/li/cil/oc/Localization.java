@@ -268,6 +268,10 @@ public final class Localization {
         public static String RelayModeTooltip() {
             return localizeImmediately("gui.Rack.RelayModeTooltip");
         }
+
+        public static String OrientationTooltip() {
+            return localizeImmediately("gui.Rack.OrientationTooltip");
+        }
     }
 
     public static final class Switch {

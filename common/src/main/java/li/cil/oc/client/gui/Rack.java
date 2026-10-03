@@ -265,6 +265,11 @@ public class Rack extends DynamicGuiContainer<li.cil.oc.common.container.Rack> {
                     x, y, 0x404040, false);
         }
 
+        if (mouseX >= leftPos + 122 && mouseY >= topPos + 20 && mouseX < leftPos + 158 && mouseY < topPos + 20 + 5 * 11) {
+            final List<String> tooltip = new ArrayList<>(Localization.Rack.OrientationTooltip().lines().toList());
+            copiedDrawHoveringText(graphics, tooltip, mouseX - leftPos, mouseY - topPos, font);
+        }
+
         if (relayButton.isMouseOver(mouseX, mouseY)) {
             final List<String> tooltip = new ArrayList<>(Localization.Rack.RelayModeTooltip().lines().toList());
             copiedDrawHoveringText(graphics, tooltip, mouseX - leftPos, mouseY - topPos, font);
