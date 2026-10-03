@@ -33,7 +33,7 @@ public class OSAPI extends NativeLuaAPI {
                             : "%d/%m/%y %H:%M:%S";
             final double time =
                     lua.getTop() > 1 && lua.isNumber(2) ? lua.toNumber(2)
-                            : (double) ((machine.worldTime() + 6000) * 60 * 60 / 1000);
+                            : ((machine.worldTime() + 6000) * 60 * 60) / 1000.0;
 
             final GameTimeFormatter.DateTime dt = GameTimeFormatter.parse(time);
 
@@ -69,10 +69,11 @@ public class OSAPI extends NativeLuaAPI {
             if (lua.isNoneOrNil(1)) {
                 // Game time is in ticks, so that each day has 24000 ticks, meaning
                 // one hour is game time divided by one thousand. Also, Minecraft
-                // starts days at 6 o'clock, versus the 1 o'clock of timestamps so we
-                // add those five hours. Thus:
-                // timestamp = (time + 5000) * 60[kh] * 60[km] / 1000[s]
-                lua.pushNumber((double) ((machine.worldTime() + 5000) * 60 * 60 / 1000));
+                // starts days at 6 o'clock; os.time() reflects UTC while os.date()
+                // reflects the local time zone, but Minecraft has no concept of
+                // time zones, so this detail can be ignored (#3621). Thus:
+                // timestamp = (time + 6000) * 60[kh] * 60[km] / 1000[s]
+                lua.pushNumber(((machine.worldTime() + 6000) * 60 * 60) / 1000.0);
             } else {
                 lua.checkType(1, LuaType.TABLE);
                 lua.setTop(1);
