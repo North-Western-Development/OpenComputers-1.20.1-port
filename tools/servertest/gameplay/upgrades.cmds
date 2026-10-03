@@ -1,0 +1,13 @@
+# Robot upgrades (upgrades.lua): a creative robot at 10,0,30 facing south with inventory
+# controller, crafting, generator, piston, tank and experience upgrades; chest south of it with
+# oak logs and coal, dirt east of it (pushed one block east by the piston upgrade).
+forceload add 0 16 16 48
+setblock 10 -60 31 minecraft:chest{Items:[{Slot:0b,id:"minecraft:oak_log",Count:4b},{Slot:1b,id:"minecraft:coal",Count:8b}]}
+setblock 11 -60 30 minecraft:dirt
+oc_debug place 10 -60 30 opencomputers:robot{"oc:tier":3,"oc:robotEnergy":50000,"oc:components":[{id:"opencomputers:cpu3",Count:1b},{id:"opencomputers:ram6",Count:1b},{id:"opencomputers:inventoryupgrade",Count:1b},{id:"opencomputers:inventorycontrollerupgrade",Count:1b},{id:"opencomputers:craftingupgrade",Count:1b},{id:"opencomputers:generatorupgrade",Count:1b},{id:"opencomputers:pistonupgrade",Count:1b},{id:"opencomputers:tankupgrade",Count:1b},{id:"opencomputers:experienceupgrade",Count:1b},{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(upgrades.lua)}]}
+WAIT 3
+oc_debug start 10 -60 30
+WAIT 10
+oc_debug status 10 -60 30
+execute if block 12 -60 30 minecraft:dirt run say PISTON-PUSHED
+data get block 10 -60 31 Items
