@@ -135,6 +135,8 @@ public final class SaveHandler {
 
     public static void scheduleSave(BlockPosition position, CompoundTag nbt, String name, byte[] data) {
         final Level world = position.world.get();
+        // Try to exclude wrapped/client-side worlds.
+        if (!(world instanceof net.minecraft.server.level.ServerLevel)) return;
         final ResourceLocation dimension = world.dimension().location();
         final ChunkPos chunk = new ChunkPos(position.x >> 4, position.z >> 4);
 
