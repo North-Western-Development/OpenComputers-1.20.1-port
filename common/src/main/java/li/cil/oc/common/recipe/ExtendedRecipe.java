@@ -95,7 +95,7 @@ public final class ExtendedRecipe {
                     final ItemInfo info = li.cil.oc.api.Items.get(stack);
                     if (info != null && (info == floppy || "lootDisk".equals(info.name())) && stack.hasTag()) {
                         final CompoundTag oldData = stack.getTag();
-                        if (oldData.contains(colorKey) && oldData.getInt(colorKey) != DyeColor.LIGHT_GRAY.getId()) {
+                        if (oldData.contains(colorKey) && oldData.getInt(colorKey) != DyeColor.GRAY.getId()) {
                             nbt.put(colorKey, oldData.get(colorKey).copy());
                         }
                     }

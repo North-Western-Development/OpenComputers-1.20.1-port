@@ -1,5 +1,6 @@
 package li.cil.oc.server;
 
+import li.cil.oc.Settings;
 import li.cil.oc.Localization;
 import li.cil.oc.api.machine.Machine;
 import li.cil.oc.api.network.ManagedEnvironment;
@@ -104,7 +105,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         final boolean setPower = p.readBoolean();
         if (p.player.containerMenu instanceof li.cil.oc.common.container.Server server && server.containerId == containerId) {
             if (server.otherInventory instanceof li.cil.oc.server.component.Server comp && p.player instanceof ServerPlayer player
-                    && comp.rack.getMountable(index) == comp) {
+                    && comp.rack != null && comp.rack.getMountable(index) == comp) {
                 trySetComputerPower(comp.machine(), setPower, player);
             }
         }
@@ -188,6 +189,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
     public void onClipboard(PacketParser p) {
         final String address = p.readUTF();
         final String copy = p.readUTF();
+        if (copy.length() > Settings.get().maxClipboardTextLength) return;
         textBuffer(p.player, address).ifPresent(buffer -> buffer.clipboard(copy, p.player));
     }
 
@@ -240,7 +242,8 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         final Optional<Direction> side = p.readDirection();
         if (p.player.containerMenu instanceof li.cil.oc.common.container.Rack rack && rack.containerId == containerId) {
             if (rack.otherInventory instanceof Rack t && p.player instanceof ServerPlayer player && t.stillValid(player)) {
-                t.connect(mountableIndex, nodeIndex, side);
+                // nodeIndex 0 is the mountable's own node, Rack.connect wants the connectable index.
+                t.connect(mountableIndex, nodeIndex - 1, side);
             }
         }
     }

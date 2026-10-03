@@ -223,14 +223,14 @@ public class TextBuffer extends AbstractManagedEnvironment implements TextBuffer
         return result(isDisplaying);
     }
 
-    @Callback(doc = "function():boolean -- Turns the screen on. Returns true if it was off.")
+    @Callback(doc = "function():boolean -- Turns the screen on. Returns whether the state changed, and whether it is now on.")
     public Object[] turnOn(Context computer, Arguments args) {
         final boolean oldPowerState = isDisplaying;
         setPowerState(true);
         return result(isDisplaying != oldPowerState, isDisplaying);
     }
 
-    @Callback(doc = "function():boolean -- Turns off the screen. Returns true if it was on.")
+    @Callback(doc = "function():boolean -- Turns off the screen. Returns whether the state changed, and whether it is now on.")
     public Object[] turnOff(Context computer, Arguments args) {
         final boolean oldPowerState = isDisplaying;
         setPowerState(false);

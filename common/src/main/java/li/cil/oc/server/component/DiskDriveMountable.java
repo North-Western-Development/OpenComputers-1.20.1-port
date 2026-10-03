@@ -132,6 +132,13 @@ public class DiskDriveMountable extends AbstractManagedEnvironment implements It
         } else return result(false);
     }
 
+    @Callback(doc = "function(): string -- Return the internal floppy disk address")
+    public Object[] media(Context context, Arguments args) {
+        final Optional<Node> fs = filesystemNode();
+        if (fs.isEmpty()) return result(null, "drive is empty");
+        else return result(fs.get().address());
+    }
+
     // ----------------------------------------------------------------------- //
     // Analyzable
 

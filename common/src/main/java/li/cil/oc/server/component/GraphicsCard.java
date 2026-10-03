@@ -316,7 +316,7 @@ public class GraphicsCard extends AbstractManagedEnvironment implements DeviceIn
                         return result(true);
                     } else {
                         // at least one of the two buffers is a gpu buffer
-                        GpuTextBuffer.bitblt(dst, col, row, w, h, src, fromRow, fromCol);
+                        GpuTextBuffer.bitblt(dst, col, row, w, h, src, fromCol, fromRow);
                         return result(true);
                     }
                 } else return result(null, "not enough energy");

@@ -12,20 +12,23 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.WeakHashMap;
 
 public final class Sound {
     private Sound() {
     }
 
-    private static final Map<BlockEntity, PseudoLoopingStream> sources = new HashMap<>();
+    // Weak references, so sounds of block entities that are gone (e.g. after a dimension change,
+    // for which there is no unload event) don't keep them and their level alive.
+    private static final Map<BlockEntity, PseudoLoopingStream> sources = new WeakHashMap<>();
 
     private static final PriorityQueue<Command> commandQueue = new PriorityQueue<>(Comparator.comparingLong(c -> c.when));
 
@@ -64,8 +67,10 @@ public final class Sound {
         if (!commandQueue.isEmpty()) {
             synchronized (commandQueue) {
                 while (!commandQueue.isEmpty() && commandQueue.peek().when < System.currentTimeMillis()) {
+                    final Command command = commandQueue.poll();
+                    if (command.tileEntity.get() == null) continue;
                     try {
-                        commandQueue.poll().apply();
+                        command.apply();
                     } catch (Throwable t) {
                         OpenComputers.log.warn("Error processing sound command.", t);
                     }
@@ -131,11 +136,11 @@ public final class Sound {
 
     private abstract static class Command {
         final long when;
-        final BlockEntity tileEntity;
+        final WeakReference<BlockEntity> tileEntity;
 
         Command(long when, BlockEntity tileEntity) {
             this.when = when;
-            this.tileEntity = tileEntity;
+            this.tileEntity = new WeakReference<>(tileEntity);
         }
 
         abstract void apply();
@@ -153,13 +158,15 @@ public final class Sound {
 
         @Override
         void apply() {
+            final BlockEntity te = tileEntity.get();
+            if (te == null) return; // Race condition, ignore.
             synchronized (sources) {
-                final PseudoLoopingStream current = sources.get(tileEntity);
+                final PseudoLoopingStream current = sources.get(te);
                 if (current == null || !current.getLocation().getPath().equals(name)) {
                     if (current != null) current.halt();
                     // TODO(port): like on 1.16.5 the stream is only tracked, never handed to the
                     //  SoundManager (Minecraft.getInstance().getSoundManager().play(...)).
-                    sources.put(tileEntity, new PseudoLoopingStream(tileEntity, volume, name));
+                    sources.put(te, new PseudoLoopingStream(tileEntity, volume, name));
                 }
             }
         }
@@ -172,18 +179,21 @@ public final class Sound {
 
         @Override
         void apply() {
+            final BlockEntity te = tileEntity.get();
+            if (te == null) return; // Race condition, ignore.
             synchronized (sources) {
-                final PseudoLoopingStream sound = sources.remove(tileEntity);
+                final PseudoLoopingStream sound = sources.remove(te);
                 if (sound != null) sound.halt();
             }
             synchronized (commandQueue) {
-                // Remove all other commands for this tile entity from the queue. This
-                // is inefficient, but we generally don't expect the command queue to
-                // be very long, so this should be OK.
+                // Remove all other commands for this tile entity (and those of block entities
+                // that are gone) from the queue. This is inefficient, but we generally don't
+                // expect the command queue to be very long, so this should be OK.
                 final List<Command> remaining = new ArrayList<>(commandQueue);
                 commandQueue.clear();
                 for (Command command : remaining) {
-                    if (command.tileEntity != tileEntity) commandQueue.add(command);
+                    final BlockEntity other = command.tileEntity.get();
+                    if (other != null && other != te) commandQueue.add(command);
                 }
             }
         }
@@ -196,33 +206,38 @@ public final class Sound {
 
         @Override
         void apply() {
+            final BlockEntity te = tileEntity.get();
+            if (te == null) return; // Race condition, ignore.
             synchronized (sources) {
-                final PseudoLoopingStream sound = sources.get(tileEntity);
+                final PseudoLoopingStream sound = sources.get(te);
                 if (sound != null) sound.updatePosition();
             }
         }
     }
 
     private static final class PseudoLoopingStream extends AbstractTickableSoundInstance {
-        final BlockEntity tileEntity;
+        final WeakReference<BlockEntity> tileEntity;
         final float subVolume;
 
-        PseudoLoopingStream(BlockEntity tileEntity, float subVolume, String name) {
+        PseudoLoopingStream(WeakReference<BlockEntity> tileEntity, float subVolume, String name) {
             super(SoundEvent.createVariableRangeEvent(new ResourceLocation(OpenComputers.ID, name)), SoundSource.BLOCKS, RandomSource.create());
             this.tileEntity = tileEntity;
             this.subVolume = subVolume;
             this.volume = subVolume * Settings.get().soundVolume;
-            this.relative = tileEntity != null;
+            this.relative = tileEntity.get() != null;
             this.looping = true;
             updatePosition();
         }
 
         void updatePosition() {
-            if (tileEntity != null) {
-                final BlockPos pos = tileEntity.getBlockPos();
+            final BlockEntity te = tileEntity.get();
+            if (te != null) {
+                final BlockPos pos = te.getBlockPos();
                 x = pos.getX() + 0.5;
                 y = pos.getY() + 0.5;
                 z = pos.getZ() + 0.5;
+            } else {
+                halt();
             }
         }
 

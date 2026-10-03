@@ -169,7 +169,7 @@ public class Relay extends TileEntity implements Hub, ComponentInventory, PowerA
 
     @Callback(doc = "function(strength:number):number -- Set the signal strength (range) used when relaying messages.")
     public synchronized Object[] setStrength(Context context, Arguments args) {
-        strength = Math.max(args.checkDouble(0), Math.min(0, maxWirelessRange()));
+        strength = Math.max(0, Math.min(args.checkDouble(0), maxWirelessRange()));
         return result(strength);
     }
 

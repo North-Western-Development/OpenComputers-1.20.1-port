@@ -26,7 +26,7 @@ public class ChargerRenderer implements BlockEntityRenderer<Charger> {
             stack.translate(0.5, 0.5, 0.5);
             RenderUtil.rotateYaw(stack, charger.yaw());
             stack.translate(-0.5f, 0.5f, 0.5f);
-            stack.scale(1, -1, 1);
+            RenderState.mirrorScale(stack, 1, -1, 1);
 
             final VertexConsumer r = buffer.getBuffer(RenderTypes.BLOCK_OVERLAY);
             final Matrix4f pose = stack.last().pose();

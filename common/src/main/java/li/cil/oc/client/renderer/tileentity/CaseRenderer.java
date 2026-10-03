@@ -25,7 +25,7 @@ public class CaseRenderer implements BlockEntityRenderer<Case> {
         stack.translate(0.5, 0.5, 0.5);
         RenderUtil.rotateYaw(stack, computer.yaw());
         stack.translate(-0.5, 0.5, 0.505);
-        stack.scale(1, -1, 1);
+        RenderState.mirrorScale(stack, 1, -1, 1);
 
         if (computer.isRunning()) {
             RenderUtil.renderFrontOverlay(stack, Textures.Block.CaseFrontOn, buffer.getBuffer(RenderTypes.BLOCK_OVERLAY));

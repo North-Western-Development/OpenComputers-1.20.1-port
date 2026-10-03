@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 import java.util.function.Predicate;
@@ -172,21 +173,35 @@ public final class InventoryUtils {
      * also be achieved by a check in the consumer, but it saves some unnecessary
      * code repetition this way.
      */
-    public static int extractFromInventorySlot(Consumer<ItemStack> consumer, ItemHandler inventory, int slot, int limit) {
+    public static int extractFromInventorySlot(BiConsumer<ItemStack, Boolean> consumer, ItemHandler inventory, int slot, int limit) {
         final ItemStack stack = inventory.getStackInSlot(slot);
         if (stack.isEmpty() || limit <= 0 || stack.getCount() <= 0)
             return 0;
         int amount = Math.min(Math.min(stack.getMaxStackSize(), stack.getCount()), limit);
         final ItemStack simExtracted = inventory.extractItem(slot, amount, true);
         if (simExtracted != null) {
+            // First let the consumer simulate taking the items, then extract what it would take and
+            // hand it the items that were actually extracted. The consumer used to get the simulated
+            // stack and insert it for real, duplicating items if the real extraction differed.
             final ItemStack extracted = simExtracted.copy();
             amount = extracted.getCount();
-            consumer.accept(extracted);
+            consumer.accept(extracted, true);
             final int count = Math.max(amount - extracted.getCount(), 0);
             if (count > 0) {
                 final ItemStack realExtracted = inventory.extractItem(slot, count, false);
                 if (realExtracted == null || realExtracted.getCount() != count) {
-                    OpenComputers.log.warn("Items may have been duplicated during inventory extraction. This means an IItemHandler instance acted differently between simulated and non-simulated extraction. Offender: " + inventory);
+                    OpenComputers.log.warn("An IItemHandler instance acted differently between simulated and non-simulated extraction. Offender: " + inventory);
+                }
+                if (realExtracted != null && !realExtracted.isEmpty()) {
+                    consumer.accept(realExtracted, false);
+                    if (!realExtracted.isEmpty()) {
+                        // The consumer took less than it said it would; put the rest back.
+                        final ItemStack leftover = inventory.insertItem(slot, realExtracted, false);
+                        if (leftover != null && !leftover.isEmpty()) {
+                            OpenComputers.log.warn("Could not put back " + leftover + " after inventory extraction. Offender: " + inventory);
+                        }
+                        return Math.max(count - realExtracted.getCount(), 0);
+                    }
                 }
             }
             return count;
@@ -194,11 +209,11 @@ public final class InventoryUtils {
         return 0;
     }
 
-    public static int extractFromInventorySlot(Consumer<ItemStack> consumer, ItemHandler inventory, int slot) {
+    public static int extractFromInventorySlot(BiConsumer<ItemStack, Boolean> consumer, ItemHandler inventory, int slot) {
         return extractFromInventorySlot(consumer, inventory, slot, 64);
     }
 
-    public static int extractFromInventorySlot(Consumer<ItemStack> consumer, Container inventory, @Nullable Direction side, int slot, int limit) {
+    public static int extractFromInventorySlot(BiConsumer<ItemStack, Boolean> consumer, Container inventory, @Nullable Direction side, int slot, int limit) {
         return extractFromInventorySlot(consumer, asItemHandler(inventory, side), slot, limit);
     }
 
@@ -269,7 +284,7 @@ public final class InventoryUtils {
      * <p/>
      * This returns <tt>true</tt> if at least one item was extracted.
      */
-    public static int extractAnyFromInventory(Consumer<ItemStack> consumer, ItemHandler inventory, int limit) {
+    public static int extractAnyFromInventory(BiConsumer<ItemStack, Boolean> consumer, ItemHandler inventory, int limit) {
         for (int slot = 0; slot < inventory.getSlots(); slot++) {
             final int extracted = extractFromInventorySlot(consumer, inventory, slot, limit);
             if (extracted > 0)
@@ -278,11 +293,11 @@ public final class InventoryUtils {
         return 0;
     }
 
-    public static int extractAnyFromInventory(Consumer<ItemStack> consumer, ItemHandler inventory) {
+    public static int extractAnyFromInventory(BiConsumer<ItemStack, Boolean> consumer, ItemHandler inventory) {
         return extractAnyFromInventory(consumer, inventory, 64);
     }
 
-    public static int extractAnyFromInventory(Consumer<ItemStack> consumer, Container inventory, @Nullable Direction side, int limit) {
+    public static int extractAnyFromInventory(BiConsumer<ItemStack, Boolean> consumer, Container inventory, @Nullable Direction side, int limit) {
         return extractAnyFromInventory(consumer, asItemHandler(inventory, side), limit);
     }
 
@@ -300,11 +315,15 @@ public final class InventoryUtils {
         final ItemStack remaining = stack.copy();
         for (int slot = 0; slot < inventory.getSlots(); slot++) {
             if (remaining.getCount() <= 0) continue;
-            extractFromInventorySlot(stackInInv -> {
+            extractFromInventorySlot((stackInInv, simulateTake) -> {
                 if (stackInInv != null && remaining.getItem() == stackInInv.getItem() && (!exact || haveSameItemType(remaining, stackInInv, true))) {
                     final int transferred = Math.min(stackInInv.getCount(), remaining.getCount());
-                    remaining.shrink(transferred);
-                    if (!simulate) {
+                    if (simulateTake) {
+                        // When only simulating, nothing gets extracted: count the items here.
+                        if (simulate) remaining.shrink(transferred);
+                        else stackInInv.shrink(transferred);
+                    } else {
+                        remaining.shrink(transferred);
                         stackInInv.shrink(transferred);
                     }
                 }
@@ -350,7 +369,7 @@ public final class InventoryUtils {
      * in the world.
      */
     @Nullable
-    public static IntSupplier getExtractorFromInventoryAt(Consumer<ItemStack> consumer, BlockPosition position, @Nullable Direction side, int limit) {
+    public static IntSupplier getExtractorFromInventoryAt(BiConsumer<ItemStack, Boolean> consumer, BlockPosition position, @Nullable Direction side, int limit) {
         final Optional<ItemHandler> inventory = inventoryAt(position, side);
         if (inventory.isPresent()) {
             final ItemHandler inv = inventory.get();
@@ -360,7 +379,7 @@ public final class InventoryUtils {
     }
 
     @Nullable
-    public static IntSupplier getExtractorFromInventoryAt(Consumer<ItemStack> consumer, BlockPosition position, @Nullable Direction side) {
+    public static IntSupplier getExtractorFromInventoryAt(BiConsumer<ItemStack, Boolean> consumer, BlockPosition position, @Nullable Direction side) {
         return getExtractorFromInventoryAt(consumer, position, side, 64);
     }
 
@@ -379,7 +398,7 @@ public final class InventoryUtils {
      */
     public static int transferBetweenInventories(ItemHandler source, ItemHandler sink, int limit) {
         return extractAnyFromInventory(
-                stack -> insertIntoInventory(stack, sink, limit), source, limit);
+                (stack, simulate) -> insertIntoInventory(stack, sink, limit, simulate), source, limit);
     }
 
     public static int transferBetweenInventories(ItemHandler source, ItemHandler sink) {
@@ -397,10 +416,10 @@ public final class InventoryUtils {
         if (sinkSlot.isPresent()) {
             final int explicitSinkSlot = sinkSlot.get();
             return extractFromInventorySlot(
-                    stack -> insertIntoInventorySlot(stack, sink, explicitSinkSlot, limit), source, sourceSlot, limit);
+                    (stack, simulate) -> insertIntoInventorySlot(stack, sink, explicitSinkSlot, limit, simulate), source, sourceSlot, limit);
         } else {
             return extractFromInventorySlot(
-                    stack -> insertIntoInventory(stack, sink, limit), source, sourceSlot, limit);
+                    (stack, simulate) -> insertIntoInventory(stack, sink, limit, simulate), source, sourceSlot, limit);
         }
     }
 

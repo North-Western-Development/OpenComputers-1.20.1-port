@@ -80,12 +80,40 @@ public class ArgumentsImpl implements Arguments {
         return checkDouble(index);
     }
 
+    // Somewhat mimics Lua 5.3+ number conversion (KosmosPrime fork): NaN has no integer representation,
+    // out of range values saturate (instead of wrapping for longs). Rejecting non-integral or
+    // infinite values would be more correct, but breaks existing code (like file:read(math.huge)).
     @Override
     public int checkInteger(int index) {
-        checkIndex(index, "number");
+        checkIndex(index, "integer");
         final Object value = args.get(index);
+        if (value instanceof Double || value instanceof Float) {
+            final double d = ((Number) value).doubleValue();
+            if (Double.isNaN(d)) throw intError(index, value);
+            return (int) d; // Saturating.
+        }
+        if (value instanceof Long l) return (int) Math.max(Integer.MIN_VALUE, Math.min(Integer.MAX_VALUE, l));
         if (value instanceof Number n) return n.intValue();
-        throw typeError(index, value, "number");
+        throw typeError(index, value, "integer");
+    }
+
+    @Override
+    public long checkLong(int index) {
+        checkIndex(index, "integer");
+        final Object value = args.get(index);
+        if (value instanceof Double || value instanceof Float) {
+            final double d = ((Number) value).doubleValue();
+            if (Double.isNaN(d)) throw intError(index, value);
+            return (long) d; // Saturating.
+        }
+        if (value instanceof Number n) return n.longValue();
+        throw typeError(index, value, "integer");
+    }
+
+    @Override
+    public long optLong(int index, long def) {
+        if (!isDefined(index)) return def;
+        return checkLong(index);
     }
 
     @Override
@@ -167,15 +195,20 @@ public class ArgumentsImpl implements Arguments {
     @Override
     public boolean isDouble(int index) {
         if (index < 0 || index >= count()) return false;
-        final Object value = args.get(index);
-        return value instanceof Float || value instanceof Double;
+        return args.get(index) instanceof Number;
     }
 
     @Override
     public boolean isInteger(int index) {
         if (index < 0 || index >= count()) return false;
         final Object value = args.get(index);
-        return value instanceof Byte || value instanceof Short || value instanceof Integer || value instanceof Long || value instanceof Double;
+        if (value instanceof Double || value instanceof Float) return !Double.isNaN(((Number) value).doubleValue());
+        return value instanceof Number;
+    }
+
+    @Override
+    public boolean isLong(int index) {
+        return isInteger(index);
     }
 
     @Override
@@ -227,10 +260,16 @@ public class ArgumentsImpl implements Arguments {
                 "bad argument #" + (index + 1) + " (" + want + " expected, got " + typeName(have) + ")");
     }
 
+    private IllegalArgumentException intError(int index, Object have) {
+        return new IllegalArgumentException(
+                "bad argument #" + (index + 1) + " (" + typeName(have) + " has no integer representation)");
+    }
+
     private static String typeName(Object value) {
         if (value == null || value == ResultWrapper.unit || (value instanceof Optional<?> o && o.isEmpty())) return "nil";
         if (value instanceof Boolean) return "boolean";
-        if (value instanceof Number) return "double";
+        if (value instanceof Byte || value instanceof Short || value instanceof Integer || value instanceof Long) return "integer";
+        if (value instanceof Number) return "number";
         if (value instanceof String) return "string";
         if (value instanceof byte[]) return "string";
         if (value instanceof Map<?, ?>) return "table";

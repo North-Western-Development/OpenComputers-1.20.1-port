@@ -1,5 +1,8 @@
 package li.cil.oc.server;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import li.cil.oc.Settings;
 import li.cil.oc.api.event.EventBus;
 import li.cil.oc.api.event.FileSystemAccessEvent;
 import li.cil.oc.api.event.NetworkActivityEvent;
@@ -41,6 +44,7 @@ import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.WeakHashMap;
 
 /**
@@ -157,30 +161,40 @@ public final class PacketSender {
         pb.sendToPlayersNearTileEntity(t);
     }
 
-    // Avoid spamming the network with disk activity notices.
-    public static final Map<Node, Map<String, Long>> fileSystemAccessTimeouts = new WeakHashMap<>();
+    // Avoid spamming the network with disk activity notices. Entries expire, so names that are not
+    // accessed again do not stay around forever.
+    private static final Map<Node, Cache<String, Long>> fileSystemAccessTimeouts = new WeakHashMap<>();
 
     public static void sendFileSystemActivity(Node node, EnvironmentHost host, String name) {
+        final int diskActivityPacketDelay = Settings.get().diskActivitySoundDelay;
+        if (diskActivityPacketDelay < 0) return;
+
+        final Cache<String, Long> hostTimeouts;
         synchronized (fileSystemAccessTimeouts) {
-            final Map<String, Long> hostTimeouts = fileSystemAccessTimeouts.get(node);
-            if (hostTimeouts != null && hostTimeouts.getOrDefault(name, 0L) > System.currentTimeMillis()) {
-                return; // Cooldown.
-            }
-            final FileSystemAccessEvent.Server event = host instanceof BlockEntity t
-                    ? new FileSystemAccessEvent.Server(name, t, node)
-                    : new FileSystemAccessEvent.Server(name, host.world(), host.xPosition(), host.yPosition(), host.zPosition(), node);
-            final boolean canceled = EventBus.INSTANCE.post(event);
-            if (!canceled) {
-                fileSystemAccessTimeouts.computeIfAbsent(node, k -> new HashMap<>()).put(name, System.currentTimeMillis() + 500);
+            hostTimeouts = fileSystemAccessTimeouts.computeIfAbsent(node, k -> CacheBuilder.newBuilder()
+                    .concurrencyLevel(Settings.get().threads)
+                    .maximumSize(250)
+                    .expireAfterWrite(diskActivityPacketDelay, TimeUnit.MILLISECONDS)
+                    .build());
+        }
+        final Long lastHostTimeout = hostTimeouts.getIfPresent(name);
+        if (lastHostTimeout != null && lastHostTimeout > System.currentTimeMillis()) {
+            return; // Cooldown.
+        }
+        final FileSystemAccessEvent.Server event = host instanceof BlockEntity t
+                ? new FileSystemAccessEvent.Server(name, t, node)
+                : new FileSystemAccessEvent.Server(name, host.world(), host.xPosition(), host.yPosition(), host.zPosition(), node);
+        final boolean canceled = EventBus.INSTANCE.post(event);
+        if (!canceled) {
+            hostTimeouts.put(name, System.currentTimeMillis() + diskActivityPacketDelay);
 
-                final SimplePacketBuilder pb = new SimplePacketBuilder(PacketType.FileSystemActivity);
+            final SimplePacketBuilder pb = new SimplePacketBuilder(PacketType.FileSystemActivity);
 
-                pb.writeUTF(event.getSound());
-                writeRawNbt(pb, event.getData());
-                writeEventLocation(pb, event.getBlockEntity(), event.getWorld(), event.getX(), event.getY(), event.getZ());
+            pb.writeUTF(event.getSound());
+            writeRawNbt(pb, event.getData());
+            writeEventLocation(pb, event.getBlockEntity(), event.getWorld(), event.getX(), event.getY(), event.getZ());
 
-                pb.sendToPlayersNearHost(host, Optional.of(64.0));
-            }
+            pb.sendToPlayersNearHost(host, Optional.of(Settings.get().maxNetworkClientSoundPacketDistance));
         }
     }
 
@@ -195,7 +209,7 @@ public final class PacketSender {
             writeRawNbt(pb, event.getData());
             writeEventLocation(pb, event.getBlockEntity(), event.getWorld(), event.getX(), event.getY(), event.getZ());
 
-            pb.sendToPlayersNearHost(host, Optional.of(64.0));
+            pb.sendToPlayersNearHost(host, Optional.of(Settings.get().maxNetworkClientEffectPacketDistance));
         }
     }
 
@@ -434,7 +448,7 @@ public final class PacketSender {
             pb.writeRegistryEntry(BuiltInRegistries.PARTICLE_TYPE, particleType.getType());
             pb.writeByte((byte) count);
 
-            pb.sendToNearbyPlayers(world, position.x, position.y, position.z, Optional.of(32.0));
+            pb.sendToNearbyPlayers(world, position.x, position.y, position.z, Optional.of(Settings.get().maxNetworkClientEffectPacketDistance / 2.0));
         }
     }
 
@@ -572,7 +586,7 @@ public final class PacketSender {
         pb.writeTileEntity(t.proxy);
         pb.writeInt(t.animationTicksTotal);
 
-        pb.sendToPlayersNearTileEntity(t, Optional.of(64.0));
+        pb.sendToPlayersNearTileEntity(t, Optional.of(Settings.get().maxNetworkClientEffectPacketDistance));
     }
 
     public static void sendRobotAnimateTurn(li.cil.oc.common.tileentity.Robot t) {
@@ -582,7 +596,7 @@ public final class PacketSender {
         pb.writeByte(t.turnAxis);
         pb.writeInt(t.animationTicksTotal);
 
-        pb.sendToPlayersNearTileEntity(t, Optional.of(64.0));
+        pb.sendToPlayersNearTileEntity(t, Optional.of(Settings.get().maxNetworkClientEffectPacketDistance));
     }
 
     public static void sendRobotInventory(li.cil.oc.common.tileentity.Robot t, int slot, ItemStack stack) {
@@ -601,7 +615,7 @@ public final class PacketSender {
         pb.writeTileEntity(t.proxy);
         pb.writeInt(t.info.lightColor);
 
-        pb.sendToPlayersNearTileEntity(t, Optional.of(64.0));
+        pb.sendToPlayersNearTileEntity(t);
     }
 
     public static void sendRobotNameChange(li.cil.oc.common.tileentity.Robot t) {
@@ -624,7 +638,7 @@ public final class PacketSender {
         pb.writeTileEntity(t.proxy);
         pb.writeInt(t.selectedSlot());
 
-        pb.sendToPlayersNearTileEntity(t, Optional.of(16.0));
+        pb.sendToPlayersNearTileEntity(t, Optional.of(Settings.get().maxNetworkClientEffectPacketDistance / 4.0));
     }
 
     public static void sendRotatableState(Rotatable t) {
@@ -642,7 +656,7 @@ public final class PacketSender {
 
         pb.writeTileEntity(t);
 
-        pb.sendToPlayersNearTileEntity(t, Optional.of(64.0));
+        pb.sendToPlayersNearTileEntity(t, Optional.of(Settings.get().maxNetworkClientEffectPacketDistance));
     }
 
     public static void appendTextBufferColorChange(PacketBuilder pb, PackedColor.Color foreground, PackedColor.Color background) {
@@ -839,7 +853,7 @@ public final class PacketSender {
         pb.writeShort((short) frequency);
         pb.writeShort((short) duration);
 
-        pb.sendToNearbyPlayers(world, x, y, z, Optional.of(32.0));
+        pb.sendToNearbyPlayers(world, x, y, z, Optional.of(Settings.get().maxNetworkClientSoundPacketDistance));
     }
 
     public static void sendSound(Level world, double x, double y, double z, String pattern) {
@@ -852,7 +866,7 @@ public final class PacketSender {
         pb.writeInt(blockPos.z);
         pb.writeUTF(pattern);
 
-        pb.sendToNearbyPlayers(world, x, y, z, Optional.of(32.0));
+        pb.sendToNearbyPlayers(world, x, y, z, Optional.of(Settings.get().maxNetworkClientSoundPacketDistance));
     }
 
     public static void sendTransposerActivity(li.cil.oc.common.tileentity.Transposer t) {
@@ -860,7 +874,7 @@ public final class PacketSender {
 
         pb.writeTileEntity(t);
 
-        pb.sendToPlayersNearTileEntity(t, Optional.of(32.0));
+        pb.sendToPlayersNearTileEntity(t, Optional.of(Settings.get().maxNetworkClientEffectPacketDistance / 2.0));
     }
 
     public static void sendWaypointLabel(Waypoint t) {

@@ -126,7 +126,7 @@ public class ScreenRenderer implements BlockEntityRenderer<Screen> {
         stack.translate(0, screen.height, 0);
 
         // Flip text upside down.
-        stack.scale(1, -1, 1);
+        RenderState.mirrorScale(stack, 1, -1, 1);
     }
 
     private void drawOverlay(PoseStack matrix, MultiBufferSource buffer) {

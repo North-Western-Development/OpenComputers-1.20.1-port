@@ -291,8 +291,8 @@ public abstract class LuaStateFactory {
         // not disable use of the natives.
         if (tmpLibFile.exists()) {
             boolean matching = true;
-            try (InputStream inCurrent = libraryUrl.openStream();
-                 InputStream inExisting = new FileInputStream(tmpLibFile)) {
+            try (InputStream inCurrent = new java.io.BufferedInputStream(libraryUrl.openStream());
+                 InputStream inExisting = new java.io.BufferedInputStream(new FileInputStream(tmpLibFile))) {
                 int inCurrentByte;
                 int inExistingByte;
                 do {

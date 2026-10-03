@@ -295,6 +295,9 @@ public class GpuTextBuffer implements TextBufferProxy {
     }
 
     public static boolean write_to_vram(GpuTextBuffer dstRam, int x, int y, int w, int h, TextBufferProxy src, int fx, int fy) {
-        return dstRam.data.rawcopy(x + 1, y + 1, w, h, src.data(), fx + 1, fy + 1);
+        if (dstRam.data.rawcopy(x + 1, y + 1, w, h, src.data(), fx + 1, fy + 1)) {
+            dstRam.dirty = true;
+            return true;
+        } else return false;
     }
 }

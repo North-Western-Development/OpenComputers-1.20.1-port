@@ -1,5 +1,8 @@
 package li.cil.oc.common;
 
+import li.cil.oc.Settings;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.core.BlockPos;
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.utils.GameInstance;
 import io.netty.buffer.Unpooled;
@@ -266,7 +269,22 @@ public abstract class PacketBuilder implements DataOutput {
     }
 
     public void sendToPlayersNearTileEntity(BlockEntity t, Optional<Double> range) {
-        sendToNearbyPlayers(t.getLevel(), t.getBlockPos().getX() + 0.5, t.getBlockPos().getY() + 0.5, t.getBlockPos().getZ() + 0.5, range);
+        final BlockPos pos = t.getBlockPos();
+        if (t.getLevel() instanceof ServerLevel serverLevel) {
+            // Only players tracking the block entity's chunk can have it loaded.
+            final double maxPacketRangeSq = maxPacketRangeSq(serverLevel.getServer(), range);
+            final List<ServerPlayer> targets = new ArrayList<>();
+            for (ServerPlayer player : serverLevel.getChunkSource().chunkMap.getPlayers(new ChunkPos(pos), false)) {
+                if (player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= maxPacketRangeSq) {
+                    targets.add(player);
+                }
+            }
+            if (!targets.isEmpty()) {
+                NetworkManager.sendToPlayers(targets, PacketHandler.CHANNEL, buffer());
+            }
+        } else {
+            sendToNearbyPlayers(t.getLevel(), pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, range);
+        }
     }
 
     public void sendToPlayersNearHost(EnvironmentHost host) {
@@ -274,17 +292,29 @@ public abstract class PacketBuilder implements DataOutput {
     }
 
     public void sendToPlayersNearHost(EnvironmentHost host, Optional<Double> range) {
-        sendToNearbyPlayers(host.world(), host.xPosition(), host.yPosition(), host.zPosition(), range);
+        if (host instanceof BlockEntity t) sendToPlayersNearTileEntity(t, range);
+        else sendToNearbyPlayers(host.world(), host.xPosition(), host.yPosition(), host.zPosition(), range);
+    }
+
+    /**
+     * The given range (or the server's view distance if none is given), capped by
+     * {@code misc.maxNetworkClientPacketDistance} if that is set.
+     */
+    private static double maxPacketRangeSq(MinecraftServer server, Optional<Double> range) {
+        double maxPacketRange = range.orElseGet(() -> (server.getPlayerList().getViewDistance() + 1) * 16.0);
+        final double maxPacketRangeConfig = Settings.get().maxNetworkClientPacketDistance;
+        if (maxPacketRangeConfig > 0.0) {
+            maxPacketRange = Math.min(maxPacketRange, maxPacketRangeConfig);
+        }
+        return maxPacketRange * maxPacketRange;
     }
 
     public void sendToNearbyPlayers(Level world, double x, double y, double z, Optional<Double> range) {
         if (!(world instanceof ServerLevel serverLevel)) return;
-        final MinecraftServer server = serverLevel.getServer();
-        final int playerRenderDistance = 16;
-        final double playerSpecificRange = range.orElseGet(() -> Math.min(server.getPlayerList().getViewDistance(), playerRenderDistance) * 16.0);
+        final double maxPacketRangeSq = maxPacketRangeSq(serverLevel.getServer(), range);
         final List<ServerPlayer> targets = new ArrayList<>();
         for (ServerPlayer player : serverLevel.players()) {
-            if (player.distanceToSqr(x, y, z) < playerSpecificRange * playerSpecificRange) {
+            if (player.distanceToSqr(x, y, z) <= maxPacketRangeSq) {
                 targets.add(player);
             }
         }

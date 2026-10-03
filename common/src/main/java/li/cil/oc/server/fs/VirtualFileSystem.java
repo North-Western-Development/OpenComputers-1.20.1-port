@@ -76,7 +76,7 @@ public abstract class VirtualFileSystem extends OutputStreamFileSystem {
     @Override
     public boolean rename(String from, String to) throws FileNotFoundException {
         if (from.equals("") || !exists(from)) throw new FileNotFoundException(from);
-        else if (!exists(to)) {
+        else {
             final String[] segmentsTo = segments(to);
             final Optional<VirtualObject> toParentObj = root.get(Arrays.asList(segmentsTo).subList(0, Math.max(segmentsTo.length - 1, 0)));
             if (toParentObj.isPresent() && toParentObj.get() instanceof VirtualDirectory toParent) {
@@ -86,6 +86,11 @@ public abstract class VirtualFileSystem extends OutputStreamFileSystem {
                 final String fromName = segmentsFrom[segmentsFrom.length - 1];
                 final VirtualObject obj = fromParent.children.get(fromName);
                 if (obj == null) throw new java.util.NoSuchElementException("key not found: " + fromName);
+
+                // Renaming onto an existing file replaces it.
+                if (toParent.children.containsKey(toName)) {
+                    toParent.delete(toName);
+                }
 
                 fromParent.children.remove(fromName);
                 fromParent.lastModified = System.currentTimeMillis();
@@ -97,7 +102,7 @@ public abstract class VirtualFileSystem extends OutputStreamFileSystem {
                 return true;
             }
             return false;
-        } else return false;
+        }
     }
 
     @Override

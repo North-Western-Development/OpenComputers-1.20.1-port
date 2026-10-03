@@ -110,7 +110,7 @@ public interface InventoryWorldControl extends InventoryAware, WorldAware, SideR
             mayInteract(blockPos, facing.getOpposite());
             final ItemHandler own = InventoryUtils.asItemHandler(this.inventory());
             final List<Integer> slots = insertionSlots();
-            extracted = InventoryUtils.extractAnyFromInventory(s -> InventoryUtils.insertIntoInventory(s, own, 64, false, Optional.of(slots)), source.get(), count);
+            extracted = InventoryUtils.extractAnyFromInventory((s, sim) -> InventoryUtils.insertIntoInventory(s, own, 64, sim, Optional.of(slots)), source.get(), count);
         }
         if (extracted <= 0) {
             extracted = suckFromItems(facing);

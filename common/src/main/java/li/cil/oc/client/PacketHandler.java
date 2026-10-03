@@ -472,7 +472,8 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         final Optional<Direction> direction = p.readDirection();
         final Object particleType = p.readRegistryEntry(BuiltInRegistries.PARTICLE_TYPE);
         if (particleType instanceof ParticleOptions particle) {
-            final int count = p.readUnsignedByte();
+            // Fewer particles with the "Decreased" / "Minimal" particle settings.
+            final int count = p.readUnsignedByte() / (1 << Minecraft.getInstance().options.particles().get().getId());
 
             for (int i = 0; i < count; i++) {
                 final double vx = rv(world, direction, Direction::getStepX);

@@ -29,6 +29,7 @@ import li.cil.oc.util.Tooltip;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -259,7 +260,15 @@ public class Tablet extends SimpleItem implements CustomModel, Chargeable {
     // with storing context information for analyzing a block in the singleton.
     public static Optional<AnalyzeContext> currentlyAnalyzing = Optional.empty();
 
-    public static String getId(ItemStack stack) {
+    /** The tablet's cache id, if it has one (does not assign one, e.g. on the client). */
+    public static Optional<String> getId(ItemStack stack) {
+        if (stack.hasTag() && stack.getTag().contains(Settings.namespace + "tablet", Tag.TAG_STRING)) {
+            return Optional.of(stack.getTag().getString(Settings.namespace + "tablet"));
+        }
+        return Optional.empty();
+    }
+
+    public static String getOrCreateId(ItemStack stack) {
         final CompoundTag data = stack.getOrCreateTag();
         if (!data.contains(Settings.namespace + "tablet")) {
             data.putString(Settings.namespace + "tablet", UUID.randomUUID().toString());
@@ -329,7 +338,7 @@ public class Tablet extends SimpleItem implements CustomModel, Chargeable {
         private Player currentHolder;
 
         public TabletWrapper get(ItemStack stack, Player holder) {
-            final String id = getId(stack);
+            final String id = getOrCreateId(stack);
             synchronized (cache) {
                 currentStack = stack;
                 currentHolder = holder;
@@ -445,15 +454,14 @@ public class Tablet extends SimpleItem implements CustomModel, Chargeable {
         }
 
         public Optional<TabletWrapper> getWeak(ItemStack stack) {
-            final String key = getId(stack);
-            return Optional.ofNullable(cache.asMap().get(key));
+            return getId(stack).map(key -> cache.asMap().get(key));
         }
 
         public Optional<TabletWrapper> get(ItemStack stack) {
-            if (stack.hasTag() && stack.getTag().contains(Settings.namespace + "tablet")) {
-                final String id = stack.getTag().getString(Settings.namespace + "tablet");
+            final Optional<String> id = getId(stack);
+            if (id.isPresent()) {
                 synchronized (cache) {
-                    return Optional.ofNullable(cache.getIfPresent(id));
+                    return Optional.ofNullable(cache.getIfPresent(id.get()));
                 }
             } else return Optional.empty();
         }

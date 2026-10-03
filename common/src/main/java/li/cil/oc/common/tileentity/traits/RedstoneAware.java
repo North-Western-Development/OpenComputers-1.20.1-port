@@ -158,7 +158,9 @@ public interface RedstoneAware extends RotationAware {
     }
 
     static void onClearRemoved(RedstoneAware self) {
-        if (!(self instanceof Tickable)) {
+        // Server only: on the client the scheduled task would keep the block entity (and its
+        // level) referenced, as the server never runs it.
+        if (!(self instanceof Tickable) && self.isServer()) {
             EventHandler.scheduleServer(() -> {
                 for (Direction side : Direction.values()) self.updateRedstoneInput(side);
             });

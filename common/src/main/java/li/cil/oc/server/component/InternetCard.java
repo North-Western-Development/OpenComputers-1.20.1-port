@@ -1,5 +1,11 @@
 package li.cil.oc.server.component;
 
+import java.net.Inet6Address;
+import java.net.Inet4Address;
+import net.minecraft.server.MinecraftServer;
+import li.cil.oc.util.InternetFilteringRule;
+import dev.architectury.utils.GameInstance;
+import com.google.common.net.InetAddresses;
 import li.cil.oc.Constants;
 import li.cil.oc.OpenComputers;
 import li.cil.oc.Settings;
@@ -99,6 +105,9 @@ public class InternetCard extends AbstractManagedEnvironment implements DeviceIn
     public synchronized Object[] request(Context context, Arguments args) throws Exception {
         checkOwner(context);
         final String address = args.checkString(0);
+        if (!Settings.get().internetAccessAllowed()) {
+            return result(null, "internet access is unavailable");
+        }
         if (!Settings.get().httpEnabled) {
             return result(null, "http requests are unavailable");
         }
@@ -134,6 +143,9 @@ public class InternetCard extends AbstractManagedEnvironment implements DeviceIn
         checkOwner(context);
         final String address = args.checkString(0);
         final int port = args.optInteger(1, -1);
+        if (!Settings.get().internetAccessAllowed()) {
+            return result(null, "internet access is unavailable");
+        }
         if (!Settings.get().tcpEnabled) {
             return result(null, "tcp connections are unavailable");
         }
@@ -274,7 +286,8 @@ public class InternetCard extends AbstractManagedEnvironment implements DeviceIn
 
                     if (!readableKeys.isEmpty()) {
                         final Selector newSelector = Selector.open();
-                        for (SelectionKey key : selectedKeys) {
+                        // Move all keys that were not handled, not just the selected ones (#3634).
+                        for (SelectionKey key : selector.keys()) {
                             if (!readableKeys.contains(key)) {
                                 key.channel().register(newSelector, SelectionKey.OP_READ, key.attachment());
                             }
@@ -441,14 +454,61 @@ public class InternetCard extends AbstractManagedEnvironment implements DeviceIn
         }
     }
 
-    public static void checkLists(InetAddress inetAddress, String host) throws FileNotFoundException {
-        final Settings.AddressValidator[] whitelist = Settings.get().httpHostWhitelist;
-        if (whitelist.length > 0 && Arrays.stream(whitelist).noneMatch(v -> v.apply(inetAddress, host))) {
-            throw new FileNotFoundException("address is not whitelisted");
+    private static boolean isNAT64Address(Inet6Address addr) {
+        final byte[] b = addr.getAddress();
+        // 64:ff9b::/96 - NAT64 well-known prefix (RFC 6052)
+        return b[0] == 0x00 && b[1] == 0x64 && b[2] == (byte) 0xff && b[3] == (byte) 0x9b &&
+                b[4] == 0 && b[5] == 0 && b[6] == 0 && b[7] == 0 &&
+                b[8] == 0 && b[9] == 0 && b[10] == 0 && b[11] == 0;
+    }
+
+    private static InetAddress extractNAT64EmbeddedAddress(Inet6Address addr) throws UnknownHostException {
+        final byte[] b = addr.getAddress();
+        return InetAddress.getByAddress(new byte[]{b[12], b[13], b[14], b[15]});
+    }
+
+    public static boolean isRequestAllowed(Settings settings, InetAddress inetAddress, String host) {
+        if (!settings.internetAccessAllowed()) {
+            return false;
         }
-        final Settings.AddressValidator[] blacklist = Settings.get().httpHostBlacklist;
-        if (blacklist.length > 0 && Arrays.stream(blacklist).anyMatch(v -> v.apply(inetAddress, host))) {
-            throw new FileNotFoundException("address is blacklisted");
+        final InternetFilteringRule[] rules = settings.internetFilteringRules;
+        if (inetAddress instanceof Inet6Address inet6Address) {
+            // If the IP address is an IPv6 address with an embedded IPv4 address, and the IPv4 address is blocked,
+            // block this request.
+            if (InetAddresses.hasEmbeddedIPv4ClientAddress(inet6Address)) {
+                final InetAddress inet4in6Address = InetAddresses.getEmbeddedIPv4ClientAddress(inet6Address);
+                if (!InternetFilteringRule.firstMatch(rules, inet4in6Address, host).orElse(true)) {
+                    return false;
+                }
+            }
+
+            // As above, but with NAT64 addresses.
+            if (isNAT64Address(inet6Address)) {
+                try {
+                    final InetAddress inet4in6Address = extractNAT64EmbeddedAddress(inet6Address);
+                    if (!InternetFilteringRule.firstMatch(rules, inet4in6Address, host).orElse(true)) {
+                        return false;
+                    }
+                } catch (UnknownHostException e) {
+                    return false;
+                }
+            }
+
+            // Process address as an IPv6 address.
+            return InternetFilteringRule.firstMatch(rules, inet6Address, host).orElse(false);
+        } else if (inetAddress instanceof Inet4Address) {
+            // Process address as an IPv4 address.
+            return InternetFilteringRule.firstMatch(rules, inetAddress, host).orElse(false);
+        } else {
+            // Unrecognized address type - block.
+            OpenComputers.log.warn("Internet Card blocked unrecognized address type: " + inetAddress);
+            return false;
+        }
+    }
+
+    public static void checkLists(InetAddress inetAddress, String host) throws FileNotFoundException {
+        if (!isRequestAllowed(Settings.get(), inetAddress, host)) {
+            throw new FileNotFoundException("address is not allowed");
         }
     }
 
@@ -587,13 +647,16 @@ public class InternetCard extends AbstractManagedEnvironment implements DeviceIn
             public InputStream call() throws Exception {
                 try {
                     checkLists(InetAddress.getByName(url.getHost()), url.getHost());
-                    final java.net.Proxy proxy = java.net.Proxy.NO_PROXY;
+                    // Use the server's proxy (as configured for Minecraft itself), if any.
+                    final MinecraftServer server = GameInstance.getServer();
+                    final java.net.Proxy proxy = server != null && server.getProxy() != null ? server.getProxy() : java.net.Proxy.NO_PROXY;
                     final URLConnection connection = url.openConnection(proxy);
                     if (connection instanceof HttpURLConnection http) {
                         try {
                             http.setDoInput(true);
                             http.setDoOutput(post.isPresent());
                             http.setRequestMethod(method.orElse(post.isPresent() ? "POST" : "GET"));
+                            http.setRequestProperty("User-Agent", Settings.get().httpUserAgent.replace("$version", OpenComputers.version()));
                             headers.forEach(http::setRequestProperty);
                             if (post.isPresent()) {
                                 http.setReadTimeout(Settings.get().httpTimeout);
@@ -603,11 +666,21 @@ public class InternetCard extends AbstractManagedEnvironment implements DeviceIn
                                 out.close();
                             }
 
-                            final InputStream input = http.getInputStream();
+                            // Finish the connection. Call getInputStream a second time below to re-throw any exception.
+                            // This avoids getResponseCode() waiting for the connection to end in the synchronized block,
+                            // and makes the response code / message available for unsuccessful requests, too.
+                            try {
+                                http.getInputStream();
+                            } catch (Exception ignored) {
+                            }
+
                             synchronized (HTTPRequest.this) {
                                 response = Optional.of(Triple.of(http.getResponseCode(), http.getResponseMessage(), http.getHeaderFields()));
                             }
-                            return input;
+
+                            // TODO: This should allow accessing getErrorStream() for reading unsuccessful HTTP responses' output,
+                            // but this would be a breaking change for existing OC code.
+                            return http.getInputStream();
                         } catch (Throwable t) {
                             http.disconnect();
                             throw t;

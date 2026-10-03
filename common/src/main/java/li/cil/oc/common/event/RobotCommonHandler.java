@@ -38,7 +38,7 @@ public final class RobotCommonHandler {
     }
 
     public static void onRobotMove(RobotMoveEvent.Pre e) {
-        if (Settings.get().limitFlightHeight < 256 && e.agent instanceof Robot robot) {
+        if (Settings.get().limitFlightHeight >= 0 && e.agent instanceof Robot robot) {
             Level world = robot.world();
             int maxFlyingHeight = Settings.get().limitFlightHeight;
 

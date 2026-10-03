@@ -75,6 +75,18 @@ public interface UpgradeRenderer {
     void render(PoseStack matrix, MultiBufferSource buffer, ItemStack stack, RobotRenderEvent.MountPoint mountPoint, Robot robot, float pt);
 
     /**
+     * Like {@link #render(PoseStack, MultiBufferSource, ItemStack, RobotRenderEvent.MountPoint, Robot, float)},
+     * with the packed light value at the robot's position, for renderers that want to be lit like
+     * the robot. This is what OpenComputers calls; the default ignores the light and delegates to
+     * the method above.
+     *
+     * @param light the packed light coordinates to render with.
+     */
+    default void render(PoseStack matrix, MultiBufferSource buffer, int light, ItemStack stack, RobotRenderEvent.MountPoint mountPoint, Robot robot, float pt) {
+        render(matrix, buffer, stack, mountPoint, robot, pt);
+    }
+
+    /**
      * Mount point names for {@link #computePreferredMountPoint}.
      */
     final class MountPointName {

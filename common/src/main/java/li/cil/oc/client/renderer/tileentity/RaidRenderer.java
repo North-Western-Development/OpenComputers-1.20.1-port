@@ -28,7 +28,7 @@ public class RaidRenderer implements BlockEntityRenderer<Raid> {
         stack.translate(0.5, 0.5, 0.5);
         RenderUtil.rotateYaw(stack, raid.yaw());
         stack.translate(-0.5, 0.5, 0.505);
-        stack.scale(1, -1, 1);
+        RenderState.mirrorScale(stack, 1, -1, 1);
 
         final VertexConsumer r = buffer.getBuffer(RenderTypes.BLOCK_OVERLAY);
 

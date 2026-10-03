@@ -29,7 +29,7 @@ public final class DriverTablet implements Item {
     @Override
     public ManagedEnvironment createEnvironment(ItemStack stack, EnvironmentHost host) {
         if (host.world() != null && host.world().isClientSide) return null;
-        Tablet.Server.INSTANCE.cache.invalidate(Tablet.getId(stack));
+        Tablet.Server.INSTANCE.cache.invalidate(Tablet.getOrCreateId(stack));
         final TabletData data = new TabletData(stack);
         for (ItemStack fs : data.items) {
             if (!fs.isEmpty() && DriverFileSystem.INSTANCE.worksWith(fs)) {

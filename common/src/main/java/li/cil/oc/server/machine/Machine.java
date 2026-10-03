@@ -607,7 +607,7 @@ public class Machine extends AbstractManagedEnvironment implements li.cil.oc.api
         return null;
     }
 
-    @Callback(direct = true, doc = "function():table -- Collect information on all connected devices.")
+    @Callback(doc = "function():table -- Collect information on all connected devices.")
     public Object[] getDeviceInfo(Context context, Arguments args) {
         context.pause(1); // Iterating all nodes is potentially expensive, and I see no practical reason for having to call this frequently.
         final Map<String, Map<String, String>> result = new HashMap<>();

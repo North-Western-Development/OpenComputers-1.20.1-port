@@ -69,12 +69,34 @@ public final class FluidUtils {
      * This returns the amount of fluid (mB) that was transferred.
      */
     public static long transferBetweenFluidHandlers(FluidHandler source, FluidHandler sink, long limit) {
-        final FluidStack drained = source.drain(limit, true);
+        return transferBetweenFluidHandlers(source, sink, limit, -1);
+    }
+
+    /**
+     * @param sourceTank the tank of the source to drain from, or -1 for any.
+     */
+    public static long transferBetweenFluidHandlers(FluidHandler source, FluidHandler sink, long limit, int sourceTank) {
+        FluidStack stackToDrain = null;
+        if (sourceTank >= 0 && sourceTank < source.getTanks()) {
+            stackToDrain = source.getFluidInTank(sourceTank);
+            if (stackToDrain != null && !stackToDrain.isEmpty()) {
+                stackToDrain = stackToDrain.copy();
+                stackToDrain.setAmount(Math.min(stackToDrain.getAmount(), limit));
+            }
+        }
+
+        final FluidStack drained = stackToDrain != null ? source.drain(stackToDrain, true) : source.drain(limit, true);
         if (drained == null || drained.isEmpty()) {
             return 0;
         }
         final long filled = sink.fill(drained, true);
-        return sink.fill(source.drain(filled, false), false);
+        if (stackToDrain != null) {
+            final FluidStack filledStack = drained.copy();
+            filledStack.setAmount(filled);
+            return sink.fill(source.drain(filledStack, false), false);
+        } else {
+            return sink.fill(source.drain(filled, false), false);
+        }
     }
 
     public static long transferBetweenFluidHandlers(FluidHandler source, FluidHandler sink) {
@@ -89,9 +111,13 @@ public final class FluidUtils {
      * cases such as fluid blocks.
      */
     public static long transferBetweenFluidHandlersAt(BlockPosition sourcePos, Direction sourceSide, BlockPosition sinkPos, Direction sinkSide, long limit) {
+        return transferBetweenFluidHandlersAt(sourcePos, sourceSide, sinkPos, sinkSide, limit, -1);
+    }
+
+    public static long transferBetweenFluidHandlersAt(BlockPosition sourcePos, Direction sourceSide, BlockPosition sinkPos, Direction sinkSide, long limit, int sourceTank) {
         return fluidHandlerAt(sourcePos, sourceSide).map(source ->
                 fluidHandlerAt(sinkPos, sinkSide).map(sink ->
-                        transferBetweenFluidHandlers(source, sink, limit)).orElse(0L)).orElse(0L);
+                        transferBetweenFluidHandlers(source, sink, limit, sourceTank)).orElse(0L)).orElse(0L);
     }
 
     public static long transferBetweenFluidHandlersAt(BlockPosition sourcePos, Direction sourceSide, BlockPosition sinkPos, Direction sinkSide) {

@@ -270,42 +270,22 @@ public abstract class SmartBlockModelBase implements BakedModel {
         final int vy = (face.getStepY() * 127) & 0xFF;
         final int vz = (face.getStepZ() * 127) & 0xFF;
 
+        final int r = (colorRGB >> 16) & 0xFF;
+        final int g = (colorRGB >> 8) & 0xFF;
+        final int b = colorRGB & 0xFF;
+
         return new int[]{
             Float.floatToRawIntBits((float) x),
             Float.floatToRawIntBits((float) y),
             Float.floatToRawIntBits((float) z),
-            getFaceShadeColor(face, colorRGB),
+            // The vertex color is RGBA in byte order, i.e. ABGR as a little-endian int. No manual face
+            // shading: the quads are baked with shade = true, so the renderer already shades them
+            // (shading here as well made e.g. 3D prints too dark, KosmosPrime fork f4864df5c).
+            0xFF000000 | b << 16 | g << 8 | r,
             Float.floatToRawIntBits(u),
             Float.floatToRawIntBits(v),
             0, vx | (vy << 0x08) | (vz << 0x10)
         };
-    }
-
-    // See FaceBakery.
-    protected static int getFaceShadeColor(Direction face, int colorRGB) {
-        final float brightness = getFaceBrightness(face);
-        final int b = (colorRGB >> 16) & 0xFF;
-        final int g = (colorRGB >> 8) & 0xFF;
-        final int r = colorRGB & 0xFF;
-        return 0xFF000000 | shade(r, brightness) << 16 | shade(g, brightness) << 8 | shade(b, brightness);
-    }
-
-    private static int shade(int value, float brightness) {
-        return Math.min(255, Math.max(0, (int) (brightness * value)));
-    }
-
-    protected static float getFaceBrightness(Direction face) {
-        switch (face) {
-            case DOWN:
-                return 0.5f;
-            case UP:
-                return 1.0f;
-            case NORTH:
-            case SOUTH:
-                return 0.8f;
-            default:
-                return 0.6f;
-        }
     }
 
     protected static void addAll(List<BakedQuad> target, BakedQuad[] quads) {

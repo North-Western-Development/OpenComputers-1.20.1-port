@@ -1,6 +1,7 @@
 package li.cil.oc.util;
 
 import dev.architectury.event.events.common.LifecycleEvent;
+import li.cil.oc.OpenComputers;
 import li.cil.oc.Settings;
 import li.cil.oc.common.SaveHandler;
 import li.cil.oc.server.fs.Buffered;
@@ -33,7 +34,10 @@ public final class ThreadPoolFactory {
      * Called from {@link li.cil.oc.OpenComputers#init()}.
      */
     public static void init() {
-        LifecycleEvent.SERVER_BEFORE_START.register(server -> serverStart());
+        LifecycleEvent.SERVER_BEFORE_START.register(server -> {
+            serverStart();
+            checkInternetFilteringRules(server.isDedicatedServer());
+        });
         LifecycleEvent.SERVER_STOPPED.register(server -> serverStop());
     }
 
@@ -44,6 +48,35 @@ public final class ThreadPoolFactory {
         synchronized (safePools) {
             for (SafeThreadPool pool : safePools) {
                 pool.newThreadPool();
+            }
+        }
+    }
+
+    private static void checkInternetFilteringRules(boolean isDedicatedServer) {
+        final Settings settings = Settings.get();
+        if (settings.internetAccessConfigured()) {
+            if (settings.internetFilteringRulesInvalid()) {
+                OpenComputers.log.warn("####################################################");
+                OpenComputers.log.warn("#                                                  #");
+                OpenComputers.log.warn("#  Could not parse Internet Card filtering rules!  #");
+                OpenComputers.log.warn("#  Review the server log and adjust the filtering  #");
+                OpenComputers.log.warn("#  list to ensure it is appropriately configured.  #");
+                OpenComputers.log.warn("# (opencomputers/settings.conf => filteringRules)  #");
+                OpenComputers.log.warn("# Internet access has been automatically disabled. #");
+                OpenComputers.log.warn("#                                                  #");
+                OpenComputers.log.warn("####################################################");
+            } else if (!settings.internetFilteringRulesObserved && isDedicatedServer) {
+                OpenComputers.log.warn("####################################################");
+                OpenComputers.log.warn("#                                                  #");
+                OpenComputers.log.warn("#    It appears that you're running a dedicated    #");
+                OpenComputers.log.warn("#  server with OpenComputers installed! Make sure  #");
+                OpenComputers.log.warn("#  to review the Internet Card address filtering   #");
+                OpenComputers.log.warn("#  list to ensure it is appropriately configured.  #");
+                OpenComputers.log.warn("# (opencomputers/settings.conf => filteringRules)  #");
+                OpenComputers.log.warn("#                                                  #");
+                OpenComputers.log.warn("####################################################");
+            } else {
+                OpenComputers.log.info("Successfully applied " + settings.internetFilteringRules.length + " Internet Card filtering rules.");
             }
         }
     }

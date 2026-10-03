@@ -83,7 +83,14 @@ public abstract class FileOutputStreamFileSystem extends OutputStreamFileSystem 
 
     @Override
     public boolean rename(String from, String to) {
-        return new File(root(), FileSystem.INSTANCE.validatePath(from)).renameTo(new File(root(), FileSystem.INSTANCE.validatePath(to)));
+        try {
+            java.nio.file.Files.move(new File(root(), FileSystem.INSTANCE.validatePath(from)).toPath(),
+                    new File(root(), FileSystem.INSTANCE.validatePath(to)).toPath(),
+                    java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override

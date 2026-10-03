@@ -26,7 +26,7 @@ public interface ItemInventoryControl extends InventoryAware {
         return withItemInventory(ExtendedArguments.checkSlot(args, inventory(), 0), itemInventory -> {
             final int slot = ExtendedArguments.checkSlot(args, itemInventory, 1);
             final int count = ExtendedArguments.optItemCount(args, 2);
-            return result(InventoryUtils.extractFromInventorySlot(s -> InventoryUtils.insertIntoInventorySlot(s, itemInventory, slot), inventory(), null, selectedSlot(), count));
+            return result(InventoryUtils.extractFromInventorySlot((s, sim) -> InventoryUtils.insertIntoInventorySlot(s, itemInventory, slot, 64, sim), inventory(), null, selectedSlot(), count));
         });
     }
 
@@ -37,7 +37,7 @@ public interface ItemInventoryControl extends InventoryAware {
             final int count = ExtendedArguments.optItemCount(args, 2);
             final ItemHandler own = InventoryUtils.asItemHandler(inventory());
             final List<Integer> slots = insertionSlots();
-            return result(InventoryUtils.extractFromInventorySlot(s -> InventoryUtils.insertIntoInventory(s, own, 64, false, Optional.of(slots)), itemInventory, slot, count));
+            return result(InventoryUtils.extractFromInventorySlot((s, sim) -> InventoryUtils.insertIntoInventory(s, own, 64, sim, Optional.of(slots)), itemInventory, slot, count));
         });
     }
 

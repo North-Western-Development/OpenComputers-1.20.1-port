@@ -60,7 +60,7 @@ public interface InventoryWorldControlMk2 extends InventoryAware, WorldAware, Si
             final int slot = ExtendedArguments.checkSlot(args, inventory, 1);
             final ItemHandler own = InventoryUtils.asItemHandler(this.inventory());
             final List<Integer> slots = insertionSlots();
-            final int extracted = InventoryUtils.extractFromInventorySlot(s -> InventoryUtils.insertIntoInventory(s, own, 64, false, Optional.of(slots)), inventory, slot, count);
+            final int extracted = InventoryUtils.extractFromInventorySlot((s, sim) -> InventoryUtils.insertIntoInventory(s, own, 64, sim, Optional.of(slots)), inventory, slot, count);
             if (extracted > 0) {
                 context.pause(Settings.get().suckDelay);
                 return result(extracted);
