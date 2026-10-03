@@ -1,6 +1,7 @@
 package li.cil.oc.server.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import dev.architectury.event.events.common.CommandRegistrationEvent;
 import li.cil.oc.OpenComputers;
@@ -40,6 +41,11 @@ import java.util.UUID;
  * {@code /oc_debug use <pos> <player>} (the player right-clicks the block or drone at pos, e.g.
  * to open its GUI) and {@code /oc_debug useitem <player>} (server-side use of the held item).
  * {@code start|stop|status} on a rack act on its first server.
+ * {@code /oc_debug type <pos> <text>} pastes a line (plus Enter) into the machine's screen through its
+ * keyboard, {@code /oc_debug screen <pos>} prints the non-blank lines of its screen and
+ * {@code /oc_debug tablet <player> (start|stop|status|screen|type <text>)} does the same for the tablet
+ * in the player's main hand. {@code /oc_debug useitem <player> release} also releases the item
+ * right away (a click, e.g. to turn on a tablet).
  * <p>
  * Only registered when the JVM is started with {@code -Dopencomputers.debugCommands=true}.
  */
@@ -71,7 +77,20 @@ public final class DebugCommands {
                 .then(Commands.argument("player", EntityArgument.player())
                     .executes(DebugCommands::use))))
             .then(Commands.literal("useitem").then(Commands.argument("player", EntityArgument.player())
-                .executes(DebugCommands::useItem)))
+                .executes(context -> useItem(context, false))
+                .then(Commands.literal("release").executes(context -> useItem(context, true)))))
+            .then(Commands.literal("type").then(Commands.argument("pos", BlockPosArgument.blockPos())
+                .then(Commands.argument("text", StringArgumentType.greedyString())
+                    .executes(context -> run(context, "type")))))
+            .then(Commands.literal("screen").then(Commands.argument("pos", BlockPosArgument.blockPos())
+                .executes(context -> run(context, "screen"))))
+            .then(Commands.literal("tablet").then(Commands.argument("player", EntityArgument.player())
+                .then(Commands.literal("start").executes(context -> tablet(context, "start")))
+                .then(Commands.literal("stop").executes(context -> tablet(context, "stop")))
+                .then(Commands.literal("status").executes(context -> tablet(context, "status")))
+                .then(Commands.literal("screen").executes(context -> tablet(context, "screen")))
+                .then(Commands.literal("type").then(Commands.argument("text", StringArgumentType.greedyString())
+                    .executes(context -> tablet(context, "type"))))))
             .then(Commands.literal("drones")
                 .then(Commands.literal("start").executes(context -> drones(context, "start")))
                 .then(Commands.literal("stop").executes(context -> drones(context, "stop")))
@@ -119,12 +138,17 @@ public final class DebugCommands {
         return 1;
     }
 
-    /** The player uses the item in their main hand (on the server side only). */
-    private static int useItem(CommandContext<CommandSourceStack> context) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+    /** The player uses the item in their main hand (on the server side only), optionally releasing it right away. */
+    private static int useItem(CommandContext<CommandSourceStack> context, boolean release) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
         final ServerPlayer player = EntityArgument.getPlayer(context, "player");
         final ItemStack stack = player.getMainHandItem();
-        final String result = String.valueOf(stack.use(player.level(), player, InteractionHand.MAIN_HAND).getResult());
-        context.getSource().sendSuccess(() -> Component.literal("[oc_debug] useitem: " + result), true);
+        String result = String.valueOf(stack.use(player.level(), player, InteractionHand.MAIN_HAND).getResult());
+        if (release && player.isUsingItem()) {
+            player.releaseUsingItem();
+            result += " released";
+        }
+        final String message = result;
+        context.getSource().sendSuccess(() -> Component.literal("[oc_debug] useitem: " + message), true);
         return 1;
     }
 
@@ -164,14 +188,60 @@ public final class DebugCommands {
             context.getSource().sendFailure(Component.literal("No machine at " + pos.toShortString()));
             return 0;
         }
-        final Machine machine = host.machine();
-        final String result = switch (action) {
-            case "start" -> "start: " + machine.start();
-            case "stop" -> "stop: " + machine.stop();
-            default -> "running=" + machine.isRunning() + " paused=" + machine.isPaused() +
-                " components=" + machine.componentCount() + " lastError=" + machine.lastError();
-        };
+        final ServerPlayer typist = ComponentPlatform.fakePlayer(context.getSource().getLevel(), PROFILE);
+        typist.setPos(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+        return machineAction(context, host.machine(), action, typist);
+    }
+
+    /** start/stop/status/screen/type for the tablet in the player's main hand. */
+    private static int tablet(CommandContext<CommandSourceStack> context, String action) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        final ServerPlayer player = EntityArgument.getPlayer(context, "player");
+        final ItemStack stack = player.getMainHandItem();
+        if (!(stack.getItem() instanceof li.cil.oc.common.item.Tablet)) {
+            context.getSource().sendFailure(Component.literal("No tablet in hand"));
+            return 0;
+        }
+        final Machine machine = li.cil.oc.common.item.Tablet.get(stack, player).machine();
+        return machineAction(context, machine, action, player);
+    }
+
+    private static int machineAction(CommandContext<CommandSourceStack> context, Machine machine, String action, ServerPlayer typist) {
+        final StringBuilder result = new StringBuilder();
+        switch (action) {
+            case "start" -> result.append("start: ").append(machine.start());
+            case "stop" -> result.append("stop: ").append(machine.stop());
+            case "type", "screen" -> {
+                final li.cil.oc.api.internal.TextBuffer buffer = textBuffer(machine);
+                if (buffer == null) {
+                    context.getSource().sendFailure(Component.literal("No screen"));
+                    return 0;
+                }
+                if (action.equals("type")) {
+                    // Like pasting the line and pressing enter in the screen GUI.
+                    buffer.clipboard(StringArgumentType.getString(context, "text") + "\n", typist);
+                    result.append("type: ok");
+                } else {
+                    result.append("screen:");
+                    for (int row = 0; row < buffer.getViewportHeight(); row++) {
+                        final StringBuilder line = new StringBuilder();
+                        for (int col = 0; col < buffer.getViewportWidth(); col++) line.append(buffer.get(col, row));
+                        final String text = line.toString().stripTrailing();
+                        if (!text.isEmpty()) result.append(" ").append(row + 1).append("| ").append(text);
+                    }
+                }
+            }
+            default -> result.append("running=").append(machine.isRunning()).append(" paused=").append(machine.isPaused())
+                .append(" components=").append(machine.componentCount()).append(" lastError=").append(machine.lastError());
+        }
         context.getSource().sendSuccess(() -> Component.literal("[oc_debug] " + result), true);
         return 1;
+    }
+
+    private static li.cil.oc.api.internal.TextBuffer textBuffer(Machine machine) {
+        if (machine == null || machine.node() == null) return null;
+        for (li.cil.oc.api.network.Node node : machine.node().reachableNodes()) {
+            if (node.host() instanceof li.cil.oc.api.internal.TextBuffer buffer) return buffer;
+        }
+        return null;
     }
 }

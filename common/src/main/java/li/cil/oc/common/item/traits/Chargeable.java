@@ -28,12 +28,17 @@ public interface Chargeable extends li.cil.oc.api.driver.item.Chargeable {
 
     ResourceLocation KEY = new ResourceLocation(OpenComputers.ID, "chargeable");
 
+    // ratioForgeEnergy is OC energy per FE (0.1 by default: 10 FE = 1 OC), like everywhere else
+    // (integration.util.Power, power converters). 1.12 / 1.16.5 had these two inverted, so items
+    // charged through their energy capability got 100x the energy; since the OC charger charges OC
+    // items through the platform energy handler now, that made hover boots / tablets charge
+    // (nearly) instantly.
     static double convertForgeEnergyToOpenComputers(long fe) {
-        return fe / Settings.get().ratioForgeEnergy;
+        return fe * Settings.get().ratioForgeEnergy;
     }
 
     static long convertOpenComputersToForgeEnergy(double oc) {
-        return (long) (oc * Settings.get().ratioForgeEnergy);
+        return (long) (oc / Settings.get().ratioForgeEnergy);
     }
 
     static double applyCharge(double amount, double current, double maximum, DoubleConsumer save) {

@@ -1,0 +1,11 @@
+# Scene for client-player.sh (not meant for run.sh): hover boots lanes starting at z=80 (a 1
+# block high platform at x=0 and a 2 block high one at x=4, both from z=82 to z=95), a computer
+# with a wireless card at 10,0,80 talking to the player's nanomachines (nano.lua).
+forceload add 0 64 16 96
+fill 0 -60 82 0 -60 95 minecraft:stone
+fill 4 -60 82 4 -59 95 minecraft:stone
+setblock 10 -60 80 opencomputers:casecreative
+item replace block 10 -60 80 container.0 with opencomputers:wlancard2
+item replace block 10 -60 80 container.3 with opencomputers:ram6
+item replace block 10 -60 80 container.8 with opencomputers:cpu3
+item replace block 10 -60 80 container.9 with opencomputers:eeprom@EEPROM(nano.lua)

@@ -20,7 +20,10 @@ The tests use `/oc_debug`, which only exists when the server runs with
 `-Dopencomputers.debugCommands=true` (the script sets it): `start|stop|status <pos>` (a rack:
 its first server), `place <pos> <item>` (a fake player uses the item on the block below, e.g.
 to place a robot, microcontroller or drone from item NBT), `drones start|stop|status`,
-`use <pos> <player>`, `useitem <player>`.
+`use <pos> <player>`, `useitem <player> [release]`, `type <pos> <text>` (pastes the line plus
+Enter into the machine's screen through its keyboard, e.g. into the OpenOS shell),
+`screen <pos>` (prints the non-blank screen lines) and `tablet <player> start|stop|status|screen|type <text>`
+(the tablet in the player's main hand).
 
 In command files, `WAIT <n>` pauses n seconds and `RESTART` stops both servers (waiting until
 they exited; a server that does not exit gets a thread dump in the log) and starts them again on
@@ -43,12 +46,28 @@ an EEPROM item holding that Lua file (`@BIOS`: the Lua BIOS). Each EEPROM ends i
 | `filesystem.txt` | HDD, floppy in a disk drive, RAID (3 HDDs), tmpfs: mkdir/write/append/seek/read/list/rename/remove/label; EEPROM data/label | `RESULT drive=true` + `[mk=true,rd=world!,...]` for raid/floppy/tmp/hdd, `fsCount=4 eeprom=data!,FS test,...` |
 | `components.txt` | geolyzer, transposer, redstone I/O, hologram, data card (tier 3), internet card (HTTPS to example.com), motion sensor, 3D printer | eight `RESULT` lines without `ERR`/`nil,` values, chest with 4 cobblestone, `LAMP-LIT`, printer with 2 prints in slot 2 |
 | `machines.txt` | assembler builds a robot, disassembler, charger charging a robot, rack + server blade, microcontroller placed from item NBT lighting a lamp, capacitor | `done=idle,false` and `opencomputers:robot` in the assembler, `charged=true`, `RESULT server comps=computer,eeprom,filesystem,modem`, `MC-LAMP-LIT`, `RESULT mc comps=...redstone`, iron nuggets in the disassembler's chest |
+| `navsign.txt` | robot creates map #0 with an empty map, then navigation upgrade (holding map #0: position, facing, range, waypoint "home"), sign upgrade (read / write the sign in front), tractor beam (picks up 3 diamonds) | `RESULT posNoMap=nil,invalid map makeMap=true,item_used pos=30.5,-59.5,60.5 facing=3.0 range=64.0 wp={1:{...label:home;position:{1:3.0;2:-1.0;3:2.0...}...}} signGet=hello\|world\|\| signSet=robot\|was here\|\| ... suck=true suck2=false count4=3.0 item4=minecraft:diamondx3.0`, sign block data `"robot", "was here"` |
+| `chunkloader.txt` | robots with / without chunkloader upgrade far from spawn, no players, after `forceload remove all`; a chunk forced with `/forceload` in the loader's area; robot moves into the next chunk; restart; robot removed | `CL-R1-LOADED`, `CL-R1-MOVED`, `running=true`, `CL-R2-UNLOADED`, `CL-R3-LOADED`, `CL-R3-MOVED`, `CL-R1-RELEASED`, `CL-R2-DID-NOT-MOVE`, `CL-R3-RESTORED`, `CL-R3-RELEASED` and every `forceload query` saying chunk [125, 124] `is marked for force loading` |
+| `shell.txt` (use `CUT=2000`) | OpenOS (Lua BIOS + OpenOS floppy) on a robot with screen/keyboard/GPU; `oc_debug type` runs `ls /`, `echo hi > /tmp/x`, `cat /tmp/x` and a script calling `require('robot').forward()` | `SHELL-ROBOT-MOVED`; the last `oc_debug screen` shows the `ls /` listing, `hi`, `fwd     true` and `f.lua  x` (`ls /tmp` after the move) |
+| `disassembler.txt` | tier 1 CPU (9 ingredients) in a disassembler: one ingredient per 2000 energy at 25 energy per 10 ticks = 40 s each, like 1.12 / 1.16.5 (a whole CPU takes ~6 min) | chest holds 1 / 2 / 3 iron nuggets at ~45 / 85 / 125 s (the disassembler's `oc:buffer` at 225.0 / 100.0) |
+| `hoverboots.txt` | hover boots charging in a charger (100 energy per 10 ticks) | `"oc:charge": 400.0d` after 2 s, `2400.0d` after 12 s |
 
 `client.sh <servers-dir> <loader> <port> <display>` is the client check: it builds
 `gameplay/client-scene.txt` on the server, joins with a dev client under xvfb, opens the GUIs of
 the case, robot, drone, disk drive, RAID, rack, assembler, disassembler, printer, charger, relay,
 adapter, manual, database upgrade, server and tablet (screenshots in `<servers-dir>/shots`) and
 types into a screen through a keyboard (`RESULT typed=hello keyboards=1`).
+
+`client-player.sh <servers-dir> <loader> <port> <display>` (same requirements; the client joins
+as `OCTester`) checks what needs a real player, in survival mode (see the script header):
+
+| Check | Expected (Forge and Fabric) |
+|---|---|
+| hover boots: walk onto a 1 block platform, jump onto a 2 block one, fall 13 blocks; without, then with charged boots | `STEP-NOBOOTS` / `JUMP-NOBOOTS` at y `-60.0d` (blocked), `FALL-NOBOOTS` health `10.0f`; `STEP-BOOTS` y `-59.0d`, `JUMP-BOOTS` y `-58.0d`, `FALL-BOOTS` health `19.0f`; boots `oc:charge` below 15000 |
+| nanomachines: eat (hold right click), `nano.lua` over a wireless card | `oc:hasNanomachines: 1b`; `RESULT nano first port=port,7.0 power=power,19974.8,100000.0 name=name,OCTester inputs=totalInputCount,17.0 safe=...,2.0 max=...,4.0 set1=input,1.0,true ... health=health,H,20.0 set3=input,3.0,true overloaded=health,H-5 or less,...`; HUD bar left of the hotbar in `shots/<loader>-player-nano-hud.png` |
+| tablet with Lua BIOS + OpenOS floppy, right click, `oc_debug tablet ... type` | tablet GUI with OpenOS in `shots/<loader>-player-tablet.png`, screen shows the `ls /` listing and `hi` |
+| damage types | `DAMAGE-TYPES` health `13.0f` (7 damage through a diamond chestplate: armor bypassed) |
+| restart server + client: `<uuid>.ocnm` in `playerdata/`, `nano.lua` again, overload until death | `oc:hasNanomachines: 1b`, `RESULT nano again ... inputs=totalInputCount,17.0 ... in1=input,1.0,true in2=input,2.0,true in3=input,3.0,false ...` (same configuration), a nanomachines overload death message (e.g. `The nanomachines of OCTester went out of control.`) |
 
 ## Advancements
 

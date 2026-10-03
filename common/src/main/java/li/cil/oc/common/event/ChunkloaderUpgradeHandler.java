@@ -1,6 +1,7 @@
 package li.cil.oc.common.event;
 
 import dev.architectury.event.events.common.LifecycleEvent;
+import dev.architectury.event.events.common.TickEvent;
 import li.cil.oc.OpenComputers;
 import li.cil.oc.api.event.EventBus;
 import li.cil.oc.api.event.RobotMoveEvent;
@@ -12,6 +13,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -26,15 +28,25 @@ import java.util.UUID;
 /**
  * Chunk loading for the chunkloader upgrade.
  * <p>
- * Forge's ticket based ForgeChunkManager is replaced by vanilla {@link ServerLevel#setChunkForced}
- * plus OC-side bookkeeping: each loader (identified by its node address) owns a 3x3 area around a
- * center chunk. The owners and their centers are persisted per level in a {@link SavedData}, and a
- * chunk is forced as long as any owner's area covers it. On level load the persisted owners become
- * "restored tickets" which loaders reclaim via {@link #claimTicket}; tickets not reclaimed by the next
- * level save are considered orphaned and released.
+ * Forge's ticket based ForgeChunkManager is replaced by vanilla chunk tickets of OC's own
+ * {@link #TICKET_TYPE}: each loader (identified by its node address) owns one region ticket that
+ * keeps the 3x3 chunks around its center chunk entity-ticking (like the nine forced chunks of the
+ * original). Tickets are keyed by the owner, so they never interfere with each other or with
+ * chunks forced by other means ({@code /forceload}, other mods): releasing a loader only removes
+ * its own ticket. Vanilla does not persist tickets, so the owners and their centers are persisted
+ * per level in a {@link SavedData} and re-added on level load as "restored tickets" which loaders
+ * reclaim via {@link #claimTicket}; tickets not reclaimed by the next level save are considered
+ * orphaned and released. Since a level without players stops ticking (block) entities after a
+ * while unless it has forced chunks, levels with active tickets are kept awake each tick.
  */
 public final class ChunkloaderUpgradeHandler {
     private static final String DataName = OpenComputers.ID + "_chunkloaders";
+
+    /** Ticket type of the chunkloader upgrade; the ticket's value is the owner (node address). */
+    public static final TicketType<UUID> TICKET_TYPE = TicketType.create(OpenComputers.ID + ":chunkloader", UUID::compareTo);
+
+    /** Ticket level 33 - 3 = 30: the center chunk and its 8 neighbours are entity ticking. */
+    private static final int TICKET_DISTANCE = 3;
 
     private static final Map<ResourceKey<Level>, Map<UUID, ChunkPos>> restoredTickets = new HashMap<>();
 
@@ -45,6 +57,7 @@ public final class ChunkloaderUpgradeHandler {
         LifecycleEvent.SERVER_LEVEL_LOAD.register(ChunkloaderUpgradeHandler::onWorldLoad);
         LifecycleEvent.SERVER_LEVEL_SAVE.register(ChunkloaderUpgradeHandler::onWorldSave);
         LifecycleEvent.SERVER_STOPPED.register(server -> restoredTickets.clear());
+        TickEvent.SERVER_LEVEL_PRE.register(ChunkloaderUpgradeHandler::onLevelTick);
         EventBus.INSTANCE.register(RobotMoveEvent.Post.class, ChunkloaderUpgradeHandler::onMove);
     }
 
@@ -75,8 +88,15 @@ public final class ChunkloaderUpgradeHandler {
             ChunkPos pos = entry.getValue();
             OpenComputers.log.info("Restoring chunk loader ticket for upgrade at chunk (" + pos.x + ", " + pos.z + ") with address " + entry.getKey() + ".");
             restored.put(entry.getKey(), pos);
-            // Make sure the chunks are actually forced (vanilla persists this, but be safe).
-            forceArea(world, data, pos);
+            addTicket(world, entry.getKey(), pos);
+        }
+    }
+
+    // Vanilla stops ticking entities and block entities in a level without players 300 ticks
+    // after the last one left, unless the level has forced chunks; our tickets count as such.
+    private static void onLevelTick(ServerLevel world) {
+        if (!data(world).tickets.isEmpty()) {
+            world.resetEmptyTime();
         }
     }
 
@@ -125,7 +145,7 @@ public final class ChunkloaderUpgradeHandler {
             ChunkPos current = data.tickets.remove(uuid.get());
             if (current != null) {
                 data.setDirty();
-                updateArea(world, data, current);
+                removeTicket(world, uuid.get(), current);
             }
         }
         else OpenComputers.log.warn("Address '" + addr + "' could not be parsed");
@@ -141,8 +161,8 @@ public final class ChunkloaderUpgradeHandler {
             if (!centerChunk.equals(loader.ticket.get()) || !centerChunk.equals(data.tickets.get(owner.get()))) {
                 ChunkPos stored = data.tickets.put(owner.get(), centerChunk);
                 data.setDirty();
-                forceArea(world, data, centerChunk);
-                if (stored != null && !stored.equals(centerChunk)) updateArea(world, data, stored);
+                addTicket(world, owner.get(), centerChunk);
+                if (stored != null && !stored.equals(centerChunk)) removeTicket(world, owner.get(), stored);
                 loader.ticket = Optional.of(centerChunk);
             }
         }
@@ -154,31 +174,12 @@ public final class ChunkloaderUpgradeHandler {
         return world.getDataStorage().computeIfAbsent(TicketData::load, TicketData::new, DataName);
     }
 
-    private static boolean isCovered(TicketData data, int x, int z) {
-        for (ChunkPos center : data.tickets.values()) {
-            if (Math.abs(center.x - x) <= 1 && Math.abs(center.z - z) <= 1) return true;
-        }
-        return false;
+    private static void addTicket(ServerLevel world, UUID owner, ChunkPos center) {
+        world.getChunkSource().addRegionTicket(TICKET_TYPE, center, TICKET_DISTANCE, owner);
     }
 
-    private static void forceArea(ServerLevel world, TicketData data, ChunkPos center) {
-        for (int x = -1; x <= 1; x++) {
-            for (int z = -1; z <= 1; z++) {
-                world.setChunkForced(center.x + x, center.z + z, true);
-            }
-        }
-    }
-
-    // Unforces chunks in the 3x3 area around center that are no longer covered by any loader.
-    // TODO(port): this may also unforce chunks forced by other means (e.g. /forceload).
-    private static void updateArea(ServerLevel world, TicketData data, ChunkPos center) {
-        for (int x = -1; x <= 1; x++) {
-            for (int z = -1; z <= 1; z++) {
-                int cx = center.x + x;
-                int cz = center.z + z;
-                world.setChunkForced(cx, cz, isCovered(data, cx, cz));
-            }
-        }
+    private static void removeTicket(ServerLevel world, UUID owner, ChunkPos center) {
+        world.getChunkSource().removeRegionTicket(TICKET_TYPE, center, TICKET_DISTANCE, owner);
     }
 
     private static final class TicketData extends SavedData {

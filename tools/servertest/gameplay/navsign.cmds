@@ -1,0 +1,15 @@
+# Navigation, sign and tractor beam upgrades (navsign.lua): a robot at 30,0,60 facing south with
+# an empty map in its tool slot (it creates map #0 centered at 0,0, which its navigation upgrade
+# refers to), an oak sign in front of it, waypoint "home" at 33,0,62 and three diamonds on the
+# ground next to it.
+forceload add 16 48 48 80
+setblock 30 -60 61 minecraft:oak_sign{front_text:{messages:['"hello"','"world"','""','""']}}
+setblock 33 -60 62 opencomputers:waypoint{"oc:label":"home"}
+oc_debug place 30 -60 60 opencomputers:robot{"oc:tier":3,"oc:robotEnergy":50000,"oc:components":[{id:"opencomputers:cpu3",Count:1b},{id:"opencomputers:ram6",Count:1b},{id:"opencomputers:inventoryupgrade",Count:1b},{id:"opencomputers:inventorycontrollerupgrade",Count:1b},{id:"opencomputers:navigationupgrade",Count:1b,tag:{"oc:data":{"oc:map":{id:"minecraft:filled_map",Count:1b,tag:{map:0}}}}},{id:"opencomputers:signupgrade",Count:1b},{id:"opencomputers:tractorbeamupgrade",Count:1b},{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(navsign.lua)}]}
+item replace block 30 -60 60 container.0 with minecraft:map
+summon minecraft:item 31.5 -60 59.5 {Item:{id:"minecraft:diamond",Count:3b},PickupDelay:0s}
+WAIT 3
+oc_debug start 30 -60 60
+WAIT 10
+oc_debug status 30 -60 60
+data get block 30 -60 61 front_text.messages

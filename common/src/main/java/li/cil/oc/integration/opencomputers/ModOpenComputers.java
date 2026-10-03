@@ -89,9 +89,9 @@ public final class ModOpenComputers implements ModProxy {
         IMC.registerProgramDiskLabel("opl-flash", "openloader", "Lua 5.2", "Lua 5.3", "LuaJ");
         IMC.registerProgramDiskLabel("oppm", "oppm", "Lua 5.2", "Lua 5.3", "LuaJ");
 
-        // TODO(port): ForgeChunkManager.setForcedChunkLoadingCallback(OpenComputers.ID, ChunkloaderUpgradeHandler)
-        //  is gone; chunk loader upgrades restore their tickets via vanilla ServerLevel.setChunkForced
-        //  bookkeeping in ChunkloaderUpgradeHandler.
+        // Formerly ForgeChunkManager.setForcedChunkLoadingCallback(OpenComputers.ID, ChunkloaderUpgradeHandler):
+        // chunk loader upgrades use vanilla chunk tickets of their own type now, persisted and restored
+        // by ChunkloaderUpgradeHandler.
 
         // Formerly MinecraftForge.EVENT_BUS.register(...) for EventHandler, NanomachinesHandler.Common,
         // AngelUpgradeHandler, ChunkloaderUpgradeHandler, ExperienceUpgradeHandler, FileSystemAccessHandler,

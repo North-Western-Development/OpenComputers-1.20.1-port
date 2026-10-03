@@ -1,0 +1,13 @@
+forceload add 48 48 64 80
+setblock 50 -60 60 opencomputers:casecreative
+setblock 51 -60 60 opencomputers:disassembler
+setblock 51 -59 60 minecraft:chest
+item replace block 51 -60 60 container.0 with opencomputers:cpu1
+WAIT 45
+data get block 51 -60 60
+data get block 51 -59 60 Items
+WAIT 40
+data get block 51 -59 60 Items
+WAIT 40
+data get block 51 -59 60 Items
+data get block 51 -60 60

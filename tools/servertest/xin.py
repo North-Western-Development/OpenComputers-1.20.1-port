@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# xin.py <action>...  (DISPLAY and XAUTHORITY must be set) actions: rclick | lclick | key:<keysym> | type:<text> | sleep:<sec> | move:x,y
+# xin.py <action>...  (DISPLAY and XAUTHORITY must be set) actions: rclick | lclick | rhold:<sec> | key:<keysym> | down:<keysym> | up:<keysym> | type:<text> | sleep:<sec> | move:x,y
 import sys, os, glob, time
 from Xlib import X, XK, display
 from Xlib.ext import xtest
@@ -21,7 +21,13 @@ for a in sys.argv[1:]:
         b = 3 if a == 'rclick' else 1
         xtest.fake_input(d, X.ButtonPress, b); d.sync(); time.sleep(0.1)
         xtest.fake_input(d, X.ButtonRelease, b); d.sync()
+    elif a.startswith('rhold:'):  # hold the right mouse button for n seconds (e.g. eating)
+        xtest.fake_input(d, X.ButtonPress, 3); d.sync(); time.sleep(float(a[6:]))
+        xtest.fake_input(d, X.ButtonRelease, 3); d.sync()
     elif a.startswith('key:'): key(a[4:])
+    elif a.startswith('down:') or a.startswith('up:'):  # hold / release a key, e.g. down:w sleep:2 up:w
+        sym = a.split(':', 1)[1]
+        xtest.fake_input(d, X.KeyPress if a.startswith('down:') else X.KeyRelease, d.keysym_to_keycode(XK.string_to_keysym(sym))); d.sync()
     elif a.startswith('type:'):
         for ch in a[5:]: key(names.get(ch, ch))
     elif a.startswith('sleep:'): time.sleep(float(a[6:]))
