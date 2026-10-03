@@ -30,7 +30,13 @@ public class Printer extends Player {
                 return PrintData.inkValue(stack) > 0;
             }
         });
-        addSlotToContainer(152, 35);
+        // Output slot: nothing may be put in, not even client side (where the inventory is a dummy).
+        addSlot(new net.minecraft.world.inventory.Slot(otherInventory, slots.size(), 152, 35) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return false;
+            }
+        });
 
         // Show the player's inventory.
         addPlayerInventorySlots(8, 84);
