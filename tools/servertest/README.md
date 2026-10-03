@@ -112,3 +112,13 @@ CodeChickenLib (an override of a vanilla private method that Loom can't remap); 
 
 The Forge-only command files can be run together (they use separate coordinates); on Fabric they
 only print unknown-block errors.
+
+## NeoForge 1.20.1
+
+The Forge jar also runs on NeoForge 1.20.1 (`net.neoforged:forge:1.20.1-47.1.106`). Install a
+server with the NeoForge installer (`--installServer`) into a `forge/` directory and run the tests
+with `LOADERS=forge run.sh <dir> <file>`; all core, gameplay and integration tests pass there.
+A NeoForge client can be launched headless with portablemc
+(`portablemc start neoforge:1.20.1-47.1.106 -u <name> -s localhost -p <port>` under xvfb). Known
+third-party issue: JEI 15.62 calls a Forge-only tooltip method on NeoForge 47.1.106 (logged
+`NoSuchMethodError`; only the mod name shows twice in tooltips).

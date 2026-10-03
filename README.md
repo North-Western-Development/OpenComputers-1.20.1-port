@@ -2,7 +2,7 @@
 
 > **About this port.** This branch ports OpenComputers to **Minecraft 1.20.1** as a multi-loader
 > mod built with [Architectury](https://docs.architectury.dev/): one codebase producing a **Forge**
-> jar (which also runs on NeoForge 1.20.1) and a **Fabric** jar. The original Scala sources were
+> jar (which also runs on NeoForge 1.20.1; tested with NeoForge 47.1.106) and a **Fabric** jar. The original Scala sources were
 > converted to Java. See [PORTING.md](PORTING.md) for the conventions and design decisions, and
 > [docs/reports](docs/reports) for per-area notes and known gaps (`TODO(port)` markers in code).
 >

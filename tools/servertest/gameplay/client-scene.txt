@@ -15,7 +15,7 @@ setblock 27 -60 60 opencomputers:charger
 setblock 30 -60 60 opencomputers:relay
 setblock 33 -60 60 opencomputers:adapter
 setblock 36 -60 60 opencomputers:microcontroller
-setblock 40 -60 60 opencomputers:screen3[yaw=north]
+setblock 40 -60 60 opencomputers:screen3[pitch=north,yaw=north]
 setblock 40 -60 61 opencomputers:casecreative
 setblock 41 -60 60 opencomputers:keyboard
 item replace block 40 -60 61 container.0 with opencomputers:graphicscard3
