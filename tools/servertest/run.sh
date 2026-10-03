@@ -79,6 +79,6 @@ sleep 5
 stop
 for d in $LOADERS; do
   echo "===== $d"
-  grep -anE "oc_debug|LAMP|\[Server\]|has the following|No drones|Exception|ERROR|Caused by|^\s+at li\.cil|Crash|Unknown or incomplete|No machine|Incorrect argument" "$DIR/$d/out.all.log" \
+  grep -anE "oc_debug|LAMP|\[Server\]|has the following|No drones|Exception|ERROR|Caused by|^\s+at li\.cil|Crash|Unknown or incomplete|No machine|Incorrect argument|force load|not loaded" "$DIR/$d/out.all.log" \
     | grep -vE "No data fixer registered|No key layers" | cut -c1-${CUT:-300} | head -${HEAD:-40}
 done

@@ -1,0 +1,45 @@
+# Chunkloader upgrade (chunkloader.lua: after 30 s of uptime the robot moves one block south,
+# from chunk z=125 into z=126, then idles), far away from spawn and without players:
+# R1 at 2000,0,2015 and R3 at 4000,0,4015 have a chunkloader, R2 at 3000,0,3015 has none.
+# After `forceload remove all` R1 and R3 keep running and move (R2 is unloaded and stays), the
+# chunk 125,124 forced with /forceload (only covered by R1's area before it moved) stays forced
+# while R1 moves and after R1 is turned off (which releases its chunks). R3's chunks are loaded
+# again after a restart and released when R3 is removed.
+forceload add 2000 2015
+forceload add 3000 3015
+forceload add 4000 4015
+oc_debug place 2000 -60 2015 opencomputers:robot{"oc:tier":3,"oc:robotEnergy":50000,"oc:components":[{id:"opencomputers:cpu3",Count:1b},{id:"opencomputers:ram6",Count:1b},{id:"opencomputers:chunkloaderupgrade",Count:1b},{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(chunkloader.lua)}]}
+oc_debug place 3000 -60 3015 opencomputers:robot{"oc:tier":3,"oc:robotEnergy":50000,"oc:components":[{id:"opencomputers:cpu3",Count:1b},{id:"opencomputers:ram6",Count:1b},{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(chunkloader.lua)}]}
+oc_debug place 4000 -60 4015 opencomputers:robot{"oc:tier":3,"oc:robotEnergy":50000,"oc:components":[{id:"opencomputers:cpu3",Count:1b},{id:"opencomputers:ram6",Count:1b},{id:"opencomputers:chunkloaderupgrade",Count:1b},{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(chunkloader.lua)}]}
+WAIT 3
+oc_debug start 2000 -60 2015
+oc_debug start 3000 -60 3015
+oc_debug start 4000 -60 4015
+WAIT 3
+forceload remove all
+forceload add 2000 1984
+WAIT 45
+execute if loaded 2000 -60 2016 run say CL-R1-LOADED
+execute if block 2000 -60 2016 opencomputers:robot run say CL-R1-MOVED
+oc_debug status 2000 -60 2016
+execute unless loaded 3000 -60 3015 run say CL-R2-UNLOADED
+execute if loaded 4000 -60 4016 run say CL-R3-LOADED
+execute if block 4000 -60 4016 opencomputers:robot run say CL-R3-MOVED
+forceload query 2000 1984
+oc_debug stop 2000 -60 2016
+WAIT 10
+execute unless loaded 2000 -60 2016 run say CL-R1-RELEASED
+forceload query 2000 1984
+forceload add 3000 3015
+WAIT 3
+execute if block 3000 -60 3015 opencomputers:robot run say CL-R2-DID-NOT-MOVE
+forceload remove 3000 3015
+save-all
+RESTART
+WAIT 10
+execute if loaded 4000 -60 4016 run say CL-R3-RESTORED
+oc_debug status 4000 -60 4016
+setblock 4000 -60 4016 minecraft:air
+WAIT 10
+execute unless loaded 4000 -60 4016 run say CL-R3-RELEASED
+forceload query 2000 1984

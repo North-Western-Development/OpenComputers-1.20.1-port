@@ -1,0 +1,25 @@
+# OpenOS shell on a robot: a tier 3 robot at 40,0,60 (facing south) with screen, keyboard, GPU,
+# Lua BIOS, OpenOS floppy and an HDD boots OpenOS; /oc_debug type pastes command lines into its
+# shell through its keyboard and /oc_debug screen prints its screen.
+forceload add 32 48 48 80
+oc_debug place 40 -60 60 opencomputers:robot{"oc:tier":3,"oc:robotEnergy":50000,"oc:components":[{id:"opencomputers:screen1",Count:1b},{id:"opencomputers:keyboard",Count:1b},{id:"opencomputers:graphicscard1",Count:1b},{id:"opencomputers:cpu3",Count:1b},{id:"opencomputers:ram6",Count:1b},{id:"opencomputers:ram6",Count:1b},{id:"opencomputers:hdd1",Count:1b},{id:"opencomputers:floppy",Count:1b,tag:{"oc:data":{"oc:fs.label":"OpenOS (Operating System)"},"oc:lootFactory":"opencomputers:openos","oc:color":13}},{id:"opencomputers:eeprom",Count:1b,tag:@BIOS}]}
+WAIT 3
+oc_debug start 40 -60 60
+WAIT 15
+oc_debug status 40 -60 60
+oc_debug type 40 -60 60 ls /
+WAIT 3
+oc_debug type 40 -60 60 echo hi > /tmp/x
+WAIT 2
+oc_debug type 40 -60 60 cat /tmp/x
+WAIT 2
+oc_debug type 40 -60 60 echo "print('fwd', require('robot').forward())" > /tmp/f.lua
+WAIT 2
+oc_debug type 40 -60 60 /tmp/f.lua
+WAIT 4
+oc_debug screen 40 -60 60
+execute if block 40 -60 61 opencomputers:robot run say SHELL-ROBOT-MOVED
+oc_debug type 40 -60 61 ls /tmp
+WAIT 3
+oc_debug screen 40 -60 61
+oc_debug status 40 -60 61

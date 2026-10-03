@@ -1,0 +1,9 @@
+forceload add 48 64 64 80
+setblock 56 -60 70 opencomputers:casecreative
+setblock 57 -60 70 opencomputers:charger
+setblock 57 -59 70 minecraft:redstone_block
+item replace block 57 -60 70 container.0 with opencomputers:hoverboots
+WAIT 2
+data get block 57 -60 70 "oc:items"
+WAIT 10
+data get block 57 -60 70 "oc:items"

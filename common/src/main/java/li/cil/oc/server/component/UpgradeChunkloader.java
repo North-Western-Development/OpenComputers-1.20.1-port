@@ -29,8 +29,8 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Chunk forcing itself (vanilla {@code ServerLevel.setChunkForced} plus OC-side
- * bookkeeping) lives in {@link ChunkloaderUpgradeHandler}; this class only keeps
+ * Chunk loading itself (vanilla chunk tickets owned by this upgrade's address plus
+ * OC-side bookkeeping) lives in {@link ChunkloaderUpgradeHandler}; this class only keeps
  * track of the current ticket (the center chunk) in {@link #ticket}.
  */
 public class UpgradeChunkloader extends AbstractManagedEnvironment implements DeviceInfo {
@@ -128,7 +128,10 @@ public class UpgradeChunkloader extends AbstractManagedEnvironment implements De
     public void onDisconnect(Node node) {
         super.onDisconnect(node);
         if (node == this.node()) {
-            if (host.world() instanceof ServerLevel world) {
+            // Since 1.17 the server unloads all chunks before the final save when it shuts down,
+            // which disconnects us; keep the persisted ticket then so it is restored on the next
+            // start (like Forge's persisted tickets were).
+            if (host.world() instanceof ServerLevel world && world.getServer().isRunning()) {
                 ticket.ifPresent(pos -> ChunkloaderUpgradeHandler.releaseTicket(world, node.address(), pos));
             }
             ticket = Optional.empty();
@@ -174,7 +177,11 @@ public class UpgradeChunkloader extends AbstractManagedEnvironment implements De
         if (dimension == Level.OVERWORLD) id = 0;
         else if (dimension == Level.NETHER) id = -1;
         else if (dimension == Level.END) id = 1;
-        else throw new Error("deprecated"); // TODO(port): numeric dimension ids do not exist for modded dimensions.
+        else {
+            // Numeric dimension ids do not exist for modded dimensions anymore: they are allowed
+            // unless there is a whitelist (which can only name the vanilla dimensions).
+            return Settings.get().chunkloadDimensionWhitelist.isEmpty();
+        }
         final List<Integer> whitelist = Settings.get().chunkloadDimensionWhitelist;
         final List<Integer> blacklist = Settings.get().chunkloadDimensionBlacklist;
         if (!whitelist.isEmpty()) {
