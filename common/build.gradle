@@ -22,6 +22,10 @@ dependencies {
     // (dan200.computercraft.core.methods.*); bundled in the forge/fabric jars at runtime.
     compileOnly("cc.tweaked:cc-tweaked-1.20.1-core:${rootProject.cct_version}") { transitive = false }
     compileOnly "mezz.jei:jei-1.20.1-common-api:${rootProject.jei_version}"
+    // Fabric API is needed on the remap classpath of the Fabric mod jars below: Loom shares the
+    // remapped jars with the fabric project, and without it inherited Fabric API methods (e.g.
+    // FabricItemSettings.stacksTo in AE2) would keep their intermediary names in dev runs.
+    modCompileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
     modCompileOnly("appeng:appliedenergistics2-fabric:${rootProject.ae2_version}") { transitive = false }
     modCompileOnly("maven.modrinth:jade:${rootProject.jade_version}+fabric") { transitive = false }
     modCompileOnly("maven.modrinth:tis3d:MC1.20.1-fabric-${rootProject.tis3d_version}") { transitive = false }

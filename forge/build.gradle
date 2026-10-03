@@ -34,6 +34,28 @@ repositories {
     maven { url "https://maven.minecraftforge.net/" }
 }
 
+// Downloads a mod jar for development runs and rewrites some of its entries (see the uses
+// below for why). The result is cached in build/devMods.
+def devPatchedJar(String name, String url, Closure patch) {
+    def out = layout.buildDirectory.file("devMods/${name}-dev.jar").get().asFile
+    if (!out.exists()) {
+        out.parentFile.mkdirs()
+        def bytes = new URL(url).withInputStream { it.readAllBytes() }
+        new java.util.zip.ZipInputStream(new ByteArrayInputStream(bytes)).withCloseable { zin ->
+            new java.util.zip.ZipOutputStream(new FileOutputStream(out)).withCloseable { zout ->
+                def entry
+                while ((entry = zin.nextEntry) != null) {
+                    def data = patch(entry.name, zin.readAllBytes())
+                    zout.putNextEntry(new java.util.zip.ZipEntry(entry.name))
+                    zout.write(data)
+                    zout.closeEntry()
+                }
+            }
+        }
+    }
+    return out
+}
+
 dependencies {
     forge "net.minecraftforge:forge:${rootProject.forge_version}"
     modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}"
@@ -49,16 +71,61 @@ dependencies {
     integration "appeng:appliedenergistics2-forge:${rootProject.ae2_version}"
     integration "cc.tweaked:cc-tweaked-1.20.1-forge:${rootProject.cct_version}"
     integration "mezz.jei:jei-1.20.1-forge:${rootProject.jei_version}"
-    integration "maven.modrinth:jade:${rootProject.jade_version}+forge"
+    modCompileOnly("maven.modrinth:jade:${rootProject.jade_version}+forge") { transitive = false }
+    if (project.hasProperty("integrations")) {
+        // Jade's StringRenderOutputMixin shadows Font$StringRenderOutput.this$0, a synthetic field
+        // that has no name in Mojang's mappings, so it can't apply in the Forge dev environment
+        // and crashes the client (production is fine). Dev runs use a copy of Jade without it.
+        modLocalRuntime files(devPatchedJar("Jade-${rootProject.jade_version}-forge",
+                "https://api.modrinth.com/maven/maven/modrinth/jade/${rootProject.jade_version}+forge/jade-${rootProject.jade_version}+forge.jar") { name, data ->
+            name == "jade.mixins.json" ? new String(data, "UTF-8").replaceAll(/,?\s*"StringRenderOutputMixin"/, "").getBytes("UTF-8") : data
+        })
+    }
     integration "maven.modrinth:tis3d:MC1.20.1-forge-${rootProject.tis3d_version}"
+    // CC: Tweaked's jar-in-jar libraries are not picked up from the dev runtime jar.
+    if (project.hasProperty("integrations")) {
+        forgeRuntimeLibrary "cc.tweaked:cobalt:0.9.9"
+        forgeRuntimeLibrary "com.jcraft:jzlib:1.1.3"
+    }
+    // TIS-3D runtime dependencies (dev runs only).
+    if (project.hasProperty("integrations")) {
+        modLocalRuntime("maven.modrinth:markdownmanual:MC1.20.1-forge-1.2.5") { transitive = false }
+    }
     integration "mekanism:Mekanism:${rootProject.mekanism_version}"
-    integration "io.codechicken:CodeChickenLib:${rootProject.codechickenlib_version}:universal"
+    modCompileOnly("io.codechicken:CodeChickenLib:${rootProject.codechickenlib_version}:universal") { transitive = false }
+    if (project.hasProperty("integrations")) {
+        // CodeChickenLib's CCShaderInstance overrides ShaderInstance.parseUniformNode, which is private
+        // in vanilla and only opened by CCL's access transformer. Loom's remapper therefore doesn't
+        // rename the override in dev, vanilla's method runs, and the client crashes. Dev runs use a
+        // copy where the override already carries its dev name (production is unaffected).
+        def v = rootProject.codechickenlib_version
+        modLocalRuntime files(devPatchedJar("CodeChickenLib-${v}-universal",
+                "https://maven.covers1624.net/io/codechicken/CodeChickenLib/${v}/CodeChickenLib-${v}-universal.jar") { name, data ->
+            if (name != "codechicken/lib/render/shader/CCShaderInstance.class") return data
+            def reader = new org.objectweb.asm.ClassReader(data)
+            def writer = new org.objectweb.asm.ClassWriter(0)
+            reader.accept(new org.objectweb.asm.ClassVisitor(org.objectweb.asm.Opcodes.ASM9, writer) {
+                @Override
+                org.objectweb.asm.MethodVisitor visitMethod(int access, String mname, String desc, String sig, String[] ex) {
+                    return super.visitMethod(access, mname == "m_173354_" ? "parseUniformNode" : mname, desc, sig, ex)
+                }
+            }, 0)
+            return writer.toByteArray()
+        })
+    }
     integration "io.codechicken:EnderStorage:${rootProject.enderstorage_version}:universal"
     integration "io.codechicken:CBMultipart:${rootProject.cbmultipart_version}:universal"
-    integration "mrtjp:ProjectRed:${rootProject.projectred_version}:core"
     integration "mrtjp:ProjectRed:${rootProject.projectred_version}:transmission"
+    modCompileOnly("mrtjp:ProjectRed:${rootProject.projectred_version}:core") { transitive = false }
     if (project.hasProperty("integrations")) {
-        modLocalRuntime("mezz.jei:jei-1.20.1-common:${rootProject.jei_version}") { transitive = false }
+        // Forge derives module names from jar file names, and the core and transmission jars only
+        // differ in their classifier, so one would shadow the other on the dev classpath. Use a
+        // renamed copy of the core jar instead.
+        def v = rootProject.projectred_version
+        modLocalRuntime files(devPatchedJar("ProjectRedCore-${v}",
+                "https://maven.covers1624.net/mrtjp/ProjectRed/${v}/ProjectRed-${v}-core.jar") { name, data -> data })
+    }
+    if (project.hasProperty("integrations")) {
         // JEI's jar-in-jar dependency is not picked up from the dev runtime jar.
         modLocalRuntime("net.mezzdev.config:mezz_config-1.20.1-forge:${rootProject.mezz_config_version}") { transitive = false }
         // AE2 15.x on Forge requires GuideME (Fabric AE2 bundles everything it needs).
