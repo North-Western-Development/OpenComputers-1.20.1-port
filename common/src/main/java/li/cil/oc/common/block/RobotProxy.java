@@ -242,6 +242,9 @@ public class RobotProxy extends RedstoneAware implements StateAware {
         li.cil.oc.api.network.Connector botNode = (li.cil.oc.api.network.Connector) robot.bot.node();
         botNode.changeBuffer(robot.info.robotEnergy - botNode.localBuffer());
         robot.updateInventorySize();
+        // The block entity already joined its network when it was added to the level (before
+        // this), with the then still empty component list; connect the loaded components now.
+        if (robot.node().network() != null) robot.connectComponents();
     }
 
     @Override

@@ -1,0 +1,6 @@
+# Items client.sh puts into the player's hand and right-clicks (one per line, in this order:
+# manual, database, server, tablet). Not meant for run.sh.
+item replace entity @p weapon.mainhand with opencomputers:manual
+item replace entity @p weapon.mainhand with opencomputers:databaseupgrade3
+item replace entity @p weapon.mainhand with opencomputers:server3
+item replace entity @p weapon.mainhand with opencomputers:tablet{"oc:items":[{slot:0b,item:{id:"opencomputers:screen1",Count:1b}},{slot:1b,item:{id:"opencomputers:keyboard",Count:1b}},{slot:2b,item:{id:"opencomputers:graphicscard1",Count:1b}},{slot:3b,item:{id:"opencomputers:cpu1",Count:1b}},{slot:4b,item:{id:"opencomputers:ram2",Count:1b}},{slot:5b,item:{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(tablet.lua)}}],"oc:energy":10000.0d,"oc:maxEnergy":10000.0d,"oc:tier":1}

@@ -1,0 +1,26 @@
+-- Data card (tier 3): hashes, base64, deflate, AES, ECDSA/ECDH.
+local d = component.proxy(component.list("data")())
+local o = {}
+local function add(k, f, ...) local r = table.pack(pcall(f, ...)) for i = 1, r.n do r[i] = tostring(r[i]) end o[#o + 1] = k .. "=" .. table.concat(r, ",", 2) end
+local function hex(s) return (s:gsub(".", function(c) return string.format("%02x", c:byte()) end)) end
+add("md5", function() return hex(d.md5("abc")) end)
+add("sha256", function() return hex(d.sha256("abc")):sub(1, 16) end)
+add("crc32", function() return hex(d.crc32("abc")) end)
+add("e64", d.encode64, "hello")
+add("d64", d.decode64, "aGVsbG8=")
+add("deflate", function() local s = string.rep("abc", 100) local z = d.deflate(s) return #z .. "/" .. tostring(d.inflate(z) == s) end)
+add("rand", function() return #d.random(16) end)
+add("aes", function() local k, iv = string.rep("k", 16), string.rep("i", 16) local c = d.encrypt("secret", k, iv) return #c .. "/" .. d.decrypt(c, k, iv) end)
+add("ecdsa", function()
+  local pub, priv = d.generateKeyPair(256)
+  local sig = d.ecdsa("msg", priv)
+  return pub.keyType() .. "/" .. tostring(pub.isPublic()) .. "/" .. tostring(d.ecdsa("msg", pub, sig)) .. "/" .. tostring(d.ecdsa("other", pub, sig))
+end)
+add("ecdh", function()
+  local pa, ka = d.generateKeyPair()
+  local pb, kb = d.generateKeyPair()
+  local pa2 = d.deserializeKey(pa.serialize(), "ec-public")
+  return tostring(d.ecdh(ka, pb) == d.ecdh(kb, pa2))
+end)
+add("limit", d.getLimit)
+error("RESULT " .. table.concat(o, " "))

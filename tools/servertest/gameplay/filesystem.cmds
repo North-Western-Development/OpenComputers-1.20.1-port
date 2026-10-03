@@ -1,0 +1,18 @@
+# Filesystems: a computer (40,0) with an HDD, a disk drive with a floppy (41,0) and a RAID with
+# three HDDs (39,0) next to it; fs.lua exercises every filesystem (incl. tmpfs) and the EEPROM.
+forceload add 32 0 48 16
+setblock 40 -60 0 opencomputers:casecreative
+item replace block 40 -60 0 container.3 with opencomputers:ram6
+item replace block 40 -60 0 container.5 with opencomputers:hdd1
+item replace block 40 -60 0 container.8 with opencomputers:cpu3
+item replace block 40 -60 0 container.9 with opencomputers:eeprom@EEPROM(fs.lua)
+setblock 41 -60 0 opencomputers:diskdrive
+item replace block 41 -60 0 container.0 with opencomputers:floppy
+setblock 39 -60 0 opencomputers:raid
+item replace block 39 -60 0 container.0 with opencomputers:hdd3
+item replace block 39 -60 0 container.1 with opencomputers:hdd3
+item replace block 39 -60 0 container.2 with opencomputers:hdd3
+WAIT 3
+oc_debug start 40 -60 0
+WAIT 8
+oc_debug status 40 -60 0

@@ -129,6 +129,16 @@ public interface ComponentInventory extends Inventory, Environment {
         }
     }
 
+    /**
+     * Port addition: drops the component list so it is re-created with the current inventory
+     * size, for inventories whose size is only known after they were added to the level (a
+     * microcontroller placed from an item gets its info in {@code setPlacedBy}).
+     */
+    default void resetComponents() {
+        disconnectComponents();
+        componentState().components = null;
+    }
+
     default void disconnectComponents() {
         for (Optional<ManagedEnvironment> entry : components()) {
             if (entry.isPresent()) {

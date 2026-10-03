@@ -238,7 +238,7 @@ public class Player extends ServerPlayer {
 
     @Override
     public Component getName() {
-        return Component.literal(agent.name());
+        return agent == null ? super.getName() : Component.literal(agent.name());
     }
 
     // ----------------------------------------------------------------------- //
@@ -270,7 +270,7 @@ public class Player extends ServerPlayer {
         final List<ItemEntity> itemsDropped = new ArrayList<>(adjacentItems());
         itemsDropped.removeAll(itemsBefore);
         for (ItemEntity drop : itemsDropped) {
-            drop.setDefaultPickUpDelay();
+            drop.setNoPickUpDelay();
             drop.playerTouch(this);
         }
     }
@@ -357,6 +357,10 @@ public class Player extends ServerPlayer {
 
     @Override
     public void setItemSlot(EquipmentSlot slotIn, ItemStack stack) {
+        if (agent == null) {
+            super.setItemSlot(slotIn, stack);
+            return;
+        }
         if (slotIn == EquipmentSlot.MAINHAND) {
             agent.equipmentInventory().setItem(0, stack);
             final int slot = inventory.selected;
@@ -378,6 +382,8 @@ public class Player extends ServerPlayer {
 
     @Override
     public ItemStack getItemBySlot(EquipmentSlot slotIn) {
+        // Called from ServerPlayer's constructor (spawn position collision check) before agent is set.
+        if (agent == null) return super.getItemBySlot(slotIn);
         if (slotIn == EquipmentSlot.MAINHAND)
             return agent.equipmentInventory().getItem(0);
         else if (slotIn == EquipmentSlot.OFFHAND)

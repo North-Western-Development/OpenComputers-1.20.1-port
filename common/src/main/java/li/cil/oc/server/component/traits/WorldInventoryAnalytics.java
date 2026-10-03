@@ -85,7 +85,7 @@ public interface WorldInventoryAnalytics extends WorldAware, SideRestricted, Net
     }
 
     @Callback(doc = "function(side:number, slot:number):table -- Get a description of the stack in the inventory on the specified side of the device.")
-    default Object[] getItem(Context context, Arguments args) {
+    default Object[] getStackInSlot(Context context, Arguments args) {
         if (Settings.get().allowItemStackInspection) {
             final Direction facing = checkSideForAction(args, 0);
             return withInventory(facing, inventory -> result(inventory.getStackInSlot(ExtendedArguments.checkSlot(args, inventory, 1))));

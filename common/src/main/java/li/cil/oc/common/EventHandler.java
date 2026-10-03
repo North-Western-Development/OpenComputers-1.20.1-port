@@ -103,6 +103,8 @@ public final class EventHandler {
         PlayerEvent.CHANGE_DIMENSION.register((player, oldLevel, newLevel) -> releasePressedKeys(player));
         PlayerEvent.PLAYER_QUIT.register(EventHandler::releasePressedKeys);
         EntityEvent.ADD.register(EventHandler::onEntityJoinWorld);
+        // On Fabric, EntityEvent.ADD does not fire for players joining the server.
+        PlayerEvent.PLAYER_JOIN.register(player -> onEntityJoinWorld(player, player.level()));
         PlayerEvent.CRAFT_ITEM.register(EventHandler::onCrafting);
         PlayerEvent.PICKUP_ITEM_POST.register((player, entity, stack) -> onPickup(player, stack));
         LifecycleEvent.SERVER_LEVEL_UNLOAD.register(EventHandler::onWorldUnload);

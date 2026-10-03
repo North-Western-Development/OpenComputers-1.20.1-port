@@ -111,6 +111,10 @@ public class Microcontroller extends RedstoneAware implements PowerAcceptor, Sta
         if (!world.isClientSide && world.getBlockEntity(pos) instanceof li.cil.oc.common.tileentity.Microcontroller tileEntity) {
             tileEntity.info.loadData(stack);
             tileEntity.snooperNode.changeBuffer(tileEntity.info.storedEnergy - tileEntity.snooperNode.localBuffer());
+            // The block entity joined its network when it was added to the level (before this),
+            // with the then still empty component list; re-create it and connect the components.
+            tileEntity.resetComponents();
+            if (tileEntity.machine().node().network() != null) tileEntity.connectComponents();
         }
     }
 

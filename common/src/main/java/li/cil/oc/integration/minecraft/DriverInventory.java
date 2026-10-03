@@ -139,7 +139,7 @@ public final class DriverInventory extends DriverSidedTileEntity {
         }
 
         @Callback(doc = "function(slot:number):table -- Get a description of the item stack in the specified slot.")
-        public Object[] getItem(final Context context, final Arguments args) {
+        public Object[] getStackInSlot(final Context context, final Arguments args) {
             if (Settings.get().allowItemStackInspection) {
                 if (notPermitted()) return new Object[]{null, "permission denied"};
                 return new Object[]{tileEntity.getItem(checkSlot(args, 0))};

@@ -1,0 +1,27 @@
+# Networking: computers A (30,0) and B (34,0), each with a network card, a wireless card and a
+# linked card (same tunnel), connected by cable - relay - cable. A broadcasts over the wire
+# (port 1), wirelessly (port 2) and through the linked card; B answers each message.
+forceload add 16 0 48 16
+setblock 30 -60 0 opencomputers:casecreative
+item replace block 30 -60 0 container.0 with opencomputers:lancard
+item replace block 30 -60 0 container.1 with opencomputers:wlancard2
+item replace block 30 -60 0 container.2 with opencomputers:linkedcard{"oc:data":{"oc:tunnel":"oc-test"}}
+item replace block 30 -60 0 container.3 with opencomputers:ram6
+item replace block 30 -60 0 container.8 with opencomputers:cpu3
+item replace block 30 -60 0 container.9 with opencomputers:eeprom@EEPROM(neta.lua)
+setblock 31 -60 0 opencomputers:cable
+setblock 32 -60 0 opencomputers:relay
+setblock 33 -60 0 opencomputers:cable
+setblock 34 -60 0 opencomputers:casecreative
+item replace block 34 -60 0 container.0 with opencomputers:lancard
+item replace block 34 -60 0 container.1 with opencomputers:wlancard2
+item replace block 34 -60 0 container.2 with opencomputers:linkedcard{"oc:data":{"oc:tunnel":"oc-test"}}
+item replace block 34 -60 0 container.3 with opencomputers:ram6
+item replace block 34 -60 0 container.8 with opencomputers:cpu3
+item replace block 34 -60 0 container.9 with opencomputers:eeprom@EEPROM(netb.lua)
+WAIT 3
+oc_debug start 34 -60 0
+oc_debug start 30 -60 0
+WAIT 30
+oc_debug status 30 -60 0
+oc_debug status 34 -60 0
