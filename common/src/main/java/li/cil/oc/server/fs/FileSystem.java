@@ -310,6 +310,15 @@ public final class FileSystem implements FileSystemAPI {
         }
 
         @Override
+        public boolean rename(String from, String to) {
+            try {
+                return capacity.rename(from, to, super::rename);
+            } catch (java.io.FileNotFoundException e) {
+                throw sneakyThrow(e);
+            }
+        }
+
+        @Override
         public void close() {
             super.close();
             capacity.onClose();
@@ -364,6 +373,11 @@ public final class FileSystem implements FileSystemAPI {
         @Override
         public boolean makeDirectory(String path) {
             return capacity.makeDirectory(path, super::makeDirectory);
+        }
+
+        @Override
+        public boolean rename(String from, String to) throws java.io.FileNotFoundException {
+            return capacity.rename(from, to, super::rename);
         }
 
         @Override
@@ -459,6 +473,11 @@ public final class FileSystem implements FileSystemAPI {
         @Override
         public boolean makeDirectory(String path) {
             return capacity.makeDirectory(path, super::makeDirectory);
+        }
+
+        @Override
+        public boolean rename(String from, String to) throws java.io.FileNotFoundException {
+            return capacity.rename(from, to, super::rename);
         }
 
         @Override

@@ -65,6 +65,22 @@ public interface Capacity extends li.cil.oc.api.fs.FileSystem {
             } else return false;
         }
 
+        @FunctionalInterface
+        public interface Rename {
+            boolean rename(String from, String to) throws java.io.FileNotFoundException;
+        }
+
+        /** Renaming onto an existing file replaces it, so its space is freed. */
+        public boolean rename(String from, String to, Rename superRename) throws java.io.FileNotFoundException {
+            if (owner.exists(to) && !from.equals(to)) {
+                final long freed = Settings.get().fileCost + owner.size(to);
+                if (superRename.rename(from, to)) {
+                    used = Math.max(0, used - freed);
+                    return true;
+                } else return false;
+            } else return superRename.rename(from, to);
+        }
+
         public boolean makeDirectory(String path, Predicate<String> superMakeDirectory) {
             if (capacity - used < Settings.get().fileCost && !ignoreCapacity) {
                 throw FileSystem.sneakyThrow(new IOException("not enough space"));
