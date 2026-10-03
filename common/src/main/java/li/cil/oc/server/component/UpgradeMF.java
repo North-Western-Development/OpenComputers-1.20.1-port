@@ -118,7 +118,7 @@ public class UpgradeMF extends AbstractManagedEnvironment implements ChangeListe
                     if (otherDrv.isPresent()) {
                         final ManagedEnvironment oldEnvironment = otherDrv.get().getLeft();
                         final DriverBlock driver = otherDrv.get().getRight();
-                        if (newDriver != driver) {
+                        if (!newDriver.equals(driver)) { // Scala != is equals (CompoundBlockDriver is rebuilt per lookup)
                             // This is... odd. Maybe moved by some other mod? First, clean up.
                             otherDrv = Optional.empty();
                             blockData = Optional.empty();

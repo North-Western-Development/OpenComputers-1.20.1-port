@@ -86,8 +86,14 @@ public class Relay extends TileEntity implements Hub, ComponentInventory, PowerA
 
     public long lastMessage = 0L;
 
-    // TODO(port): integration - filled by the ComputerCraft integration (parked).
+    /** CC computers attached to this relay as a modem peripheral (managed by the ComputerCraft integration). */
     public final List<Object> computers = new ArrayList<>();
+
+    /**
+     * Set by the ComputerCraft integration (when CC: Tweaked is installed) to forward packets
+     * passing through relays to attached CC computers as {@code modem_message} events.
+     */
+    public static volatile java.util.function.BiConsumer<Relay, Packet> packetObserver = null;
 
     private static final String StrengthTag = Settings.namespace + "strength";
     private static final String IsRepeaterTag = Settings.namespace + "isRepeater";
@@ -196,7 +202,8 @@ public class Relay extends TileEntity implements Hub, ComponentInventory, PowerA
 
     @Override
     public boolean tryEnqueuePacket(Optional<Direction> sourceSide, Packet packet) {
-        // TODO(port): integration - ComputerCraft modem message forwarding (RelayCCAdapter) was dropped.
+        final java.util.function.BiConsumer<Relay, Packet> observer = packetObserver;
+        if (observer != null) observer.accept(this, packet);
         return Hub.super.tryEnqueuePacket(sourceSide, packet);
     }
 
