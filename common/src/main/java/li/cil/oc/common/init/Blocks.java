@@ -125,7 +125,9 @@ public final class Blocks {
         Items.registerBlock(() -> new Case(defaultProps(), Tier.Four), Constants.BlockName.CaseCreative, () -> defaultItemProps().rarity(Rarity.EPIC));
         Items.registerBlock(() -> new Microcontroller(defaultProps()), Constants.BlockName.Microcontroller, Item.Properties::new);
         Items.registerBlock(() -> new Print(Properties.of().mapColor(MapColor.METAL).strength(1, 5).noOcclusion().dynamicShape()), Constants.BlockName.Print, Item.Properties::new);
-        Items.registerBlockOnly(() -> new RobotAfterimage(Properties.of().instabreak().noOcclusion().dynamicShape().air().noLootTable()), Constants.BlockName.RobotAfterimage);
+        // Not air(): an "air" block in an otherwise empty chunk section can never be replaced by
+        // air again (LevelChunk.setBlockState skips that), so the after-image stayed around.
+        Items.registerBlockOnly(() -> new RobotAfterimage(Properties.of().noCollission().replaceable().instabreak().noOcclusion().dynamicShape().noLootTable()), Constants.BlockName.RobotAfterimage);
         Items.registerBlock(() -> new RobotProxy(defaultProps().noOcclusion().dynamicShape()), Constants.BlockName.Robot, Item.Properties::new);
 
         // v1.5.10
