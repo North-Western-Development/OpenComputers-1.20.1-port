@@ -1,0 +1,35 @@
+{
+  "parent": "opencomputers:assembler",
+  "display": {
+    "icon": {
+      "item": "opencomputers:robot"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.robot.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.robot.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "assemble": {
+      "trigger": "opencomputers:assembled",
+      "conditions": {
+        "item": {
+          "items": [
+            "opencomputers:robot"
+          ]
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "assemble"
+    ]
+  ]
+}

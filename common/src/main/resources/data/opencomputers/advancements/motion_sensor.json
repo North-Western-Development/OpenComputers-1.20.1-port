@@ -1,0 +1,37 @@
+{
+  "parent": "opencomputers:cpu",
+  "display": {
+    "icon": {
+      "item": "opencomputers:motionsensor"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.motion_sensor.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.motion_sensor.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:motionsensor"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

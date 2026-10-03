@@ -1,0 +1,37 @@
+{
+  "parent": "opencomputers:capacitor",
+  "display": {
+    "icon": {
+      "item": "opencomputers:assembler"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.assembler.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.assembler.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:assembler"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

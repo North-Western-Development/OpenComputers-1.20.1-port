@@ -1,0 +1,37 @@
+{
+  "parent": "opencomputers:disk_drive",
+  "display": {
+    "icon": {
+      "item": "opencomputers:floppy"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.floppy.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.floppy.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:floppy"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "parent": "opencomputers:chip",
+  "display": {
+    "icon": {
+      "item": "opencomputers:cpu1"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.cpu.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.cpu.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:cpu1",
+              "opencomputers:cpu2",
+              "opencomputers:cpu3"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

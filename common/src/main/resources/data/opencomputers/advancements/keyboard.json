@@ -1,0 +1,37 @@
+{
+  "parent": "opencomputers:screen",
+  "display": {
+    "icon": {
+      "item": "opencomputers:keyboard"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.keyboard.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.keyboard.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:keyboard"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

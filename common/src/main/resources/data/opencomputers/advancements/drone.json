@@ -1,0 +1,35 @@
+{
+  "parent": "opencomputers:assembler",
+  "display": {
+    "icon": {
+      "item": "opencomputers:drone"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.drone.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.drone.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "assemble": {
+      "trigger": "opencomputers:assembled",
+      "conditions": {
+        "item": {
+          "items": [
+            "opencomputers:drone"
+          ]
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "assemble"
+    ]
+  ]
+}

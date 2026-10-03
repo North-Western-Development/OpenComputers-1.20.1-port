@@ -1,0 +1,37 @@
+{
+  "parent": "opencomputers:cable",
+  "display": {
+    "icon": {
+      "item": "opencomputers:adapter"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.adapter.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.adapter.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:adapter"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

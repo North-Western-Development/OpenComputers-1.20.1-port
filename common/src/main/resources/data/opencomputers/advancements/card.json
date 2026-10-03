@@ -1,0 +1,37 @@
+{
+  "parent": "opencomputers:root",
+  "display": {
+    "icon": {
+      "item": "opencomputers:card"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.card.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.card.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:card"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

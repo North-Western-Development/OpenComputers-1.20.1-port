@@ -1,0 +1,37 @@
+{
+  "parent": "opencomputers:card",
+  "display": {
+    "icon": {
+      "item": "opencomputers:lancard"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.network_card.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.network_card.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:lancard"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

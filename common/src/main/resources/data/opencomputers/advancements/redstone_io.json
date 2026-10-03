@@ -1,0 +1,37 @@
+{
+  "parent": "opencomputers:cpu",
+  "display": {
+    "icon": {
+      "item": "opencomputers:redstone"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.redstone_io.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.redstone_io.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:redstone"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

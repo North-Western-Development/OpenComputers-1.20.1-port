@@ -23,3 +23,6 @@ accessible field net/minecraft/world/level/BaseSpawner nextSpawnData Lnet/minecr
 accessible method net/minecraft/client/renderer/block/model/ItemOverrides <init> ()V
 accessible class net/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier
 accessible method net/minecraft/world/level/storage/LevelResource <init> (Ljava/lang/String;)V
+
+# Custom advancement criteria (li.cil.oc.common.Achievement).
+accessible method net/minecraft/advancements/CriteriaTriggers register (Lnet/minecraft/advancements/CriterionTrigger;)Lnet/minecraft/advancements/CriterionTrigger;

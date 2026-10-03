@@ -1,0 +1,39 @@
+{
+  "parent": "opencomputers:floppy",
+  "display": {
+    "icon": {
+      "item": "opencomputers:floppy",
+      "nbt": "{\"oc:lootFactory\":\"opencomputers:openos\"}"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.open_os.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.open_os.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "openos": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:floppy"
+            ],
+            "nbt": "{\"oc:lootFactory\":\"opencomputers:openos\"}"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "openos"
+    ]
+  ]
+}

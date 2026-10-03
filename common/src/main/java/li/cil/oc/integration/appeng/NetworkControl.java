@@ -380,6 +380,9 @@ public interface NetworkControl {
         // Links loaded from NBT that still need to be registered with the crafting service.
         private final List<ICraftingLink> pendingLinks = new ArrayList<>();
         private int delay = -1; // >= 0 while waiting for the AE network to load
+        // The grid node as of the last lookup on the server thread (see node()).
+        @Nullable
+        private volatile IGridNode lastNode;
 
         public Craftable() {
         }
@@ -400,7 +403,14 @@ public interface NetworkControl {
 
         @Nullable
         private IGridNode node() {
-            return pos != null ? AEUtil.nodeAt(level(), pos, side) : null;
+            final MinecraftServer server = GameInstance.getServer();
+            if (server != null && !server.isSameThread()) {
+                // AE2 computes crafting plans on a worker thread, where Level#getBlockEntity always
+                // returns null; use the node last resolved on the server thread instead.
+                return lastNode;
+            }
+            lastNode = pos != null ? AEUtil.nodeAt(level(), pos, side) : null;
+            return lastNode;
         }
 
         // ----------------------------------------------------------------------- //
@@ -490,7 +500,12 @@ public interface NetworkControl {
                     try {
                         final ICraftingPlan plan = future.get();
                         if (plan.simulation() || !plan.missingItems().isEmpty()) {
-                            status.fail("missing resources?");
+                            final StringBuilder missing = new StringBuilder();
+                            for (Object2LongMap.Entry<AEKey> entry : plan.missingItems()) {
+                                if (missing.length() > 0) missing.append(", ");
+                                missing.append(entry.getLongValue()).append("x").append(entry.getKey().getId());
+                            }
+                            status.fail("missing resources: " + (missing.length() > 0 ? missing : "?"));
                             return;
                         }
                         final IGridNode current = node();

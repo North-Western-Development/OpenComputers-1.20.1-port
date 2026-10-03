@@ -1,0 +1,35 @@
+{
+  "parent": "opencomputers:assembler",
+  "display": {
+    "icon": {
+      "item": "opencomputers:microcontroller"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.microcontroller.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.microcontroller.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "assemble": {
+      "trigger": "opencomputers:assembled",
+      "conditions": {
+        "item": {
+          "items": [
+            "opencomputers:microcontroller"
+          ]
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "assemble"
+    ]
+  ]
+}
