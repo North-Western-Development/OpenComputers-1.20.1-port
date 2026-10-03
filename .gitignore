@@ -34,3 +34,4 @@ build/
 libs/*.jar
 out/
 run/
+.claude/worktrees/
