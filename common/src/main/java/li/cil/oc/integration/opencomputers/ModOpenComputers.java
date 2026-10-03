@@ -170,6 +170,7 @@ public final class ModOpenComputers implements ModProxy {
         Driver.add(DriverTransposer.Provider.INSTANCE);
         Driver.add(DriverUpgradeChunkloader.Provider.INSTANCE);
         Driver.add(DriverUpgradeCrafting.Provider.INSTANCE);
+        Driver.add(DriverUpgradeDatabase.Provider.INSTANCE);
         Driver.add(DriverUpgradeExperience.Provider.INSTANCE);
         Driver.add(DriverUpgradeGenerator.Provider.INSTANCE);
         Driver.add(DriverUpgradeInventoryController.Provider.INSTANCE);
