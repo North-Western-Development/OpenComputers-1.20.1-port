@@ -21,7 +21,7 @@ for d in forge fabric; do
 done
 (cd "$DIR/forge" && tail -n +1 -f cmd.txt | timeout 900 bash run.sh nogui > out.log 2>&1 &)
 (cd "$DIR/fabric" && tail -n +1 -f cmd.txt | timeout 900 java -Dopencomputers.debugCommands=true -jar fabric-server-launch.jar nogui > out.log 2>&1 &)
-until grep -qE 'Done \(|Crash|Failed to start' "$DIR/forge/out.log" && grep -qE 'Done \(|Crash|Failed to start' "$DIR/fabric/out.log"; do sleep 3; done
+until grep -qE 'Done \(|Crash|Failed to start|Exception in thread "main"' "$DIR/forge/out.log" && grep -qE 'Done \(|Crash|Failed to start|Exception in thread "main"' "$DIR/fabric/out.log"; do sleep 3; done
 while IFS= read -r line; do
   if [ "$line" = "WAIT" ]; then sleep 8; else echo "$line" | tee -a "$DIR/forge/cmd.txt" >> "$DIR/fabric/cmd.txt"; fi
 done < "$CMDS"
