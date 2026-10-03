@@ -15,6 +15,9 @@ import li.cil.oc.util.SideTracker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.ByteArrayTag;
+import net.minecraft.nbt.FloatTag;
+import net.minecraft.nbt.LongTag;
+import net.minecraft.nbt.ShortTag;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
@@ -676,9 +679,10 @@ public final class Network implements NetworkAPI {
     @Override
     public Packet newPacket(CompoundTag nbt) {
         final String source = nbt.getString("source");
-        // Port note: inverted check kept from the original implementation.
+        // Port note: the original implementation inverted this check, so saved unicast packets
+        // (e.g. queued in a relay) were restored as broadcasts and broadcasts as packets to "".
         final String destination =
-                nbt.contains("dest") ? null : nbt.getString("dest");
+                nbt.contains("dest") ? nbt.getString("dest") : null;
         final int port = nbt.getInt("port");
         final int ttl = nbt.getInt("ttl");
         final Object[] data = new Object[nbt.getInt("dataLength")];
@@ -686,7 +690,10 @@ public final class Network implements NetworkAPI {
             if (nbt.contains("data" + i)) {
                 final Tag tag = nbt.get("data" + i);
                 if (tag instanceof ByteTag t) data[i] = t.getAsByte() == 1;
+                else if (tag instanceof ShortTag t) data[i] = t.getAsShort();
                 else if (tag instanceof IntTag t) data[i] = t.getAsInt();
+                else if (tag instanceof LongTag t) data[i] = t.getAsLong();
+                else if (tag instanceof FloatTag t) data[i] = t.getAsFloat();
                 else if (tag instanceof DoubleTag t) data[i] = t.getAsDouble();
                 else if (tag instanceof StringTag t) data[i] = t.getAsString();
                 else if (tag instanceof ByteArrayTag t) data[i] = t.getAsByteArray();
@@ -1126,7 +1133,7 @@ public final class Network implements NetworkAPI {
         public final int size;
 
         public Packet(String source, String destination, int port, Object[] data) {
-            this(source, destination, port, data, 5);
+            this(source, destination, port, data, Settings.get().initialNetworkPacketTTL);
         }
 
         public Packet(String source, String destination, int port, Object[] data, int ttl) {
@@ -1146,11 +1153,12 @@ public final class Network implements NetworkAPI {
             int acc = 0;
             for (Object arg : values) {
                 if (arg == null || arg == ResultWrapper.unit) acc += 4;
-                else if (arg instanceof Boolean) acc += 4;
-                else if (arg instanceof Byte) acc += 4;
-                else if (arg instanceof Short) acc += 4;
+                else if (arg instanceof Boolean) acc += 1;
+                else if (arg instanceof Byte) acc += 2; // FIXME: Bytes are currently sent as shorts
+                else if (arg instanceof Short) acc += 2;
                 else if (arg instanceof Integer) acc += 4;
-                else if (arg instanceof Float) acc += 8;
+                else if (arg instanceof Long) acc += 8;
+                else if (arg instanceof Float) acc += 4;
                 else if (arg instanceof Double) acc += 8;
                 else if (arg instanceof String value) acc += Math.max(value.length(), 1);
                 else if (arg instanceof byte[] value) acc += Math.max(value.length, 1);
@@ -1208,7 +1216,11 @@ public final class Network implements NetworkAPI {
                 final Object value = data[i];
                 if (value == null || value == ResultWrapper.unit) continue;
                 if (value instanceof Boolean v) nbt.putBoolean("data" + i, v);
+                else if (value instanceof Byte v) nbt.putShort("data" + i, v.shortValue());
+                else if (value instanceof Short v) nbt.putShort("data" + i, v);
                 else if (value instanceof Integer v) nbt.putInt("data" + i, v);
+                else if (value instanceof Long v) nbt.putLong("data" + i, v);
+                else if (value instanceof Float v) nbt.putFloat("data" + i, v);
                 else if (value instanceof Double v) nbt.putDouble("data" + i, v);
                 else if (value instanceof String v) nbt.putString("data" + i, v);
                 else if (value instanceof byte[] v) nbt.putByteArray("data" + i, v);

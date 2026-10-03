@@ -91,9 +91,11 @@ public abstract class PacketHandler {
         try {
             final PacketHandler handler = side == NetworkManager.Side.S2C ? clientHandler : serverHandler;
             if (handler != null) {
-                final ByteArrayInputStream stream = new ByteArrayInputStream(arr);
-                if (stream.read() == 0) handler.dispatch(handler.createParser(stream, player));
-                else handler.dispatch(handler.createParser(new InflaterInputStream(stream), player));
+                final ByteArrayInputStream raw = new ByteArrayInputStream(arr);
+                // Close the stream so the inflater's native memory is released right away.
+                try (InputStream stream = raw.read() == 0 ? raw : new InflaterInputStream(raw)) {
+                    handler.dispatch(handler.createParser(stream, player));
+                }
             }
         } catch (Throwable e) {
             // Don't crash on badly formatted packets (may have been altered by a
