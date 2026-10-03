@@ -1,0 +1,37 @@
+{
+  "parent": "opencomputers:cpu",
+  "display": {
+    "icon": {
+      "item": "opencomputers:geolyzer"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.geolyzer.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.geolyzer.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:geolyzer"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

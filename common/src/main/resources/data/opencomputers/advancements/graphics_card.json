@@ -1,0 +1,39 @@
+{
+  "parent": "opencomputers:card",
+  "display": {
+    "icon": {
+      "item": "opencomputers:graphicscard1"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.graphics_card.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.graphics_card.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:graphicscard1",
+              "opencomputers:graphicscard2",
+              "opencomputers:graphicscard3"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "parent": "opencomputers:assembler",
+  "display": {
+    "icon": {
+      "item": "opencomputers:tablet"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.tablet.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.tablet.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "assemble": {
+      "trigger": "opencomputers:assembled",
+      "conditions": {
+        "item": {
+          "items": [
+            "opencomputers:tablet"
+          ]
+        }
+      }
+    }
+  },
+  "requirements": [
+    [
+      "assemble"
+    ]
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "parent": "opencomputers:rack",
+  "display": {
+    "icon": {
+      "item": "opencomputers:server1"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.server.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.server.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:server1",
+              "opencomputers:server2",
+              "opencomputers:server3"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

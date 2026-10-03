@@ -1,0 +1,37 @@
+{
+  "parent": "opencomputers:root",
+  "display": {
+    "icon": {
+      "item": "opencomputers:transistor"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.transistor.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.transistor.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:transistor"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "parent": "opencomputers:transistor",
+  "display": {
+    "icon": {
+      "item": "opencomputers:chip1"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.chip.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.chip.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:chip1",
+              "opencomputers:chip2",
+              "opencomputers:chip3"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

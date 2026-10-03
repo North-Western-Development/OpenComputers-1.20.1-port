@@ -1,0 +1,37 @@
+{
+  "parent": "opencomputers:disk_drive",
+  "display": {
+    "icon": {
+      "item": "opencomputers:raid"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.raid.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.raid.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:raid"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

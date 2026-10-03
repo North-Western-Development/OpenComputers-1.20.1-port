@@ -1,0 +1,38 @@
+{
+  "parent": "opencomputers:screen",
+  "display": {
+    "icon": {
+      "item": "opencomputers:hologram1"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.hologram.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.hologram.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:hologram1",
+              "opencomputers:hologram2"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

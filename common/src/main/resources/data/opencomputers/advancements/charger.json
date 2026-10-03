@@ -1,0 +1,37 @@
+{
+  "parent": "opencomputers:capacitor",
+  "display": {
+    "icon": {
+      "item": "opencomputers:charger"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.charger.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.charger.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:charger"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "parent": "opencomputers:card",
+  "display": {
+    "icon": {
+      "item": "opencomputers:redstonecard1"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.redstone_card.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.redstone_card.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:redstonecard1",
+              "opencomputers:redstonecard2"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

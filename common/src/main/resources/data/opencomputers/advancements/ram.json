@@ -1,0 +1,42 @@
+{
+  "parent": "opencomputers:chip",
+  "display": {
+    "icon": {
+      "item": "opencomputers:ram1"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.ram.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.ram.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:ram1",
+              "opencomputers:ram2",
+              "opencomputers:ram3",
+              "opencomputers:ram4",
+              "opencomputers:ram5",
+              "opencomputers:ram6"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

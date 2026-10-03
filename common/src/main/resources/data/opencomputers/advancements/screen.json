@@ -1,0 +1,39 @@
+{
+  "parent": "opencomputers:chip",
+  "display": {
+    "icon": {
+      "item": "opencomputers:screen1"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.screen.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.screen.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:screen1",
+              "opencomputers:screen2",
+              "opencomputers:screen3"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

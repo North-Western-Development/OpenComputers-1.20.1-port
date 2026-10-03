@@ -1,0 +1,37 @@
+{
+  "parent": "opencomputers:case",
+  "display": {
+    "icon": {
+      "item": "opencomputers:rack"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.rack.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.rack.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:rack"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

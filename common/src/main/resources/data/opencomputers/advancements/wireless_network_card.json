@@ -1,0 +1,38 @@
+{
+  "parent": "opencomputers:network_card",
+  "display": {
+    "icon": {
+      "item": "opencomputers:wlancard1"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.wireless_network_card.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.wireless_network_card.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:wlancard1",
+              "opencomputers:wlancard2"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

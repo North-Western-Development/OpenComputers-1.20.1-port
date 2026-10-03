@@ -1,0 +1,37 @@
+{
+  "parent": "opencomputers:chip",
+  "display": {
+    "icon": {
+      "item": "opencomputers:diskdrive"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.disk_drive.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.disk_drive.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:diskdrive"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

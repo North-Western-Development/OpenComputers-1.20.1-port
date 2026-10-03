@@ -1,0 +1,39 @@
+{
+  "parent": "opencomputers:chip",
+  "display": {
+    "icon": {
+      "item": "opencomputers:hdd1"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.hdd.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.hdd.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:hdd1",
+              "opencomputers:hdd2",
+              "opencomputers:hdd3"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}

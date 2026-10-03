@@ -1,0 +1,37 @@
+{
+  "parent": "opencomputers:chip",
+  "display": {
+    "icon": {
+      "item": "opencomputers:eeprom"
+    },
+    "title": {
+      "translate": "advancements.opencomputers.eeprom.title"
+    },
+    "description": {
+      "translate": "advancements.opencomputers.eeprom.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtain": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "opencomputers:eeprom"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "obtain"
+    ]
+  ]
+}
