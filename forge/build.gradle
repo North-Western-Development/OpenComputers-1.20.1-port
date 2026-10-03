@@ -20,11 +20,13 @@ loom {
 configurations {
     common
     shadowCommon
-    embedded
+    embedded          // Plain Java libraries, bundled into the jar.
+    embeddedNative    // JNLua + its natives, bundled into the jar (see processResources below).
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
     developmentForge.extendsFrom common
     implementation.extendsFrom embedded
+    compileOnly.extendsFrom embeddedNative
     forgeRuntimeLibrary.extendsFrom embedded
 }
 
@@ -41,8 +43,19 @@ dependencies {
 
     embedded "com.typesafe:config:${rootProject.typesafe_config_version}"
     embedded name: "OC-LuaJ", version: rootProject.luaj_version, ext: "jar"
-    embedded name: "OC-JNLua", version: rootProject.jnlua_version, ext: "jar"
-    embedded name: "OC-JNLua-Natives", version: rootProject.jnlua_version, ext: "jar"
+    embeddedNative name: "OC-JNLua", version: rootProject.jnlua_version, ext: "jar"
+    embeddedNative name: "OC-JNLua-Natives", version: rootProject.jnlua_version, ext: "jar"
+}
+
+// JNI binds a native library to the class loader of the class that loaded it. In the built
+// jar JNLua is part of the mod, but in development Forge would put it on its library
+// classpath (a different class loader than the mod's), and LuaState's native methods could
+// then never be linked. So in development JNLua and its natives are unpacked into this
+// module's resources output, which Forge loads as part of the mod (same class loader).
+processResources {
+    from({ configurations.embeddedNative.collect { zipTree(it) } }) {
+        exclude "META-INF/**"
+    }
 }
 
 processResources {
@@ -56,6 +69,7 @@ shadowJar {
     exclude "fabric.mod.json"
     exclude "architectury.common.json"
     configurations = [project.configurations.shadowCommon, project.configurations.embedded]
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     // Embedded jars (LuaJ, JNLua, JNLua natives -> /assets/opencomputers/lib/*, typesafe config) are
     // unpacked into the mod jar; drop their signatures and build metadata.
     exclude "META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA", "META-INF/*.EC", "META-INF/maven/**", "META-INF/INDEX.LIST"
