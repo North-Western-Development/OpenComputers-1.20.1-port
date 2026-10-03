@@ -1,5 +1,6 @@
 package li.cil.oc.server.component.traits;
 
+import li.cil.oc.Settings;
 import li.cil.oc.api.machine.Arguments;
 import li.cil.oc.api.machine.Callback;
 import li.cil.oc.api.machine.Context;
@@ -48,20 +49,21 @@ public interface InventoryTransfer extends WorldAware, SideRestricted {
         } else return result(null, "no inventory");
     }
 
-    @Callback(doc = "function(sourceSide:number, sinkSide:number[, count:number]):number -- Transfer some items between two inventories.")
+    @Callback(doc = "function(sourceSide:number, sinkSide:number[, count:number [, sourceTank:number]]):boolean, number -- Transfer some fluid between two tanks. Returns operation result and filled amount")
     default Object[] transferFluid(Context context, Arguments args) {
         final Direction sourceSide = checkSideForAction(args, 0);
         final BlockPosition sourcePos = position().offset(sourceSide);
         final Direction sinkSide = checkSideForAction(args, 1);
         final BlockPosition sinkPos = position().offset(sinkSide);
         final int count = ExtendedArguments.optFluidCount(args, 2);
+        final int sourceTank = args.optInteger(3, -1);
 
         final Optional<String> failure = onTransferContents();
         if (failure.isPresent()) {
             return result(null, failure.get());
         }
-        final long moved = FluidUtils.transferBetweenFluidHandlersAt(sourcePos, sourceSide.getOpposite(), sinkPos, sinkSide.getOpposite(), count);
-        if (moved > 0) context.pause(moved / 1000 * 0.25); // Allow up to 4 buckets per second.
+        final long moved = FluidUtils.transferBetweenFluidHandlersAt(sourcePos, sourceSide.getOpposite(), sinkPos, sinkSide.getOpposite(), count, sourceTank);
+        if (moved > 0) context.pause(moved / (double) Math.max(Settings.get().transposerFluidTransferRate, 1)); // Up to transposerFluidTransferRate mB per second.
         return result(moved > 0, moved);
     }
 }
