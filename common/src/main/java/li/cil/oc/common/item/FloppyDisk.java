@@ -43,7 +43,7 @@ public class FloppyDisk extends SimpleItem implements CustomModel, FileSystemLik
         final int dyeIndex =
             stack.hasTag() && stack.getTag().contains(Settings.namespace + "color")
                 ? stack.getTag().getInt(Settings.namespace + "color")
-                : DyeColor.LIGHT_GRAY.getId();
+                : DyeColor.GRAY.getId();
         return modelLocationFromDyeName(DyeColor.byId(Math.min(Math.max(dyeIndex, 0), 15)));
     }
 
