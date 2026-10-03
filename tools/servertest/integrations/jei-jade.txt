@@ -1,0 +1,16 @@
+forceload add -16 -16 16 16
+setblock 3 -60 2 opencomputers:capacitor
+setblock 2 -60 2 opencomputers:casecreative
+item replace block 2 -60 2 container.3 with opencomputers:ram6
+item replace block 2 -60 2 container.8 with opencomputers:cpu3
+item replace block 2 -60 2 container.9 with opencomputers:eeprom{"oc:data":{"oc:eeprom":[B;108B,111B,99B,97B,108B,32B,110B,61B,48B,32B,119B,104B,105B,108B,101B,32B,116B,114B,117B,101B,32B,100B,111B,32B,99B,111B,109B,112B,117B,116B,101B,114B,46B,112B,117B,108B,108B,83B,105B,103B,110B,97B,108B,40B,48B,46B,53B,41B,32B,110B,61B,110B,43B,49B,32B,101B,110B,100B]}}
+setblock 2 -60 4 opencomputers:relay
+setblock 2 -60 6 opencomputers:charger
+setblock 2 -60 8 opencomputers:diskdrive
+setblock 2 -60 10 opencomputers:screen1
+setblock 2 -60 12 opencomputers:assembler
+setblock 2 -60 14 opencomputers:hologram1
+WAIT
+oc_debug start 2 -60 2
+WAIT
+oc_debug status 2 -60 2

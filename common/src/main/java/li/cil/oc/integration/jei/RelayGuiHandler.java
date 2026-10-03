@@ -1,0 +1,24 @@
+package li.cil.oc.integration.jei;
+
+import li.cil.oc.client.gui.Relay;
+import mezz.jei.api.gui.handlers.IGuiContainerHandler;
+import net.minecraft.client.renderer.Rect2i;
+
+import java.util.List;
+
+/**
+ * Tells JEI about the relay GUI's upgrade tab so the item list doesn't overlap it. Client only.
+ */
+public final class RelayGuiHandler implements IGuiContainerHandler<Relay> {
+    public static final RelayGuiHandler INSTANCE = new RelayGuiHandler();
+
+    private RelayGuiHandler() {
+    }
+
+    @Override
+    public List<Rect2i> getGuiExtraAreas(Relay gui) {
+        return List.of(new Rect2i(
+                gui.windowX() + gui.tabPosition.getX(), gui.windowY() + gui.tabPosition.getY(),
+                gui.tabPosition.getWidth(), gui.tabPosition.getHeight()));
+    }
+}

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import li.cil.oc.client.Textures;
 import li.cil.oc.common.container.ComponentSlot;
 import li.cil.oc.common.container.Player;
+import li.cil.oc.integration.util.ItemSearch;
 import li.cil.oc.util.RenderState;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -13,7 +14,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 public abstract class DynamicGuiContainer<C extends AbstractContainerMenu> extends CustomGuiContainer<C> {
-    // TODO(port): integration (ItemSearch / JEI hovered stack); always empty for now.
+    /** Stack hovered in an item list mod's overlay (JEI), see {@link ItemSearch}. */
     protected ItemStack hoveredStackNEI = ItemStack.EMPTY;
 
     protected DynamicGuiContainer(C container, Inventory inv, Component title) {
@@ -72,7 +73,7 @@ public abstract class DynamicGuiContainer<C extends AbstractContainerMenu> exten
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float dt) {
-        hoveredStackNEI = ItemStack.EMPTY;
+        hoveredStackNEI = ItemSearch.hoveredStack(this, mouseX, mouseY);
 
         super.render(graphics, mouseX, mouseY, dt);
     }

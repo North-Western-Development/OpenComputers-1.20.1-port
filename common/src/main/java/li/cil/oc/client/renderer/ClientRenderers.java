@@ -88,7 +88,7 @@ public final class ClientRenderers {
             return HoverBootRenderer.INSTANCE;
         };
 
-        ClientLifecycleEvent.CLIENT_SETUP.register(minecraft -> {
+        li.cil.oc.client.Proxy.onClientSetup(() -> {
             registerBlockEntityRenderers();
             registerItemRenderers();
         });

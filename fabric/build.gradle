@@ -26,7 +26,8 @@ repositories {
 }
 
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    // JEI 15.62 requires Fabric Loader 0.19.4+, so dev runs with integrations use a newer loader.
+    modImplementation "net.fabricmc:fabric-loader:${project.hasProperty("integrations") ? rootProject.fabric_loader_integrations_version : rootProject.fabric_loader_version}"
     modApi "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
     modApi "dev.architectury:architectury-fabric:${rootProject.architectury_version}"
 
@@ -43,6 +44,10 @@ dependencies {
     integration "cc.tweaked:cc-tweaked-1.20.1-fabric:${rootProject.cct_version}"
     integration "mezz.jei:jei-1.20.1-fabric:${rootProject.jei_version}"
     integration "maven.modrinth:jade:${rootProject.jade_version}+fabric"
+    if (project.hasProperty("integrations")) {
+        // JEI's jar-in-jar dependency is not picked up from the dev runtime jar.
+        modLocalRuntime("net.mezzdev.config:mezz_config-1.20.1-fabric:${rootProject.mezz_config_version}") { transitive = false }
+    }
     integration "maven.modrinth:tis3d:MC1.20.1-fabric-${rootProject.tis3d_version}"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }

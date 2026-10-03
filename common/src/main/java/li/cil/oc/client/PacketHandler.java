@@ -398,7 +398,9 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         if (!stack.isEmpty()) {
             Loot.disksForClient.add(stack);
         }
-        // TODO(port): integration (JEI: ModJEI.addDiskAtRuntime(stack)).
+        if (!stack.isEmpty() && li.cil.oc.integration.Mods.JustEnoughItems.isModAvailable()) {
+            li.cil.oc.integration.jei.ModJEI.addDiskAtRuntime(stack);
+        }
     }
 
     public void onCyclingDisk(PacketParser p) {

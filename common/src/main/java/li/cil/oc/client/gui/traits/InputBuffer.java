@@ -4,9 +4,11 @@ import com.mojang.blaze3d.platform.InputConstants;
 import li.cil.oc.api.internal.TextBuffer;
 import li.cil.oc.client.KeyBindings;
 import li.cil.oc.client.Textures;
+import li.cil.oc.integration.util.ItemSearch;
 import li.cil.oc.util.RenderState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
@@ -152,10 +154,9 @@ public interface InputBuffer extends DisplayBuffer {
         return false;
     }
 
-    // TODO(port): integration (ItemSearch.isInputFocused): input was not captured while a JEI search
-    //  field in a container screen had focus.
+    /** Input is not captured while an item list mod's (JEI) search field in a container screen has focus. */
     private boolean isItemSearchFocused() {
-        return false;
+        return this instanceof AbstractContainerScreen<?> && ItemSearch.isInputFocused();
     }
 
     /**

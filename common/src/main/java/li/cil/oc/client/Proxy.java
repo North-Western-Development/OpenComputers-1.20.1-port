@@ -11,6 +11,8 @@ import li.cil.oc.util.Audio;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.level.block.Block;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Client side proxy. Instantiated reflectively by {@link li.cil.oc.OpenComputers#proxy()}.
  */
@@ -63,7 +65,22 @@ public class Proxy extends li.cil.oc.common.Proxy {
         li.cil.oc.client.event.RackMountableRenderHandler.register();
         // TODO(port): registerModel(Item/Block, id) overrides (ModelInitialization) are gone.
 
-        ClientLifecycleEvent.CLIENT_SETUP.register(minecraft -> clientSetup());
+        onClientSetup(Proxy::clientSetup);
+    }
+
+    /**
+     * Runs {@code task} once on Architectury's {@code CLIENT_SETUP}. On Fabric, Architectury fires
+     * that event from its own client entrypoint, so whether a listener registered from our client
+     * entrypoint sees it depends on the entrypoint order (newer Fabric Loaders, e.g. 0.19 as required
+     * by JEI 15.62, run Architectury's first). {@code CLIENT_STARTED} is the fallback for that case.
+     */
+    public static void onClientSetup(Runnable task) {
+        final AtomicBoolean done = new AtomicBoolean(false);
+        final Runnable once = () -> {
+            if (done.compareAndSet(false, true)) task.run();
+        };
+        ClientLifecycleEvent.CLIENT_SETUP.register(minecraft -> once.run());
+        ClientLifecycleEvent.CLIENT_STARTED.register(minecraft -> once.run());
     }
 
     private static void clientSetup() {

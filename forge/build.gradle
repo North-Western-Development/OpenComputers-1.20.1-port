@@ -58,6 +58,8 @@ dependencies {
     integration "mrtjp:ProjectRed:${rootProject.projectred_version}:core"
     if (project.hasProperty("integrations")) {
         modLocalRuntime("mezz.jei:jei-1.20.1-common:${rootProject.jei_version}") { transitive = false }
+        // JEI's jar-in-jar dependency is not picked up from the dev runtime jar.
+        modLocalRuntime("net.mezzdev.config:mezz_config-1.20.1-forge:${rootProject.mezz_config_version}") { transitive = false }
     }
 
     embedded "com.typesafe:config:${rootProject.typesafe_config_version}"
