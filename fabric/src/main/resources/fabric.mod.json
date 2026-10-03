@@ -26,6 +26,12 @@
     ],
     "client": [
       "li.cil.oc.fabric.OpenComputersFabricClient"
+    ],
+    "jei_mod_plugin": [
+      "li.cil.oc.integration.jei.ModPluginOpenComputers"
+    ],
+    "jade": [
+      "li.cil.oc.integration.jade.JadePlugin"
     ]
   },
   "accessWidener": "opencomputers.accesswidener",
