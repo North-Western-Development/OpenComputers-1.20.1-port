@@ -11,6 +11,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
@@ -35,7 +36,15 @@ public class Manual extends SimpleItem {
             }
             li.cil.oc.api.Manual.openFor(player);
         }
-        return new InteractionResultHolder<>(InteractionResult.sidedSuccess(world.isClientSide), stack);
+        // CONSUME rather than SUCCESS so the client doesn't swing the hand when opening the manual.
+        return InteractionResultHolder.consume(stack);
+    }
+
+    @Override
+    public InteractionResult useOn(UseOnContext ctx) {
+        final InteractionResult result = super.useOn(ctx);
+        // Opening the manual page for a block shouldn't swing the hand either.
+        return result.consumesAction() ? InteractionResult.CONSUME : result;
     }
 
     @Override
