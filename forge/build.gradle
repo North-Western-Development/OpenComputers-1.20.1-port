@@ -58,6 +58,8 @@ dependencies {
     integration "mrtjp:ProjectRed:${rootProject.projectred_version}:core"
     if (project.hasProperty("integrations")) {
         modLocalRuntime("mezz.jei:jei-1.20.1-common:${rootProject.jei_version}") { transitive = false }
+        // AE2 15.x on Forge requires GuideME (Fabric AE2 bundles everything it needs).
+        modLocalRuntime("maven.modrinth:guideme:20.1.15") { transitive = false }
     }
 
     embedded "com.typesafe:config:${rootProject.typesafe_config_version}"

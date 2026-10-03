@@ -60,6 +60,16 @@ public interface Component extends li.cil.oc.api.network.Component, Node {
                             break;
                         }
                     }
+                    if (found.isEmpty()) {
+                        // Callbacks declared in superclasses or as interface default methods (Scala
+                        // traits used to compile to forwarders in the class itself).
+                        for (Pair<String, ManagedEnvironment> pair : multi.environments) {
+                            if (component.method.getDeclaringClass().isInstance(pair.getRight())) {
+                                found = Optional.of(pair.getRight());
+                                break;
+                            }
+                        }
+                    }
                 } else if (callback instanceof Callbacks.PeripheralCallback peripheral) {
                     for (Pair<String, ManagedEnvironment> pair : multi.environments) {
                         final ManagedEnvironment environment = pair.getRight();
