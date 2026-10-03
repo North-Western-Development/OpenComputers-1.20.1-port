@@ -58,6 +58,8 @@ the case, robot, drone, disk drive, RAID, rack, assembler, disassembler, printer
 adapter, manual, database upgrade, server and tablet (screenshots in `<servers-dir>/shots`) and
 types into a screen through a keyboard (`RESULT typed=hello keyboards=1`).
 
+`charger-worn.sh <servers-dir> <loader> <port> <display>` (same requirements) checks that a charger charges hover boots worn in the armour slot (`CHARGE-AFTER` > `CHARGE-BEFORE`).
+
 `client-player.sh <servers-dir> <loader> <port> <display>` (same requirements; the client joins
 as `OCTester`) checks what needs a real player, in survival mode (see the script header):
 

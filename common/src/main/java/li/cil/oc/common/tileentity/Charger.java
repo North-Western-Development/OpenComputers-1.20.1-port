@@ -361,7 +361,11 @@ public class Charger extends TileEntity implements Environment, PowerAcceptor, R
         synchronized (equipment) {
             equipment.clear();
             for (Player player : players) {
-                for (ItemStack stack : player.getInventory().items) {
+                // Main inventory plus worn armour (e.g. hover boots) and the offhand.
+                final List<ItemStack> stacks = new java.util.ArrayList<>(player.getInventory().items);
+                stacks.addAll(player.getInventory().armor);
+                stacks.addAll(player.getInventory().offhand);
+                for (ItemStack stack : stacks) {
                     final DriverItem driver = Driver.driverFor(stack, getClass());
                     if ((driver != null && Slot.Tablet.equals(driver.slot(stack))) || ItemCharge.canCharge(stack)) {
                         equipment.add(stack);
