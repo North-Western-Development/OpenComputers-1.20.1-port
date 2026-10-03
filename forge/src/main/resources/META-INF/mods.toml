@@ -33,3 +33,12 @@ description='''This mod adds modular computers and robots that can be programmed
     versionRange="[9.2.14,)"
     ordering="AFTER"
     side="BOTH"
+
+# Optional: construct after TIS-3D so its serial interface provider registry exists when
+# OC's integration registers its provider (see integration.tis3d.ModTIS3D).
+[[dependencies.opencomputers]]
+    modId="tis3d"
+    mandatory=false
+    versionRange="[1.7,)"
+    ordering="AFTER"
+    side="BOTH"
