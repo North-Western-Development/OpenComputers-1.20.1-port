@@ -1,5 +1,6 @@
 package li.cil.oc.server;
 
+import li.cil.oc.Settings;
 import li.cil.oc.Localization;
 import li.cil.oc.api.machine.Machine;
 import li.cil.oc.api.network.ManagedEnvironment;
@@ -188,6 +189,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
     public void onClipboard(PacketParser p) {
         final String address = p.readUTF();
         final String copy = p.readUTF();
+        if (copy.length() > Settings.get().maxClipboardTextLength) return;
         textBuffer(p.player, address).ifPresent(buffer -> buffer.clipboard(copy, p.player));
     }
 

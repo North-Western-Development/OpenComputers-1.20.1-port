@@ -137,7 +137,7 @@ public final class PacketSender {
 
     public static void sendClipboard(String address, String value) {
         if (value != null && !value.isEmpty()) {
-            if (value.length() > 64 * 1024 || System.currentTimeMillis() < clipboardCooldown) {
+            if (value.length() > Settings.get().maxClipboardTextLength || System.currentTimeMillis() < clipboardCooldown) {
                 final SoundManager handler = Minecraft.getInstance().getSoundManager();
                 handler.play(SimpleSoundInstance.forUI(SoundEvents.NOTE_BLOCK_HARP.value(), 1, 1));
             } else {
