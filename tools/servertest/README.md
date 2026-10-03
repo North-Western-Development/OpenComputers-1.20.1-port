@@ -19,7 +19,37 @@ plus `guideme-20.1.x.jar` on Forge, and `appliedenergistics2-fabric-15.4.11.jar`
 `integrations/ae2.txt` is generated from `ae2.lua` by `integrations/ae2.py`.
 
 The tests use `/oc_debug`, which only exists when the server runs with
-`-Dopencomputers.debugCommands=true` (the script sets it).
+`-Dopencomputers.debugCommands=true` (the script sets it): `start|stop|status <pos>` (a rack:
+its first server), `place <pos> <item>` (a fake player uses the item on the block below, e.g.
+to place a robot, microcontroller or drone from item NBT), `drones start|stop|status`,
+`use <pos> <player>`, `useitem <player>`.
+
+In command files, `WAIT <n>` pauses n seconds and `RESTART` stops both servers (waiting until
+they exited; a server that does not exit gets a thread dump in the log) and starts them again on
+the same world. `LOADERS=forge` (or `fabric`) runs only one server; `CUT` / `HEAD` widen the
+printed log excerpt.
+
+## Gameplay (`gameplay/`)
+
+`gameplay/gen.py` generates each `<name>.txt` from `<name>.cmds`, replacing `@EEPROM(x.lua)` by
+an EEPROM item holding that Lua file (`@BIOS`: the Lua BIOS). Each EEPROM ends in
+`error("RESULT ...")`, shown by `oc_debug status`. All pass on Forge and Fabric:
+
+| Commands file | What it checks | Expected |
+|---|---|---|
+| `persistence.txt` | HDD counter program (`persist.lua`), OpenOS, a robot running `persist.lua` and a hovering drone keep running across `RESTART` (Lua state incl. a coroutine, HDD/tmpfs contents, EEPROM data, HDD label) | `RESULT n=80 co=80 hdd=80 tmp=80 starts=1 eeprom=true label=ptest` (computer and robot), OpenOS `running=true lastError=null`, `RESULT drone n=80 ...` |
+| `robot.txt` | robot placed from item NBT, pickaxe in tool slot: detect/swing/move/turn/place/drop/suck/count/select | `RESULT inv=16.0 det=true,solid ... swing=true,block cnt=1.0 ... fwd=true back=true ... place=true ... drop=true ... suck=1.0 cnt5=1.0`, `ROBOT-MINED-SOUTH`, `ROBOT-PLACED-WEST`, `ROBOT-HOME` |
+| `drone.txt` | drone placed from item NBT flies up 3 / east 2 | status `pos=22.50,-56.50,20.50 running=true`, `RESULT ... off1=0.0 off2=0.1 ...`, `DRONE-LANDED-EAST` |
+| `network.txt` | network cards through cable + relay, wireless cards, linked cards; replies | `RESULT A ... lan:1.0:0:re:wired tun:0.0:0:re:linked wlan:2.0:0:re:air ... wlan:2.0:4:re:air` |
+| `filesystem.txt` | HDD, floppy in a disk drive, RAID (3 HDDs), tmpfs: mkdir/write/append/seek/read/list/rename/remove/label; EEPROM data/label | `RESULT drive=true` + `[mk=true,rd=world!,...]` for raid/floppy/tmp/hdd, `fsCount=4 eeprom=data!,FS test,...` |
+| `components.txt` | geolyzer, transposer, redstone I/O, hologram, data card (tier 3), internet card (HTTPS to example.com), motion sensor, 3D printer | eight `RESULT` lines without `ERR`/`nil,` values, chest with 4 cobblestone, `LAMP-LIT`, printer with 2 prints in slot 2 |
+| `machines.txt` | assembler builds a robot, disassembler, charger charging a robot, rack + server blade, microcontroller placed from item NBT lighting a lamp, capacitor | `done=idle,false` and `opencomputers:robot` in the assembler, `charged=true`, `RESULT server comps=computer,eeprom,filesystem,modem`, `MC-LAMP-LIT`, `RESULT mc comps=...redstone`, iron nuggets in the disassembler's chest |
+
+`client.sh <servers-dir> <loader> <port> <display>` is the client check: it builds
+`gameplay/client-scene.txt` on the server, joins with a dev client under xvfb, opens the GUIs of
+the case, robot, drone, disk drive, RAID, rack, assembler, disassembler, printer, charger, relay,
+adapter, manual, database upgrade, server and tablet (screenshots in `<servers-dir>/shots`) and
+types into a screen through a keyboard (`RESULT typed=hello keyboards=1`).
 
 ## Mod integrations (`integrations/`)
 

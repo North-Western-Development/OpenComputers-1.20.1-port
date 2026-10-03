@@ -1,5 +1,5 @@
-# Persistence: an EEPROM program counting on an HDD (persist.lua) and an OpenOS computer keep
-# running across a server restart.
+# Persistence: an EEPROM program counting on an HDD (persist.lua), an OpenOS computer, a robot
+# running persist.lua and a hovering drone (dronepersist.lua) keep running across a restart.
 forceload add 0 0 16 16
 setblock 0 -60 0 opencomputers:casecreative
 item replace block 0 -60 0 container.3 with opencomputers:ram6
@@ -14,16 +14,28 @@ item replace block 4 -60 0 container.4 with opencomputers:ram6
 item replace block 4 -60 0 container.7 with opencomputers:floppy{"oc:data":{"oc:fs.label":"OpenOS (Operating System)"},"oc:lootFactory":"opencomputers:openos","oc:color":13}
 item replace block 4 -60 0 container.8 with opencomputers:cpu3
 item replace block 4 -60 0 container.9 with opencomputers:eeprom@BIOS
+oc_debug place 10 -60 0 opencomputers:robot{"oc:tier":3,"oc:robotEnergy":50000,"oc:components":[{id:"opencomputers:cpu3",Count:1b},{id:"opencomputers:ram6",Count:1b},{id:"opencomputers:hdd1",Count:1b},{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(persist.lua)}]}
+oc_debug place 14 -60 0 opencomputers:drone{"oc:tier":3b,"oc:storedEnergy":20000,"oc:components":[{id:"opencomputers:cpu3",Count:1b},{id:"opencomputers:ram6",Count:1b},{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(dronepersist.lua)}]}
 WAIT 3
 oc_debug start 0 -60 0
 oc_debug start 4 -60 0
+oc_debug start 10 -60 0
+oc_debug drones start
 WAIT 15
+oc_debug status 10 -60 0
+oc_debug drones status
 oc_debug status 0 -60 0
 oc_debug status 4 -60 0
 save-all
 RESTART
 oc_debug status 0 -60 0
 oc_debug status 4 -60 0
-WAIT 40
+oc_debug status 10 -60 0
+oc_debug drones status
+WAIT 25
+oc_debug drones status
+WAIT 25
 oc_debug status 0 -60 0
 oc_debug status 4 -60 0
+oc_debug status 10 -60 0
+oc_debug drones status

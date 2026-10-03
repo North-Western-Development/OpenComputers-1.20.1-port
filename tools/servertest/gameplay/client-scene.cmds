@@ -1,0 +1,30 @@
+# Scene for the client GUI check (client.sh): one block per GUI along z=60 (x = 0, 3, 6, ...),
+# the keyboard test computer at x=40 (screen at 40,-60,60 facing north, case behind it,
+# keyboard east of the screen). Not meant for run.sh.
+forceload add 0 48 48 64
+fill -2 -61 50 50 -61 70 minecraft:stone
+setblock 0 -60 60 opencomputers:case3
+oc_debug place 3 -60 60 opencomputers:robot{"oc:tier":3,"oc:robotEnergy":50000,"oc:components":[{id:"opencomputers:cpu3",Count:1b},{id:"opencomputers:ram6",Count:1b},{id:"opencomputers:screen1",Count:1b},{id:"opencomputers:keyboard",Count:1b},{id:"opencomputers:graphicscard1",Count:1b},{id:"opencomputers:inventoryupgrade",Count:1b},{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(tablet.lua)}]}
+oc_debug place 6 -60 60 opencomputers:drone{"oc:tier":3b,"oc:storedEnergy":20000,"oc:components":[{id:"opencomputers:cpu3",Count:1b},{id:"opencomputers:ram6",Count:1b},{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(drone.lua)}]}
+setblock 9 -60 60 opencomputers:diskdrive
+item replace block 9 -60 60 container.0 with opencomputers:floppy
+setblock 12 -60 60 opencomputers:raid
+setblock 15 -60 60 opencomputers:rack
+item replace block 15 -60 60 container.0 with opencomputers:server3
+setblock 18 -60 60 opencomputers:assembler
+setblock 21 -60 60 opencomputers:disassembler
+setblock 24 -60 60 opencomputers:printer
+setblock 27 -60 60 opencomputers:charger
+setblock 30 -60 60 opencomputers:relay
+setblock 33 -60 60 opencomputers:adapter
+setblock 36 -60 60 opencomputers:microcontroller
+setblock 40 -60 60 opencomputers:screen3[yaw=north]
+setblock 40 -60 61 opencomputers:casecreative
+setblock 41 -60 60 opencomputers:keyboard
+item replace block 40 -60 61 container.0 with opencomputers:graphicscard3
+item replace block 40 -60 61 container.3 with opencomputers:ram6
+item replace block 40 -60 61 container.8 with opencomputers:cpu3
+item replace block 40 -60 61 container.9 with opencomputers:eeprom@EEPROM(kbd.lua)
+WAIT 3
+oc_debug start 40 -60 61
+oc_debug start 3 -60 60
