@@ -1,6 +1,8 @@
 package li.cil.oc.util;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.util.Mth;
 import li.cil.oc.OpenComputers;
 import li.cil.oc.Settings;
 import org.lwjgl.opengl.GL11;
@@ -41,9 +43,33 @@ public final class RenderState {
     }
 
     public static void checkError(String where) {
-        final int error = GL11.glGetError();
-        if (error != 0 && Settings.get().logOpenGLErrors) {
-            OpenComputers.log.warn("GL ERROR @ " + where + ": " + getErrorString(error));
+        // glGetError forces a sync with the GPU, so don't call it unless errors get logged.
+        if (Settings.get().logOpenGLErrors) {
+            final int error = GL11.glGetError();
+            if (error != 0) {
+                OpenComputers.log.warn("GL ERROR @ " + where + ": " + getErrorString(error));
+            }
+        }
+    }
+
+    /**
+     * Like {@link PoseStack#scale}, but also correct for negative (mirroring) scale factors: the
+     * vanilla normal matrix update uses an inverse cube root approximation that fails for negative
+     * values, which breaks lighting of everything rendered afterwards.
+     */
+    public static void mirrorScale(PoseStack matrix, float sx, float sy, float sz) {
+        matrix.last().pose().scale(sx, sy, sz);
+        if (sx != sy || sx != sz || sx <= 0) {
+            final float isx = 1 / sx;
+            final float isy = 1 / sy;
+            final float isz = 1 / sz;
+            final float invScale = isx * isy * isz;
+            float normScale = Mth.fastInvCubeRoot(Math.abs(invScale));
+            if (invScale < 0) {
+                // Compensate for taking the absolute value of invScale.
+                normScale = -normScale;
+            }
+            matrix.last().normal().scale(isx * normScale, isy * normScale, isz * normScale);
         }
     }
 

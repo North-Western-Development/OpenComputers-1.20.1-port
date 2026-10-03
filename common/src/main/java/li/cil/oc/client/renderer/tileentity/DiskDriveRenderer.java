@@ -45,7 +45,7 @@ public class DiskDriveRenderer implements BlockEntityRenderer<DiskDrive> {
 
         if (System.currentTimeMillis() - drive.lastAccess < 400 && drive.getLevel() != null && drive.getLevel().random.nextDouble() > 0.1) {
             matrix.translate(-0.5, 0.5, 0.505);
-            matrix.scale(1, -1, 1);
+            RenderState.mirrorScale(matrix, 1, -1, 1);
 
             final VertexConsumer r = buffer.getBuffer(RenderTypes.BLOCK_OVERLAY);
             RenderUtil.renderFrontOverlay(matrix, Textures.Block.DiskDriveFrontActivity, r);

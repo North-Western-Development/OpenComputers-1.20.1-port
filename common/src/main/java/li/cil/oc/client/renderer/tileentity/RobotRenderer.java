@@ -310,7 +310,7 @@ public class RobotRenderer implements BlockEntityRenderer<RobotProxy> {
                     // Copy-paste from player render code, with minor adjustments for
                     // robot scale.
 
-                    matrix.scale(1, -1, -1);
+                    RenderState.mirrorScale(matrix, 1, -1, -1);
                     matrix.translate(0, -8 * 0.0625F - 0.0078125F, -0.5F);
 
                     if (robot.isAnimatingSwing()) {
@@ -404,7 +404,7 @@ public class RobotRenderer implements BlockEntityRenderer<RobotProxy> {
 
             matrix.translate(0, 0.8, 0);
             matrix.mulPose(Minecraft.getInstance().getEntityRenderDispatcher().cameraOrientation());
-            matrix.scale(-scale, -scale, scale);
+            RenderState.mirrorScale(matrix, -scale, -scale, scale);
 
             font.drawInBatch((EventHandler.isItTime() ? ChatFormatting.OBFUSCATED.toString() : "") + name,
                 -halfWidth, 0, -1, false, matrix.last().pose(), buffer, Font.DisplayMode.NORMAL, bgColor, light);

@@ -31,7 +31,7 @@ public class RackRenderer implements BlockEntityRenderer<Rack> {
         stack.translate(0.5, 0.5, 0.5);
         RenderUtil.rotateYaw(stack, rack.yaw());
         stack.translate(-0.5, 0.5, 0.505 - 0.5f / 16f);
-        stack.scale(1, -1, 1);
+        RenderState.mirrorScale(stack, 1, -1, 1);
 
         // Note: we manually sync the rack inventory for this to work.
         // Light the mountables like the rack's front face, not like the (dark) inside of the block.
