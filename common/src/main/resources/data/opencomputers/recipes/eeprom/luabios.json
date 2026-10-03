@@ -1,0 +1,22 @@
+{
+  "type": "opencomputers:crafting_shapeless_extended",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "opencomputers:eeprom"
+    },
+    {
+      "tag": "opencomputers:manual"
+    }
+  ],
+  "result": {
+    "item": "opencomputers:eeprom",
+    "nbt": {
+      "oc:data": {
+        "oc:label": "EEPROM (Lua BIOS)",
+        "oc:eeprom": "bios.lua",
+        "oc:readonly": false
+      }
+    }
+  }
+}
