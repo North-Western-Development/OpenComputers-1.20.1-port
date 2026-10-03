@@ -246,7 +246,7 @@ public class Screen extends TileEntity implements TextBuffer, SidedEnvironment, 
     public void updateEntity() {
         super.updateEntity();
         final Level level = getLevel();
-        if (shouldCheckForMultiBlock && ((isClient() && isClientReadyForMultiBlockCheck()) || (isServer() && isConnected()))) {
+        if (shouldCheckForMultiBlock && (isClient() || (isServer() && isConnected()))) {
             // Make sure we merge in a deterministic order, to avoid getting
             // different results on server and client due to the update order
             // differing between the two. This also saves us from having to save
@@ -255,20 +255,28 @@ public class Screen extends TileEntity implements TextBuffer, SidedEnvironment, 
             pending.add(this);
             final ArrayDeque<Screen> queue = new ArrayDeque<>();
             queue.add(this);
+            boolean complete = true;
             while (!queue.isEmpty()) {
                 final Screen current = queue.poll();
                 final BlockPosition lpos = project(current);
                 final int[][] offsets = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
                 for (int[] offset : offsets) {
                     final BlockPosition npos = unproject(lpos.x + offset[0], lpos.y + offset[1], lpos.z);
-                    if (ExtendedWorld.blockExists(level, npos) && level.getBlockEntity(npos.toBlockPos()) instanceof Screen s
+                    if (!ExtendedWorld.blockExists(level, npos)) {
+                        complete = false;
+                    } else if (level.getBlockEntity(npos.toBlockPos()) instanceof Screen s
                         && s.pitch() == pitch() && s.yaw() == yaw() && pending.add(s)) {
                         queue.add(s);
                     }
                 }
             }
+            // On the client, merge right away once every chunk the multi-block
+            // touches has arrived; only wait (up to the old fixed delay) while a
+            // neighbouring chunk is still missing, so we don't merge a partial
+            // screen differently from the server.
+            final boolean deferred = isClient() && !complete && !isClientReadyForMultiBlockCheck();
             // Perform actual merges.
-            while (!pending.isEmpty()) {
+            while (!deferred && !pending.isEmpty()) {
                 final Screen current = pending.first();
                 while (current.tryMerge()) {
                 }
@@ -278,7 +286,7 @@ public class Screen extends TileEntity implements TextBuffer, SidedEnvironment, 
                     queue.add(screen);
                 }
             }
-            if (isClient()) li.cil.oc.client.ClientHooks.updateMergedScreenModels(this);
+            if (isClient() && !deferred) li.cil.oc.client.ClientHooks.updateMergedScreenModels(this);
             // Update visibility after everything is done, to avoid noise.
             for (Screen screen : queue) {
                 final li.cil.oc.api.internal.TextBuffer buffer = screen.buffer();
