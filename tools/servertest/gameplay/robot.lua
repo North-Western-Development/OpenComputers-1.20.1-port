@@ -1,0 +1,27 @@
+-- Robot test: surrounded by stone with a chest above, mines/moves/places/drops/sucks.
+local r = component.proxy(component.list("robot")())
+local o = {}
+local function add(k, ...) local t = table.pack(...) for i = 1, t.n do t[i] = tostring(t[i]) end o[#o + 1] = k .. "=" .. table.concat(t, ",") end
+local function try(k, f, ...) local ok, a, b = pcall(f, ...) if ok then add(k, a, b) else add(k, "ERR:" .. tostring(a)) end end
+try("inv", r.inventorySize)
+try("det", r.detect, 3)
+try("dur", r.durability)
+try("swing", r.swing, 3)
+try("cnt", r.count, 1)
+try("det2", r.detect, 3)
+try("fwd", r.move, 3)
+try("back", r.move, 2)
+try("turn", r.turn, true)
+try("swing2", r.swing, 3)
+try("cnt2", r.count, 1)
+try("place", r.place, 3)
+try("cnt3", r.count, 1)
+try("drop", r.drop, 1, 1)
+try("cnt4", r.count, 1)
+try("sel", r.select, 2)
+try("suck", r.suck, 1)
+try("cnt5", r.count, 2)
+try("comp", r.compareTo, 1)
+try("light", r.setLightColor, 0x00ff00)
+try("name", r.name)
+error("RESULT " .. table.concat(o, " "))

@@ -1,0 +1,12 @@
+# Drone: a creative drone (CPU, RAM, EEPROM running drone.lua) is placed by a fake player
+# (/oc_debug place uses the drone item on the ground), started, and flies up 3 and east 2.
+forceload add 0 0 32 32
+oc_debug place 20 -60 20 opencomputers:drone{"oc:tier":3b,"oc:storedEnergy":20000,"oc:components":[{id:"opencomputers:cpu3",Count:1b},{id:"opencomputers:ram6",Count:1b},{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(drone.lua)}]}
+WAIT 2
+oc_debug drones status
+oc_debug drones start
+WAIT 8
+oc_debug drones status
+WAIT 12
+oc_debug drones status
+execute if entity @e[type=opencomputers:drone,x=22,y=-61,z=20,distance=..1.5] run say DRONE-LANDED-EAST

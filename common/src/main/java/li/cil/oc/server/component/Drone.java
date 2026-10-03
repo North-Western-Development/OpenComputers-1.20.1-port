@@ -143,7 +143,7 @@ public class Drone extends AbstractManagedEnvironment implements Agent, DeviceIn
     }
 
     @Callback(doc = "function():number -- Get the maximum velocity, in m/s.")
-    public Object[] getV1elocity(Context context, Arguments args) {
+    public Object[] getMaxVelocity(Context context, Arguments args) {
         return result(agent.maxVelocity * 20); // per second
     }
 

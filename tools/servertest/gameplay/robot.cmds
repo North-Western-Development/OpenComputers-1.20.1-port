@@ -1,0 +1,18 @@
+# Robot: placed by a fake player (/oc_debug place) from a creative robot item with CPU, RAM,
+# inventory upgrade and an EEPROM running robot.lua; a diamond pickaxe in its tool slot. It is
+# surrounded by stone with a chest above, faces south (the fake player looks south), mines the
+# stone south of it, moves there and back, turns to the west, mines and re-places the stone
+# there as cobblestone, drops it into the chest above and sucks it back.
+forceload add 0 0 16 16
+fill 9 -60 9 11 -60 11 minecraft:stone
+setblock 10 -60 10 minecraft:air
+setblock 10 -59 10 minecraft:chest
+oc_debug place 10 -60 10 opencomputers:robot{"oc:tier":3,"oc:robotEnergy":50000,"oc:components":[{id:"opencomputers:cpu3",Count:1b},{id:"opencomputers:ram6",Count:1b},{id:"opencomputers:ram6",Count:1b},{id:"opencomputers:inventoryupgrade",Count:1b},{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(robot.lua)}]}
+item replace block 10 -60 10 container.0 with minecraft:diamond_pickaxe
+WAIT 3
+oc_debug start 10 -60 10
+WAIT 15
+oc_debug status 10 -60 10
+execute if block 10 -60 11 minecraft:air run say ROBOT-MINED-SOUTH
+execute if block 9 -60 10 minecraft:cobblestone run say ROBOT-PLACED-WEST
+execute if block 10 -60 10 opencomputers:robot run say ROBOT-HOME
