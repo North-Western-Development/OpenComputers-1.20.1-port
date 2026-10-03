@@ -14,7 +14,7 @@ import li.cil.oc.api.network.Visibility;
 import li.cil.oc.api.prefab.AbstractManagedEnvironment;
 import li.cil.oc.api.prefab.AbstractValue;
 import net.minecraft.nbt.CompoundTag;
-import org.apache.commons.codec.binary.Base64;
+import java.util.Base64;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyAgreement;
@@ -127,12 +127,12 @@ public abstract class DataCard extends AbstractManagedEnvironment implements Dev
 
         @Callback(direct = true, limit = 32, doc = "function(data:string):string -- Applies base64 encoding to the data.")
         public Object[] encode64(Context context, Arguments args) throws Exception {
-            return result((Object) Base64.encodeBase64(trivialCost(context, args)));
+            return result((Object) Base64.getEncoder().encode(trivialCost(context, args)));
         }
 
         @Callback(direct = true, limit = 32, doc = "function(data:string):string -- Applies base64 decoding to the data.")
         public Object[] decode64(Context context, Arguments args) throws Exception {
-            return result((Object) Base64.decodeBase64(trivialCost(context, args)));
+            return result((Object) Base64.getMimeDecoder().decode(trivialCost(context, args)));
         }
 
         @Callback(direct = true, limit = 4, doc = "function(data:string):string -- Applies deflate compression to the data.")

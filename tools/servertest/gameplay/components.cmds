@@ -1,0 +1,85 @@
+# Components / blocks driven from Lua: one creative computer per test along z=20, the block under
+# test east of it. Each EEPROM ends in error("RESULT ...").
+forceload add 0 16 48 32
+# Geolyzer
+setblock 0 -60 20 opencomputers:casecreative
+item replace block 0 -60 20 container.3 with opencomputers:ram6
+item replace block 0 -60 20 container.8 with opencomputers:cpu3
+item replace block 0 -60 20 container.9 with opencomputers:eeprom@EEPROM(geo.lua)
+setblock 1 -60 20 opencomputers:geolyzer
+# Transposer: chest above with 10 cobblestone, chest east
+setblock 4 -60 20 opencomputers:casecreative
+item replace block 4 -60 20 container.3 with opencomputers:ram6
+item replace block 4 -60 20 container.8 with opencomputers:cpu3
+item replace block 4 -60 20 container.9 with opencomputers:eeprom@EEPROM(transposer.lua)
+setblock 5 -60 20 opencomputers:transposer
+setblock 5 -59 20 minecraft:chest{Items:[{Slot:0b,id:"minecraft:cobblestone",Count:10b}]}
+setblock 6 -60 20 minecraft:chest
+# Redstone I/O: redstone block on top, lamp east
+setblock 8 -60 20 opencomputers:casecreative
+item replace block 8 -60 20 container.3 with opencomputers:ram6
+item replace block 8 -60 20 container.8 with opencomputers:cpu3
+item replace block 8 -60 20 container.9 with opencomputers:eeprom@EEPROM(redstone.lua)
+setblock 9 -60 20 opencomputers:redstone
+setblock 9 -59 20 minecraft:redstone_block
+setblock 10 -60 20 minecraft:redstone_lamp
+# Hologram (only connects from below), on top of the computer
+setblock 12 -60 20 opencomputers:casecreative
+item replace block 12 -60 20 container.3 with opencomputers:ram6
+item replace block 12 -60 20 container.8 with opencomputers:cpu3
+item replace block 12 -60 20 container.9 with opencomputers:eeprom@EEPROM(hologram.lua)
+setblock 12 -59 20 opencomputers:hologram1
+# Data card
+setblock 16 -60 20 opencomputers:casecreative
+item replace block 16 -60 20 container.0 with opencomputers:datacard3
+item replace block 16 -60 20 container.3 with opencomputers:ram6
+item replace block 16 -60 20 container.8 with opencomputers:cpu3
+item replace block 16 -60 20 container.9 with opencomputers:eeprom@EEPROM(data.lua)
+# Internet card
+setblock 20 -60 20 opencomputers:casecreative
+item replace block 20 -60 20 container.0 with opencomputers:internetcard
+item replace block 20 -60 20 container.3 with opencomputers:ram6
+item replace block 20 -60 20 container.8 with opencomputers:cpu3
+item replace block 20 -60 20 container.9 with opencomputers:eeprom@EEPROM(internet.lua)
+# Motion sensor, pig teleported around in front of it
+setblock 24 -60 20 opencomputers:casecreative
+item replace block 24 -60 20 container.3 with opencomputers:ram6
+item replace block 24 -60 20 container.8 with opencomputers:cpu3
+item replace block 24 -60 20 container.9 with opencomputers:eeprom@EEPROM(motion.lua)
+setblock 25 -60 20 opencomputers:motionsensor
+summon minecraft:pig 27.5 -60 22.5 {NoAI:1b,Tags:["octest"]}
+# 3D printer with chamelium and ink
+setblock 28 -60 20 opencomputers:casecreative
+item replace block 28 -60 20 container.3 with opencomputers:ram6
+item replace block 28 -60 20 container.8 with opencomputers:cpu3
+item replace block 28 -60 20 container.9 with opencomputers:eeprom@EEPROM(printer.lua)
+setblock 29 -60 20 opencomputers:printer
+item replace block 29 -60 20 container.0 with opencomputers:chamelium 64
+item replace block 29 -60 20 container.1 with opencomputers:inkcartridge
+WAIT 3
+oc_debug start 0 -60 20
+oc_debug start 4 -60 20
+oc_debug start 8 -60 20
+oc_debug start 12 -60 20
+oc_debug start 16 -60 20
+oc_debug start 20 -60 20
+oc_debug start 24 -60 20
+oc_debug start 28 -60 20
+WAIT 3
+tp @e[tag=octest] 26.5 -60 23.5
+WAIT 2
+tp @e[tag=octest] 27.5 -60 21.5
+WAIT 2
+tp @e[tag=octest] 29.5 -60 22.5
+WAIT 15
+oc_debug status 0 -60 20
+oc_debug status 4 -60 20
+oc_debug status 8 -60 20
+oc_debug status 12 -60 20
+oc_debug status 16 -60 20
+oc_debug status 20 -60 20
+oc_debug status 24 -60 20
+oc_debug status 28 -60 20
+data get block 6 -60 20 Items
+execute if block 10 -60 20 minecraft:redstone_lamp[lit=true] run say LAMP-LIT
+data get block 29 -60 20

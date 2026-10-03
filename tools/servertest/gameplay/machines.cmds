@@ -1,0 +1,51 @@
+# Assembler, disassembler, charger, rack + server blade, microcontroller, capacitor at z=40.
+# The creative cases power the blocks next to them.
+forceload add 0 32 48 48
+# Assembler (east of the computer): tier 1 case + inventory upgrade + CPU + RAM + EEPROM
+setblock 0 -60 40 opencomputers:casecreative
+item replace block 0 -60 40 container.3 with opencomputers:ram6
+item replace block 0 -60 40 container.8 with opencomputers:cpu3
+item replace block 0 -60 40 container.9 with opencomputers:eeprom@EEPROM(assembler.lua)
+setblock 1 -60 40 opencomputers:assembler
+item replace block 1 -60 40 container.0 with opencomputers:case1
+item replace block 1 -60 40 container.4 with opencomputers:inventoryupgrade
+item replace block 1 -60 40 container.16 with opencomputers:cpu1
+item replace block 1 -60 40 container.17 with opencomputers:ram1
+item replace block 1 -60 40 container.19 with opencomputers:eeprom
+# Disassembler next to a creative case, chest on top for the output
+setblock 4 -60 40 opencomputers:casecreative
+setblock 5 -60 40 opencomputers:disassembler
+setblock 5 -59 40 minecraft:chest
+item replace block 5 -60 40 container.0 with opencomputers:cpu1
+# Charger next to a creative case, redstone block next to it, tier 1 robot south of it
+setblock 8 -60 40 opencomputers:casecreative
+setblock 9 -60 40 opencomputers:charger
+setblock 9 -59 40 minecraft:redstone_block
+oc_debug place 9 -60 41 opencomputers:robot{"oc:tier":0,"oc:robotEnergy":2000,"oc:components":[{id:"opencomputers:cpu1",Count:1b},{id:"opencomputers:ram1",Count:1b},{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(chargebot.lua)}]}
+# Rack with a server blade, next to a creative case
+setblock 12 -60 40 opencomputers:casecreative
+setblock 13 -60 40 opencomputers:rack
+item replace block 13 -60 40 container.0 with opencomputers:server3{"oc:items":[{slot:2b,item:{id:"opencomputers:cpu3",Count:1b}},{slot:6b,item:{id:"opencomputers:ram6",Count:1b}},{slot:0b,item:{id:"opencomputers:lancard",Count:1b}},{slot:16b,item:{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(server.lua)}}]}
+# Microcontroller with a redstone card, lamp east of it, powered by a creative case west of it
+setblock 15 -60 40 opencomputers:casecreative
+oc_debug place 16 -60 40 opencomputers:microcontroller{"oc:tier":3b,"oc:components":[{id:"opencomputers:cpu1",Count:1b},{id:"opencomputers:ram1",Count:1b},{id:"opencomputers:redstonecard1",Count:1b},{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(mc.lua)}]}
+setblock 17 -60 40 minecraft:redstone_lamp
+# Capacitor next to a creative case
+setblock 20 -60 40 opencomputers:casecreative
+setblock 21 -60 40 opencomputers:capacitor
+WAIT 3
+oc_debug start 0 -60 40
+oc_debug start 9 -60 41
+oc_debug start 13 -60 40
+oc_debug start 16 -60 40
+WAIT 10
+execute if block 17 -60 40 minecraft:redstone_lamp[lit=true] run say MC-LAMP-LIT
+WAIT 75
+oc_debug status 0 -60 40
+oc_debug status 9 -60 41
+oc_debug status 13 -60 40
+oc_debug status 16 -60 40
+data get block 1 -60 40 "oc:items"[0].item.id
+data get block 5 -59 40 Items
+data get block 5 -60 40
+data get block 21 -60 40

@@ -9,7 +9,6 @@ import dev.architectury.platform.Platform;
 import li.cil.oc.api.internal.TextBuffer;
 import li.cil.oc.common.Tier;
 import li.cil.oc.server.component.DebugCard;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.BufferedReader;
@@ -1061,7 +1060,7 @@ public class Settings {
             private String generateNonce() {
                 final byte[] buf = new byte[16];
                 rng.nextBytes(buf);
-                return new String(Hex.encodeHex(buf, true));
+                return java.util.HexFormat.of().formatHex(buf);
             }
 
             public Optional<String> nonce(String player) {

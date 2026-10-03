@@ -9,6 +9,7 @@ import li.cil.oc.api.machine.MachineHost;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.core.BlockPos;
@@ -35,7 +36,10 @@ import java.util.UUID;
  * dedicated server: {@code /oc_debug (start|stop|status) <pos>},
  * {@code /oc_debug place <pos> <item>} (a fake player uses the item on the top
  * face of the block below {@code pos}, e.g. to place a robot or a drone) and
- * {@code /oc_debug drones (start|stop|status)} (all loaded drones).
+ * {@code /oc_debug drones (start|stop|status)} (all loaded drones),
+ * {@code /oc_debug use <pos> <player>} (the player right-clicks the block or drone at pos, e.g.
+ * to open its GUI) and {@code /oc_debug useitem <player>} (server-side use of the held item).
+ * {@code start|stop|status} on a rack act on its first server.
  * <p>
  * Only registered when the JVM is started with {@code -Dopencomputers.debugCommands=true}.
  */
@@ -63,6 +67,11 @@ public final class DebugCommands {
             .then(Commands.literal("place").then(Commands.argument("pos", BlockPosArgument.blockPos())
                 .then(Commands.argument("item", ItemArgument.item(registry))
                     .executes(DebugCommands::place))))
+            .then(Commands.literal("use").then(Commands.argument("pos", BlockPosArgument.blockPos())
+                .then(Commands.argument("player", EntityArgument.player())
+                    .executes(DebugCommands::use))))
+            .then(Commands.literal("useitem").then(Commands.argument("player", EntityArgument.player())
+                .executes(DebugCommands::useItem)))
             .then(Commands.literal("drones")
                 .then(Commands.literal("start").executes(context -> drones(context, "start")))
                 .then(Commands.literal("stop").executes(context -> drones(context, "stop")))
@@ -93,6 +102,32 @@ public final class DebugCommands {
         return 1;
     }
 
+    /** The player right-clicks the block at pos (or a drone in it), e.g. to open its GUI. */
+    private static int use(CommandContext<CommandSourceStack> context) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        final BlockPos pos = BlockPosArgument.getLoadedBlockPos(context, "pos");
+        final ServerPlayer player = EntityArgument.getPlayer(context, "player");
+        final ServerLevel level = context.getSource().getLevel();
+        final String result;
+        final java.util.List<Drone> drones = level.getEntities(EntityTypes.DRONE.get(), new net.minecraft.world.phys.AABB(pos), drone -> true);
+        if (!drones.isEmpty()) {
+            result = String.valueOf(drones.get(0).interact(player, InteractionHand.MAIN_HAND));
+        } else {
+            final BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false);
+            result = String.valueOf(level.getBlockState(pos).use(level, player, InteractionHand.MAIN_HAND, hit));
+        }
+        context.getSource().sendSuccess(() -> Component.literal("[oc_debug] use: " + result), true);
+        return 1;
+    }
+
+    /** The player uses the item in their main hand (on the server side only). */
+    private static int useItem(CommandContext<CommandSourceStack> context) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        final ServerPlayer player = EntityArgument.getPlayer(context, "player");
+        final ItemStack stack = player.getMainHandItem();
+        final String result = String.valueOf(stack.use(player.level(), player, InteractionHand.MAIN_HAND).getResult());
+        context.getSource().sendSuccess(() -> Component.literal("[oc_debug] useitem: " + result), true);
+        return 1;
+    }
+
     private static int drones(CommandContext<CommandSourceStack> context, String action) {
         final ServerLevel level = context.getSource().getLevel();
         int count = 0;
@@ -114,8 +149,18 @@ public final class DebugCommands {
 
     private static int run(CommandContext<CommandSourceStack> context, String action) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
         final BlockPos pos = BlockPosArgument.getLoadedBlockPos(context, "pos");
-        final BlockEntity blockEntity = context.getSource().getLevel().getBlockEntity(pos);
-        if (!(blockEntity instanceof MachineHost host) || host.machine() == null) {
+        BlockEntity blockEntity = context.getSource().getLevel().getBlockEntity(pos);
+        Object target = blockEntity;
+        if (blockEntity instanceof li.cil.oc.common.tileentity.Rack rack) {
+            // The first server (or other machine) mounted in the rack.
+            for (int slot = 0; slot < rack.getContainerSize(); slot++) {
+                if (rack.getMountable(slot) instanceof MachineHost mounted) {
+                    target = mounted;
+                    break;
+                }
+            }
+        }
+        if (!(target instanceof MachineHost host) || host.machine() == null) {
             context.getSource().sendFailure(Component.literal("No machine at " + pos.toShortString()));
             return 0;
         }
