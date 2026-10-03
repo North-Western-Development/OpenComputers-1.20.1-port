@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "8.1.1"
+    id "com.gradleup.shadow" version "9.6.1"
 }
 
 architectury {
@@ -40,6 +40,25 @@ dependencies {
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
+
+    // Optional mod integrations. Compile-only; add them to dev runs with -Pintegrations=true.
+    def integration = { dep ->
+        modCompileOnly(dep) { transitive = false }
+        if (project.hasProperty("integrations")) modLocalRuntime(dep) { transitive = false }
+    }
+    integration "appeng:appliedenergistics2-forge:${rootProject.ae2_version}"
+    integration "cc.tweaked:cc-tweaked-1.20.1-forge:${rootProject.cct_version}"
+    integration "mezz.jei:jei-1.20.1-forge:${rootProject.jei_version}"
+    integration "maven.modrinth:jade:${rootProject.jade_version}+forge"
+    integration "maven.modrinth:tis3d:MC1.20.1-forge-${rootProject.tis3d_version}"
+    integration "mekanism:Mekanism:${rootProject.mekanism_version}"
+    integration "io.codechicken:CodeChickenLib:${rootProject.codechickenlib_version}:universal"
+    integration "io.codechicken:EnderStorage:${rootProject.enderstorage_version}:universal"
+    integration "io.codechicken:CBMultipart:${rootProject.cbmultipart_version}:universal"
+    integration "mrtjp:ProjectRed:${rootProject.projectred_version}:core"
+    if (project.hasProperty("integrations")) {
+        modLocalRuntime("mezz.jei:jei-1.20.1-common:${rootProject.jei_version}") { transitive = false }
+    }
 
     embedded "com.typesafe:config:${rootProject.typesafe_config_version}"
     embedded name: "OC-LuaJ", version: rootProject.luaj_version, ext: "jar"

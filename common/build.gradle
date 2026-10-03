@@ -14,6 +14,14 @@ dependencies {
     api "com.typesafe:config:${rootProject.typesafe_config_version}"
     api name: "OC-LuaJ", version: rootProject.luaj_version, ext: "jar"
     api name: "OC-JNLua", version: rootProject.jnlua_version, ext: "jar"
+
+    // Optional integrations whose APIs are loader-independent. Fabric variants are used for
+    // compiling common code (the Architectury convention); see integration/** for usage.
+    compileOnly "cc.tweaked:cc-tweaked-1.20.1-common-api:${rootProject.cct_version}"
+    compileOnly "mezz.jei:jei-1.20.1-common-api:${rootProject.jei_version}"
+    modCompileOnly("appeng:appliedenergistics2-fabric:${rootProject.ae2_version}") { transitive = false }
+    modCompileOnly("maven.modrinth:jade:${rootProject.jade_version}+fabric") { transitive = false }
+    modCompileOnly("maven.modrinth:tis3d:MC1.20.1-fabric-${rootProject.tis3d_version}") { transitive = false }
 }
 
 processResources {

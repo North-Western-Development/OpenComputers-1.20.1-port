@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "8.1.1"
+    id "com.gradleup.shadow" version "9.6.1"
 }
 
 architectury {
@@ -33,6 +33,17 @@ dependencies {
     // Forge Energy equivalent on Fabric. Optional at runtime (see fabric.mod.json "suggests").
     modCompileOnly "teamreborn:energy:${rootProject.tr_energy_version}"
     modLocalRuntime "teamreborn:energy:${rootProject.tr_energy_version}"
+
+    // Optional mod integrations. Compile-only; add them to dev runs with -Pintegrations=true.
+    def integration = { dep ->
+        modCompileOnly(dep) { transitive = false }
+        if (project.hasProperty("integrations")) modLocalRuntime(dep) { transitive = false }
+    }
+    integration "appeng:appliedenergistics2-fabric:${rootProject.ae2_version}"
+    integration "cc.tweaked:cc-tweaked-1.20.1-fabric:${rootProject.cct_version}"
+    integration "mezz.jei:jei-1.20.1-fabric:${rootProject.jei_version}"
+    integration "maven.modrinth:jade:${rootProject.jade_version}+fabric"
+    integration "maven.modrinth:tis3d:MC1.20.1-fabric-${rootProject.tis3d_version}"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }

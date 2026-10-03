@@ -1,6 +1,6 @@
 plugins {
-    id "architectury-plugin" version "3.4-SNAPSHOT"
-    id "dev.architectury.loom" version "1.6-SNAPSHOT" apply false
+    id "architectury-plugin" version "3.5-SNAPSHOT"
+    id "dev.architectury.loom" version "1.17-SNAPSHOT" apply false
 }
 
 architectury {
@@ -9,12 +9,7 @@ architectury {
 
 def gitRef() {
     try {
-        def stdout = new ByteArrayOutputStream()
-        exec {
-            commandLine "git", "rev-parse", "--short", "HEAD"
-            standardOutput = stdout
-        }
-        return stdout.toString().trim()
+        return providers.exec { commandLine "git", "rev-parse", "--short", "HEAD" }.standardOutput.asText.get().trim()
     } catch (Throwable ignored) {
         return "unknown"
     }
@@ -72,7 +67,21 @@ allprojects {
         // Fallback: drop the jars above into ./libs if the mirror is unreachable.
         flatDir { dirs rootProject.file("libs") }
         maven { url "https://maven.architectury.dev/" }
-        mavenCentral()
+        // Optional mod integrations.
+        maven { url "https://modmaven.dev/"; content { includeGroup "appeng"; includeGroup "mekanism" } }
+        maven { url "https://maven.squiddev.cc/"; content { includeGroup "cc.tweaked" } }
+        maven { url "https://maven.blamejared.com/"; content { includeGroup "mezz.jei" } }
+        maven { url "https://maven.covers1624.net/"; content { includeGroup "io.codechicken"; includeGroup "mrtjp"; includeGroup "codechicken" } }
+        exclusiveContent {
+            forRepository { maven { url "https://api.modrinth.com/maven" } }
+            filter { includeGroup "maven.modrinth" }
+        }
+        mavenCentral {
+            content {
+                excludeGroup "appeng"; excludeGroup "mekanism"; excludeGroup "cc.tweaked"; excludeGroup "mezz.jei"
+                excludeGroup "io.codechicken"; excludeGroup "mrtjp"; excludeGroup "codechicken"
+            }
+        }
     }
 
     tasks.withType(JavaCompile).configureEach {
