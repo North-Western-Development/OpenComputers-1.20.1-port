@@ -48,7 +48,7 @@ send() {
 # PIDs of the processes named $2 (default: java, the server JVM) running in $DIR/$1.
 jvm() {
   for p in $(pgrep -x "${2:-java}"); do
-    [ "$(readlink "/proc/$p/cwd")" = "$DIR/$1" ] && echo "$p"
+    [ "$(readlink "/proc/$p/cwd")" = "$(cd "$DIR/$1" && pwd -P)" ] && echo "$p"
   done
 }
 
@@ -79,6 +79,6 @@ sleep 5
 stop
 for d in $LOADERS; do
   echo "===== $d"
-  grep -nE "oc_debug|LAMP|\[Server\]|has the following|No drones|Exception|ERROR|Caused by|^\s+at li\.cil|Crash|Unknown or incomplete|No machine|Incorrect argument" "$DIR/$d/out.all.log" \
+  grep -anE "oc_debug|LAMP|\[Server\]|has the following|No drones|Exception|ERROR|Caused by|^\s+at li\.cil|Crash|Unknown or incomplete|No machine|Incorrect argument" "$DIR/$d/out.all.log" \
     | grep -vE "No data fixer registered|No key layers" | cut -c1-${CUT:-300} | head -${HEAD:-40}
 done
