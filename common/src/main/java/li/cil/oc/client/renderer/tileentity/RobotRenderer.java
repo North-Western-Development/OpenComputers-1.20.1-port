@@ -382,7 +382,7 @@ public class RobotRenderer implements BlockEntityRenderer<RobotProxy> {
                     final UpgradeRenderer renderer = (UpgradeRenderer) info[1];
                     matrix.pushPose();
                     matrix.translate(0.5f, 0.5f, 0.5f);
-                    renderer.render(matrix, buffer, upgrade, mountPoints[i], robot, f);
+                    renderer.render(matrix, buffer, light, upgrade, mountPoints[i], robot, f);
                     matrix.popPose();
                 } catch (Throwable e) {
                     OpenComputers.log.warn("Failed rendering equipped upgrade.", e);

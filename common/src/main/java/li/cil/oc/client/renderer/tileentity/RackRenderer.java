@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import li.cil.oc.client.Textures;
 import li.cil.oc.client.renderer.RenderTypes;
 import li.cil.oc.util.RenderState;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -33,11 +34,13 @@ public class RackRenderer implements BlockEntityRenderer<Rack> {
         stack.scale(1, -1, 1);
 
         // Note: we manually sync the rack inventory for this to work.
+        // Light the mountables like the rack's front face, not like the (dark) inside of the block.
+        final int rackLight = rack.getLevel() != null ? LevelRenderer.getLightColor(rack.getLevel(), rack.getBlockPos().relative(rack.facing())) : light;
         for (int i = 0; i < rack.getContainerSize(); i++) {
             if (!rack.getItem(i).isEmpty()) {
                 final float v0 = vOffset + i * vSize;
                 final float v1 = vOffset + (i + 1) * vSize;
-                final RackMountableRenderEvent.TileEntity event = new RackMountableRenderEvent.TileEntity(rack, i, rack.getMountableData(i), stack, buffer, light, overlay, v0, v1);
+                final RackMountableRenderEvent.TileEntity event = new RackMountableRenderEvent.TileEntity(rack, i, rack.getMountableData(i), stack, buffer, rackLight, overlay, v0, v1);
                 EventBus.INSTANCE.post(event);
             }
         }

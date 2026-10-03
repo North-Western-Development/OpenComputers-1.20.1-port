@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import li.cil.oc.client.Textures;
 import li.cil.oc.client.renderer.RenderTypes;
 import li.cil.oc.util.RenderState;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -36,7 +37,9 @@ public class DiskDriveRenderer implements BlockEntityRenderer<DiskDrive> {
             matrix.mulPose(Axis.XN.rotationDegrees(90));
             matrix.scale(0.5f, 0.5f, 0.5f);
 
-            Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemDisplayContext.FIXED, light, overlay, matrix, buffer, drive.getLevel(), 0);
+            // Light the item like the block face it sticks out of, not like the (dark) inside of the block.
+            final int itemLight = drive.getLevel() != null ? LevelRenderer.getLightColor(drive.getLevel(), drive.getBlockPos().relative(drive.facing())) : light;
+            Minecraft.getInstance().getItemRenderer().renderStatic(stack, ItemDisplayContext.FIXED, itemLight, overlay, matrix, buffer, drive.getLevel(), 0);
             matrix.popPose();
         }
 
