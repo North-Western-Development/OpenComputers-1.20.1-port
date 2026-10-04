@@ -34,7 +34,7 @@ public class DynamicFontRenderer extends TextureFontRenderer implements Resource
 
     private final List<CharTexture> textures = new ArrayList<>();
 
-    private final Map<Character, CharIcon> charMap = new HashMap<>();
+    private final Map<Integer, CharIcon> charMap = new HashMap<>();
 
     private CharTexture activeTexture;
 
@@ -55,7 +55,7 @@ public class DynamicFontRenderer extends TextureFontRenderer implements Resource
         glyphProvider.initialize();
         textures.add(new CharTexture(this));
         activeTexture = textures.get(0);
-        generateChars(basicChars.toCharArray());
+        generateChars(basicChars.codePoints().toArray());
     }
 
     @Override
@@ -85,7 +85,7 @@ public class DynamicFontRenderer extends TextureFontRenderer implements Resource
     }
 
     @Override
-    protected void generateChar(char ch) {
+    protected void generateChar(int ch) {
         if (!charMap.containsKey(ch)) {
             charMap.put(ch, createCharIcon(ch));
         }
@@ -99,19 +99,19 @@ public class DynamicFontRenderer extends TextureFontRenderer implements Resource
     }
 
     @Override
-    protected void drawChar(VertexConsumer builder, Matrix4f matrix, int color, float tx, float ty, char ch) {
+    protected void drawChar(VertexConsumer builder, Matrix4f matrix, int color, float tx, float ty, int ch) {
         final CharIcon icon = charMap.get(ch);
         if (icon != null && icon.texture == activeTexture) {
             icon.draw(builder, matrix, color, tx, ty);
         }
     }
 
-    private CharIcon createCharIcon(char ch) {
+    private CharIcon createCharIcon(int ch) {
         if (FontUtils.wcwidth(ch) < 1 || glyphProvider.getGlyph(ch) == null) {
             if (ch == '?') return null;
             else {
-                if (!charMap.containsKey('?')) charMap.put('?', createCharIcon('?'));
-                return charMap.get('?');
+                if (!charMap.containsKey((int) '?')) charMap.put((int) '?', createCharIcon('?'));
+                return charMap.get((int) '?');
             }
         } else {
             CharTexture last = textures.get(textures.size() - 1);
@@ -166,7 +166,7 @@ public class DynamicFontRenderer extends TextureFontRenderer implements Resource
             return rt;
         }
 
-        public boolean isFull(char ch) {
+        public boolean isFull(int ch) {
             return chars + FontUtils.wcwidth(ch) > capacity;
         }
 
@@ -177,7 +177,7 @@ public class DynamicFontRenderer extends TextureFontRenderer implements Resource
             }
         }
 
-        public CharIcon add(char ch) {
+        public CharIcon add(int ch) {
             final int glyphWidth = FontUtils.wcwidth(ch);
             final int w = owner.charWidth() * glyphWidth;
             final int h = owner.charHeight();

@@ -59,33 +59,45 @@ public final class InventoryUtils {
     }
 
     /**
-     * Retrieves an actual inventory implementation for a specified world coordinate.
+     * Retrieves an actual inventory implementation for a specified world coordinate,
+     * complete with a reference to the source of said implementation (the block or
+     * the entity providing it), so callers can check for permission to access it.
      * <p/>
      * This performs special handling for (double-)chests and also checks for
      * mine carts with chests.
      */
-    public static Optional<ItemHandler> inventoryAt(BlockPosition position, @Nullable Direction side) {
+    public static Optional<InventorySource> inventorySourceAt(BlockPosition position, @Nullable Direction side) {
         if (position.world.isPresent() && ExtendedWorld.blockExists(position.world.get(), position)) {
             final Level world = position.world.get();
             final ItemHandler handler = PlatformHooks.getItemHandler(world, position.toBlockPos(), side);
             if (handler != null) {
-                return Optional.of(handler);
+                return Optional.of(new InventorySource.Block(position, side, handler));
             }
             final BlockEntity blockEntity = ExtendedWorld.getBlockEntity(world, position);
             if (blockEntity instanceof Container container) {
-                return Optional.of(asItemHandler(container, side));
+                return Optional.of(new InventorySource.Block(position, side, asItemHandler(container, side)));
             }
             for (Entity entity : world.getEntitiesOfClass(Entity.class, position.bounds())) {
                 if (entity.isAlive()) {
                     final ItemHandler entityHandler = PlatformHooks.getItemHandler(entity, side);
                     if (entityHandler != null) {
-                        return Optional.of(entityHandler);
+                        return Optional.of(new InventorySource.Entity(entity, side, entityHandler));
                     }
                 }
             }
             return Optional.empty();
         }
         return Optional.empty();
+    }
+
+    /**
+     * Retrieves an actual inventory implementation for a specified world coordinate.
+     * <p/>
+     * This performs special handling for (double-)chests and also checks for
+     * mine carts with chests.
+     */
+    public static Optional<ItemHandler> inventoryAt(BlockPosition position, @Nullable Direction side) {
+        return inventorySourceAt(position, side).map(InventorySource::inventory);
     }
 
     public static Optional<ItemHandler> anyInventoryAt(BlockPosition position) {

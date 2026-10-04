@@ -10,6 +10,7 @@ import li.cil.oc.util.BlockPosition;
 import li.cil.oc.util.DatabaseAccess;
 import li.cil.oc.util.ExtendedArguments;
 import li.cil.oc.util.ExtendedWorld;
+import li.cil.oc.util.InventorySource;
 import li.cil.oc.util.InventoryUtils;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -110,10 +111,14 @@ public interface WorldInventoryAnalytics extends WorldAware, SideRestricted, Net
     default Object[] getInventoryName(Context context, Arguments args) {
         if (Settings.get().allowItemStackInspection) {
             final Direction facing = checkSideForAction(args, 0);
-            return withInventory(facing, inventory -> {
-                final Optional<Block> block = blockAt(position().offset(facing));
-                if (block.isPresent()) return result(BuiltInRegistries.BLOCK.getKey(block.get()).toString());
-                else return result(null, "Unknown");
+            return withInventorySource(facing, source -> {
+                if (source instanceof InventorySource.Block blockSource) {
+                    final Optional<Block> block = blockAt(blockSource.position());
+                    if (block.isPresent()) return result(BuiltInRegistries.BLOCK.getKey(block.get()).toString());
+                } else if (source instanceof InventorySource.Entity entitySource) {
+                    return result(BuiltInRegistries.ENTITY_TYPE.getKey(entitySource.entity().getType()).toString());
+                }
+                return result(null, "Unknown");
             });
         } else return result(null, "not enabled in config");
     }
@@ -143,10 +148,13 @@ public interface WorldInventoryAnalytics extends WorldAware, SideRestricted, Net
         return Optional.empty();
     }
 
-    private Object[] withInventory(Direction side, Function<ItemHandler, Object[]> f) {
-        final BlockPosition target = position().offset(side);
-        final Optional<ItemHandler> inventory = InventoryUtils.inventoryAt(target, side.getOpposite());
-        if (inventory.isPresent() && mayInteract(target, side.getOpposite(), inventory.get())) return f.apply(inventory.get());
+    private Object[] withInventorySource(Direction side, Function<InventorySource, Object[]> f) {
+        final Optional<InventorySource> source = InventoryUtils.inventorySourceAt(position().offset(side), side.getOpposite());
+        if (source.isPresent() && mayInteract(source.get())) return f.apply(source.get());
         else return result(null, "no inventory");
+    }
+
+    private Object[] withInventory(Direction side, Function<ItemHandler, Object[]> f) {
+        return withInventorySource(side, source -> f.apply(source.inventory()));
     }
 }

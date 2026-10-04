@@ -8,6 +8,7 @@ import li.cil.oc.common.platform.ComponentPlatform;
 import li.cil.oc.common.transfer.ItemHandler;
 import li.cil.oc.util.BlockPosition;
 import li.cil.oc.util.ExtendedArguments;
+import li.cil.oc.util.InventorySource;
 import li.cil.oc.util.InventoryUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -50,9 +51,9 @@ public interface InventoryWorldControl extends InventoryAware, WorldAware, SideR
         final ItemStack stack = inventory().getItem(selectedSlot());
         if (!stack.isEmpty() && stack.getCount() > 0) {
             final BlockPosition blockPos = position().offset(facing);
-            final Optional<ItemHandler> target = InventoryUtils.inventoryAt(blockPos, facing.getOpposite());
-            if (target.isPresent() && mayInteract(blockPos, facing.getOpposite(), target.get())) {
-                if (!InventoryUtils.insertIntoInventory(stack, target.get(), count)) {
+            final Optional<InventorySource> target = InventoryUtils.inventorySourceAt(blockPos, facing.getOpposite());
+            if (target.isPresent() && mayInteract(target.get())) {
+                if (!InventoryUtils.insertIntoInventory(stack, target.get().inventory(), count)) {
                     // Cannot drop into that inventory.
                     return result(false, "inventory full");
                 } else if (stack.getCount() == 0) {
@@ -104,13 +105,13 @@ public interface InventoryWorldControl extends InventoryAware, WorldAware, SideR
 
         final BlockPosition blockPos = position().offset(facing);
         int extracted = 0;
-        final Optional<ItemHandler> source = InventoryUtils.inventoryAt(blockPos, facing.getOpposite());
-        if (source.isPresent()) {
-            // Note: the original evaluated mayInteract here but ignored its result; kept as is.
-            mayInteract(blockPos, facing.getOpposite());
+        final Optional<InventorySource> source = InventoryUtils.inventorySourceAt(blockPos, facing.getOpposite());
+        // Note: up to OC 1.8.10 the result of mayInteract was ignored here, so protected
+        // inventories (blocks and entities) could be emptied with suck().
+        if (source.isPresent() && mayInteract(source.get())) {
             final ItemHandler own = InventoryUtils.asItemHandler(this.inventory());
             final List<Integer> slots = insertionSlots();
-            extracted = InventoryUtils.extractAnyFromInventory((s, sim) -> InventoryUtils.insertIntoInventory(s, own, 64, sim, Optional.of(slots)), source.get(), count);
+            extracted = InventoryUtils.extractAnyFromInventory((s, sim) -> InventoryUtils.insertIntoInventory(s, own, 64, sim, Optional.of(slots)), source.get().inventory(), count);
         }
         if (extracted <= 0) {
             extracted = suckFromItems(facing);

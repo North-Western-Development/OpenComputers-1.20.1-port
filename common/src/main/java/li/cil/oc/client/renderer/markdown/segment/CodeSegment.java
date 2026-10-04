@@ -28,7 +28,7 @@ public class CodeSegment extends BasicTextSegment {
 
     @Override
     public Optional<InteractiveSegment> render(GuiGraphics graphics, int x, int y, int indent, int maxWidth, Font renderer, int mouseX, int mouseY) {
-        TextBufferRenderCache.renderer.generateChars(text.toCharArray());
+        TextBufferRenderCache.renderer.generateChars(text.codePoints().toArray());
 
         int currentX = x + indent;
         int currentY = y;

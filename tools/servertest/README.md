@@ -22,8 +22,11 @@ its first server), `place <pos> <item>` (a fake player uses the item on the bloc
 to place a robot, microcontroller or drone from item NBT), `drones start|stop|status`,
 `use <pos> <player>`, `useitem <player> [release]`, `type <pos> <text>` (pastes the line plus
 Enter into the machine's screen through its keyboard, e.g. into the OpenOS shell),
-`screen <pos>` (prints the non-blank screen lines) and `tablet <player> start|stop|status|screen|type <text>`
-(the tablet in the player's main hand).
+`screen <pos>` (prints the non-blank screen lines), `tablet <player> start|stop|status|screen|type <text>`
+(the tablet in the player's main hand) and `protect|unprotect <pos>`. The debug commands also register
+protection hooks (Forge `PlayerInteractEvent`, Fabric `UseBlockCallback` / `UseEntityCallback`, like a
+claim mod) that refuse interaction with blocks marked by `oc_debug protect` and with entities tagged
+`oc_protected`.
 
 In command files, `WAIT <n>` pauses n seconds and `RESTART` stops both servers (waiting until
 they exited; a server that does not exit gets a thread dump in the log) and starts them again on
@@ -34,13 +37,16 @@ printed log excerpt.
 
 `gameplay/gen.py` generates each `<name>.txt` from `<name>.cmds`, replacing `@EEPROM(x.lua)` by
 an EEPROM item holding that Lua file (`@BIOS`: the Lua BIOS). Each EEPROM ends in
-`error("RESULT ...")`, shown by `oc_debug status`. All pass on Forge and Fabric:
+`error("RESULT ...")`, shown by `oc_debug status`. All pass on Forge and Fabric.
+
+Integral values returned by callbacks are Lua integers (OC 1.8.0 behaviour), so on Lua 5.3 a test
+prints e.g. `16` where older expectations below (and in the integration tests) still say `16.0`.
 
 | Commands file | What it checks | Expected |
 |---|---|---|
 | `persistence.txt` | HDD counter program (`persist.lua`), OpenOS, a robot running `persist.lua` and a hovering drone keep running across `RESTART` (Lua state incl. a coroutine, HDD/tmpfs contents, EEPROM data, HDD label) | `RESULT n=80 co=80 hdd=80 tmp=80 starts=1 eeprom=true label=ptest` (computer and robot), OpenOS `running=true lastError=null`, `RESULT drone n=80 ...` |
-| `robot.txt` | robot placed from item NBT, pickaxe in tool slot: detect/swing/move/turn/place/drop/suck/count/select | `RESULT inv=16.0 det=true,solid ... swing=true,block cnt=1.0 ... fwd=true back=true ... place=true ... drop=true ... suck=1.0 cnt5=1.0`, `ROBOT-MINED-SOUTH`, `ROBOT-PLACED-WEST`, `ROBOT-HOME` |
-| `upgrades.txt` | robot with inventory controller, crafting, generator, piston, tank and experience upgrades | `RESULT icSize=27.0 icStack=minecraft:oak_logx4.0 ... craft=true,4.0 planks=minecraft:oak_planksx4.0 ... genCount=1.0,Coal ... push=true tanks=1.0 ...`, `PISTON-PUSHED` |
+| `robot.txt` | robot placed from item NBT, pickaxe in tool slot: detect/swing/move/turn/place/drop/suck/count/select | `RESULT inv=16 det=true,solid ... swing=true,block cnt=1 ... fwd=true back=true ... place=true ... drop=true ... suck=1 cnt5=1`, `ROBOT-MINED-SOUTH`, `ROBOT-PLACED-WEST`, `ROBOT-HOME` |
+| `upgrades.txt` | robot with inventory controller, crafting, generator, piston, tank and experience upgrades | `RESULT icSize=27 icStack=minecraft:oak_logx4 ... craft=true,4 planks=minecraft:oak_planksx4 ... genCount=1,Coal ... push=true tanks=1 ...`, `PISTON-PUSHED` |
 | `drone.txt` | drone placed from item NBT flies up 3 / east 2 | status `pos=22.50,-56.50,20.50 running=true`, `RESULT ... off1=0.0 off2=0.1 ...`, `DRONE-LANDED-EAST` |
 | `network.txt` | network cards through cable + relay, wireless cards, linked cards; replies | `RESULT A ... lan:1.0:0:re:wired tun:0.0:0:re:linked wlan:2.0:0:re:air ... wlan:2.0:4:re:air` |
 | `filesystem.txt` | HDD, floppy in a disk drive, RAID (3 HDDs), tmpfs: mkdir/write/append/seek/read/list/rename/remove/label; EEPROM data/label | `RESULT drive=true` + `[mk=true,rd=world!,...]` for raid/floppy/tmp/hdd, `fsCount=4 eeprom=data!,FS test,...` |
@@ -51,6 +57,9 @@ an EEPROM item holding that Lua file (`@BIOS`: the Lua BIOS). Each EEPROM ends i
 | `shell.txt` (use `CUT=2000`) | OpenOS (Lua BIOS + OpenOS floppy) on a robot with screen/keyboard/GPU; `oc_debug type` runs `ls /`, `echo hi > /tmp/x`, `cat /tmp/x` and a script calling `require('robot').forward()` | `SHELL-ROBOT-MOVED`; the last `oc_debug screen` shows the `ls /` listing, `hi`, `fwd     true` and `f.lua  x` (`ls /tmp` after the move) |
 | `disassembler.txt` | tier 1 CPU (9 ingredients) in a disassembler: one ingredient per 2000 energy at 25 energy per 10 ticks = 40 s each, like 1.12 / 1.16.5 (a whole CPU takes ~6 min) | chest holds 1 / 2 / 3 iron nuggets at ~45 / 85 / 125 s (the disassembler's `oc:buffer` at 225.0 / 100.0) |
 | `hoverboots.txt` | hover boots charging in a charger (100 energy per 10 ticks) | `"oc:charge": 400.0d` after 2 s, `2400.0d` after 12 s |
+| `integers.txt` | `math.type` of callback results (EEPROM size, filesystem sizes, redstone input), of signal arguments pushed from Lua (`pushSignal`) and from Java (`redstone_changed` after a redstone block appears), no `n` field in returned lists | `RESULT size=integer:4096 total=integer fsize=integer:5 list=x,n=nil,#=1 uptime=float input=integer pushed=integer,float,integer:1099511627776 rs=integer,integer,integer:15` |
+| `unicode.txt` | characters outside the BMP: `gpu.set`/`get`/`fill` (horizontal, vertical, partly off-screen) with U+1F600 (wide) and U+1F40D, `unicode.*` on code points; the screen contents survive a restart | `RESULT get=A\|😀\| \|B rt=true fill=🐍🐍🐍:true vert=true left=😀z len=3 sub=😀,😀B,A rev=B😀A char=true wide=true,2 wlen=4 wtrunc=A,A😀 upper=A😀` and the same text in `oc_debug screen` before and after `RESTART` (the Forge console prints `?` for them: its log encoding is ASCII here) |
+| `protect.txt` | inventory permission checks: robot with inventory controller; chest minecart tagged `oc_protected` in front, unprotected chest minecart on top, chest below marked with `oc_debug protect` | `RESULT uSize=27 uName=minecraft:chest_minecart uStack=minecraft:diamondx5 uSuck=1 count=1 pSize=nil,no inventory pName=nil,no inventory pStack=nil,no inventory pSuckSlot=nil,no inventory pSuck=false pDropSlot=nil,no inventory bSize=nil,no inventory bSuck=false count2=1`; the protected minecart and chest still hold 5 diamonds, the other minecart 4 |
 
 `client.sh <servers-dir> <loader> <port> <display>` is the client check: it builds
 `gameplay/client-scene.txt` on the server, joins with a dev client under xvfb, opens the GUIs of

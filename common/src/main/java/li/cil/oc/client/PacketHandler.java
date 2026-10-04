@@ -749,7 +749,7 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         final int row = p.readInt();
         final int w = p.readInt();
         final int h = p.readInt();
-        final char c = p.readChar();
+        final int c = p.readMedium();
         buffer.fill(col, row, w, h, c);
     }
 
@@ -818,12 +818,12 @@ public final class PacketHandler extends li.cil.oc.common.PacketHandler {
         final int row = p.readInt();
 
         final short rows = p.readShort();
-        final char[][] text = new char[rows][];
+        final int[][] text = new int[rows][];
         for (int y = 0; y < rows; y++) {
             final short cols = p.readShort();
-            final char[] line = new char[cols];
+            final int[] line = new int[cols];
             for (int x = 0; x < cols; x++) {
-                line[x] = p.readChar();
+                line[x] = p.readMedium();
             }
             text[y] = line;
         }

@@ -10,7 +10,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.Arrays;
 
 /**
- * This stores chars in a 2D-Array and provides some manipulation functions.
+ * This stores code points (Unicode, including characters outside the BMP) in a
+ * 2D-Array and provides some manipulation functions.
  *
  * The main purpose of this is to allow moving most implementation detail to
  * the Lua side while keeping bandwidth costs low and still allowing for
@@ -31,7 +32,7 @@ public class TextBuffer {
 
     public short[][] color;
 
-    public char[][] buffer;
+    public int[][] buffer;
 
     public TextBuffer(int width, int height, PackedColor.ColorFormat initialFormat) {
         this.width = width;
@@ -40,8 +41,8 @@ public class TextBuffer {
         this.packed = PackedColor.pack(_foreground, _background, _format);
         this.color = new short[height][width];
         for (short[] row : color) Arrays.fill(row, packed);
-        this.buffer = new char[height][width];
-        for (char[] row : buffer) Arrays.fill(row, ' ');
+        this.buffer = new int[height][width];
+        for (int[] row : buffer) Arrays.fill(row, 0x20);
     }
 
     public TextBuffer(Pair<Integer, Integer> size, PackedColor.ColorFormat format) {
@@ -107,8 +108,8 @@ public class TextBuffer {
         final int w = Math.max(iw, 1);
         final int h = Math.max(ih, 1);
         if (width != w || height != h) {
-            final char[][] newBuffer = new char[h][w];
-            for (char[] row : newBuffer) Arrays.fill(row, ' ');
+            final int[][] newBuffer = new int[h][w];
+            for (int[] row : newBuffer) Arrays.fill(row, 0x20);
             final short[][] newColor = new short[h][w];
             for (short[] row : newColor) Arrays.fill(row, packed);
             for (int y = 0; y < Math.min(h, height); y++) {
@@ -127,8 +128,8 @@ public class TextBuffer {
         return setSize(value.getLeft(), value.getRight());
     }
 
-    /** Get the char at the specified index. */
-    public char get(int col, int row) {
+    /** Get the code point at the specified index. */
+    public int get(int col, int row) {
         if (col < 0 || col >= width || row < 0 || row >= height)
             throw new IndexOutOfBoundsException();
         else return buffer[row][col];
@@ -136,18 +137,21 @@ public class TextBuffer {
 
     /** String based fill starting at a specified location. */
     public boolean set(int col, int row, String s, boolean vertical) {
+        final int sLength = ExtendedUnicodeHelper.length(s);
         if (vertical) {
             if (col < 0 || col >= width) return false;
             else {
                 boolean changed = false;
-                for (int y = row; y < Math.min(row + s.length(), height); y++) {
+                int cx = 0;
+                for (int y = row; y < Math.min(row + sLength, height); y++) {
                     if (y >= 0) {
-                        final char[] line = buffer[y];
+                        final int[] line = buffer[y];
                         final short[] lineColor = color[y];
-                        final char c = s.charAt(y - row);
+                        final int c = s.codePointAt(cx);
                         changed = changed || (line[col] != c) || (lineColor[col] != packed);
                         setChar(line, lineColor, col, c);
                     }
+                    cx = s.offsetByCodePoints(cx, 1);
                 }
                 return changed;
             }
@@ -155,15 +159,18 @@ public class TextBuffer {
             if (row < 0 || row >= height) return false;
             else {
                 boolean changed = false;
-                final char[] line = buffer[row];
+                final int[] line = buffer[row];
                 final short[] lineColor = color[row];
                 int bx = Math.max(col, 0);
-                for (int x = bx; x < Math.min(col + s.length(), width); x++) {
+                // Skip the code points left of the buffer (negative col).
+                int cx = col < 0 ? s.offsetByCodePoints(0, Math.min(-col, sLength)) : 0;
+                for (int x = bx; x < Math.min(col + sLength, width); x++) {
                     if (bx < line.length) {
-                        final char c = s.charAt(x - col);
+                        final int c = s.codePointAt(cx);
                         changed = changed || (line[bx] != c) || (lineColor[bx] != packed);
                         setChar(line, lineColor, bx, c);
                         bx += Math.max(1, FontUtils.wcwidth(c));
+                        cx = s.offsetByCodePoints(cx, 1);
                     }
                 }
                 return changed;
@@ -172,13 +179,13 @@ public class TextBuffer {
     }
 
     /** Fills an area of the buffer with the specified character. */
-    public boolean fill(int col, int row, int w, int h, char c) {
+    public boolean fill(int col, int row, int w, int h, int c) {
         // Anything to do at all?
         if (w <= 0 || h <= 0) return false;
         if (col + w < 0 || row + h < 0 || col >= width || row >= height) return false;
         boolean changed = false;
         for (int y = Math.max(row, 0); y < Math.min(row + h, height); y++) {
-            final char[] line = buffer[y];
+            final int[] line = buffer[y];
             final short[] lineColor = color[y];
             int bx = Math.max(col, 0);
             for (int x = bx; x < Math.min(col + w, width); x++) {
@@ -221,11 +228,11 @@ public class TextBuffer {
         // Copy values to destination rectangle if there source is valid.
         boolean changed = false;
         for (int ny = dy0; sy > 0 ? ny <= dy1 : ny >= dy1; ny += sy) {
-            final char[] nl = buffer[ny];
+            final int[] nl = buffer[ny];
             final short[] nc = color[ny];
             final int oy = ny - ty;
             if (oy >= 0 && oy < height) {
-                final char[] ol = buffer[oy];
+                final int[] ol = buffer[oy];
                 final short[] oc = color[oy];
                 for (int nx = dx0; sx > 0 ? nx <= dx1 : nx >= dx1; nx += sx) {
                     final int ox = nx - tx;
@@ -256,10 +263,10 @@ public class TextBuffer {
         final int col_index = col - 1;
         final int row_index = row - 1;
         for (int yOffset = 0; yOffset < h; yOffset++) {
-            final char[] dstCharLine = buffer[row_index + yOffset];
+            final int[] dstCharLine = buffer[row_index + yOffset];
             final short[] dstColorLine = color[row_index + yOffset];
             for (int xOffset = 0; xOffset < w; xOffset++) {
-                final char srcChar = src.buffer[fromRow + yOffset - 1][fromCol + xOffset - 1];
+                final int srcChar = src.buffer[fromRow + yOffset - 1][fromCol + xOffset - 1];
                 short srcColor = src.color[fromRow + yOffset - 1][fromCol + xOffset - 1];
 
                 if (this.format().depth() != src.format().depth()) {
@@ -279,7 +286,7 @@ public class TextBuffer {
         return changed;
     }
 
-    private void setChar(char[] line, short[] lineColor, int x, char c) {
+    private void setChar(int[] line, short[] lineColor, int x, int c) {
         if (FontUtils.wcwidth(c) > 1 && x >= line.length - 1) {
             // Don't allow setting wide chars in right-most col.
             return;
@@ -306,7 +313,10 @@ public class TextBuffer {
         final ListTag b = nbt.getList("buffer", Tag.TAG_STRING);
         for (int i = 0; i < Math.min(h, b.size()); i++) {
             final String value = b.getString(i);
-            System.arraycopy(value.toCharArray(), 0, buffer[i], 0, Math.min(value.length(), buffer[i].length));
+            final java.util.PrimitiveIterator.OfInt it = value.codePoints().iterator();
+            for (int j = 0; j < buffer[i].length && it.hasNext(); j++) {
+                buffer[i][j] = it.nextInt();
+            }
         }
 
         final li.cil.oc.api.internal.TextBuffer.ColorDepth[] depths = li.cil.oc.api.internal.TextBuffer.ColorDepth.values();
@@ -327,7 +337,7 @@ public class TextBuffer {
 
         final ListTag b = new ListTag();
         for (int i = 0; i < height; i++) {
-            b.add(StringTag.valueOf(String.valueOf(buffer[i])));
+            b.add(StringTag.valueOf(lineToString(i)));
         }
         nbt.put("buffer", b);
 
@@ -348,14 +358,21 @@ public class TextBuffer {
         NbtDataStream.setShortArray(nbt, "colors", flat);
     }
 
+    /** The specified row as a string (all columns, including trailing blanks). */
+    public String lineToString(int y) {
+        final StringBuilder b = new StringBuilder(width);
+        for (int x = 0; x < width; x++) {
+            b.appendCodePoint(buffer[y][x]);
+        }
+        return b.toString();
+    }
+
     @Override
     public String toString() {
         final StringBuilder b = new StringBuilder();
-        if (buffer.length > 0) {
-            b.append(buffer[0]);
-            for (int y = 1; y < height; y++) {
-                b.append('\n').append(buffer[y]);
-            }
+        for (int y = 0; y < height; y++) {
+            if (y > 0) b.append('\n');
+            b.append(lineToString(y));
         }
         return b.toString();
     }

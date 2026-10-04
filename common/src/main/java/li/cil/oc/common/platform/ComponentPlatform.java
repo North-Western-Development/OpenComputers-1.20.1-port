@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 
@@ -36,6 +37,16 @@ public final class ComponentPlatform {
      */
     @ExpectPlatform
     public static boolean mayInteract(Player player, BlockPos pos, Direction face) {
+        throw new AssertionError();
+    }
+
+    /**
+     * Asks protection hooks whether the player may interact with (right click)
+     * the entity, e.g. to access its inventory (Forge
+     * {@code PlayerInteractEvent.EntityInteract}, Fabric {@code UseEntityCallback}).
+     */
+    @ExpectPlatform
+    public static boolean mayInteractWithEntity(Player player, Entity entity) {
         throw new AssertionError();
     }
 

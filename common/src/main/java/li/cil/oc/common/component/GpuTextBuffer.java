@@ -70,7 +70,7 @@ public class GpuTextBuffer implements TextBufferProxy {
     }
 
     @Override
-    public void onBufferFill(int col, int row, int w, int h, char c) {
+    public void onBufferFill(int col, int row, int w, int h, int c) {
         dirty = true;
     }
 

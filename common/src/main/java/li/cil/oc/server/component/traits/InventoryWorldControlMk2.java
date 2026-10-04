@@ -7,6 +7,7 @@ import li.cil.oc.api.machine.Context;
 import li.cil.oc.common.transfer.ItemHandler;
 import li.cil.oc.util.BlockPosition;
 import li.cil.oc.util.ExtendedArguments;
+import li.cil.oc.util.InventorySource;
 import li.cil.oc.util.InventoryUtils;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -69,8 +70,8 @@ public interface InventoryWorldControlMk2 extends InventoryAware, WorldAware, Si
     }
 
     private Object[] withInventory(BlockPosition blockPos, Direction fromSide, Function<ItemHandler, Object[]> f) {
-        final Optional<ItemHandler> inventory = InventoryUtils.inventoryAt(blockPos, fromSide);
-        if (inventory.isPresent() && mayInteract(blockPos, fromSide)) return f.apply(inventory.get());
+        final Optional<InventorySource> source = InventoryUtils.inventorySourceAt(blockPos, fromSide);
+        if (source.isPresent() && mayInteract(source.get())) return f.apply(source.get().inventory());
         else return result(null, "no inventory");
     }
 }

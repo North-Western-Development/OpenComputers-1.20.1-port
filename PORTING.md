@@ -275,6 +275,11 @@ code that never runs (e.g. passing `mc.level` where a `Level` is expected).
 - `Driver.itemHandlerFor` / `DriverAPI.itemHandlerFor` return `li.cil.oc.common.transfer.ItemHandler`.
   `MultiTank.getFluidTank(int)` returns `li.cil.oc.common.transfer.FluidHandler` (single-tank view, mB).
 - `SideTracker.addServerThread()` registers extra server threads.
+- Text buffers hold Unicode code points (`int`, incl. characters outside the BMP): `util.TextBuffer.buffer`
+  is `int[][]`; `api.internal.TextBuffer` has `getCodePoint`, `fill(..., int)` and `rawSetText(int, int, int[][])`
+  (the `char` variants are deprecated). Count string lengths with `ExtendedUnicodeHelper.length`.
+- Inventories found in the world: `InventoryUtils.inventorySourceAt` returns an `InventorySource` (block or
+  entity); check access with `WorldAware.mayInteract(InventorySource)`.
 
 ## util / top-level contracts (done; callers must follow)
 

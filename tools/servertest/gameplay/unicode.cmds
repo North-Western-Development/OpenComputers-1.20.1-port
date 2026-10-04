@@ -1,0 +1,18 @@
+# Unicode outside the BMP (unicode.lua): gpu.set/get/fill with emoji, unicode.* on code points;
+# the screen keeps them across a restart (text buffer NBT).
+forceload add 48 64 96 96
+setblock 64 -60 80 opencomputers:casecreative
+setblock 64 -60 81 opencomputers:screen3
+item replace block 64 -60 80 container.0 with opencomputers:graphicscard3
+item replace block 64 -60 80 container.3 with opencomputers:ram6
+item replace block 64 -60 80 container.8 with opencomputers:cpu3
+item replace block 64 -60 80 container.9 with opencomputers:eeprom@EEPROM(unicode.lua)
+WAIT 3
+oc_debug start 64 -60 80
+WAIT 4
+oc_debug status 64 -60 80
+oc_debug screen 64 -60 80
+save-all flush
+RESTART
+WAIT 5
+oc_debug screen 64 -60 80

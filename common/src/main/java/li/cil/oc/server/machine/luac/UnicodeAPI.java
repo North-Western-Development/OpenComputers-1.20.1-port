@@ -1,6 +1,7 @@
 package li.cil.oc.server.machine.luac;
 
 import li.cil.oc.util.ExtendedLuaState;
+import li.cil.oc.util.ExtendedUnicodeHelper;
 import li.cil.oc.util.FontUtils;
 
 public class UnicodeAPI extends NativeLuaAPI {
@@ -14,15 +15,15 @@ public class UnicodeAPI extends NativeLuaAPI {
         lua().newTable();
 
         ExtendedLuaState.pushScalaFunction(lua(), lua -> {
-            final char[] chars = new char[lua.getTop()];
-            for (int i = 1; i <= chars.length; i++) chars[i - 1] = (char) lua.checkInt32(i);
-            lua.pushString(String.valueOf(chars));
+            final StringBuilder builder = new StringBuilder();
+            for (int i = 1; i <= lua.getTop(); i++) builder.appendCodePoint(lua.checkInt32(i));
+            lua.pushString(builder.toString());
             return 1;
         });
         lua().setField(-2, "char");
 
         ExtendedLuaState.pushScalaFunction(lua(), lua -> {
-            lua.pushInteger(lua.checkString(1).length());
+            lua.pushInteger(ExtendedUnicodeHelper.length(lua.checkString(1)));
             return 1;
         });
         lua().setField(-2, "len");
@@ -34,13 +35,7 @@ public class UnicodeAPI extends NativeLuaAPI {
         lua().setField(-2, "lower");
 
         ExtendedLuaState.pushScalaFunction(lua(), lua -> {
-            final char[] chars = lua.checkString(1).toCharArray();
-            for (int i = 0, j = chars.length - 1; i < j; i++, j--) {
-                final char tmp = chars[i];
-                chars[i] = chars[j];
-                chars[j] = tmp;
-            }
-            lua.pushString(new String(chars));
+            lua.pushString(ExtendedUnicodeHelper.reverse(lua.checkString(1)));
             return 1;
         });
         lua().setField(-2, "reverse");
@@ -48,14 +43,8 @@ public class UnicodeAPI extends NativeLuaAPI {
         ExtendedLuaState.pushScalaFunction(lua(), lua -> {
             final String string = lua.checkString(1);
             final int i1 = lua.checkInt32(2);
-            final int start = Math.max(0, i1 < 0 ? string.length() + i1 : i1 - 1);
-            final int end;
-            if (lua.getTop() > 2) {
-                final int i2 = lua.checkInt32(3);
-                end = Math.min(string.length(), i2 < 0 ? string.length() + i2 + 1 : i2);
-            } else end = string.length();
-            if (end <= start) lua.pushString("");
-            else lua.pushString(string.substring(start, end));
+            final int i2 = lua.getTop() > 2 ? lua.checkInt32(3) : Integer.MAX_VALUE;
+            lua.pushString(ExtendedUnicodeHelper.sub(string, i1, i2));
             return 1;
         });
         lua().setField(-2, "sub");
@@ -80,24 +69,13 @@ public class UnicodeAPI extends NativeLuaAPI {
 
         ExtendedLuaState.pushScalaFunction(lua(), lua -> {
             final String value = lua.checkString(1);
-            int sum = 0;
-            for (char ch : value.toCharArray()) sum += Math.max(1, FontUtils.wcwidth(ch));
-            lua.pushInteger(sum);
+            lua.pushInteger(ExtendedUnicodeHelper.wlen(value));
             return 1;
         });
         lua().setField(-2, "wlen");
 
         ExtendedLuaState.pushScalaFunction(lua(), lua -> {
-            final String value = lua.checkString(1);
-            final long count = lua.checkInteger(2);
-            int width = 0;
-            int end = 0;
-            while (width < count) {
-                width += Math.max(1, FontUtils.wcwidth(value.charAt(end)));
-                end += 1;
-            }
-            if (end > 1) lua.pushString(value.substring(0, end - 1));
-            else lua.pushString("");
+            lua.pushString(ExtendedUnicodeHelper.wtrunc(lua.checkString(1), lua.checkInteger(2)));
             return 1;
         });
         lua().setField(-2, "wtrunc");

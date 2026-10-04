@@ -1,6 +1,7 @@
 package li.cil.oc.common.component.traits;
 
 import li.cil.oc.api.internal.TextBuffer;
+import li.cil.oc.util.ExtendedUnicodeHelper;
 import li.cil.oc.util.PackedColor;
 
 /**
@@ -110,11 +111,17 @@ public interface TextBufferProxy extends TextBuffer {
             onBufferCopy(col, row, w, h, tx, ty);
     }
 
-    default void onBufferFill(int col, int row, int w, int h, char c) {
+    default void onBufferFill(int col, int row, int w, int h, int c) {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     default void fill(int col, int row, int w, int h, char c) {
+        fill(col, row, w, h, (int) c);
+    }
+
+    @Override
+    default void fill(int col, int row, int w, int h, int c) {
         if (data().fill(col, row, w, h, c))
             onBufferFill(col, row, w, h, c);
     }
@@ -122,10 +129,22 @@ public interface TextBufferProxy extends TextBuffer {
     default void onBufferSet(int col, int row, String s, boolean vertical) {
     }
 
+    /** The code points [leftOffset, leftOffset + min(sLength - leftOffset, maxWidth)) of s. */
+    private static String truncate(String s, int sLength, int leftOffset, int maxWidth) {
+        final int width = Math.min(sLength - leftOffset, maxWidth);
+        if (width <= 0) return "";
+        if (leftOffset == 0 && sLength <= width) return s;
+        final int subFrom = s.offsetByCodePoints(0, leftOffset);
+        return s.substring(subFrom, s.offsetByCodePoints(subFrom, width));
+    }
+
     @Override
     default void set(int col, int row, String s, boolean vertical) {
         final li.cil.oc.util.TextBuffer data = data();
-        if (col < data.width && (col >= 0 || -col < s.length())) {
+        // Lengths and offsets are in code points (characters outside the BMP are
+        // two chars in Java strings).
+        final int sLength = ExtendedUnicodeHelper.length(s);
+        if (col < data.width && (col >= 0 || -col < sLength)) {
             // Make sure the string isn't longer than it needs to be, in particular to
             // avoid sending too much data to our clients.
             final int x;
@@ -135,21 +154,21 @@ public interface TextBufferProxy extends TextBuffer {
                 if (row < 0) {
                     x = col;
                     y = 0;
-                    truncated = s.substring(-row);
+                    truncated = truncate(s, sLength, Math.min(-row, sLength), data.height);
                 } else {
                     x = col;
                     y = row;
-                    truncated = s.substring(0, Math.min(s.length(), data.height - row));
+                    truncated = truncate(s, sLength, 0, data.height - row);
                 }
             } else {
                 if (col < 0) {
                     x = 0;
                     y = row;
-                    truncated = s.substring(-col);
+                    truncated = truncate(s, sLength, -col, data.width);
                 } else {
                     x = col;
                     y = row;
-                    truncated = s.substring(0, Math.min(s.length(), data.width - col));
+                    truncated = truncate(s, sLength, 0, data.width - col);
                 }
             }
             if (data.set(x, y, truncated, vertical))
@@ -158,7 +177,13 @@ public interface TextBufferProxy extends TextBuffer {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     default char get(int col, int row) {
+        return (char) data().get(col, row);
+    }
+
+    @Override
+    default int getCodePoint(int col, int row) {
         return data().get(col, row);
     }
 
@@ -191,11 +216,22 @@ public interface TextBufferProxy extends TextBuffer {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     default void rawSetText(int col, int row, char[][] text) {
+        final int[][] codePoints = new int[text.length][];
+        for (int y = 0; y < text.length; y++) {
+            codePoints[y] = new int[text[y].length];
+            for (int x = 0; x < text[y].length; x++) codePoints[y][x] = text[y][x];
+        }
+        rawSetText(col, row, codePoints);
+    }
+
+    @Override
+    default void rawSetText(int col, int row, int[][] text) {
         final li.cil.oc.util.TextBuffer data = data();
         for (int y = row; y < Math.min(row + text.length, data.height); y++) {
-            final char[] line = text[y - row];
-            System.arraycopy(line, 0, data.buffer[y], col, Math.min(line.length, data.width));
+            final int[] line = text[y - row];
+            System.arraycopy(line, 0, data.buffer[y], col, Math.max(0, Math.min(line.length, data.width - col)));
         }
     }
 

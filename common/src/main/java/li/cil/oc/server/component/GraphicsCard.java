@@ -22,6 +22,7 @@ import li.cil.oc.common.component.traits.VideoRamDevice;
 import li.cil.oc.common.component.traits.VideoRamRasterizer;
 import li.cil.oc.server.machine.Machine;
 import li.cil.oc.util.PackedColor;
+import li.cil.oc.util.ExtendedUnicodeHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -545,7 +546,7 @@ public class GraphicsCard extends AbstractManagedEnvironment implements DeviceIn
                 bgIndex = null;
             }
 
-            return result(s.get(x, y), fgColor, bgColor, fgIndex, bgIndex);
+            return result(new String(Character.toChars(s.getCodePoint(x, y))), fgColor, bgColor, fgIndex, bgIndex);
         });
     }
 
@@ -557,7 +558,7 @@ public class GraphicsCard extends AbstractManagedEnvironment implements DeviceIn
         final boolean vertical = args.optBoolean(3, false);
 
         return screen(s -> {
-            if (resolveInvokeCosts(bufferIndex, context, setCosts[tier], value.length(), Settings.get().gpuSetCost)) {
+            if (resolveInvokeCosts(bufferIndex, context, setCosts[tier], ExtendedUnicodeHelper.length(value), Settings.get().gpuSetCost)) {
                 s.set(x, y, value, vertical);
                 return result(true);
             } else return result(null, "not enough energy");
@@ -587,11 +588,11 @@ public class GraphicsCard extends AbstractManagedEnvironment implements DeviceIn
         final int w = Math.max(0, args.checkInteger(2));
         final int h = Math.max(0, args.checkInteger(3));
         final String value = args.checkString(4);
-        if (value.length() == 1) return screen(s -> {
-            final char c = value.charAt(0);
+        if (ExtendedUnicodeHelper.length(value) == 1) return screen(s -> {
+            final int c = value.codePointAt(0);
             final double cost = c == ' ' ? Settings.get().gpuClearCost : Settings.get().gpuFillCost;
             if (resolveInvokeCosts(bufferIndex, context, fillCosts[tier], w * h, cost)) {
-                s.fill(x, y, w, h, value.charAt(0));
+                s.fill(x, y, w, h, c);
                 return result(true);
             } else {
                 return result(null, "not enough energy");
@@ -629,7 +630,7 @@ public class GraphicsCard extends AbstractManagedEnvironment implements DeviceIn
                 if (message.source().host() instanceof Machine machine && machine.lastError() != null) {
                     if (s.getColorDepth().ordinal() > TextBuffer.ColorDepth.OneBit.ordinal()) s.setBackgroundColor(0x0000FF);
                     else s.setBackgroundColor(0x000000);
-                    s.fill(0, 0, w, h, ' ');
+                    s.fill(0, 0, w, h, 0x20);
                     try {
                         final Pattern wrapRegEx = Pattern.compile("(.{1," + Math.max(1, w - 2) + "})\\s");
                         final String text = Localization.localizeImmediately(machine.lastError()).replace("\t", "  ") + "\n";
@@ -651,7 +652,7 @@ public class GraphicsCard extends AbstractManagedEnvironment implements DeviceIn
                     }
                 } else {
                     s.setBackgroundColor(0x000000);
-                    s.fill(0, 0, w, h, ' ');
+                    s.fill(0, 0, w, h, 0x20);
                 }
                 return null; // For screen()
             });

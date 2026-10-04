@@ -28,7 +28,7 @@ public class SystemAPI extends NativeLuaAPI {
                         part = String.valueOf(lua.toBoolean(i));
                         break;
                     case NUMBER:
-                        part = String.valueOf(lua.toNumber(i));
+                        part = lua.isInteger(i) ? String.valueOf(lua.toInteger(i)) : String.valueOf(lua.toNumber(i));
                         break;
                     case STRING:
                         part = lua.toString(i);
