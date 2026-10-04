@@ -45,7 +45,8 @@ import java.util.UUID;
  * keyboard, {@code /oc_debug screen <pos>} prints the non-blank lines of its screen and
  * {@code /oc_debug tablet <player> (start|stop|status|screen|type <text>)} does the same for the tablet
  * in the player's main hand. {@code /oc_debug useitem <player> release} also releases the item
- * right away (a click, e.g. to turn on a tablet).
+ * right away (a click, e.g. to turn on a tablet). {@code /oc_debug protect|unprotect <pos>} makes the
+ * block refuse interaction like a protection mod would; entities tagged {@code oc_protected} do as well.
  * <p>
  * Only registered when the JVM is started with {@code -Dopencomputers.debugCommands=true}.
  */
@@ -58,6 +59,7 @@ public final class DebugCommands {
     public static void register() {
         if (!Boolean.getBoolean(PROPERTY)) return;
         OpenComputers.log.info("Registering OpenComputers debug commands.");
+        li.cil.oc.common.platform.DebugPlatform.registerProtectionHooks();
         CommandRegistrationEvent.EVENT.register((dispatcher, registry, selection) -> register(dispatcher, registry));
     }
 
@@ -91,10 +93,42 @@ public final class DebugCommands {
                 .then(Commands.literal("screen").executes(context -> tablet(context, "screen")))
                 .then(Commands.literal("type").then(Commands.argument("text", StringArgumentType.greedyString())
                     .executes(context -> tablet(context, "type"))))))
+            .then(Commands.literal("protect").then(Commands.argument("pos", BlockPosArgument.blockPos())
+                .executes(context -> protect(context, true))))
+            .then(Commands.literal("unprotect").then(Commands.argument("pos", BlockPosArgument.blockPos())
+                .executes(context -> protect(context, false))))
             .then(Commands.literal("drones")
                 .then(Commands.literal("start").executes(context -> drones(context, "start")))
                 .then(Commands.literal("stop").executes(context -> drones(context, "stop")))
                 .then(Commands.literal("status").executes(context -> drones(context, "status")))));
+    }
+
+    /** Entities with this scoreboard tag (e.g. {@code /tag @e[...] add oc_protected}) refuse interaction. */
+    public static final String PROTECTED_TAG = "oc_protected";
+
+    private static final java.util.Set<String> protectedBlocks = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    private static String blockKey(net.minecraft.world.level.Level level, BlockPos pos) {
+        return level.dimension().location() + "@" + pos.asLong();
+    }
+
+    /** Whether the test protection hooks deny interacting with the entity. */
+    public static boolean isProtected(net.minecraft.world.entity.Entity entity) {
+        return entity != null && entity.getTags().contains(PROTECTED_TAG);
+    }
+
+    /** Whether the test protection hooks deny interacting with the block ({@code oc_debug protect <pos>}). */
+    public static boolean isProtected(net.minecraft.world.level.Level level, BlockPos pos) {
+        return !protectedBlocks.isEmpty() && level != null && pos != null && protectedBlocks.contains(blockKey(level, pos));
+    }
+
+    private static int protect(CommandContext<CommandSourceStack> context, boolean protect) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        final BlockPos pos = BlockPosArgument.getLoadedBlockPos(context, "pos");
+        final String key = blockKey(context.getSource().getLevel(), pos);
+        if (protect) protectedBlocks.add(key);
+        else protectedBlocks.remove(key);
+        context.getSource().sendSuccess(() -> Component.literal("[oc_debug] " + (protect ? "protected " : "unprotected ") + pos.toShortString()), true);
+        return 1;
     }
 
     private static final GameProfile PROFILE = new GameProfile(UUID.fromString("0c0de000-0c0d-4e00-8000-0c0de0000000"), "[OC-Debug]");

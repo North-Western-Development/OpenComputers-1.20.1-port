@@ -5,8 +5,8 @@ import li.cil.oc.Settings;
 import li.cil.oc.common.platform.ComponentPlatform;
 import li.cil.oc.common.platform.PlatformHooks;
 import li.cil.oc.common.transfer.ContainerItemHandler;
-import li.cil.oc.common.transfer.ItemHandler;
 import li.cil.oc.util.BlockPosition;
+import li.cil.oc.util.InventorySource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -49,10 +49,29 @@ public interface WorldAware {
         }
     }
 
-    default boolean mayInteract(BlockPosition blockPos, Direction side, ItemHandler inventory) {
-        if (!mayInteract(blockPos, side)) return false;
-        if (inventory instanceof ContainerItemHandler wrapper && wrapper.getContainer() != null) {
-            return wrapper.getContainer().stillValid(fakePlayer());
+    default boolean mayInteract(Entity entity) {
+        try {
+            return ComponentPlatform.mayInteractWithEntity(fakePlayer(), entity);
+        } catch (Throwable t) {
+            OpenComputers.log.warn("Some event handler threw up while checking for permission to access an entity.", t);
+            return true;
+        }
+    }
+
+    /**
+     * Whether the device may access the inventory: the container must still be usable
+     * by the fake player, and protection hooks must allow interacting with the block or
+     * entity (e.g. a chest minecart) that provides it.
+     */
+    default boolean mayInteract(InventorySource source) {
+        if (source.inventory() instanceof ContainerItemHandler wrapper && wrapper.getContainer() != null
+                && !wrapper.getContainer().stillValid(fakePlayer())) {
+            return false;
+        }
+        if (source instanceof InventorySource.Block block) {
+            return mayInteract(block.position(), block.side() != null ? block.side() : Direction.UP);
+        } else if (source instanceof InventorySource.Entity entity) {
+            return mayInteract(entity.entity());
         }
         return true;
     }
