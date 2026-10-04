@@ -175,10 +175,10 @@ public class TextBuffer extends AbstractManagedEnvironment implements TextBuffer
                 final int h = getViewportHeight();
                 float acc = 0f;
                 for (int y = 0; y < h; y++) {
-                    final char[] line = data.buffer[y];
+                    final int[] line = data.buffer[y];
                     final short[] colors = data.color[y];
                     for (int x = 0; x < w; x++) {
-                        final char c = line[x];
+                        final int c = line[x];
                         final short color = colors[x];
                         final int bg = PackedColor.unpackBackground(color, data.format());
                         final int fg = PackedColor.unpackForeground(color, data.format());
@@ -428,7 +428,7 @@ public class TextBuffer extends AbstractManagedEnvironment implements TextBuffer
     }
 
     @Override
-    public void onBufferFill(int col, int row, int w, int h, char c) {
+    public void onBufferFill(int col, int row, int w, int h, int c) {
         proxy.onBufferFill(col, row, w, h, c);
     }
 
@@ -453,7 +453,7 @@ public class TextBuffer extends AbstractManagedEnvironment implements TextBuffer
     }
 
     @Override
-    public void rawSetText(int col, int row, char[][] text) {
+    public void rawSetText(int col, int row, int[][] text) {
         TextBufferProxy.super.rawSetText(col, row, text);
         proxy.onBufferRawSetText(col, row, text);
     }
@@ -674,7 +674,7 @@ public class TextBuffer extends AbstractManagedEnvironment implements TextBuffer
 
         public abstract void onBufferDepthChange(li.cil.oc.api.internal.TextBuffer.ColorDepth depth);
 
-        public void onBufferFill(int col, int row, int w, int h, char c) {
+        public void onBufferFill(int col, int row, int w, int h, int c) {
             owner().relativeLitArea = -1;
         }
 
@@ -707,7 +707,7 @@ public class TextBuffer extends AbstractManagedEnvironment implements TextBuffer
             owner().relativeLitArea = -1;
         }
 
-        public void onBufferRawSetText(int col, int row, char[][] text) {
+        public void onBufferRawSetText(int col, int row, int[][] text) {
             owner().relativeLitArea = -1;
         }
 
@@ -776,7 +776,7 @@ public class TextBuffer extends AbstractManagedEnvironment implements TextBuffer
         }
 
         @Override
-        public void onBufferFill(int col, int row, int w, int h, char c) {
+        public void onBufferFill(int col, int row, int w, int h, int c) {
             super.onBufferFill(col, row, w, h, c);
             owner.host.markChanged();
             synchronized (owner) {
@@ -860,7 +860,7 @@ public class TextBuffer extends AbstractManagedEnvironment implements TextBuffer
         }
 
         @Override
-        public void onBufferRawSetText(int col, int row, char[][] text) {
+        public void onBufferRawSetText(int col, int row, int[][] text) {
             super.onBufferRawSetText(col, row, text);
             owner.host.markChanged();
             synchronized (owner) {
@@ -933,7 +933,7 @@ public class TextBuffer extends AbstractManagedEnvironment implements TextBuffer
                 stack.removeTagKey(Settings.namespace + "clipboard");
 
                 if (line >= 0 && line < owner.getViewportHeight()) {
-                    final String text = new String(owner.data.buffer[line]).trim();
+                    final String text = owner.data.lineToString(line).trim();
                     if (!Strings.isNullOrEmpty(text)) {
                         stack.getOrCreateTag().putString(Settings.namespace + "clipboard", text);
                     }

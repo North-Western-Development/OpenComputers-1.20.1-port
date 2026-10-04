@@ -96,7 +96,7 @@ public class StaticFontRenderer extends TextureFontRenderer {
     }
 
     @Override
-    protected void drawChar(VertexConsumer builder, Matrix4f matrix, int color, float tx, float ty, char ch) {
+    protected void drawChar(VertexConsumer builder, Matrix4f matrix, int color, float tx, float ty, int ch) {
         int found = chars.indexOf(ch);
         if (found == -1) found = chars.indexOf('?');
         final int index = 1 + found;
@@ -114,6 +114,6 @@ public class StaticFontRenderer extends TextureFontRenderer {
     }
 
     @Override
-    protected void generateChar(char ch) {
+    protected void generateChar(int ch) {
     }
 }

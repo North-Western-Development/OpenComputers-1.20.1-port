@@ -685,14 +685,14 @@ public final class PacketSender {
         pb.writeInt(value.ordinal());
     }
 
-    public static void appendTextBufferFill(PacketBuilder pb, int col, int row, int w, int h, char c) {
+    public static void appendTextBufferFill(PacketBuilder pb, int col, int row, int w, int h, int c) {
         pb.writePacketType(PacketType.TextBufferMultiFill);
 
         pb.writeInt(col);
         pb.writeInt(row);
         pb.writeInt(w);
         pb.writeInt(h);
-        pb.writeChar(c);
+        pb.writeMedium(c);
     }
 
     public static void appendTextBufferPaletteChange(PacketBuilder pb, int index, int color) {
@@ -759,7 +759,7 @@ public final class PacketSender {
         pb.writeInt(id);
     }
 
-    public static void appendTextBufferRawSetText(PacketBuilder pb, int col, int row, char[][] text) {
+    public static void appendTextBufferRawSetText(PacketBuilder pb, int col, int row, int[][] text) {
         pb.writePacketType(PacketType.TextBufferMultiRawSetText);
 
         pb.writeInt(col);
@@ -767,11 +767,11 @@ public final class PacketSender {
         final short height = (short) text.length;
         pb.writeShort(height);
         for (int y = 0; y < height; y++) {
-            final char[] line = text[y];
+            final int[] line = text[y];
             final short width = (short) line.length;
             pb.writeShort(width);
             for (int x = 0; x < width; x++) {
-                pb.writeChar(line[x]);
+                pb.writeMedium(line[x]);
             }
         }
     }

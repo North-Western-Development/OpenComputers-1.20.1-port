@@ -125,6 +125,13 @@ public abstract class PacketBuilder implements DataOutput {
         }
     }
 
+    /** Writes a 24 bit value (little endian), e.g. a Unicode code point. */
+    public void writeMedium(int v) {
+        writeByte(v & 0xFF);
+        writeByte((v >> 8) & 0xFF);
+        writeByte((v >> 16) & 0xFF);
+    }
+
     @Override
     public void writeInt(int v) {
         try {

@@ -14,13 +14,9 @@ public final class FontUtils {
 
     private static final BitSet defined_double_wide = new BitSet();
 
-    // font.hex actually has some codepoints larger than 0x10000
-    // but, UnicodeAPI.scala is using java's Integer.ToChar which only supports the utf-16 range
-    // and thus will truncate any incoming codepoint, forcing it below 0x10000
-    // I believe the solution is to use StringBuffer.appendCodePoint
-    // but that change would deserve a bit of testing first, postponing for a later update
-    // review http://www.oracle.com/us/technologies/java/supplementary-142654.html
-    public static final int codepoint_limit = 0x10000;
+    // Theoretical Unicode maximum: text buffers, the unicode API and the font renderer
+    // work on code points, so characters outside the BMP (e.g. emoji) are supported.
+    public static final int codepoint_limit = 0x110000;
 
     public static int wcwidth(int charCode) {
         return charCode >= 0 && defined_double_wide.get(charCode) ? 2 : 1;

@@ -306,7 +306,7 @@ public class Screen extends TileEntity implements TextBuffer, SidedEnvironment, 
                     final int h = buffer.getHeight();
                     buffer.setForegroundColor(0xFFFFFF, false);
                     buffer.setBackgroundColor(0x000000, false);
-                    buffer.fill(0, 0, w, h, ' ');
+                    buffer.fill(0, 0, w, h, 0x20);
                 }
             }
         }

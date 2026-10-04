@@ -258,7 +258,7 @@ public final class DebugCommands {
                     result.append("screen:");
                     for (int row = 0; row < buffer.getViewportHeight(); row++) {
                         final StringBuilder line = new StringBuilder();
-                        for (int col = 0; col < buffer.getViewportWidth(); col++) line.append(buffer.get(col, row));
+                        for (int col = 0; col < buffer.getViewportWidth(); col++) line.appendCodePoint(buffer.getCodePoint(col, row));
                         final String text = line.toString().stripTrailing();
                         if (!text.isEmpty()) result.append(" ").append(row + 1).append("| ").append(text);
                     }

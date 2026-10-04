@@ -31,8 +31,8 @@ public abstract class TextureFontRenderer {
      * Should be called before rendering, so that no characters have to be
      * generated while recording geometry.
      */
-    public void generateChars(char[] chars) {
-        for (char ch : chars) {
+    public void generateChars(int[] chars) {
+        for (int ch : chars) {
             generateChar(ch);
         }
         onCharsGenerated();
@@ -75,12 +75,12 @@ public abstract class TextureFontRenderer {
         for (int i = 0; i < textureCount(); i++) {
             final VertexConsumer fontBuilder = renderBuff.getBuffer(selectType(i));
             for (int y = 0; y < lines; y++) {
-                final char[] line = buffer.buffer[y];
+                final int[] line = buffer.buffer[y];
                 final short[] color = buffer.color[y];
                 final float ty = y * charHeight();
                 float tx = 0f;
                 for (int n = 0; n < viewportWidth && n < line.length; n++) {
-                    final char ch = line[n];
+                    final int ch = line[n];
                     // Don't render whitespace.
                     if (ch != ' ') {
                         final int col = PackedColor.unpackForeground(color[n], format);
@@ -105,7 +105,7 @@ public abstract class TextureFontRenderer {
     }
 
     public void drawString(PoseStack stack, MultiBufferSource buffers, String s, int x, int y, int color) {
-        generateChars(s.toCharArray());
+        generateChars(s.codePoints().toArray());
 
         stack.pushPose();
 
@@ -116,8 +116,8 @@ public abstract class TextureFontRenderer {
         for (int i = 0; i < textureCount(); i++) {
             final VertexConsumer builder = buffers.getBuffer(selectType(i));
             float tx = 0f;
-            for (int n = 0; n < s.length(); n++) {
-                final char ch = s.charAt(n);
+            for (int n = 0; n < s.length(); n = s.offsetByCodePoints(n, 1)) {
+                final int ch = s.codePointAt(n);
                 // Don't render whitespace.
                 if (ch != ' ') {
                     drawChar(builder, matrix, color, tx, 0, ch);
@@ -137,7 +137,7 @@ public abstract class TextureFontRenderer {
 
     protected abstract RenderType selectType(int index);
 
-    protected abstract void generateChar(char ch);
+    protected abstract void generateChar(int ch);
 
     /**
      * Called after a batch of characters was generated, e.g. to upload
@@ -146,7 +146,7 @@ public abstract class TextureFontRenderer {
     protected void onCharsGenerated() {
     }
 
-    protected abstract void drawChar(VertexConsumer builder, Matrix4f matrix, int color, float tx, float ty, char ch);
+    protected abstract void drawChar(VertexConsumer builder, Matrix4f matrix, int color, float tx, float ty, int ch);
 
     private void drawQuad(VertexConsumer builder, Matrix4f matrix, int color, int x, int y, int width) {
         if (color != 0 && width > 0) {

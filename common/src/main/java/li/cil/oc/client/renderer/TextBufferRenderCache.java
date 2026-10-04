@@ -55,7 +55,7 @@ public final class TextBufferRenderCache {
             throw new RuntimeException(e);
         }
         if (buffer.dirty() || cached.isEmpty()) {
-            for (char[] line : buffer.data().buffer) {
+            for (int[] line : buffer.data().buffer) {
                 renderer.generateChars(line);
             }
 

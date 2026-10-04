@@ -326,6 +326,14 @@ public abstract class PacketHandler {
             }
         }
 
+        /** Reads a 24 bit value (little endian), e.g. a Unicode code point. */
+        public int readMedium() {
+            final int c0 = readUnsignedByte();
+            final int c1 = readUnsignedByte();
+            final int c2 = readUnsignedByte();
+            return c0 | (c1 << 8) | (c2 << 16);
+        }
+
         @Override
         public char readChar() {
             try {

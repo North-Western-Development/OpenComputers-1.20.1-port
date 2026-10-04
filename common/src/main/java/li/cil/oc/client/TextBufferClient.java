@@ -144,7 +144,7 @@ public final class TextBufferClient {
         }
 
         @Override
-        public void onBufferFill(int col, int row, int w, int h, char c) {
+        public void onBufferFill(int col, int row, int w, int h, int c) {
             super.onBufferFill(col, row, w, h, c);
             setChanged();
         }
