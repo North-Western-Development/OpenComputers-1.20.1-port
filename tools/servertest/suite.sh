@@ -12,7 +12,7 @@
 #                       Manual, Mekanism, EnderStorage + CodeChickenLib, ProjectRed + CBMultipart)
 #   EXTRA_FABRIC=<dir>  jars for Fabric (AE2, CC:Tweaked, JEI, Jade, TIS-3D + Markdown Manual +
 #                       Forge Config API Port); Fabric Loader >= 0.19.4 for JEI
-# Without them the integration tests are skipped. LOADERS limits the loaders as for run.sh
+# Without them the integration tests are skipped. CHECK_ONLY=1 only re-checks the saved logs. LOADERS limits the loaders as for run.sh
 # (e.g. LOADERS=forge with a NeoForge server installed in forge/).
 set -u
 DIR=$(cd "$1" && pwd); shift
@@ -79,14 +79,18 @@ while IFS='|' read -r name file loaders needsExtra markers; do
   run=${run# }
   if [ -z "$run" ]; then skipped="$skipped $name"; continue; fi
   echo "### $name ($run)"
-  [ "$needsExtra" = 1 ] && for l in $run; do extra add $l; done
-  LOADERS="$run" CUT=${CUT:-400} bash "$T/run.sh" "$DIR" "$T/$file" > "$LOGS/$name.out" 2>&1 < /dev/null
-  [ "$needsExtra" = 1 ] && for l in $run; do extra remove $l; done
+  if [ -z "${CHECK_ONLY:-}" ]; then
+    [ "$needsExtra" = 1 ] && for l in $run; do extra add $l; done
+    LOADERS="$run" CUT=${CUT:-400} bash "$T/run.sh" "$DIR" "$T/$file" > "$LOGS/$name.out" 2>&1 < /dev/null
+    [ "$needsExtra" = 1 ] && for l in $run; do extra remove $l; done
+  fi
   for l in $run; do
     log=$LOGS/$name-$l.log
-    cp "$DIR/$l/out.all.log" "$log"
+    [ -n "${CHECK_ONLY:-}" ] || cp "$DIR/$l/out.all.log" "$log"
+    [ -f "$log" ] || continue
     missing=""
-    IFS='&' read -ra parts <<< "${markers// && /&}"
+    sep=$'\x1f'
+    IFS=$sep read -ra parts <<< "${markers// && /$sep}"
     for m in "${parts[@]}"; do
       n=1; re=$m
       if [[ "$m" =~ ^([0-9]+)\*(.*)$ ]]; then n=${BASH_REMATCH[1]}; re=${BASH_REMATCH[2]}; fi
