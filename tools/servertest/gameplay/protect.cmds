@@ -1,0 +1,17 @@
+# Protected inventories (protect.lua): a robot with an inventory controller at 70,0,80 facing
+# south, a chest minecart tagged oc_protected in front (the debug protection hooks deny entity
+# interaction for it, like a claim mod would), an unprotected chest minecart on top of the
+# robot, and a chest below it protected with /oc_debug protect. Each holds 5 diamonds.
+forceload add 48 64 96 96
+setblock 70 -61 80 minecraft:chest{Items:[{Slot:0b,id:"minecraft:diamond",Count:5b}]}
+oc_debug place 70 -60 80 opencomputers:robot{"oc:tier":3,"oc:robotEnergy":50000,"oc:components":[{id:"opencomputers:cpu3",Count:1b},{id:"opencomputers:ram6",Count:1b},{id:"opencomputers:inventoryupgrade",Count:1b},{id:"opencomputers:inventorycontrollerupgrade",Count:1b},{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(protect.lua)}]}
+oc_debug protect 70 -61 80
+summon minecraft:chest_minecart 70.5 -60 81.5 {Tags:["oc_protected"],Items:[{Slot:0b,id:"minecraft:diamond",Count:5b}]}
+summon minecraft:chest_minecart 70.5 -59 80.5 {Items:[{Slot:0b,id:"minecraft:diamond",Count:5b}]}
+WAIT 3
+oc_debug start 70 -60 80
+WAIT 6
+oc_debug status 70 -60 80
+data get entity @e[type=minecraft:chest_minecart,tag=oc_protected,limit=1] Items
+data get entity @e[type=minecraft:chest_minecart,tag=!oc_protected,limit=1] Items
+data get block 70 -61 80 Items

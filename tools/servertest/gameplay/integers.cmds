@@ -1,0 +1,14 @@
+# Integers (integers.lua): math.type of values returned by callbacks and of signal arguments
+# from Lua (pushSignal) and Java (redstone_changed), no "n" field in returned lists.
+forceload add 48 64 96 96
+setblock 60 -60 80 opencomputers:casecreative
+item replace block 60 -60 80 container.0 with opencomputers:redstonecard2
+item replace block 60 -60 80 container.3 with opencomputers:ram6
+item replace block 60 -60 80 container.8 with opencomputers:cpu3
+item replace block 60 -60 80 container.9 with opencomputers:eeprom@EEPROM(integers.lua)
+WAIT 3
+oc_debug start 60 -60 80
+WAIT 4
+setblock 61 -60 80 minecraft:redstone_block
+WAIT 4
+oc_debug status 60 -60 80
