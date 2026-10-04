@@ -1,0 +1,106 @@
+# Scene for walkthrough.sh (the recorded feature walkthrough; not meant for run.sh). Stations
+# along z=60, seen from the north: OpenOS computer (x=0), robot (12), drone (24), hologram (36),
+# network (46-54), 3D printer (60), machines (66-90), microcontroller (93), hover boots stairs (104).
+forceload add -16 32 112 96
+fill -8 -61 48 112 -61 76 minecraft:smooth_stone
+# A: OpenOS on a creative computer with a 3x2 tier 3 screen and a keyboard
+fill -1 -60 60 1 -59 60 opencomputers:screen3[pitch=north,yaw=north]
+setblock 0 -60 61 opencomputers:casecreative
+setblock 2 -60 60 opencomputers:keyboard
+item replace block 0 -60 61 container.0 with opencomputers:graphicscard3
+item replace block 0 -60 61 container.3 with opencomputers:ram6
+item replace block 0 -60 61 container.4 with opencomputers:ram6
+item replace block 0 -60 61 container.5 with opencomputers:hdd3
+item replace block 0 -60 61 container.7 with opencomputers:floppy{"oc:data":{"oc:fs.label":"OpenOS (Operating System)"},"oc:lootFactory":"opencomputers:openos","oc:color":13}
+item replace block 0 -60 61 container.8 with opencomputers:cpu3
+item replace block 0 -60 61 container.9 with opencomputers:eeprom@BIOS
+# B: robot driving a square
+oc_debug place 12 -60 60 opencomputers:robot{"oc:tier":3,"oc:robotEnergy":100000,"oc:components":[{id:"opencomputers:cpu3",Count:1b},{id:"opencomputers:ram6",Count:1b},{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(wt-robot.lua)}]}
+# C: drone flying a loop
+oc_debug place 24 -60 60 opencomputers:drone{"oc:tier":3b,"oc:storedEnergy":20000,"oc:components":[{id:"opencomputers:cpu3",Count:1b},{id:"opencomputers:ram6",Count:1b},{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(wt-drone.lua)}]}
+# D: tier 2 hologram projector in front of a computer
+setblock 36 -60 61 opencomputers:casecreative
+item replace block 36 -60 61 container.3 with opencomputers:ram6
+item replace block 36 -60 61 container.8 with opencomputers:cpu3
+item replace block 36 -60 61 container.9 with opencomputers:eeprom@EEPROM(wt-holo.lua)
+setblock 36 -60 60 opencomputers:hologram2
+# E: two computers with screens, cables and a relay between them
+setblock 46 -60 61 opencomputers:casecreative
+setblock 46 -60 60 opencomputers:screen1[pitch=north,yaw=north]
+item replace block 46 -60 61 container.0 with opencomputers:lancard
+item replace block 46 -60 61 container.1 with opencomputers:graphicscard1
+item replace block 46 -60 61 container.3 with opencomputers:ram6
+item replace block 46 -60 61 container.8 with opencomputers:cpu3
+item replace block 46 -60 61 container.9 with opencomputers:eeprom@EEPROM(wt-neta.lua)
+fill 47 -60 61 49 -60 61 opencomputers:cable
+setblock 50 -60 61 opencomputers:relay
+fill 51 -60 61 53 -60 61 opencomputers:cable
+setblock 54 -60 61 opencomputers:casecreative
+setblock 54 -60 60 opencomputers:screen1[pitch=north,yaw=north]
+item replace block 54 -60 61 container.0 with opencomputers:lancard
+item replace block 54 -60 61 container.1 with opencomputers:graphicscard1
+item replace block 54 -60 61 container.3 with opencomputers:ram6
+item replace block 54 -60 61 container.8 with opencomputers:cpu3
+item replace block 54 -60 61 container.9 with opencomputers:eeprom@EEPROM(wt-netb.lua)
+# F: 3D printer next to a computer
+setblock 60 -60 61 opencomputers:casecreative
+item replace block 60 -60 61 container.3 with opencomputers:ram6
+item replace block 60 -60 61 container.8 with opencomputers:cpu3
+item replace block 60 -60 61 container.9 with opencomputers:eeprom@EEPROM(wt-print.lua)
+setblock 61 -60 61 opencomputers:printer
+item replace block 61 -60 61 container.0 with opencomputers:chamelium 64
+item replace block 61 -60 61 container.1 with opencomputers:inkcartridge
+# G: assembler (walkthrough.sh starts its computer, which runs assembler.lua), disassembler, charger + robot, rack, RAID, disk drive, relay, capacitor
+setblock 66 -60 61 opencomputers:casecreative
+item replace block 66 -60 61 container.3 with opencomputers:ram6
+item replace block 66 -60 61 container.8 with opencomputers:cpu3
+item replace block 66 -60 61 container.9 with opencomputers:eeprom@EEPROM(assembler.lua)
+setblock 67 -60 61 opencomputers:assembler
+item replace block 67 -60 61 container.0 with opencomputers:case1
+item replace block 67 -60 61 container.4 with opencomputers:inventoryupgrade
+item replace block 67 -60 61 container.16 with opencomputers:cpu1
+item replace block 67 -60 61 container.17 with opencomputers:ram1
+item replace block 67 -60 61 container.19 with opencomputers:eeprom
+setblock 70 -60 61 opencomputers:casecreative
+setblock 71 -60 61 opencomputers:disassembler
+setblock 71 -59 61 minecraft:chest
+item replace block 71 -60 61 container.0 with opencomputers:cpu1
+setblock 74 -60 61 opencomputers:casecreative
+setblock 75 -60 61 opencomputers:charger
+setblock 75 -59 61 minecraft:redstone_block
+oc_debug place 75 -60 60 opencomputers:robot{"oc:tier":0,"oc:robotEnergy":500,"oc:components":[{id:"opencomputers:cpu1",Count:1b},{id:"opencomputers:ram1",Count:1b}]}
+setblock 78 -60 61 opencomputers:casecreative
+setblock 79 -60 61 opencomputers:rack
+item replace block 79 -60 61 container.0 with opencomputers:server3{"oc:items":[{slot:2b,item:{id:"opencomputers:cpu3",Count:1b}},{slot:6b,item:{id:"opencomputers:ram6",Count:1b}},{slot:0b,item:{id:"opencomputers:lancard",Count:1b}},{slot:16b,item:{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(server.lua)}}]}
+item replace block 79 -60 61 container.1 with opencomputers:server2
+setblock 81 -60 61 opencomputers:raid
+item replace block 81 -60 61 container.0 with opencomputers:hdd3
+item replace block 81 -60 61 container.1 with opencomputers:hdd3
+item replace block 81 -60 61 container.2 with opencomputers:hdd3
+setblock 83 -60 61 opencomputers:diskdrive
+item replace block 83 -60 61 container.0 with opencomputers:floppy{"oc:data":{"oc:fs.label":"OpenOS (Operating System)"},"oc:lootFactory":"opencomputers:openos","oc:color":13}
+setblock 85 -60 61 opencomputers:relay
+setblock 87 -60 61 opencomputers:capacitor
+setblock 89 -60 61 opencomputers:adapter
+setblock 90 -60 61 minecraft:furnace
+# H: microcontroller blinking lamps, powered by a creative case
+setblock 92 -60 61 opencomputers:casecreative
+oc_debug place 93 -60 61 opencomputers:microcontroller{"oc:tier":3b,"oc:components":[{id:"opencomputers:cpu1",Count:1b},{id:"opencomputers:ram1",Count:1b},{id:"opencomputers:redstonecard1",Count:1b},{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(wt-blink.lua)}]}
+setblock 94 -60 61 minecraft:redstone_lamp
+setblock 93 -59 61 minecraft:redstone_lamp
+setblock 93 -60 60 minecraft:redstone_lamp
+# I: stairs of 1 block steps for the hover boots, going south from z=62
+fill 104 -60 63 106 -60 75 minecraft:smooth_stone
+fill 104 -59 66 106 -59 75 minecraft:smooth_stone
+fill 104 -58 69 106 -58 75 minecraft:smooth_stone
+fill 104 -57 72 106 -57 75 minecraft:smooth_stone
+WAIT 3
+oc_debug start 0 -60 61
+oc_debug start 12 -60 60
+oc_debug start 36 -60 61
+oc_debug start 46 -60 61
+oc_debug start 54 -60 61
+oc_debug start 60 -60 61
+oc_debug start 79 -60 61
+oc_debug start 93 -60 61
+oc_debug drones start
