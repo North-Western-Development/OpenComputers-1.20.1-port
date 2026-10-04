@@ -48,11 +48,11 @@ public final class ExtendedLuaState {
         } else {
             if (value == null || value == ResultWrapper.unit) lua.pushNil();
             else if (value instanceof Boolean v) lua.pushBoolean(v);
-            else if (value instanceof Byte v) lua.pushNumber(v.byteValue());
+            else if (value instanceof Byte v) lua.pushInteger(v.byteValue());
             else if (value instanceof Character v) lua.pushString(String.valueOf(v));
-            else if (value instanceof Short v) lua.pushNumber(v.shortValue());
-            else if (value instanceof Integer v) lua.pushNumber(v.intValue());
-            else if (value instanceof Long v) lua.pushNumber(v.longValue());
+            else if (value instanceof Short v) lua.pushInteger(v.shortValue());
+            else if (value instanceof Integer v) lua.pushInteger(v.intValue());
+            else if (value instanceof Long v) lua.pushInteger(v.longValue());
             else if (value instanceof Float v) lua.pushNumber(v.floatValue());
             else if (value instanceof Double v) lua.pushNumber(v.doubleValue());
             else if (value instanceof String v) lua.pushString(v);
@@ -101,9 +101,6 @@ public final class ExtendedLuaState {
         }
         // Bring table back to top (in case memo values were pushed).
         lua.pushValue(tableIndex);
-        lua.pushString("n");
-        lua.pushInteger(count);
-        lua.rawSet(-3);
     }
 
     public static void pushTable(LuaState lua, Object obj, Map<?, ?> map, IdentityHashMap<Object, Integer> memo) {
@@ -134,7 +131,8 @@ public final class ExtendedLuaState {
             case BOOLEAN:
                 return lua.toBoolean(index);
             case NUMBER:
-                return lua.toNumber(index);
+                // Lua 5.3+ integers stay integers (longs); on Lua 5.2 everything is a double.
+                return lua.isInteger(index) ? (Object) lua.toInteger(index) : (Object) lua.toNumber(index);
             case STRING:
                 return lua.toByteArray(index);
             case TABLE:

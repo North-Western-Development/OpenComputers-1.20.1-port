@@ -84,9 +84,7 @@ public class ScalaClosure extends VarArgFunction {
     public static LuaValue toLuaList(Iterable<?> value) {
         final List<LuaValue> values = new ArrayList<>();
         for (Object v : value) values.add(toLuaValue(v));
-        final LuaTable table = LuaValue.listOf(values.toArray(new LuaValue[0]));
-        table.set("n", table.length());
-        return table;
+        return LuaValue.listOf(values.toArray(new LuaValue[0]));
     }
 
     public static LuaValue toLuaTable(Map<?, ?> value) {

@@ -443,7 +443,9 @@ public class Machine extends AbstractManagedEnvironment implements li.cil.oc.api
 
     public Object convertArg(Object param) {
         if (param instanceof Boolean) return param;
-        if (param instanceof Character c) return (double) c;
+        // Integral values are passed as integers (Lua 5.3+), as longs so they survive saving.
+        if (param instanceof Character c) return (long) c;
+        if (param instanceof Byte || param instanceof Short || param instanceof Integer) return ((Number) param).longValue();
         if (param instanceof Long) return param;
         if (param instanceof Number n) return n.doubleValue();
         if (param instanceof String) return param;
