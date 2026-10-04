@@ -12,6 +12,10 @@ W=$(cd "$(dirname "$0")/../.." && pwd)
 D=$G/$L
 export DISPLAY=:$DISP XAUTHORITY=$G/xauth-$L
 rm -rf "${D:?}/world"; : > "$D/cmd.txt"; : > "$D/out.log"
+# No villages on the stations; client: no tutorial toasts, GUI scale 2 (captions fit), 30 FPS.
+sed -i 's/^generate-structures=.*/generate-structures=false/' "$D/server.properties"
+O=$W/$L/run/options.txt
+[ -f "$O" ] && sed -i 's/^tutorialStep:.*/tutorialStep:none/; s/^guiScale:.*/guiScale:2/; s/^renderDistance:.*/renderDistance:8/; s/^maxFps:.*/maxFps:30/; s/^onboardAccessibility:.*/onboardAccessibility:false/' "$O"
 if [ "$L" = forge ]; then
   (cd "$D" && tail -n +1 -f cmd.txt | timeout 3600 bash run.sh nogui > out.log 2>&1 &)
 else
@@ -31,7 +35,7 @@ done < "$W/tools/servertest/gameplay/walkthrough.txt"
 until grep -qE "joined the game" "$D/out.log" || grep -qE "Game crashed|BUILD FAILED|FAILURE" "$G/client-$L.log"; do sleep 5; done
 P=$(grep -o "[A-Za-z0-9_]* joined the game" "$D/out.log" | head -1 | cut -d' ' -f1)
 echo "player $P"
-cmd "op $P"; cmd "gamemode spectator $P"; cmd "kill @e[type=!player,type=!opencomputers:drone]"
+cmd "op $P"; cmd "clear $P"; cmd "gamemode spectator $P"; cmd "kill @e[type=!player,type=!opencomputers:drone]"
 cmd "title $P times 10 90 15"
 x() { python3 "$W/tools/servertest/xin.py" "$@"; }
 # cam x y z yaw pitch: put the camera (the player) there
@@ -64,12 +68,12 @@ sleep 1
 
 # Intro: overview of the stations
 cam -6 -50 40 -60 30
-say "OpenComputers" "Minecraft 1.20.1 port: Forge, NeoForge and Fabric"
+say "OpenComputers" "Minecraft 1.20.1: Forge, NeoForge and Fabric"
 sleep 3
 pan -6 -50 40 -60 30  100 -50 40 60 30  14
 # A: OpenOS
 cam 0.5 -59 55.5 0 8
-say "OpenOS" "A creative computer with a 3x2 tier 3 screen and a keyboard"
+say "OpenOS" "Computer, 3x2 tier 3 screen and keyboard"
 sleep 5
 cmd "gamemode creative $P"
 cmd "tp $P 0.5 -60 57.5 0 -2"; sleep 2
@@ -83,30 +87,30 @@ cmd "gamemode spectator $P"
 pan 0.5 -60 57.5 0 -2  0.5 -59 55 0 5  3
 sleep 3
 # Screen re-merge after a chunk reload
-say "Multi-block screens" "Leaving and coming back: the screen re-merges right away"
+say "Multi-block screens" "Re-merge right away after a chunk reload"
 sleep 4
 cam 4000 120 4000 0 0; sleep 8
 cam 0.5 -59 55 0 5; sleep 6
 # B: robot
-pan 0.5 -59 55 0 5  12.5 -56.5 54 0 32  3
-say "Robots" "A tier 3 robot running a program from its EEPROM"
+pan 0.5 -59 55 0 5  12.5 -57.5 55.5 0 35  3
+say "Robots" "Running a program from its EEPROM"
 sleep 12
 # C: drone
-pan 12.5 -56.5 54 0 32  24.5 -57.5 51 0 0  3
-say "Drones" "Flying a loop, changing light colour and status text"
+pan 12.5 -57.5 55.5 0 35  24.5 -58 54 0 -5  3
+say "Drones" "Flying a loop with lights and status text"
 sleep 15
 # D: hologram
-pan 24.5 -57.5 51 0 0  36.5 -57.6 55.5 0 18  3
-say "Hologram projector" "Tier 2: three colours, drawn by Lua and rotating"
+pan 24.5 -58 54 0 -5  36.5 -57.5 55.5 0 15  3
+say "Hologram projector" "Tier 2: three colours, drawn from Lua"
 sleep 14
 # E: network
-pan 36.5 -57.6 55.5 0 18  46.5 -59.4 58 0 0  3
-say "Networking" "Network cards, cables and a relay: A broadcasts, B receives"
+pan 36.5 -57.5 55.5 0 15  46.5 -59.6 58.2 0 22  3
+say "Networking" "Cables and a relay: A sends, B receives"
 sleep 5
-pan 46.5 -59.4 58 0 0  54.5 -59.4 58 0 0  5
+pan 46.5 -59.6 58.2 0 22  54.5 -59.6 58.2 0 22  5
 sleep 4
 # F: 3D printer
-say "3D printer" "A computer printed two lamps; the print is placed in the world"
+say "3D printer" "Printing lamps, then placing one"
 cmd "gamemode creative $P"
 gui 61 61 5
 cmd "item replace entity $P weapon.mainhand from block 61 -60 61 container.2"
@@ -118,37 +122,38 @@ sleep 3
 # G: machines
 cmd "gamemode creative $P"
 cmd "oc_debug start 66 -60 61"
-say "Robot assembler" "A computer starts assembling a robot from a tier 1 case"
+say "Assembler" "Assembling a robot from a tier 1 case"
 gui 67 61 6
-say "Disassembler" "Taking a CPU apart, ingredient by ingredient"
+say "Disassembler" "Taking a CPU apart"
 gui 71 61 4
-say "Charger" "Charging the robot in front of it (redstone enabled)"
+say "Charger" "Charging the robot in front of it"
 gui 75 60 4
-say "Server rack" "Servers, rack-mounted, with network sides"
+say "Server rack" "Rack-mounted servers"
 gui 79 61 4
-say "RAID and disk drive" "Three hard drives in a RAID; OpenOS floppy in a disk drive"
+say "RAID and disk drive" "Three HDDs; the OpenOS floppy"
 gui 81 61 3
 gui 83 61 3
-say "Relay" "Bridges networks, with upgradable buffers"
+say "Relay" "Bridges networks"
 gui 85 61 3
-say "Case" "The computer case of the OpenOS station"
+say "Computer case" "The OpenOS computer's components"
 cmd "tp $P 0.5 -60 63.5 180 36"; sleep 1.5; x rclick; sleep 4; x key:Escape; sleep 1
 # H: microcontroller
 cmd "gamemode spectator $P"
 cam 93.5 -58.8 57 0 10
-say "Microcontroller" "Redstone card blinking three lamps"
+say "Microcontroller" "Blinking lamps with a redstone card"
 sleep 8
 # Manual
 cmd "gamemode creative $P"
 cmd "tp $P 75.5 -60 58.5 0 36"; sleep 2
-say "The manual" "Right click opens it (no arm swing); on a block, its page"
+say "The manual" "Opens without an arm swing"
 cmd "$(sed -n 1p "$W/tools/servertest/gameplay/walkthrough-items.txt")"; sleep 3
 cmd "tp $P 80 -59 50 0 -20"; sleep 1.5
 x rclick; sleep 3; x scroll:4; sleep 2; x key:Escape; sleep 1
-cmd "tp $P 75.5 -60 58.5 0 36"; sleep 1.5
+say "The manual" "Used on a block: that block's page"
+cmd "tp $P 87.5 -60 59.5 0 36"; sleep 2
 x rclick; sleep 4; x key:Escape; sleep 1
 # Tablet
-say "Tablet" "A tablet booting OpenOS from its floppy"
+say "Tablet" "Booting OpenOS from its floppy"
 cmd "$(sed -n 2p "$W/tools/servertest/gameplay/walkthrough-items.txt")"; sleep 2
 cmd "tp $P 80 -59 50 0 -20"; sleep 1.5
 x rclick; sleep 14
@@ -158,8 +163,10 @@ x key:Escape; sleep 1
 cmd "item replace entity $P weapon.mainhand with minecraft:air"
 # I: hover boots
 cmd "item replace entity $P armor.feet with opencomputers:hoverboots{\"oc:charge\":15000.0d}"
-cmd "tp $P 105.5 -60 61.5 0 15"; sleep 2
-say "Hover boots" "Step up full blocks and jump higher"
+cmd "tp $P 105.5 -60 61.5 0 -40"; sleep 1.5
+x lclick; sleep 0.5  # make sure the game window has focus for movement keys
+cmd "tp $P 105.5 -60 61.5 0 15"; sleep 1
+say "Hover boots" "Step up full blocks, jump higher"
 sleep 3
 x down:w sleep:7 up:w
 sleep 1
@@ -167,7 +174,7 @@ x key:space sleep:2
 cmd "gamemode spectator $P"
 # Outro
 cam 50 -45 30 0 35
-say "OpenComputers 1.20.1" "Forge / NeoForge / Fabric via Architectury"
+say "OpenComputers 1.20.1" "Forge, NeoForge, Fabric via Architectury"
 pan 50 -45 30 0 35  50 -48 40 0 40  8
 sleep 2
 

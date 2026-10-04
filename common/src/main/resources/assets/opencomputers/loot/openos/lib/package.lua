@@ -85,7 +85,7 @@ function require(module)
     for _, searcher in ipairs(searchers) do
       library, arg = searcher(module)
       if type(library) == "function" then break end
-      if type(library) ~= nil then
+      if library ~= nil then
         errors = errors .. "\n\t" .. tostring(library)
         library = nil
       end
