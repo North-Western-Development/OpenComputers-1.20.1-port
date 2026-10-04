@@ -159,8 +159,6 @@ public abstract class LuaStateFactory {
 
     private final String libraryName;
 
-    public final boolean is64Bit = Architecture.IS_OS_X64;
-
     protected LuaStateFactory() {
         libraryName = computeLibraryName();
 
@@ -352,7 +350,7 @@ public abstract class LuaStateFactory {
             haveNativeLibrary = true;
         } catch (Throwable t) {
             if (Settings.get().logFullLibLoadErrors) {
-                OpenComputers.log.trace("Could not load native library '" + tmpLibFile.getName() + "'.", t);
+                OpenComputers.log.warn("Could not load native library '" + tmpLibFile.getName() + "'.", t);
             } else {
                 OpenComputers.log.trace("Could not load native library '" + tmpLibFile.getName() + "'.");
             }

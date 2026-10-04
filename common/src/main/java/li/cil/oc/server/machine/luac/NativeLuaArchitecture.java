@@ -38,7 +38,11 @@ public abstract class NativeLuaArchitecture implements Architecture {
 
     int kernelMemory = 0;
 
-    final double ramScale;
+    /**
+     * Memory scale for 64 bit Lua states, set once the state exists: based on the
+     * native pointer width (formerly an x86_64 check, so e.g. aarch64 got no scaling).
+     */
+    double ramScale = 1.0;
 
     private final PersistenceAPI persistence;
 
@@ -46,7 +50,6 @@ public abstract class NativeLuaArchitecture implements Architecture {
 
     protected NativeLuaArchitecture(li.cil.oc.api.machine.Machine machine) {
         this.machine = machine;
-        this.ramScale = factory().is64Bit ? Settings.get().ramScaleFor64Bit : 1.0;
         this.persistence = new PersistenceAPI(this);
         this.apis = new NativeLuaAPI[]{
                 new ComponentAPI(this),
@@ -167,15 +170,15 @@ public abstract class NativeLuaArchitecture implements Architecture {
 
     @Override
     public boolean recomputeMemory(Iterable<ItemStack> components) {
-        final int memory = (int) Math.ceil(memoryInBytes(components) * ramScale);
+        final int memoryBytes = memoryInBytes(components);
         final LuaState l = lua;
         if (l != null && Settings.get().limitMemory) {
             l.setTotalMemory(Integer.MAX_VALUE);
             if (kernelMemory > 0) {
-                l.setTotalMemory(kernelMemory + memory);
+                l.setTotalMemory(kernelMemory + (int) Math.ceil(memoryBytes * ramScale));
             }
         }
-        return memory > 0;
+        return memoryBytes > 0;
     }
 
     private int memoryInBytes(Iterable<ItemStack> components) {
@@ -332,6 +335,7 @@ public abstract class NativeLuaArchitecture implements Architecture {
             return false;
         }
         lua = state.get();
+        ramScale = lua.getPointerWidth() >= 8 ? Settings.get().ramScaleFor64Bit : 1.0;
 
         for (NativeLuaAPI api : apis) api.initialize();
 
