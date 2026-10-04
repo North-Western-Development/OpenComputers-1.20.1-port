@@ -18,12 +18,12 @@ item replace block 0 -60 61 container.9 with opencomputers:eeprom@BIOS
 oc_debug place 12 -60 60 opencomputers:robot{"oc:tier":3,"oc:robotEnergy":100000,"oc:components":[{id:"opencomputers:cpu3",Count:1b},{id:"opencomputers:ram6",Count:1b},{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(wt-robot.lua)}]}
 # C: drone flying a loop
 oc_debug place 24 -60 60 opencomputers:drone{"oc:tier":3b,"oc:storedEnergy":20000,"oc:components":[{id:"opencomputers:cpu3",Count:1b},{id:"opencomputers:ram6",Count:1b},{id:"opencomputers:eeprom",Count:1b,tag:@EEPROM(wt-drone.lua)}]}
-# D: tier 2 hologram projector in front of a computer
-setblock 36 -60 61 opencomputers:casecreative
-item replace block 36 -60 61 container.3 with opencomputers:ram6
-item replace block 36 -60 61 container.8 with opencomputers:cpu3
-item replace block 36 -60 61 container.9 with opencomputers:eeprom@EEPROM(wt-holo.lua)
-setblock 36 -60 60 opencomputers:hologram2
+# D: tier 2 hologram projector on top of a computer (projectors only connect from below)
+setblock 36 -60 60 opencomputers:casecreative
+item replace block 36 -60 60 container.3 with opencomputers:ram6
+item replace block 36 -60 60 container.8 with opencomputers:cpu3
+item replace block 36 -60 60 container.9 with opencomputers:eeprom@EEPROM(wt-holo.lua)
+setblock 36 -59 60 opencomputers:hologram2
 # E: two computers with screens, cables and a relay between them
 setblock 46 -60 61 opencomputers:casecreative
 setblock 46 -60 60 opencomputers:screen1[pitch=north,yaw=north]
@@ -97,7 +97,7 @@ fill 104 -57 72 106 -57 75 minecraft:smooth_stone
 WAIT 3
 oc_debug start 0 -60 61
 oc_debug start 12 -60 60
-oc_debug start 36 -60 61
+oc_debug start 36 -60 60
 oc_debug start 46 -60 61
 oc_debug start 54 -60 61
 oc_debug start 60 -60 61

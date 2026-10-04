@@ -1,7 +1,7 @@
 -- Walkthrough: listens on port 42 and shows every received message.
 local m = component.proxy(component.list("modem")())
 local g = component.proxy(component.list("gpu")())
-g.bind(component.list("screen")())
+g.bind((component.list("screen")()))
 g.setResolution(30, 8)
 g.fill(1, 1, 30, 8, " ")
 g.set(2, 2, "Computer B (receiver)")

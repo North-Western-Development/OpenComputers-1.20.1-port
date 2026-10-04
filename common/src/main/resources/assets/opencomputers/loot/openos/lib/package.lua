@@ -82,7 +82,7 @@ function require(module)
     local errors = ""
 
     if type(searchers) ~= "table" then error("'package.searchers' must be a table") end
-    for _, searcher in pairs(searchers) do
+    for _, searcher in ipairs(searchers) do
       library, arg = searcher(module)
       if type(library) == "function" then break end
       if type(library) ~= nil then
