@@ -28,26 +28,29 @@ boot|boot.txt|all|0|OC-TEST-OK Lua 5\.3 && LAMP-LIT
 live|live.txt|all|0|LIVE [0-9.]+s gpu=true text=he
 openos|openos.txt|all|0|running=true .*lastError=null
 persistence|gameplay/persistence.txt|all|0|2*RESULT n=80 co=80 hdd=80 tmp=80 starts=1 eeprom=true label=ptest && RESULT drone n=80 && running=true .*lastError=null
-robot|gameplay/robot.txt|all|0|RESULT inv=16\.0 && swing=true,block && ROBOT-MINED-SOUTH && ROBOT-PLACED-WEST && ROBOT-HOME
-upgrades|gameplay/upgrades.txt|all|0|RESULT icSize=27\.0 && craft=true,4\.0 && genCount=1\.0 && PISTON-PUSHED
+robot|gameplay/robot.txt|all|0|RESULT inv=16(\.0)? && swing=true,block && ROBOT-MINED-SOUTH && ROBOT-PLACED-WEST && ROBOT-HOME
+upgrades|gameplay/upgrades.txt|all|0|RESULT icSize=27(\.0)? && craft=true,4(\.0)? && genCount=1(\.0)? && PISTON-PUSHED
 drone|gameplay/drone.txt|all|0|pos=22\.50,-56\.50,20\.50 && DRONE-LANDED-EAST
-network|gameplay/network.txt|all|0|lan:1\.0:0:re:wired && tun:0\.0:0:re:linked && wlan:2\.0:0:re:air
+network|gameplay/network.txt|all|0|lan:1(\.0)?:0:re:wired && tun:0(\.0)?:0:re:linked && wlan:2(\.0)?:0:re:air
 filesystem|gameplay/filesystem.txt|all|0|RESULT drive=true && fsCount=4 && mv=true
 components|gameplay/components.txt|all|0|8*RESULT && LAMP-LIT
 machines|gameplay/machines.txt|all|0|done=idle,false && opencomputers:robot && charged=true && RESULT server comps=computer,eeprom,filesystem,modem && MC-LAMP-LIT && RESULT mc comps=.*redstone && iron_nugget
-navsign|gameplay/navsign.txt|all|0|makeMap=true && facing=3\.0 && signSet=robot\|was here && item4=minecraft:diamondx3\.0
+navsign|gameplay/navsign.txt|all|0|makeMap=true && facing=3(\.0)? && signSet=robot\|was here && item4=minecraft:diamondx3(\.0)?
 chunkloader|gameplay/chunkloader.txt|all|0|CL-R1-LOADED && CL-R1-MOVED && CL-R2-UNLOADED && CL-R3-LOADED && CL-R3-MOVED && CL-R1-RELEASED && CL-R2-DID-NOT-MOVE && CL-R3-RESTORED && CL-R3-RELEASED
 shell|gameplay/shell.txt|all|0|SHELL-ROBOT-MOVED && fwd +true && f\.lua +x
 disassembler|gameplay/disassembler.txt|all|0|3*iron_nugget
-hoverboots|gameplay/hoverboots.txt|all|0|"oc:charge": 400\.0d && "oc:charge": 2400\.0d
-computercraft|integrations/computercraft.txt|all|1|RESULT mon=7\.0x5\.0 && drive=true,label=occc && ccmsg=hi
+hoverboots|gameplay/hoverboots.txt|all|0|"oc:charge": 400(\.0)?d && "oc:charge": 2400(\.0)?d
+computercraft|integrations/computercraft.txt|all|1|RESULT mon=7(\.0)?x5(\.0)? && drive=true,label=occc && ccmsg=hi
 jei-jade|integrations/jei-jade.txt|all|1|running=true .*lastError=null
 ae2|integrations/ae2.txt|all|1|RESULT OK comps=database,me_controller,me_exportbus,me_interface
 ae2-crafting|integrations/ae2_crafting.txt|all|1|RESULT OK craftables=1 && done=true
-tis3d|integrations/tis3d.txt|all|1|RESULT ports=2 write=true a->b=42\.0 b->a=-7\.0
-mekanism|integrations/mekanism.txt|forge|1|tank1=gas,mekanism:hydrogen,Hydrogen,1234\.0/64000\.0
-enderstorage|integrations/enderstorage.txt|forge|1|freq1=1\.0,2\.0,3\.0 && colors=orange,magenta,light_blue && bad=false
-projectred|integrations/projectred.txt|forge|1|RESULT n=2 before=0\.0 on=200\.0 off=0\.0 back=255\.0
+tis3d|integrations/tis3d.txt|all|1|RESULT ports=2 write=true a->b=42(\.0)? b->a=-7(\.0)?
+mekanism|integrations/mekanism.txt|forge|1|tank1=gas,mekanism:hydrogen,Hydrogen,1234(\.0)?/64000(\.0)?
+enderstorage|integrations/enderstorage.txt|forge|1|freq1=1(\.0)?,2(\.0)?,3(\.0)? && colors=orange,magenta,light_blue && bad=false
+projectred|integrations/projectred.txt|forge|1|RESULT n=2 before=0(\.0)? on=200(\.0)? off=0(\.0)? back=255(\.0)?
+integers|gameplay/integers.txt|all|0|RESULT size=integer:4096 total=integer fsize=integer:5 list=x,n=nil
+unicode|gameplay/unicode.txt|all|0|rt=true && vert=true && char=true wide=true,2
+protect|gameplay/protect.txt|all|0|uSuck=1 && pSize=nil,no inventory && pSuckSlot=nil,no inventory
 EOF
 )
 # Log lines that fail any test (besides missing markers).
