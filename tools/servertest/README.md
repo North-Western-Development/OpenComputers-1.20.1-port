@@ -89,6 +89,21 @@ achievement tree): it joins with a dev client, grants/revokes `from opencomputer
 OpenOS floppy NBT) and drops a robot, drone, tablet and microcontroller at the player (picked up ->
 `opencomputers:assembled`). Expected: `made after the grant/revoke checks: 36` plus "Couldn't grant advancement [OpenComputers] ... already have it" (the root, which is silent), no advancement errors.
 
+## Full suite and walkthrough
+
+`suite.sh <servers-dir> [test...]` runs every command file above with `run.sh` and checks each
+loader's log against the expected markers (kept in the script, mirroring the tables here): it prints
+PASS / FAIL per test and loader and keeps the logs in `<servers-dir>/suite-logs/`. Integration tests
+run when `EXTRA_FORGE` / `EXTRA_FABRIC` point at directories with the other mods' jars (copied into
+`mods/` for those tests only). `LOADERS=forge` with a NeoForge server in `forge/` runs it on
+NeoForge; `CHECK_ONLY=1` re-checks saved logs without starting servers.
+
+`walkthrough.sh <servers-dir> <loader> <port> <display> <out.mp4>` records a captioned client
+walkthrough (ffmpeg, 1280x720) of `gameplay/walkthrough.txt`: OpenOS typed into through the screen
+GUI, screen re-merging after a chunk reload, robot, drone, hologram (day and night), network + relay,
+3D printer (placing a print), assembler / disassembler / charger / rack / RAID / disk drive / relay /
+case GUIs, microcontroller + redstone, manual (in the air and on a block), OpenOS tablet, hover boots.
+
 ## Mod integrations (`integrations/`)
 
 Run these with the other mod's jars added to both servers' `mods/` (and make sure `boot.txt`
