@@ -56,7 +56,10 @@ public final class RenderPlatformImpl {
 
     public static void registerLevelRenderer(RenderPlatform.LevelRenderCallback callback) {
         MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, RenderLevelStageEvent.class, event -> {
-            if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL) {
+            // AFTER_WEATHER is the last stage that gets the level pose stack (with the camera
+            // rotation); AFTER_LEVEL gets the projection pose stack, so things drawn there with
+            // it end up outside the view.
+            if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_WEATHER) {
                 callback.render(event.getPoseStack(), event.getPartialTick(), event.getCamera());
             }
         });
