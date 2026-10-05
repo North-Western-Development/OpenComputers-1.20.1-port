@@ -58,9 +58,20 @@ public final class RenderPlatformImpl {
         MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, RenderLevelStageEvent.class, event -> {
             // AFTER_WEATHER is the last stage that gets the level pose stack (with the camera
             // rotation); AFTER_LEVEL gets the projection pose stack, so things drawn there with
-            // it end up outside the view.
+            // it end up outside the view. At this stage the model-view matrix also holds the
+            // camera rotation (pushed for particles / weather), so reset it to identity like
+            // Fabric's WorldRenderEvents.LAST, or the rotation would be applied twice.
             if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_WEATHER) {
-                callback.render(event.getPoseStack(), event.getPartialTick(), event.getCamera());
+                final com.mojang.blaze3d.vertex.PoseStack modelView = com.mojang.blaze3d.systems.RenderSystem.getModelViewStack();
+                modelView.pushPose();
+                modelView.setIdentity();
+                com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+                try {
+                    callback.render(event.getPoseStack(), event.getPartialTick(), event.getCamera());
+                } finally {
+                    modelView.popPose();
+                    com.mojang.blaze3d.systems.RenderSystem.applyModelViewMatrix();
+                }
             }
         });
     }
