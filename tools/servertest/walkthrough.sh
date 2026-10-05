@@ -163,9 +163,9 @@ x key:Escape; sleep 1
 cmd "item replace entity $P weapon.mainhand with minecraft:air"
 # I: hover boots
 cmd "item replace entity $P armor.feet with opencomputers:hoverboots{\"oc:charge\":15000.0d}"
-cmd "tp $P 105.5 -60 61.5 0 -40"; sleep 1.5
-x lclick; sleep 0.5  # make sure the game window has focus for movement keys
-cmd "tp $P 105.5 -60 61.5 0 15"; sleep 1
+# Survival: a creative player switched from spectator keeps flying, and flying players don't step up.
+cmd "gamemode survival $P"
+cmd "tp $P 105.5 -60 61.5 0 15"; sleep 2
 say "Hover boots" "Step up full blocks, jump higher"
 sleep 3
 x down:w sleep:7 up:w
