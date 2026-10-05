@@ -102,7 +102,8 @@ sleep 15
 # D: hologram
 pan 24.5 -58 54 0 -5  36.5 -57.5 55.5 0 15  3
 say "Hologram projector" "Tier 2: three colours, drawn from Lua"
-sleep 14
+sleep 6
+cmd "time set 18000"; sleep 8; cmd "time set 6000"
 # E: network
 pan 36.5 -57.5 55.5 0 15  46.5 -59.6 58.2 0 22  3
 say "Networking" "Cables and a relay: A sends, B receives"

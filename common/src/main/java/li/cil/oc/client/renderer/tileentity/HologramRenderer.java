@@ -262,52 +262,52 @@ public class HologramRenderer implements BlockEntityRenderer<Hologram> {
 
                             // South
                             if (!isSolid(hologram, hx, hy, hz + 1)) {
-                                vertex(x + 1, y + 1, z + 1, 0, 0, r, g, b);
-                                vertex(x, y + 1, z + 1, 1, 0, r, g, b);
-                                vertex(x, y, z + 1, 1, 1, r, g, b);
-                                vertex(x + 1, y, z + 1, 0, 1, r, g, b);
+                                vertex(x + 1, y + 1, z + 1, 0, 0, r, g, b, SHADE_Z);
+                                vertex(x, y + 1, z + 1, 1, 0, r, g, b, SHADE_Z);
+                                vertex(x, y, z + 1, 1, 1, r, g, b, SHADE_Z);
+                                vertex(x + 1, y, z + 1, 0, 1, r, g, b, SHADE_Z);
                                 quads++;
                             }
                             // North
                             if (!isSolid(hologram, hx, hy, hz - 1)) {
-                                vertex(x + 1, y, z, 0, 0, r, g, b);
-                                vertex(x, y, z, 1, 0, r, g, b);
-                                vertex(x, y + 1, z, 1, 1, r, g, b);
-                                vertex(x + 1, y + 1, z, 0, 1, r, g, b);
+                                vertex(x + 1, y, z, 0, 0, r, g, b, SHADE_Z);
+                                vertex(x, y, z, 1, 0, r, g, b, SHADE_Z);
+                                vertex(x, y + 1, z, 1, 1, r, g, b, SHADE_Z);
+                                vertex(x + 1, y + 1, z, 0, 1, r, g, b, SHADE_Z);
                                 quads++;
                             }
 
                             // East
                             if (!isSolid(hologram, hx + 1, hy, hz)) {
-                                vertex(x + 1, y + 1, z + 1, 1, 0, r, g, b);
-                                vertex(x + 1, y, z + 1, 1, 1, r, g, b);
-                                vertex(x + 1, y, z, 0, 1, r, g, b);
-                                vertex(x + 1, y + 1, z, 0, 0, r, g, b);
+                                vertex(x + 1, y + 1, z + 1, 1, 0, r, g, b, SHADE_X);
+                                vertex(x + 1, y, z + 1, 1, 1, r, g, b, SHADE_X);
+                                vertex(x + 1, y, z, 0, 1, r, g, b, SHADE_X);
+                                vertex(x + 1, y + 1, z, 0, 0, r, g, b, SHADE_X);
                                 quads++;
                             }
                             // West
                             if (!isSolid(hologram, hx - 1, hy, hz)) {
-                                vertex(x, y, z + 1, 1, 0, r, g, b);
-                                vertex(x, y + 1, z + 1, 1, 1, r, g, b);
-                                vertex(x, y + 1, z, 0, 1, r, g, b);
-                                vertex(x, y, z, 0, 0, r, g, b);
+                                vertex(x, y, z + 1, 1, 0, r, g, b, SHADE_X);
+                                vertex(x, y + 1, z + 1, 1, 1, r, g, b, SHADE_X);
+                                vertex(x, y + 1, z, 0, 1, r, g, b, SHADE_X);
+                                vertex(x, y, z, 0, 0, r, g, b, SHADE_X);
                                 quads++;
                             }
 
                             // Up
                             if (!isSolid(hologram, hx, hy + 1, hz)) {
-                                vertex(x + 1, y + 1, z, 0, 0, r, g, b);
-                                vertex(x, y + 1, z, 1, 0, r, g, b);
-                                vertex(x, y + 1, z + 1, 1, 1, r, g, b);
-                                vertex(x + 1, y + 1, z + 1, 0, 1, r, g, b);
+                                vertex(x + 1, y + 1, z, 0, 0, r, g, b, SHADE_UP);
+                                vertex(x, y + 1, z, 1, 0, r, g, b, SHADE_UP);
+                                vertex(x, y + 1, z + 1, 1, 1, r, g, b, SHADE_UP);
+                                vertex(x + 1, y + 1, z + 1, 0, 1, r, g, b, SHADE_UP);
                                 quads++;
                             }
                             // Down
                             if (!isSolid(hologram, hx, hy - 1, hz)) {
-                                vertex(x + 1, y, z + 1, 0, 0, r, g, b);
-                                vertex(x, y, z + 1, 1, 0, r, g, b);
-                                vertex(x, y, z, 1, 1, r, g, b);
-                                vertex(x + 1, y, z, 0, 1, r, g, b);
+                                vertex(x + 1, y, z + 1, 0, 0, r, g, b, SHADE_DOWN);
+                                vertex(x, y, z + 1, 1, 0, r, g, b, SHADE_DOWN);
+                                vertex(x, y, z, 1, 1, r, g, b, SHADE_DOWN);
+                                vertex(x + 1, y, z, 0, 1, r, g, b, SHADE_DOWN);
                                 quads++;
                             }
                         }
@@ -337,8 +337,13 @@ public class HologramRenderer implements BlockEntityRenderer<Hologram> {
         }
     }
 
-    private static void vertex(int x, int y, int z, int u, int v, int r, int g, int b) {
-        builder.vertex(x, y, z).uv(u, v).color(r, g, b, 255).endVertex();
+    // Per-face brightness, like the fixed-function standard item lighting holograms were drawn
+    // with before 1.13 (two diffuse lights from above, 0.4 ambient): without it all faces of a
+    // voxel get the same colour and the additively blended hologram looks flat and washed out.
+    private static final float SHADE_UP = 1.0f, SHADE_DOWN = 0.4f, SHADE_Z = 0.74f, SHADE_X = 0.5f;
+
+    private static void vertex(int x, int y, int z, int u, int v, int r, int g, int b, float shade) {
+        builder.vertex(x, y, z).uv(u, v).color((int) (r * shade), (int) (g * shade), (int) (b * shade), 255).endVertex();
     }
 
     private static int value(Hologram hologram, int hx, int hy, int hz) {
