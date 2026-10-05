@@ -183,6 +183,10 @@ public class HologramRenderer implements BlockEntityRenderer<Hologram> {
 
         RenderState.makeItBlend();
         RenderState.setBlendAlpha(alpha);
+        // Normal alpha blending rather than additive (setBlendAlpha's SRC_ALPHA, ONE): additive
+        // blending pushes the colours towards white over bright backgrounds (daylight, light
+        // blocks), so holograms looked washed out except in the dark.
+        RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
         final double sx = relPos.x * hologram.scale;
         final double sy = relPos.y * hologram.scale;
